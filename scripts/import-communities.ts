@@ -18,8 +18,8 @@ const CITY_DIRS = [
   '青岛', '宁波', '厦门', '福州'
 ]
 
-// 数据源目录（相对于项目根目录的上级）
-const DATA_SOURCE_DIR = path.join(__dirname, '../../')
+// 数据源目录
+const DATA_SOURCE_DIR = path.join(__dirname, '../data/communities')
 
 interface ParsedCommunity {
   name: string
