@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
   keywords: ['OPC', '一人公司', '创业', 'AI创业', '独立开发者', '数字游民', '创业社区', '创业政策'],
   authors: [{ name: 'OPC创业圈' }],
+  verification: {
+    other: {
+      'baidu-site-verification': 'codeva-6pFFAPRpWD',
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
