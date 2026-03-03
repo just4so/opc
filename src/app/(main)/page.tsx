@@ -1,6 +1,11 @@
+'use client'
+
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 export default function HomePage() {
+  const { data: session } = useSession()
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -23,10 +28,10 @@ export default function HomePage() {
               探索社区地图
             </Link>
             <Link
-              href="/register"
+              href={session ? "/plaza" : "/register"}
               className="inline-flex items-center justify-center rounded-lg border-2 border-secondary px-8 py-3 text-lg font-medium text-secondary hover:bg-secondary hover:text-white transition-colors"
             >
-              加入创业圈
+              {session ? '进入创业广场' : '加入创业圈'}
             </Link>
           </div>
         </div>
@@ -136,10 +141,10 @@ export default function HomePage() {
             加入OPC创业圈，连接全国优质创业社区，获取政策支持，与志同道合的创业者一起成长
           </p>
           <Link
-            href="/register"
+            href={session ? "/plaza" : "/register"}
             className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-lg font-medium text-white hover:bg-primary-600 transition-colors"
           >
-            立即加入
+            {session ? '进入创业广场' : '立即加入'}
           </Link>
         </div>
       </section>

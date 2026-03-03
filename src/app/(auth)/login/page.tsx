@@ -31,7 +31,12 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        setError(result.error)
+        // NextAuth v5 返回 "CredentialsSignin" 作为错误类型
+        if (result.error === 'CredentialsSignin') {
+          setError('邮箱或密码错误')
+        } else {
+          setError(result.error)
+        }
       } else {
         router.push(callbackUrl)
         router.refresh()
