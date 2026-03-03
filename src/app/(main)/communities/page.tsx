@@ -2,6 +2,9 @@ import { Metadata } from 'next'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import prisma from '@/lib/db'
 
+// ISR: 每小时重新生成页面
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - OPC创业圈',
   description: '浏览全国各地的OPC创业社区，了解入驻政策、申请流程和配套服务',

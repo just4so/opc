@@ -2,7 +2,8 @@ import { NewsCard } from '@/components/news/news-card'
 import prisma from '@/lib/db'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'
+// ISR: 每5分钟重新生成页面
+export const revalidate = 300
 
 const categories = [
   { value: '', label: '全部' },

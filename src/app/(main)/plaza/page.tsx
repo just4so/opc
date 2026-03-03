@@ -8,6 +8,9 @@ import { Badge } from '@/components/ui/badge'
 import prisma from '@/lib/db'
 import { TOPICS, POST_TYPES } from '@/constants/topics'
 
+// ISR: 每分钟重新生成页面
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: '创业广场 - OPC创业圈',
   description: '创业者日常交流、经验分享、问题求助、资源推荐的开放社区',

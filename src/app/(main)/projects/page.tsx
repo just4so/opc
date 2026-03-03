@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/badge'
 import prisma from '@/lib/db'
 import { PROJECT_STAGES, PROJECT_CATEGORIES } from '@/constants/topics'
 
+// ISR: 每5分钟重新生成页面
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: '项目展示 - OPC创业圈',
   description: '发现优秀的一人公司项目，获取灵感、学习经验、寻找合作',
