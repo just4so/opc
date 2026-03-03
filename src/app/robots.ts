@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/settings/', '/plaza/new', '/projects/new'],
       },
     ],
-    sitemap: 'https://opcquan.com/sitemap.xml',
+    sitemap: 'https://www.opcquan.com/sitemap.xml',
   }
 }

@@ -15,5 +15,5 @@ jobs:
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.NEWS_FETCH_API_KEY }}" \
             -H "Content-Type: application/json" \
-            https://opcquan.com/api/news/fetch
+            https://www.opcquan.com/api/news/fetch
         continue-on-error: true
