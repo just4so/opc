@@ -31,12 +31,14 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        // NextAuth v5 返回 "CredentialsSignin" 作为错误类型
-        if (result.error === 'CredentialsSignin') {
-          setError('邮箱或密码错误')
-        } else {
-          setError(result.error)
+        // NextAuth v5 错误类型映射
+        const errorMessages: Record<string, string> = {
+          'CredentialsSignin': '邮箱或密码错误',
+          'Configuration': '邮箱或密码错误',
+          'AccessDenied': '访问被拒绝',
+          'Verification': '验证失败',
         }
+        setError(errorMessages[result.error] || '登录失败，请稍后重试')
       } else {
         router.push(callbackUrl)
         router.refresh()
