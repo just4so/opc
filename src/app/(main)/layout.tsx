@@ -37,6 +37,12 @@ export default function MainLayout({
             >
               项目展示
             </Link>
+            <Link
+              href="/news"
+              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+            >
+              创业资讯
+            </Link>
           </nav>
 
           {/* 用户操作 */}
