@@ -360,3 +360,29 @@ model Favorite {
   @@unique([userId, postId])
   @@unique([userId, projectId])
 }
+
+// ==================== 资讯模块 ====================
+
+model News {
+  id          String       @id @default(cuid())
+  title       String
+  summary     String?      @db.Text
+  content     String?      @db.Text
+  url         String       @unique    // 原文链接（用于去重）
+  source      String                  // 来源（36氪、虎嗅、政府网站等）
+  category    NewsCategory
+  coverImage  String?
+  publishedAt DateTime
+  createdAt   DateTime     @default(now())
+
+  @@index([category])
+  @@index([publishedAt])
+}
+
+enum NewsCategory {
+  POLICY      // 政策动态
+  FUNDING     // 融资/补贴
+  EVENT       // 赛事活动
+  TECH        // AI/技术趋势
+  STORY       // 创业故事
+}

@@ -1,10 +1,31 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import { NewsCardCompact } from '@/components/news/news-card'
+
+interface NewsItem {
+  id: string
+  title: string
+  summary: string | null
+  url: string
+  source: string
+  category: string
+  coverImage: string | null
+  publishedAt: string
+}
 
 export default function HomePage() {
   const { data: session } = useSession()
+  const [news, setNews] = useState<NewsItem[]>([])
+
+  useEffect(() => {
+    fetch('/api/news?limit=6')
+      .then(res => res.json())
+      .then(data => setNews(data.data || []))
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="flex flex-col">
@@ -130,6 +151,30 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 创业资讯 */}
+      {news.length > 0 && (
+        <section className="py-16 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-secondary">
+                创业资讯
+              </h2>
+              <Link
+                href="/news"
+                className="text-primary hover:underline text-sm font-medium"
+              >
+                查看更多 →
+              </Link>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm divide-y">
+              {news.map((item) => (
+                <NewsCardCompact key={item.id} news={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 bg-secondary">
