@@ -1,6 +1,12 @@
+import { Metadata } from 'next'
 import { NewsCard } from '@/components/news/news-card'
 import prisma from '@/lib/db'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: '创业资讯',
+  description: 'OPC创业者关注的政策动态、融资信息、赛事活动和AI科技趋势，助力一人公司创业成功',
+}
 
 // ISR: 每5分钟重新生成页面
 export const revalidate = 300

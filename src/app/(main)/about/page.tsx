@@ -1,4 +1,10 @@
+import { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: '关于我们',
+  description: 'OPC创业圈是专注于一人公司创业者的社区平台，汇集全国OPC社区资源，为AI创业者提供政策信息、入驻指南、创业交流服务',
+}
 
 export default function AboutPage() {
   return (

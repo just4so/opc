@@ -1,3 +1,10 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '联系方式',
+  description: '联系OPC创业圈团队，商务合作、社区入驻申请、内容投稿，邮箱：luweiliangai@gmail.com',
+}
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
