@@ -10,6 +10,7 @@ export const prisma =
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+// 在所有环境下缓存实例（Serverless 环境需要）
+globalForPrisma.prisma = prisma
 
 export default prisma
