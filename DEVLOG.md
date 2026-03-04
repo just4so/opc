@@ -2,6 +2,54 @@
 
 ## 2026-03-04
 
+### UI 与文案优化
+
+根据网站定位（AI创业者社区平台）进行全站 UI 优化：
+
+**配色方案**
+- 主色：温暖橙 (#F97316) - 低饱和高质感
+- 辅助色1：深蓝灰 (#334155) - 专业沉稳
+- 辅助色2：薄荷绿 (#10B981) - 清新点缀
+
+**视觉升级**
+- 玻璃态导航栏（半透明 + 模糊）
+- 柔和阴影（shadow-soft）
+- 卡片悬浮效果（轻微上移）
+- 渐变背景和渐变文字
+
+**首页文案优化**
+- Hero：「让 AI 创业者不再孤独前行」
+- 特性卡片：更具描述性的副标题
+- CTA：「开启你的创业之旅」
+
+**修改文件**
+- `tailwind.config.ts` - 新配色、阴影、圆角
+- `src/app/globals.css` - 玻璃态、渐变、卡片动效
+- `src/app/(main)/layout.tsx` - 玻璃态导航栏
+- `src/app/(main)/page.tsx` - 首页重新设计
+- `src/components/ui/card.tsx` - 圆角和阴影更新
+- `src/components/ui/button.tsx` - 圆角更新
+
+---
+
+### 搜索页 Suspense 边界修复
+
+修复 Netlify 构建错误：`useSearchParams() should be wrapped in a suspense boundary`
+
+**问题原因**
+- Next.js 14 静态生成时，`useSearchParams()` 需要 Suspense 边界
+- 否则会导致构建失败
+
+**解决方案**
+- 将使用 `useSearchParams()` 的逻辑提取到 `SearchContent` 组件
+- 使用 `<Suspense fallback={<SearchFallback />}>` 包裹
+- 添加加载状态 UI
+
+**修改文件**
+- `src/app/(main)/search/page.tsx` - 添加 Suspense 边界
+
+---
+
 ### 模型广场
 
 新增模型广场板块，展示国内外 AI 模型中转服务：

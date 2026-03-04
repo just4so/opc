@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search, FileText, Briefcase, MapPin, User } from 'lucide-react'
+import { Search, FileText, Briefcase, MapPin, User, Loader2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,7 +33,7 @@ const TABS: { id: SearchType; label: string; icon: React.ReactNode }[] = [
   { id: 'user', label: '用户', icon: <User className="h-4 w-4" /> },
 ]
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const initialQuery = searchParams.get('q') || ''
@@ -310,5 +310,42 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+function SearchFallback() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold text-secondary mb-6">搜索</h1>
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="搜索动态、订单、社区、用户..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg"
+                disabled
+              />
+            </div>
+            <Button disabled>搜索</Button>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchFallback />}>
+      <SearchContent />
+    </Suspense>
   )
 }
