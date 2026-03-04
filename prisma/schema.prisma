@@ -56,6 +56,10 @@ model User {
   // OAuth账户
   accounts      Account[]
 
+  // 私信关系
+  conversations ConversationParticipant[]
+  sentMessages  Message[]
+
   @@index([username])
   @@index([location])
 }
@@ -260,6 +264,18 @@ model Project {
   likeCount     Int       @default(0)
   commentCount  Int       @default(0)
 
+  // 内容类型（区分项目/订单）
+  contentType   ContentType @default(PROJECT)
+
+  // 接单市场相关字段
+  budgetType    BudgetType?
+  budgetMin     Int?
+  budgetMax     Int?
+  deadline      DateTime?
+  skills        String[]
+  contactType   String?
+  contactInfo   String?
+
   // 时间戳
   launchedAt    DateTime?
   createdAt     DateTime  @default(now())
@@ -276,6 +292,7 @@ model Project {
   @@index([stage])
   @@index([slug])
   @@index([status, featured])
+  @@index([contentType, status])
 }
 
 enum ProjectStage {
@@ -291,6 +308,20 @@ enum ProjectStatus {
   PUBLISHED
   HIDDEN
   ARCHIVED
+}
+
+// 内容类型（区分项目/订单）
+enum ContentType {
+  PROJECT     // 原项目展示
+  DEMAND      // 需求订单
+  COOPERATION // 合作需求
+}
+
+// 预算类型
+enum BudgetType {
+  NEGOTIABLE  // 面议
+  FIXED       // 固定价格
+  RANGE       // 价格区间
 }
 
 // ==================== 互动模块 ====================
@@ -386,4 +417,44 @@ enum NewsCategory {
   EVENT       // 赛事活动
   TECH        // AI/技术趋势
   STORY       // 创业故事
+}
+
+// ==================== 私信模块 ====================
+
+model Conversation {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  messages      Message[]
+  participants  ConversationParticipant[]
+
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unreadCount     Int          @default(0)
+  lastReadAt      DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId        String
+  sender          User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content         String       @db.Text
+  createdAt       DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([createdAt])
 }

@@ -19,24 +19,34 @@ export const POST_TYPES = [
   { id: 'DISCUSSION', name: '观点讨论', description: '行业观点、趋势探讨' },
 ] as const
 
-export const PROJECT_STAGES = [
-  { id: 'IDEA', name: '想法阶段', color: '#6C757D' },
-  { id: 'BUILDING', name: '开发中', color: '#FFC107' },
-  { id: 'LAUNCHED', name: '已上线', color: '#007BFF' },
-  { id: 'REVENUE', name: '有收入', color: '#28A745' },
-  { id: 'PROFITABLE', name: '已盈利', color: '#FF6B35' },
+// ==================== 合作广场 ====================
+
+// 内容类型
+export const CONTENT_TYPES = [
+  { id: 'DEMAND', name: '需求订单', description: '发布开发、设计等需求', color: '#007BFF' },
+  { id: 'COOPERATION', name: '合作需求', description: '寻找合伙人或外包合作', color: '#28A745' },
 ] as const
 
-export const PROJECT_CATEGORIES = [
-  'SaaS',
-  '工具',
+// 接单市场分类
+export const MARKET_CATEGORIES = [
+  '网站开发',
+  'App开发',
+  '小程序开发',
   'AI应用',
-  '内容平台',
-  '电商',
-  '教育',
-  '效率',
-  '设计',
-  '开发者工具',
-  '社区',
+  'UI设计',
+  '品牌设计',
+  '产品设计',
+  '运营推广',
+  'SEO优化',
+  '内容创作',
+  '技术咨询',
+  '商业咨询',
   '其他',
+] as const
+
+// 预算类型
+export const BUDGET_TYPES = [
+  { id: 'NEGOTIABLE', name: '面议' },
+  { id: 'FIXED', name: '固定价格' },
+  { id: 'RANGE', name: '价格区间' },
 ] as const

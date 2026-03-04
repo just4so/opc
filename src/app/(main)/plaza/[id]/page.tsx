@@ -95,9 +95,11 @@ export default async function PostDetailPage({ params }: PageProps) {
                 {/* 作者信息 */}
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold text-lg">
-                      {post.author.name?.[0] || post.author.username[0]}
-                    </div>
+                    <Link href={`/profile/${post.author.username}`}>
+                      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold text-lg hover:ring-2 hover:ring-primary/20 transition-all">
+                        {post.author.name?.[0] || post.author.username[0]}
+                      </div>
+                    </Link>
                     <div>
                       <div className="flex items-center space-x-2">
                         <Link
@@ -186,9 +188,11 @@ export default async function PostDetailPage({ params }: PageProps) {
               <CardContent className="pt-6">
                 <h3 className="font-semibold mb-4">关于作者</h3>
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xl">
-                    {post.author.name?.[0] || post.author.username[0]}
-                  </div>
+                  <Link href={`/profile/${post.author.username}`}>
+                    <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xl hover:ring-2 hover:ring-primary/20 transition-all">
+                      {post.author.name?.[0] || post.author.username[0]}
+                    </div>
+                  </Link>
                   <div>
                     <Link
                       href={`/profile/${post.author.username}`}

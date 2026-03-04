@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 import { UserNav } from '@/components/layout/user-nav'
 
 export default function MainLayout({
@@ -7,46 +8,61 @@ export default function MainLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* 顶部导航 */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* 顶部导航 - 玻璃态效果 */}
+      <header className="sticky top-0 z-50 w-full border-b border-gray-100 glass-strong">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-primary">OPC</span>
+          <Link href="/" className="flex items-center space-x-2 group">
+            <span className="text-2xl font-bold text-primary group-hover:text-primary-600 transition-colors">OPC</span>
             <span className="text-xl font-semibold text-secondary">创业圈</span>
           </Link>
 
           {/* 导航链接 */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-1">
             <Link
               href="/communities"
-              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
             >
               社区地图
             </Link>
             <Link
               href="/plaza"
-              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
             >
               创业广场
             </Link>
             <Link
-              href="/projects"
-              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+              href="/market"
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
             >
-              项目展示
+              合作广场
             </Link>
             <Link
               href="/news"
-              className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
             >
               创业资讯
+            </Link>
+            <Link
+              href="/models"
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
+            >
+              模型广场
             </Link>
           </nav>
 
           {/* 用户操作 */}
-          <UserNav />
+          <div className="flex items-center space-x-2">
+            <Link
+              href="/search"
+              className="p-2.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all"
+              title="搜索"
+            >
+              <Search className="h-5 w-5" />
+            </Link>
+            <UserNav />
+          </div>
         </div>
       </header>
 
@@ -56,22 +72,26 @@ export default function MainLayout({
       </main>
 
       {/* 底部 */}
-      <footer className="border-t bg-white py-8">
+      <footer className="border-t border-gray-100 bg-white py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-500">
-              © 2026 OPC创业圈. All rights reserved.
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-bold text-primary">OPC</span>
+              <span className="text-lg font-semibold text-secondary">创业圈</span>
             </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link href="/about" className="text-sm text-gray-500 hover:text-primary">
+            <div className="flex items-center space-x-8">
+              <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
                 关于我们
               </Link>
-              <Link href="/contact" className="text-sm text-gray-500 hover:text-primary">
+              <Link href="/contact" className="text-sm text-gray-500 hover:text-primary transition-colors">
                 联系方式
               </Link>
-              <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary">
+              <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary transition-colors">
                 隐私政策
               </Link>
+            </div>
+            <div className="text-sm text-gray-400">
+              © 2026 OPC创业圈
             </div>
           </div>
         </div>

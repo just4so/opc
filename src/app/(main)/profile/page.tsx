@@ -38,7 +38,6 @@ interface UserProfile {
   createdAt: string
   _count: {
     posts: number
-    projects: number
   }
 }
 
@@ -175,19 +174,11 @@ export default function ProfilePage() {
             {/* 统计数据 */}
             <Card>
               <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-primary">
-                      {user._count.posts}
-                    </div>
-                    <div className="text-sm text-gray-500">动态</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {user._count.posts}
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-primary">
-                      {user._count.projects}
-                    </div>
-                    <div className="text-sm text-gray-500">项目</div>
-                  </div>
+                  <div className="text-sm text-gray-500">动态</div>
                 </div>
               </CardContent>
             </Card>
@@ -279,10 +270,10 @@ export default function ProfilePage() {
                       发布动态
                     </Button>
                   </Link>
-                  <Link href="/projects/new">
+                  <Link href="/market/new">
                     <Button variant="outline" className="w-full">
                       <Briefcase className="h-4 w-4 mr-2" />
-                      发布项目
+                      发布需求
                     </Button>
                   </Link>
                 </div>

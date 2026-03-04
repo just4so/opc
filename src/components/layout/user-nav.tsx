@@ -1,14 +1,36 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { User, LogOut, Settings, ChevronDown } from 'lucide-react'
+import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function UserNav() {
   const { data: session, status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchUnreadCount()
+      // Poll every 30 seconds
+      const interval = setInterval(fetchUnreadCount, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [session])
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await fetch('/api/conversations/unread')
+      if (res.ok) {
+        const data = await res.json()
+        setUnreadCount(data.unreadCount || 0)
+      }
+    } catch (error) {
+      console.error('获取未读数失败:', error)
+    }
+  }
 
   if (status === 'loading') {
     return (
@@ -43,8 +65,15 @@ export function UserNav() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
       >
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-          {session.user.name?.[0] || session.user.email?.[0] || 'U'}
+        <div className="relative">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+            {session.user.name?.[0] || session.user.email?.[0] || 'U'}
+          </div>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+              {unreadCount > 9 ? '!' : unreadCount}
+            </span>
+          )}
         </div>
         <span className="hidden md:block max-w-[100px] truncate">
           {session.user.name || session.user.email}
@@ -76,6 +105,19 @@ export function UserNav() {
               个人中心
             </Link>
             <Link
+              href="/messages"
+              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setIsOpen(false)}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              私信
+              {unreadCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+            <Link
               href="/settings"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setIsOpen(false)}
@@ -83,6 +125,16 @@ export function UserNav() {
               <Settings className="h-4 w-4 mr-2" />
               设置
             </Link>
+            {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR') && (
+              <Link
+                href="/admin"
+                className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                onClick={() => setIsOpen(false)}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                管理后台
+              </Link>
+            )}
             <button
               onClick={() => {
                 setIsOpen(false)

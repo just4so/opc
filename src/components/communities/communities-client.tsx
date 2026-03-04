@@ -32,12 +32,14 @@ interface CommunitiesClientProps {
     total: number
     totalPages: number
   }
+  cityCounts: { city: string; count: number }[]
 }
 
 export function CommunitiesClient({
   communities,
   selectedCity,
   pagination,
+  cityCounts,
 }: CommunitiesClientProps) {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
 
@@ -79,7 +81,7 @@ export function CommunitiesClient({
         <aside className="lg:col-span-1">
           <div className="sticky top-24 bg-white rounded-lg p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-secondary mb-4">筛选城市</h2>
-            <CitySelector selectedCity={selectedCity} />
+            <CitySelector selectedCity={selectedCity} cityCounts={cityCounts} />
           </div>
         </aside>
 

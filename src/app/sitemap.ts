@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/projects`,
+      url: `${baseUrl}/market`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
@@ -34,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/news`,
       lastModified: new Date(),
       changeFrequency: 'hourly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/models`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
@@ -69,15 +75,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  // 动态页面：项目详情
-  const projects = await prisma.project.findMany({
-    where: { status: 'PUBLISHED' },
+  // 动态页面：合作广场订单
+  const orders = await prisma.project.findMany({
+    where: {
+      status: 'PUBLISHED',
+      contentType: { in: ['DEMAND', 'COOPERATION'] },
+    },
     select: { slug: true, updatedAt: true },
   })
 
-  const projectPages: MetadataRoute.Sitemap = projects.map((project) => ({
-    url: `${baseUrl}/projects/${project.slug}`,
-    lastModified: project.updatedAt,
+  const orderPages: MetadataRoute.Sitemap = orders.map((order) => ({
+    url: `${baseUrl}/market/${order.slug}`,
+    lastModified: order.updatedAt,
     changeFrequency: 'weekly',
     priority: 0.7,
   }))
@@ -97,5 +106,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...communityPages, ...projectPages, ...postPages]
+  return [...staticPages, ...communityPages, ...orderPages, ...postPages]
 }

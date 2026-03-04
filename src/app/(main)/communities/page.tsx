@@ -14,6 +14,20 @@ interface PageProps {
   searchParams: { city?: string; page?: string }
 }
 
+async function getCityCounts() {
+  const result = await prisma.community.groupBy({
+    by: ['city'],
+    where: { status: 'ACTIVE' },
+    _count: { city: true },
+    orderBy: { _count: { city: 'desc' } },
+  })
+
+  return result.map((c) => ({
+    city: c.city,
+    count: c._count.city,
+  }))
+}
+
 async function getCommunities(city?: string, page: number = 1) {
   const limit = 12
   const where: any = {
@@ -51,7 +65,10 @@ async function getCommunities(city?: string, page: number = 1) {
 export default async function CommunitiesPage({ searchParams }: PageProps) {
   const city = searchParams.city
   const page = parseInt(searchParams.page || '1')
-  const { communities, pagination } = await getCommunities(city, page)
+  const [{ communities, pagination }, cityCounts] = await Promise.all([
+    getCommunities(city, page),
+    getCityCounts(),
+  ])
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,6 +91,7 @@ export default async function CommunitiesPage({ searchParams }: PageProps) {
         }))}
         selectedCity={city}
         pagination={pagination}
+        cityCounts={cityCounts}
       />
     </div>
   )

@@ -6,12 +6,11 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
 interface CommentFormProps {
-  postId?: string
-  projectSlug?: string
+  postId: string
   onCommentAdded?: (comment: any) => void
 }
 
-export function CommentForm({ postId, projectSlug, onCommentAdded }: CommentFormProps) {
+export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [content, setContent] = useState('')
@@ -35,11 +34,7 @@ export function CommentForm({ postId, projectSlug, onCommentAdded }: CommentForm
     setError('')
 
     try {
-      const url = postId
-        ? `/api/posts/${postId}/comments`
-        : `/api/projects/${projectSlug}/comments`
-
-      const res = await fetch(url, {
+      const res = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: content.trim() }),

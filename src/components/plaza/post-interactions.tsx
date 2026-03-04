@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Heart, MessageCircle, Share2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -122,14 +123,19 @@ export function PostInteractions({
             <div className="space-y-4">
               {comments.map((comment) => (
                 <div key={comment.id} className="flex space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0">
-                    {comment.author.name?.[0] || comment.author.username[0]}
-                  </div>
+                  <Link href={`/profile/${comment.author.username}`}>
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all">
+                      {comment.author.name?.[0] || comment.author.username[0]}
+                    </div>
+                  </Link>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium text-sm">
+                      <Link
+                        href={`/profile/${comment.author.username}`}
+                        className="font-medium text-sm hover:text-primary transition-colors"
+                      >
                         {comment.author.name || comment.author.username}
-                      </span>
+                      </Link>
                       <span className="text-xs text-gray-400">
                         {formatDistanceToNow(new Date(comment.createdAt), {
                           locale: zhCN,

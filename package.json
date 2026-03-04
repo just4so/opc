@@ -9,9 +9,9 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts",
-    "import:communities": "tsx scripts/import-communities.ts",
-    "update:coordinates": "tsx scripts/update-coordinates.ts",
+    "db:cleanup": "tsx scripts/cleanup-communities.ts",
+    "db:seed": "tsx scripts/seed-communities.ts",
+    "db:verify": "tsx scripts/analyze-data.ts",
     "fetch:news": "tsx scripts/fetch-news.ts"
   },
   "dependencies": {
@@ -41,6 +41,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "xlsx": "^0.18.5"
   }
 }

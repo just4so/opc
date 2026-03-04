@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/settings/', '/plaza/new', '/projects/new'],
+        disallow: ['/api/', '/settings/', '/plaza/new', '/market/new'],
       },
     ],
     sitemap: 'https://www.opcquan.com/sitemap.xml',

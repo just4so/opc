@@ -37,9 +37,11 @@ export function PostCard({ post }: PostCardProps) {
         {/* 作者信息 */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold">
-              {post.author.name?.[0] || post.author.username[0]}
-            </div>
+            <Link href={`/profile/${post.author.username}`}>
+              <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold hover:ring-2 hover:ring-primary/20 transition-all">
+                {post.author.name?.[0] || post.author.username[0]}
+              </div>
+            </Link>
             <div>
               <div className="flex items-center space-x-2">
                 <Link

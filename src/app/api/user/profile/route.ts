@@ -37,7 +37,6 @@ export async function GET() {
         _count: {
           select: {
             posts: true,
-            projects: true,
           },
         },
       },

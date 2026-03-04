@@ -45,7 +45,7 @@ export default function AboutPage() {
               </li>
               <li className="flex items-start">
                 <span className="text-primary mr-3">•</span>
-                <span><strong>项目展示</strong>：展示你的创业项目，获取反馈，寻找早期用户</span>
+                <span><strong>合作广场</strong>：发布需求、寻找合作，连接商家与OPC创业者</span>
               </li>
               <li className="flex items-start">
                 <span className="text-primary mr-3">•</span>

@@ -2,13 +2,14 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { CITIES, HOT_CITIES } from '@/constants/cities'
+import { HOT_CITIES } from '@/constants/cities'
 
 interface CitySelectorProps {
   selectedCity?: string
+  cityCounts: { city: string; count: number }[]
 }
 
-export function CitySelector({ selectedCity }: CitySelectorProps) {
+export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -21,6 +22,20 @@ export function CitySelector({ selectedCity }: CitySelectorProps) {
     }
     router.push(`/communities?${params.toString()}`)
   }
+
+  // 从 cityCounts 获取城市数量
+  const getCount = (cityName: string) => {
+    const found = cityCounts.find((c) => c.city === cityName)
+    return found?.count || 0
+  }
+
+  // 热门城市（按 HOT_CITIES 排序，仅显示有数据的）
+  const hotCities = HOT_CITIES.filter((city) => getCount(city) > 0)
+
+  // 其他城市（按数量降序排列）
+  const otherCities = cityCounts
+    .filter((c) => !HOT_CITIES.includes(c.city))
+    .sort((a, b) => b.count - a.count)
 
   return (
     <div className="space-y-4">
@@ -38,12 +53,11 @@ export function CitySelector({ selectedCity }: CitySelectorProps) {
       </button>
 
       {/* 热门城市 */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-500 mb-2">热门城市</h3>
-        <div className="flex flex-wrap gap-2">
-          {HOT_CITIES.map((city) => {
-            const cityData = CITIES.find(c => c.name === city)
-            return (
+      {hotCities.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-gray-500 mb-2">热门城市</h3>
+          <div className="flex flex-wrap gap-2">
+            {hotCities.map((city) => (
               <button
                 key={city}
                 onClick={() => handleCityChange(city)}
@@ -55,36 +69,36 @@ export function CitySelector({ selectedCity }: CitySelectorProps) {
                 )}
               >
                 {city}
-                {cityData && (
-                  <span className="ml-1 text-xs opacity-70">({cityData.count})</span>
-                )}
+                <span className="ml-1 text-xs opacity-70">({getCount(city)})</span>
               </button>
-            )
-          })}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 其他城市 */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-500 mb-2">其他城市</h3>
-        <div className="flex flex-wrap gap-2">
-          {CITIES.filter(c => !HOT_CITIES.includes(c.name)).map((city) => (
-            <button
-              key={city.name}
-              onClick={() => handleCityChange(city.name)}
-              className={cn(
-                'px-3 py-1.5 rounded-full text-sm transition-colors',
-                selectedCity === city.name
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              )}
-            >
-              {city.name}
-              <span className="ml-1 text-xs opacity-70">({city.count})</span>
-            </button>
-          ))}
+      {otherCities.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-gray-500 mb-2">其他城市</h3>
+          <div className="flex flex-wrap gap-2">
+            {otherCities.map((city) => (
+              <button
+                key={city.city}
+                onClick={() => handleCityChange(city.city)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-sm transition-colors',
+                  selectedCity === city.city
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                )}
+              >
+                {city.city}
+                <span className="ml-1 text-xs opacity-70">({city.count})</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
