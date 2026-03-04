@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { ArrowLeft, Heart, MessageCircle, Share2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { PostInteractions } from '@/components/plaza/post-interactions'
 import prisma from '@/lib/db'
 import { TOPICS, POST_TYPES } from '@/constants/topics'
 
@@ -165,62 +166,16 @@ export default async function PostDetailPage({ params }: PageProps) {
                   </div>
                 )}
 
-                {/* 互动栏 */}
-                <div className="flex items-center space-x-6 pt-4 border-t text-gray-500">
-                  <button className="flex items-center space-x-2 hover:text-red-500 transition-colors">
-                    <Heart className="h-5 w-5" />
-                    <span>{post.likeCount} 赞</span>
-                  </button>
-                  <button className="flex items-center space-x-2 hover:text-primary transition-colors">
-                    <MessageCircle className="h-5 w-5" />
-                    <span>{post.commentCount} 评论</span>
-                  </button>
-                  <button className="flex items-center space-x-2 hover:text-green-500 transition-colors">
-                    <Share2 className="h-5 w-5" />
-                    <span>分享</span>
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 评论区 */}
-            <Card className="mt-6">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-4">
-                  评论 ({post.comments.length})
-                </h3>
-
-                {post.comments.length > 0 ? (
-                  <div className="space-y-4">
-                    {post.comments.map((comment) => (
-                      <div key={comment.id} className="flex space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0">
-                          {comment.author.name?.[0] || comment.author.username[0]}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium text-sm">
-                              {comment.author.name || comment.author.username}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {formatDistanceToNow(new Date(comment.createdAt), {
-                                locale: zhCN,
-                                addSuffix: true,
-                              })}
-                            </span>
-                          </div>
-                          <p className="text-gray-700 text-sm mt-1">
-                            {comment.content}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">
-                    暂无评论，来说两句吧
-                  </p>
-                )}
+                {/* 互动栏和评论区 */}
+                <PostInteractions
+                  postId={post.id}
+                  initialLikeCount={post.likeCount}
+                  initialCommentCount={post.commentCount}
+                  initialComments={post.comments.map((c) => ({
+                    ...c,
+                    createdAt: c.createdAt.toISOString(),
+                  }))}
+                />
               </CardContent>
             </Card>
           </div>

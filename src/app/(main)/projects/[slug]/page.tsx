@@ -7,8 +7,6 @@ import {
   ArrowLeft,
   ExternalLink,
   Github,
-  Heart,
-  MessageCircle,
   Calendar,
   Users,
   DollarSign,
@@ -16,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ProjectInteractions } from '@/components/projects/project-interactions'
 import prisma from '@/lib/db'
 import { PROJECT_STAGES } from '@/constants/topics'
 
@@ -160,18 +159,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-
-            {/* 互动数据 */}
-            <div className="flex md:flex-col gap-4 text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Heart className="h-5 w-5" />
-                <span>{project.likeCount}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <MessageCircle className="h-5 w-5" />
-                <span>{project.commentCount}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -213,45 +200,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </Card>
             )}
 
-            {/* 评论区 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>评论 ({project.comments.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {project.comments.length > 0 ? (
-                  <div className="space-y-4">
-                    {project.comments.map((comment) => (
-                      <div key={comment.id} className="flex space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0">
-                          {comment.author.name?.[0] || comment.author.username[0]}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium text-sm">
-                              {comment.author.name || comment.author.username}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {formatDistanceToNow(new Date(comment.createdAt), {
-                                locale: zhCN,
-                                addSuffix: true,
-                              })}
-                            </span>
-                          </div>
-                          <p className="text-gray-700 text-sm mt-1">
-                            {comment.content}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-8">
-                    暂无评论，来说两句吧
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+            {/* 评论区和互动 */}
+            <ProjectInteractions
+              projectSlug={project.slug}
+              initialLikeCount={project.likeCount}
+              initialCommentCount={project.commentCount}
+              initialComments={project.comments.map((c) => ({
+                ...c,
+                createdAt: c.createdAt.toISOString(),
+              }))}
+            />
           </div>
 
           {/* 侧边栏 */}
