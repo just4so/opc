@@ -1,15 +1,9 @@
-import { Metadata } from 'next'
-import { NewsCard } from '@/components/news/news-card'
-import prisma from '@/lib/db'
+'use client'
+
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-
-export const metadata: Metadata = {
-  title: '创业资讯',
-  description: 'OPC创业者关注的政策动态、融资信息、赛事活动和AI科技趋势，助力一人公司创业成功',
-}
-
-// ISR: 每5分钟重新生成页面
-export const revalidate = 300
+import { NewsCard } from '@/components/news/news-card'
 
 const categories = [
   { value: '', label: '全部' },
@@ -20,29 +14,49 @@ const categories = [
   { value: 'STORY', label: '故事' },
 ]
 
-export default async function NewsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; page?: string }>
-}) {
-  const params = await searchParams
-  const category = params.category || ''
-  const page = parseInt(params.page || '1')
-  const limit = 20
+interface NewsItem {
+  id: string
+  title: string
+  summary: string | null
+  url: string
+  source: string
+  category: string
+  coverImage: string | null
+  publishedAt: string
+}
 
-  const where = category ? { category: category as any } : {}
+interface Pagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
 
-  const [news, total] = await Promise.all([
-    prisma.news.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { publishedAt: 'desc' },
-    }),
-    prisma.news.count({ where }),
-  ])
+function NewsContent() {
+  const searchParams = useSearchParams()
+  const category = searchParams.get('category') || ''
+  const page = parseInt(searchParams.get('page') || '1')
 
-  const totalPages = Math.ceil(total / limit)
+  const [news, setNews] = useState<NewsItem[]>([])
+  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    const params = new URLSearchParams()
+    if (category) params.set('category', category)
+    params.set('page', String(page))
+    params.set('limit', '20')
+
+    fetch(`/api/news?${params}`)
+      .then(res => res.json())
+      .then(data => {
+        setNews(data.data || [])
+        setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [category, page])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -71,7 +85,17 @@ export default async function NewsPage({
       </div>
 
       {/* 资讯列表 */}
-      {news.length > 0 ? (
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse mb-3" />
+              <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ) : news.length > 0 ? (
         <div className="space-y-4">
           {news.map((item) => (
             <NewsCard key={item.id} news={item} />
@@ -85,7 +109,7 @@ export default async function NewsPage({
       )}
 
       {/* 分页 */}
-      {totalPages > 1 && (
+      {!loading && pagination.totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-8">
           {page > 1 && (
             <Link
@@ -96,9 +120,9 @@ export default async function NewsPage({
             </Link>
           )}
           <span className="px-4 py-2 text-gray-600">
-            {page} / {totalPages}
+            {page} / {pagination.totalPages}
           </span>
-          {page < totalPages && (
+          {page < pagination.totalPages && (
             <Link
               href={`/news?${category ? `category=${category}&` : ''}page=${page + 1}`}
               className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
@@ -109,5 +133,13 @@ export default async function NewsPage({
         </div>
       )}
     </div>
+  )
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewsContent />
+    </Suspense>
   )
 }

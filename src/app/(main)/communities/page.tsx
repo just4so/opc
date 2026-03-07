@@ -1,74 +1,67 @@
-import { Metadata } from 'next'
+'use client'
+
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
-import prisma from '@/lib/db'
 
-// ISR: 每小时重新生成页面
-export const revalidate = 3600
-
-export const metadata: Metadata = {
-  title: '全国OPC社区地图 - OPC创业圈',
-  description: '浏览全国各地的OPC创业社区，了解入驻政策、申请流程和配套服务',
+interface Community {
+  id: string
+  slug: string
+  name: string
+  city: string
+  district?: string | null
+  address: string
+  latitude?: number | null
+  longitude?: number | null
+  description: string
+  type: string
+  focus: string[]
+  operator?: string | null
+  spaceSize?: string | null
+  workstations?: number | null
+  policies?: any
+  status: string
+  featured: boolean
+  coverImage?: string | null
+  createdAt: string
 }
 
-interface PageProps {
-  searchParams: { city?: string; page?: string }
+interface Pagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
 }
 
-async function getCityCounts() {
-  const result = await prisma.community.groupBy({
-    by: ['city'],
-    where: { status: 'ACTIVE' },
-    _count: { city: true },
-    orderBy: { _count: { city: 'desc' } },
-  })
+function CommunitiesContent() {
+  const searchParams = useSearchParams()
+  const city = searchParams.get('city') || ''
+  const page = parseInt(searchParams.get('page') || '1')
 
-  return result.map((c) => ({
-    city: c.city,
-    count: c._count.city,
-  }))
-}
+  const [communities, setCommunities] = useState<Community[]>([])
+  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 12, total: 0, totalPages: 0 })
+  const [cityCounts, setCityCounts] = useState<{ city: string; count: number }[]>([])
+  const [loading, setLoading] = useState(true)
 
-async function getCommunities(city?: string, page: number = 1) {
-  const limit = 12
-  const where: any = {
-    status: 'ACTIVE',
-  }
+  useEffect(() => {
+    setLoading(true)
+    const params = new URLSearchParams()
+    if (city) params.set('city', city)
+    params.set('page', String(page))
+    params.set('limit', '12')
 
-  if (city) {
-    where.city = city
-  }
-
-  const [communities, total] = await Promise.all([
-    prisma.community.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: [
-        { featured: 'desc' },
-        { createdAt: 'desc' },
-      ],
-    }),
-    prisma.community.count({ where }),
-  ])
-
-  return {
-    communities,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  }
-}
-
-export default async function CommunitiesPage({ searchParams }: PageProps) {
-  const city = searchParams.city
-  const page = parseInt(searchParams.page || '1')
-  const [{ communities, pagination }, cityCounts] = await Promise.all([
-    getCommunities(city, page),
-    getCityCounts(),
-  ])
+    Promise.all([
+      fetch(`/api/communities?${params}`).then(res => res.json()),
+      fetch('/api/stats').then(res => res.json()),
+    ])
+      .then(([commData, statsData]) => {
+        setCommunities(commData.data || [])
+        setPagination(commData.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 })
+        setCityCounts(statsData.cityCounts || [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [city, page])
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,15 +77,46 @@ export default async function CommunitiesPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <CommunitiesClient
-        communities={communities.map((c) => ({
-          ...c,
-          policies: c.policies as any,
-        }))}
-        selectedCity={city}
-        pagination={pagination}
-        cityCounts={cityCounts}
-      />
+      {loading ? (
+        <div className="container mx-auto px-4 py-8">
+          {/* 筛选器骨架 */}
+          <div className="flex gap-4 mb-8">
+            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+          </div>
+          {/* 地图区域骨架 */}
+          <div className="h-96 bg-gray-200 rounded-xl animate-pulse mb-8" />
+          {/* 列表骨架 */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-4" />
+                <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse mb-2" />
+                <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
+                <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <CommunitiesClient
+          communities={communities.map((c) => ({
+            ...c,
+            policies: c.policies as any,
+          }))}
+          selectedCity={city || undefined}
+          pagination={pagination}
+          cityCounts={cityCounts}
+        />
+      )}
     </div>
+  )
+}
+
+export default function CommunitiesPage() {
+  return (
+    <Suspense fallback={null}>
+      <CommunitiesContent />
+    </Suspense>
   )
 }
