@@ -1,6 +1,60 @@
 # 开发日志
 
+## 2026-03-07
+
+### 创业广场冷启动数据
+
+为网站冷启动生成模拟用户数据，让新访客看到有活跃内容的社区氛围：
+
+**内容规模**
+- 10 个虚拟用户（覆盖苏州、武汉、杭州、北京、深圳、成都、沈阳、南京、上海、厦门）
+- 50 篇帖子（DAILY×15、EXPERIENCE×15、QUESTION×10、RESOURCE×5、DISCUSSION×5）
+- 100 条评论（每篇 2 条，发布时间分散在过去 21 天）
+
+**新增文件**
+- `scripts/seed-plaza.ts` - 幂等 Seed 脚本，支持重复运行
+- `package.json` - 新增 `db:seed-plaza` 命令
+
+**技术细节**
+- User 用 `upsert`，Post/Comment 用内容前缀匹配实现幂等
+- bcrypt 12 轮 hash 只生成一次，10 个用户复用
+- 帖子时间手动分配到过去 21 天，模拟自然发帖规律
+
+---
+
+### Netlify 部署性能优化：CSR 改造
+
+**问题**：部署到 Netlify 后，除首页外所有页面点击后有 3-5 秒白屏。
+
+**根本原因**（三层叠加）：
+1. **Lambda 冷启动**：Serverless Functions 空闲后重新初始化 Node.js + Prisma 二进制引擎耗时 100-2000ms
+2. **跨地域数据库连接**：Netlify 美东节点连接新加坡 Supabase，RTT + TLS 握手约 200-400ms
+3. **searchParams 使 ISR 失效**：Next.js 中访问 `searchParams` 强制动态渲染，`revalidate` 设置完全无效
+
+**解决方案**：将 4 个核心列表页改为客户端渲染（CSR），仿照首页模式：
+- 页面组件加 `'use client'`，立即渲染页面框架和骨架屏
+- 数据通过 `useEffect` + `fetch` 调用已有 API 路由异步加载
+- 新增 `layout.tsx` 保留各页面 SEO metadata
+
+**效果**：点击后立即看到页面框架，数据 ~1s 后填入（原来是 3-5s 白屏后才出现内容）
+
+**新增文件**
+- `netlify.toml` - Netlify 构建配置
+- `src/app/(main)/plaza/layout.tsx`
+- `src/app/(main)/communities/layout.tsx`
+- `src/app/(main)/news/layout.tsx`
+- `src/app/(main)/market/layout.tsx`
+
+**修改文件**
+- `src/app/(main)/plaza/page.tsx` - Server Component → CSR，对接 `/api/posts`
+- `src/app/(main)/communities/page.tsx` - 对接 `/api/communities` + `/api/stats`
+- `src/app/(main)/news/page.tsx` - 对接 `/api/news`
+- `src/app/(main)/market/page.tsx` - 对接 `/api/market`
+
+---
+
 ## 2026-03-04
+
 
 ### UI 与文案优化
 
