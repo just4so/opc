@@ -23,6 +23,7 @@ interface Order {
   deadline: string | null
   contentType: string
   status: string
+  viewCount: number
   featured: boolean
   createdAt: string
   owner: {
