@@ -168,7 +168,11 @@ function MarketContent() {
         ) : orders.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <OrderCard key={order.id} order={{
+                ...order,
+                deadline: order.deadline ? new Date(order.deadline) : null,
+                createdAt: new Date(order.createdAt),
+              }} />
             ))}
           </div>
         ) : (
