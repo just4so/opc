@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
 
     const type = searchParams.get('type')
     const topic = searchParams.get('topic')
+    const pinned = searchParams.get('pinned')
+    const sort = searchParams.get('sort') || 'latest'
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
@@ -25,15 +27,21 @@ export async function GET(request: NextRequest) {
       where.topics = { has: topic }
     }
 
+    if (pinned === 'true') {
+      where.pinned = true
+    }
+
     const [posts, total] = await Promise.all([
       prisma.post.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: [
-          { pinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy:
+          sort === 'hot'
+            ? [{ likeCount: 'desc' as const }, { createdAt: 'desc' as const }]
+            : sort === 'comments'
+              ? [{ commentCount: 'desc' as const }, { createdAt: 'desc' as const }]
+              : [{ pinned: 'desc' as const }, { createdAt: 'desc' as const }],
         include: {
           author: {
             select: {
@@ -43,15 +51,26 @@ export async function GET(request: NextRequest) {
               avatar: true,
               level: true,
               verified: true,
+              location: true,
+              mainTrack: true,
+              startupStage: true,
             },
+          },
+          _count: {
+            select: { comments: true },
           },
         },
       }),
       prisma.post.count({ where }),
     ])
 
+    const postsWithCount = posts.map(post => ({
+      ...post,
+      commentCount: post._count.comments,
+    }))
+
     return NextResponse.json({
-      data: posts,
+      data: postsWithCount,
       pagination: {
         page,
         limit,
@@ -87,6 +106,9 @@ export async function POST(request: NextRequest) {
         { error: '内容不能为空' },
         { status: 400 }
       )
+    }
+    if (content.length > 5000) {
+      return NextResponse.json({ error: '内容不能超过5000字' }, { status: 400 })
     }
 
     const post = await prisma.post.create({

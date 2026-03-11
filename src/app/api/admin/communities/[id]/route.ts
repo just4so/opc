@@ -95,12 +95,23 @@ export async function PATCH(
       'coverImage',
       'images',
       'featured',
+      'realTips',
+      'applyDifficulty',
+      'processTime',
+      'lastVerifiedAt',
     ]
 
     for (const field of fields) {
       if (data[field as keyof typeof data] !== undefined) {
         updateData[field] = data[field as keyof typeof data]
       }
+    }
+
+    // Convert lastVerifiedAt string to Date
+    if (updateData.lastVerifiedAt) {
+      updateData.lastVerifiedAt = new Date(updateData.lastVerifiedAt)
+    } else if (updateData.lastVerifiedAt === '') {
+      updateData.lastVerifiedAt = null
     }
 
     const community = await prisma.community.update({

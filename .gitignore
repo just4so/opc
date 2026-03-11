@@ -29,3 +29,24 @@ prisma/*.db
 # Logs
 *.log
 npm-debug.log*
+
+# Test artifacts
+/playwright-report/
+/test-results/
+.env.test
+/e2e/.auth/
+
+# Ralph Loop & 开发内部文件
+prd-*.json
+progress.txt
+scripts/ralph_loop.py
+
+# 内容资产（原创文章/种子数据，不公开）
+tasks/
+
+# 本地工具配置
+.claude/
+
+# TypeScript 增量编译缓存
+tsconfig.tsbuildinfo
+*.bak

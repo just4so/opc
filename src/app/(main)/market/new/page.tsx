@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { ArrowLeft, Briefcase, Handshake } from 'lucide-react'
@@ -11,11 +11,22 @@ import { Badge } from '@/components/ui/badge'
 import { CONTENT_TYPES, MARKET_CATEGORIES, BUDGET_TYPES } from '@/constants/topics'
 
 export default function NewOrderPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewOrderContent />
+    </Suspense>
+  )
+}
+
+function NewOrderContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialType = searchParams.get('type')
+  const validTypes = ['DEMAND', 'COOPERATION']
 
   const [formData, setFormData] = useState({
-    contentType: 'DEMAND',
+    contentType: validTypes.includes(initialType || '') ? initialType! : 'DEMAND',
     name: '',
     tagline: '',
     description: '',

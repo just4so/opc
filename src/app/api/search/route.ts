@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    if (q.length > 100) {
+      return NextResponse.json({ error: '搜索词过长' }, { status: 400 })
+    }
+
     const skip = (page - 1) * LIMIT
 
     // 并行搜索所有类型

@@ -47,6 +47,8 @@ export async function GET(request: NextRequest) {
           role: true,
           level: true,
           verified: true,
+          mainTrack: true,
+          startupStage: true,
           createdAt: true,
           _count: {
             select: { posts: true },

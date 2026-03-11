@@ -26,6 +26,8 @@ model User {
   location      String?
   website       String?
   wechat        String?
+  mainTrack     String?   // 主赛道
+  startupStage  String?   // 当前阶段
 
   // 用户类型和认证
   role          UserRole  @default(USER)
@@ -52,6 +54,7 @@ model User {
 
   // 社区关系
   managedCommunities Community[] @relation("CommunityManager")
+  communityReviews   CommunityReview[]
 
   // OAuth账户
   accounts      Account[]
@@ -146,9 +149,14 @@ model Community {
   // 时间戳
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  realTips         String[]
+  applyDifficulty  Int?
+  processTime      String?
+  lastVerifiedAt   DateTime?
 
   // 关系
   managers      User[]    @relation("CommunityManager")
+  reviews       CommunityReview[]
 
   @@index([city])
   @@index([slug])
@@ -165,6 +173,22 @@ enum CommunityStatus {
   ACTIVE
   INACTIVE
   PENDING
+}
+
+// ==================== 社区评价 ====================
+
+model CommunityReview {
+  id           String    @id @default(cuid())
+  communityId  String
+  community    Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content      String    @db.Text // 200字以内
+  difficulty   Int?      // 1-5，申请难度评分
+  createdAt    DateTime  @default(now())
+
+  @@unique([communityId, userId]) // 每人每社区只能评一次
+  @@index([communityId])
 }
 
 // ==================== 动态模块（创业广场） ====================
@@ -406,6 +430,8 @@ model News {
   coverImage  String?
   publishedAt DateTime
   createdAt   DateTime     @default(now())
+  isOriginal  Boolean      @default(false)
+  author      String?
 
   @@index([category])
   @@index([publishedAt])
@@ -417,6 +443,8 @@ enum NewsCategory {
   EVENT       // 赛事活动
   TECH        // AI/技术趋势
   STORY       // 创业故事
+  TOOL        // 工具推荐
+  CASE        // 案例分析
 }
 
 // ==================== 私信模块 ====================

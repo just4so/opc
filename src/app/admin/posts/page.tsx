@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Search, Eye, EyeOff, Trash2, Pin } from 'lucide-react'
+import { Search, Eye, EyeOff, Trash2, Pin, Star } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ interface Post {
   type: string
   status: string
   pinned: boolean
+  topics: string[]
   viewCount: number
   likeCount: number
   commentCount: number
@@ -31,13 +32,27 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   DELETED: { label: '已删除', color: 'bg-red-100 text-red-800' },
 }
 
+const TOPICS = [
+  { value: '', label: '全部话题' },
+  { value: '创业故事', label: '#创业故事' },
+  { value: '经验分享', label: '#经验分享' },
+  { value: '政策解读', label: '#政策解读' },
+  { value: '社区攻略', label: '#社区攻略' },
+  { value: '补贴攻略', label: '#补贴攻略' },
+  { value: '工具推荐', label: '#工具推荐' },
+  { value: '踩坑记录', label: '#踩坑记录' },
+  { value: '求助问答', label: '#求助问答' },
+]
+
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [pagination, setPagination] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [topicFilter, setTopicFilter] = useState('')
   const [page, setPage] = useState(1)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const fetchPosts = async () => {
     setLoading(true)
@@ -46,6 +61,7 @@ export default function AdminPostsPage() {
       params.set('page', page.toString())
       if (search) params.set('search', search)
       if (statusFilter) params.set('status', statusFilter)
+      if (topicFilter) params.set('topic', topicFilter)
 
       const res = await fetch(`/api/admin/posts?${params}`)
       if (res.ok) {
@@ -62,7 +78,7 @@ export default function AdminPostsPage() {
 
   useEffect(() => {
     fetchPosts()
-  }, [page, statusFilter])
+  }, [page, statusFilter, topicFilter])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,6 +118,22 @@ export default function AdminPostsPage() {
     }
   }
 
+  const handleTogglePinned = async (postId: string, currentPinned: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/posts/${postId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinned: !currentPinned }),
+      })
+
+      if (res.ok) {
+        fetchPosts()
+      }
+    } catch (error) {
+      console.error('切换精华失败:', error)
+    }
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-secondary mb-6">动态管理</h1>
@@ -136,6 +168,20 @@ export default function AdminPostsPage() {
               <option value="HIDDEN">已隐藏</option>
               <option value="DELETED">已删除</option>
             </select>
+            <select
+              value={topicFilter}
+              onChange={(e) => {
+                setTopicFilter(e.target.value)
+                setPage(1)
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg"
+            >
+              {TOPICS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
           </div>
         </CardContent>
       </Card>
@@ -160,11 +206,8 @@ export default function AdminPostsPage() {
           ) : (
             <div className="space-y-4">
               {posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50"
-                >
-                  <div className="flex items-start justify-between gap-4">
+                <div key={post.id} className="border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-start justify-between gap-4 p-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-medium text-secondary">
@@ -182,6 +225,11 @@ export default function AdminPostsPage() {
                             置顶
                           </Badge>
                         )}
+                        {post.topics?.length > 0 && post.topics.map((topic) => (
+                          <Badge key={topic} variant="secondary" className="text-xs">
+                            {topic}
+                          </Badge>
+                        ))}
                       </div>
                       <p className="text-gray-700 line-clamp-2 mb-2">{post.content}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -192,6 +240,23 @@ export default function AdminPostsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setExpandedId(expandedId === post.id ? null : post.id)}
+                        title="预览内容"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        title={post.pinned ? '取消精华' : '设为精华'}
+                        className={post.pinned ? 'text-orange-600 hover:text-orange-700 border-orange-300' : ''}
+                        onClick={() => handleTogglePinned(post.id, post.pinned)}
+                      >
+                        <Star className="h-4 w-4" />
+                      </Button>
                       {post.status === 'PUBLISHED' && (
                         <Button
                           variant="outline"
@@ -220,6 +285,13 @@ export default function AdminPostsPage() {
                       </Button>
                     </div>
                   </div>
+                  {expandedId === post.id && (
+                    <div className="px-4 pb-4">
+                      <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">
+                        {post.content.slice(0, 500)}{post.content.length > 500 ? '...' : ''}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

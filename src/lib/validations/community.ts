@@ -49,6 +49,12 @@ export const communityFormSchema = z.object({
   coverImage: z.string().optional().default(''),
   images: z.array(z.string()).default([]),
 
+  // 真实入驻信息
+  realTips: z.array(z.string()).default([]),
+  applyDifficulty: z.number().int().min(1).max(5).optional().nullable(),
+  processTime: z.string().optional().default(''),
+  lastVerifiedAt: z.string().optional().nullable(),
+
   // 推荐
   featured: z.boolean().default(false),
 })

@@ -1,91 +1,60 @@
-'use client'
+import { Suspense } from 'react'
+import { NewsClient } from '@/components/news/news-client'
+import prisma from '@/lib/db'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { NewsCard } from '@/components/news/news-card'
+export const revalidate = 300 // 5分钟缓存，资讯不需要实时
 
-const categories = [
-  { value: '', label: '全部' },
-  { value: 'POLICY', label: '政策' },
-  { value: 'FUNDING', label: '融资' },
-  { value: 'EVENT', label: '活动' },
-  { value: 'TECH', label: '科技' },
-  { value: 'STORY', label: '故事' },
-]
+async function NewsPageInner({ searchParams }: { searchParams: { category?: string; page?: string } }) {
+  const page = parseInt(searchParams.page || '1')
+  const category = searchParams.category || ''
+  const limit = 20
 
-interface NewsItem {
-  id: string
-  title: string
-  summary: string | null
-  url: string
-  source: string
-  category: string
-  coverImage: string | null
-  publishedAt: string
-}
+  const where: any = {}
+  if (category) where.category = category
 
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
+  const [news, total, originals] = await Promise.all([
+    prisma.news.findMany({
+      where,
+      orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.news.count({ where }),
+    page === 1 && !category
+      ? prisma.news.findMany({
+          where: { isOriginal: true },
+          orderBy: { publishedAt: 'desc' },
+          take: 3,
+        })
+      : Promise.resolve([]),
+  ])
 
-function NewsContent() {
-  const searchParams = useSearchParams()
-  const category = searchParams.get('category') || ''
-  const page = parseInt(searchParams.get('page') || '1')
-
-  const [news, setNews] = useState<NewsItem[]>([])
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (category) params.set('category', category)
-    params.set('page', String(page))
-    params.set('limit', '20')
-
-    fetch(`/api/news?${params}`)
-      .then(res => res.json())
-      .then(data => {
-        setNews(data.data || [])
-        setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [category, page])
+  // Serialize dates to strings for client component
+  const serializeNews = (items: any[]) =>
+    items.map((item) => ({
+      ...item,
+      publishedAt: item.publishedAt?.toISOString() ?? '',
+      createdAt: item.createdAt?.toISOString() ?? '',
+      updatedAt: item.updatedAt?.toISOString() ?? '',
+    }))
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-secondary mb-4">创业资讯</h1>
-        <p className="text-gray-600">
-          OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势
-        </p>
-      </div>
+    <NewsClient
+      initialNews={serializeNews(news)}
+      initialOriginals={serializeNews(originals)}
+      initialTotal={total}
+    />
+  )
+}
 
-      {/* 分类筛选 */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {categories.map((cat) => (
-          <Link
-            key={cat.value}
-            href={cat.value ? `/news?category=${cat.value}` : '/news'}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              category === cat.value
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {cat.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* 资讯列表 */}
-      {loading ? (
+export default function NewsPage({ searchParams }: { searchParams: { category?: string; page?: string } }) {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-4" />
+          <div className="h-5 w-96 bg-gray-200 rounded animate-pulse" />
+        </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
@@ -95,51 +64,9 @@ function NewsContent() {
             </div>
           ))}
         </div>
-      ) : news.length > 0 ? (
-        <div className="space-y-4">
-          {news.map((item) => (
-            <NewsCard key={item.id} news={item} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 text-gray-500">
-          <p>暂无相关资讯</p>
-          <p className="text-sm mt-2">请稍后再来查看，或尝试其他分类</p>
-        </div>
-      )}
-
-      {/* 分页 */}
-      {!loading && pagination.totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          {page > 1 && (
-            <Link
-              href={`/news?${category ? `category=${category}&` : ''}page=${page - 1}`}
-              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              上一页
-            </Link>
-          )}
-          <span className="px-4 py-2 text-gray-600">
-            {page} / {pagination.totalPages}
-          </span>
-          {page < pagination.totalPages && (
-            <Link
-              href={`/news?${category ? `category=${category}&` : ''}page=${page + 1}`}
-              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              下一页
-            </Link>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default function NewsPage() {
-  return (
-    <Suspense fallback={null}>
-      <NewsContent />
+      </div>
+    }>
+      <NewsPageInner searchParams={searchParams} />
     </Suspense>
   )
 }

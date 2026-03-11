@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // 5分钟缓存
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
           featured: true,
           coverImage: true,
           createdAt: true,
+          applyDifficulty: true,
         },
       }),
       prisma.community.count({ where }),

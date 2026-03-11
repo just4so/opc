@@ -94,7 +94,6 @@ export interface Post {
   viewCount: number
   likeCount: number
   commentCount: number
-  shareCount: number
   authorId: string
   author?: User
   createdAt: Date

@@ -18,6 +18,9 @@ export async function POST(
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: '评论内容不能为空' }, { status: 400 })
     }
+    if (content.length > 500) {
+      return NextResponse.json({ error: '评论不能超过500字' }, { status: 400 })
+    }
 
     // 检查帖子是否存在
     const post = await prisma.post.findUnique({

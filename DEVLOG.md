@@ -400,3 +400,65 @@
 - [ ] 社区图片上传
 - [ ] 用户头像上传
 - [ ] 数据导出功能
+
+---
+
+## 2026-03-11
+
+### 性能改造：全站 CSR → SSR/ISR
+
+**背景：** 所有核心页面均为 `'use client'` + useEffect 拉数据，首屏白屏严重，且所有 API 路由 `force-dynamic` 无缓存。
+
+**改造内容：**
+
+- **首页** → SSR + `revalidate=60`，静态预渲染，ActivityBar 停止网络轮询改为接受 `initialPosts` prop
+- **资讯列表** → SSR + `revalidate=300`，新增 `NewsClient` 处理交互
+- **社区地图** → SSR + `revalidate=300`，新增 `CommunitiesPageClient` 处理交互
+- **创业广场** → SSR + `force-dynamic`（实时数据），新增 `PlazaClient` 处理交互
+- **loading.tsx** 全部与实际布局对齐（首页新建，广场改双列骨架）
+
+**渲染架构模式（定稿）：**
+```
+Server Component (SSR/ISR 初始数据)
+  → 传 initialData prop 给
+Client Component (交互：筛选/分页/排序)
+  → 用户操作时 fetch API 更新数据
+```
+
+**效果：** 首屏从"白屏等待 2-3s"变为"内容直出"。
+
+---
+
+### 管理后台 UX 升级
+
+**动态管理 (`/admin/posts`)：**
+- 新增话题筛选下拉（9个选项），API 支持 `topic` 参数过滤
+- 新增内容预览展开按钮（Eye 图标），点击展开完整内容（最多 500 字）
+
+**资讯管理 (`/admin/news`)：**
+- 新增删除功能（`DELETE /api/admin/news/[id]`）
+- 新增「写原创资讯」入口 → `/admin/news/new` 表单页
+- 注意：News.url 有唯一约束，原创资讯用 `original-{timestamp}-{random}` 占位
+- News.category 是 Prisma enum，需中文→enum 映射（政策资讯→POLICY 等）
+
+**社区编辑 (`/admin/communities/[id]/edit`)：**
+- `applyDifficulty` 从 number input 改为星级点击器（`StarRating` 内联组件）
+- 支持悬停高亮、点击同星清除（返回 null）
+- 社区列表新增「难度」列，显示 ★☆ 符号
+
+**用户管理 (`/admin/users`)：**
+- 新增「查看动态」图标按钮（FileText），跳转 `/admin/users/[id]`
+- 新建用户详情页：基本信息卡 + 最近 20 条动态（含话题/精华标记/点赞评论数/内容预览）
+
+**仪表盘 (`/admin`)：**
+- 新增「近7日趋势」折线图，纯 SVG 实现（无第三方图表依赖）
+- 新建 `/api/admin/stats` 路由，返回7天每日新增用户数 + 帖子数
+
+**构建结果：** tsc 零错误，39 个页面构建成功。
+
+---
+
+### 修复：资讯详情页 Markdown 渲染
+
+`/news/[id]/page.tsx` 原来用 `whitespace-pre-wrap` 纯文本显示内容，改为 `<ReactMarkdown remarkPlugins={[remarkGfm]}>` + `prose` 类，与广场帖子详情页保持一致。
+

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Users, Building2, ChevronRight } from 'lucide-react'
+import { MapPin, Users, Building2, ChevronRight, Star } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -27,6 +27,7 @@ interface CommunityCardProps {
     policies?: CommunityPolicies
     focus: string[]
     featured: boolean
+    applyDifficulty?: number | null
   }
 }
 
@@ -68,6 +69,21 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <MapPin className="h-4 w-4 mr-1" />
                 <span>{community.city}{community.district ? ` · ${community.district}` : ''}</span>
               </div>
+              {community.applyDifficulty != null && (
+                <div className="flex items-center gap-1 mt-1" title={`入驻难度 ${community.applyDifficulty}/5`}>
+                  <span className="text-xs text-gray-400">入驻难度</span>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${
+                        i < community.applyDifficulty!
+                          ? 'fill-amber-400 text-amber-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
             {community.featured && (
               <Badge variant="default" className="ml-2">推荐</Badge>

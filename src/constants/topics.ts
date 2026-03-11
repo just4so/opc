@@ -9,6 +9,9 @@ export const TOPICS = [
   { id: 'saas', name: 'SaaS', color: '#20C997' },
   { id: 'knowledge', name: '知识付费', color: '#FD7E14' },
   { id: 'remote', name: '远程工作', color: '#6C757D' },
+  { id: 'subsidy', name: '补贴攻略', color: '#E83E8C' },
+  { id: 'tools', name: '工具推荐', color: '#20C997' },
+  { id: 'pitfall', name: '踩坑记录', color: '#FD7E14' },
 ] as const
 
 export const POST_TYPES = [
@@ -25,22 +28,23 @@ export const POST_TYPES = [
 export const CONTENT_TYPES = [
   { id: 'DEMAND', name: '需求订单', description: '发布开发、设计等需求', color: '#007BFF' },
   { id: 'COOPERATION', name: '合作需求', description: '寻找合伙人或外包合作', color: '#28A745' },
+  { id: 'RESOURCE', name: '资源分享', description: '免费分享实用资源', color: '#FFC107', comingSoon: true },
 ] as const
 
 // 接单市场分类
 export const MARKET_CATEGORIES = [
-  '网站开发',
-  'App开发',
-  '小程序开发',
-  'AI应用',
-  'UI设计',
-  '品牌设计',
-  '产品设计',
-  '运营推广',
-  'SEO优化',
+  'AI工具',
+  'AI开发',
+  'AIGC',
+  '独立开发',
+  '跨境电商',
   '内容创作',
-  '技术咨询',
-  '商业咨询',
+  '知识付费',
+  'SaaS',
+  '专业服务',
+  '资源分享',
+  '网站建设',
+  '运营推广',
   '其他',
 ] as const
 

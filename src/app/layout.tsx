@@ -45,6 +45,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'OPC创业圈',
+              url: 'https://www.opcquan.com',
+              description: '一人公司创业者社区，聚合全国OPC创业社区信息、创业工具、合作资源',
+              sameAs: [],
+            }),
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <SessionProvider>{children}</SessionProvider>
       </body>

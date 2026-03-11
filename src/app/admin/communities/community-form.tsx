@@ -12,6 +12,31 @@ import { LocationPickerMap } from '@/components/admin/location-picker-map'
 import { CITIES } from '@/constants/cities'
 import type { CommunityFormData } from '@/lib/validations/community'
 
+function StarRating({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+  const [hovered, setHovered] = useState<number | null>(null)
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(value === star ? null : star)}
+          onMouseEnter={() => setHovered(star)}
+          onMouseLeave={() => setHovered(null)}
+          className="text-2xl transition-colors leading-none"
+        >
+          <span className={(hovered ?? value ?? 0) >= star ? 'text-orange-400' : 'text-gray-300'}>
+            ★
+          </span>
+        </button>
+      ))}
+      <span className="text-sm text-gray-400 ml-2">
+        {value ? `${value}/5（点击同星可清除）` : '未设置'}
+      </span>
+    </div>
+  )
+}
+
 interface Community {
   id: string
   name: string
@@ -41,6 +66,10 @@ interface Community {
   coverImage: string | null
   images: string[]
   featured: boolean
+  realTips: string[]
+  applyDifficulty: number | null
+  processTime: string | null
+  lastVerifiedAt: Date | string | null
 }
 
 interface CommunityFormProps {
@@ -64,6 +93,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     { id: 'location', title: '位置信息', isOpen: true },
     { id: 'operation', title: '运营信息', isOpen: false },
     { id: 'tags', title: '标签与服务', isOpen: false },
+    { id: 'realinfo', title: '真实入驻信息', isOpen: false },
     { id: 'media', title: '政策与媒体', isOpen: false },
   ])
 
@@ -95,6 +125,12 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     coverImage: initialData?.coverImage || '',
     images: initialData?.images || [],
     featured: initialData?.featured || false,
+    realTips: initialData?.realTips || [],
+    applyDifficulty: initialData?.applyDifficulty || null,
+    processTime: initialData?.processTime || '',
+    lastVerifiedAt: initialData?.lastVerifiedAt
+      ? new Date(initialData.lastVerifiedAt).toISOString().split('T')[0]
+      : '',
   })
 
   // Auto-generate slug
@@ -510,12 +546,77 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         )}
       </Card>
 
-      {/* 政策与媒体 */}
+      {/* 真实入驻信息 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[4])}
         </CardHeader>
         {sections[4].isOpen && (
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                真实入驻提示
+              </label>
+              <textarea
+                value={formData.realTips.join('\n')}
+                onChange={(e) =>
+                  updateField(
+                    'realTips',
+                    e.target.value.split('\n').filter((s) => s.trim())
+                  )
+                }
+                rows={4}
+                placeholder="每行一条，回车换行"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  入驻难度 <span className="text-gray-400 font-normal">（1易-5难）</span>
+                </label>
+                <StarRating
+                  value={formData.applyDifficulty ?? null}
+                  onChange={(v) => updateField('applyDifficulty', v)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  实际办理周期
+                </label>
+                <input
+                  type="text"
+                  value={formData.processTime}
+                  onChange={(e) => updateField('processTime', e.target.value)}
+                  placeholder="如：3-4周"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  信息核实日期
+                </label>
+                <input
+                  type="date"
+                  value={formData.lastVerifiedAt ?? ''}
+                  onChange={(e) =>
+                    updateField('lastVerifiedAt', e.target.value || null)
+                  }
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* 政策与媒体 */}
+      <Card>
+        <CardHeader className="py-0 border-b">
+          {renderSectionHeader(sections[5])}
+        </CardHeader>
+        {sections[5].isOpen && (
           <CardContent className="pt-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

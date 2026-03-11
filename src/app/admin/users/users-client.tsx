@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Search, Shield, ShieldCheck, User as UserIcon, Download } from 'lucide-react'
+import { Search, Shield, ShieldCheck, User as UserIcon, Download, FileText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,8 @@ interface User {
   role: 'USER' | 'ADMIN' | 'MODERATOR'
   level: number
   verified: boolean
+  mainTrack: string | null
+  startupStage: string | null
   createdAt: string
   _count: {
     posts: number
@@ -180,6 +182,8 @@ export default function UsersClient() {
                     <th className="text-left py-3 px-4 font-medium text-gray-500">角色</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">等级</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">认证</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">赛道</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">阶段</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">动态数</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">注册时间</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">操作</th>
@@ -237,14 +241,22 @@ export default function UsersClient() {
                         </button>
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-600">
+                        {user.mainTrack || '-'}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-600">
+                        {user.startupStage || '-'}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-600">
                         {user._count.posts}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-500">
                         {format(new Date(user.createdAt), 'yyyy-MM-dd')}
                       </td>
                       <td className="py-3 px-4">
-                        <Button variant="outline" size="sm">
-                          查看
+                        <Button size="sm" variant="ghost" asChild title="查看Ta的动态">
+                          <a href={`/admin/users/${user.id}`}>
+                            <FileText className="h-4 w-4" />
+                          </a>
                         </Button>
                       </td>
                     </tr>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, MessageCircle, Share2 } from 'lucide-react'
+import { Heart, MessageCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Card, CardContent } from '@/components/ui/card'
@@ -102,14 +102,10 @@ export function PostInteractions({
           <MessageCircle className="h-5 w-5" />
           <span>{commentCount} 评论</span>
         </div>
-        <button className="flex items-center space-x-2 hover:text-green-500 transition-colors">
-          <Share2 className="h-5 w-5" />
-          <span>分享</span>
-        </button>
       </div>
 
       {/* 评论区 */}
-      <Card className="mt-6">
+      <Card id="comments" className="mt-6 scroll-mt-16">
         <CardContent className="pt-6">
           <h3 className="font-semibold text-lg mb-4">评论 ({commentCount})</h3>
 

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { BaiduMap } from '@/components/communities/baidu-map'
 import { CommunityCard } from '@/components/communities/community-card'
-import { CitySelector } from '@/components/communities/city-selector'
 import { Map, List } from 'lucide-react'
 
 interface Community {
@@ -22,6 +21,7 @@ interface Community {
   policies?: any
   focus: string[]
   featured: boolean
+  applyDifficulty?: number | null
 }
 
 interface CommunitiesClientProps {
@@ -76,86 +76,73 @@ export function CommunitiesClient({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* 左侧筛选 */}
-        <aside className="lg:col-span-1">
-          <div className="sticky top-24 bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-secondary mb-4">筛选城市</h2>
-            <CitySelector selectedCity={selectedCity} cityCounts={cityCounts} />
-          </div>
-        </aside>
+      {/* 地图视图 */}
+      {viewMode === 'map' && (
+        <div className="mb-8">
+          <BaiduMap
+            communities={communities.map((c) => ({
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              city: c.city,
+              address: c.address,
+              latitude: c.latitude ?? undefined,
+              longitude: c.longitude ?? undefined,
+            }))}
+            selectedCity={selectedCity}
+          />
+        </div>
+      )}
 
-        {/* 右侧内容 */}
-        <main className="lg:col-span-3">
-          {/* 地图视图 */}
-          {viewMode === 'map' && (
-            <div className="mb-8">
-              <BaiduMap
-                communities={communities.map((c) => ({
-                  id: c.id,
-                  slug: c.slug,
-                  name: c.name,
-                  city: c.city,
-                  address: c.address,
-                  latitude: c.latitude ?? undefined,
-                  longitude: c.longitude ?? undefined,
-                }))}
-                selectedCity={selectedCity}
-              />
-            </div>
-          )}
+      {/* 社区卡片网格 */}
+      {communities.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {communities.map((community) => (
+            <CommunityCard
+              key={community.id}
+              community={{
+                ...community,
+                district: community.district ?? undefined,
+                operator: community.operator ?? undefined,
+                spaceSize: community.spaceSize ?? undefined,
+                workstations: community.workstations ?? undefined,
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-white rounded-lg">
+          <p className="text-gray-500 mb-4">暂无社区数据</p>
+          <p className="text-sm text-gray-400">
+            {selectedCity
+              ? `${selectedCity}暂时没有收录的OPC社区`
+              : '请稍后再来查看'}
+          </p>
+        </div>
+      )}
 
-          {/* 社区卡片网格 */}
-          {communities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {communities.map((community) => (
-                <CommunityCard
-                  key={community.id}
-                  community={{
-                    ...community,
-                    district: community.district ?? undefined,
-                    operator: community.operator ?? undefined,
-                    spaceSize: community.spaceSize ?? undefined,
-                    workstations: community.workstations ?? undefined,
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-white rounded-lg">
-              <p className="text-gray-500 mb-4">暂无社区数据</p>
-              <p className="text-sm text-gray-400">
-                {selectedCity
-                  ? `${selectedCity}暂时没有收录的OPC社区`
-                  : '请稍后再来查看'}
-              </p>
-            </div>
+      {/* 分页 */}
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center mt-8 space-x-2">
+          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+            (p) => (
+              <a
+                key={p}
+                href={`/communities?${
+                  selectedCity ? `city=${selectedCity}&` : ''
+                }page=${p}`}
+                className={`px-4 py-2 rounded-md text-sm ${
+                  p === pagination.page
+                    ? 'bg-primary text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {p}
+              </a>
+            )
           )}
-
-          {/* 分页 */}
-          {pagination.totalPages > 1 && (
-            <div className="flex justify-center mt-8 space-x-2">
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-                (p) => (
-                  <a
-                    key={p}
-                    href={`/communities?${
-                      selectedCity ? `city=${selectedCity}&` : ''
-                    }page=${p}`}
-                    className={`px-4 py-2 rounded-md text-sm ${
-                      p === pagination.page
-                        ? 'bg-primary text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {p}
-                  </a>
-                )
-              )}
-            </div>
-          )}
-        </main>
-      </div>
+        </div>
+      )}
     </div>
   )
 }

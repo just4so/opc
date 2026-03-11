@@ -89,6 +89,14 @@ export default async function OrderDetailPage({ params }: PageProps) {
     return '面议'
   }
 
+  // 用 id 的字符 charCode 求和生成稳定虚拟浏览数（30-250之间）
+  const getVirtualViewCount = (id: string) => {
+    const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    return (hash % 220) + 30
+  }
+
+  const displayViewCount = order.viewCount > 0 ? order.viewCount : getVirtualViewCount(order.id)
+
   // 增加浏览量
   await prisma.project.update({
     where: { id: order.id },
@@ -240,7 +248,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Eye className="h-5 w-5 mr-3 text-gray-400" />
-                  <span>{order.viewCount + 1} 次浏览</span>
+                  <span>{displayViewCount + 1} 次浏览</span>
                 </div>
               </CardContent>
             </Card>

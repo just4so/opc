@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CommunityLocationMap } from '@/components/communities/community-location-map'
+import CommunityReviews from '@/components/communities/community-reviews'
 import prisma from '@/lib/db'
 
 interface PageProps {
@@ -39,6 +40,11 @@ async function getCommunity(slug: string) {
   })
 
   return community
+}
+
+function renderStars(difficulty: number): string {
+  const filled = Math.min(Math.max(difficulty, 1), 5)
+  return '★'.repeat(filled) + '☆'.repeat(5 - filled)
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -251,6 +257,59 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* 真实入驻说明 */}
+            {community.realTips.length > 0 && (
+              <Card className="border-l-4 border-orange-400 bg-orange-50">
+                <CardHeader>
+                  <div>
+                    <CardTitle className="flex items-center">
+                      🔍 真实入驻说明
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-xs font-medium">
+                        👥 创业者说
+                      </span>
+                    </CardTitle>
+                    <p className="text-sm text-gray-500 mt-1">
+                      基于公开信息整理，区别于官方宣传
+                    </p>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {community.applyDifficulty && (
+                    <div className="text-gray-700">
+                      <span className="font-medium">申请难度：</span>
+                      {renderStars(community.applyDifficulty)}
+                    </div>
+                  )}
+                  {community.processTime && (
+                    <div className="text-gray-700">
+                      <span className="font-medium">实际周期：</span>
+                      {community.processTime}
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-medium text-gray-700 mb-2">注意事项：</div>
+                    <ul className="space-y-1">
+                      {community.realTips.map((tip, index) => (
+                        <li key={index} className="text-gray-600 text-sm">
+                          · {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  {community.lastVerifiedAt && (
+                    <div className="text-right">
+                      <span className="text-xs text-gray-400">
+                        最后核实：{new Date(community.lastVerifiedAt).getFullYear()}年{new Date(community.lastVerifiedAt).getMonth() + 1}月
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* 创业者评价 */}
+            <CommunityReviews slug={community.slug} />
 
             {/* 入驻流程 */}
             {community.entryProcess.length > 0 && (

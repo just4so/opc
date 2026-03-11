@@ -113,6 +113,10 @@ export async function POST(request: NextRequest) {
         coverImage: data.coverImage || null,
         images: data.images || undefined,
         featured: data.featured,
+        realTips: data.realTips,
+        applyDifficulty: data.applyDifficulty,
+        processTime: data.processTime || null,
+        lastVerifiedAt: data.lastVerifiedAt ? new Date(data.lastVerifiedAt) : null,
       },
     })
 

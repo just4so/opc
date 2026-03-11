@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { X, MessageCircle, Mail, Phone } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { X, MessageCircle, Mail, Phone, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface Owner {
@@ -18,8 +20,20 @@ interface ContactButtonProps {
 
 export function ContactButton({ owner }: ContactButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const { data: session } = useSession()
 
   const hasContact = owner.wechat || owner.email || owner.phone
+
+  if (!session) {
+    return (
+      <Link href="/login">
+        <Button variant="outline">
+          <LogIn className="h-4 w-4 mr-2" />
+          登录后查看联系方式
+        </Button>
+      </Link>
+    )
+  }
 
   return (
     <>

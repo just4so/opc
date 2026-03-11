@@ -1,6 +1,7 @@
-import { Users, FileText, Briefcase, MapPin, Newspaper, TrendingUp } from 'lucide-react'
+import { Users, FileText, Briefcase, MapPin, Newspaper, TrendingUp, Star, PenLine } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import prisma from '@/lib/db'
+import { TrendChart } from '@/components/admin/trend-chart'
 
 async function getStats() {
   const [users, posts, orders, communities, news] = await Promise.all([
@@ -13,6 +14,12 @@ async function getStats() {
     prisma.news.count(),
   ])
 
+  // 原创资讯 & 精华帖
+  const [originalNews, pinnedPosts] = await Promise.all([
+    prisma.news.count({ where: { isOriginal: true } }),
+    prisma.post.count({ where: { pinned: true, status: 'PUBLISHED' } }),
+  ])
+
   // 今日新增
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -22,7 +29,7 @@ async function getStats() {
     prisma.post.count({ where: { createdAt: { gte: today }, status: 'PUBLISHED' } }),
   ])
 
-  return { users, posts, orders, communities, news, todayUsers, todayPosts }
+  return { users, posts, orders, communities, news, todayUsers, todayPosts, originalNews, pinnedPosts }
 }
 
 export default async function AdminDashboard() {
@@ -43,7 +50,7 @@ export default async function AdminDashboard() {
       icon: FileText,
       color: 'text-green-600',
       bg: 'bg-green-50',
-      extra: `今日新增 ${stats.todayPosts}`,
+      extra: `精华 ${stats.pinnedPosts} · 今日 +${stats.todayPosts}`,
     },
     {
       title: '订单总数',
@@ -65,6 +72,7 @@ export default async function AdminDashboard() {
       icon: Newspaper,
       color: 'text-pink-600',
       bg: 'bg-pink-50',
+      extra: `原创 ${stats.originalNews}`,
     },
   ]
 
@@ -135,6 +143,19 @@ export default async function AdminDashboard() {
               <span className="text-sm font-medium">管理社区</span>
             </a>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* 近7日趋势 */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <TrendingUp className="h-4 w-4" />
+            近7日趋势
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TrendChart />
         </CardContent>
       </Card>
     </div>

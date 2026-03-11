@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const search = searchParams.get('search')
 
+    const topic = searchParams.get('topic')
+
     const where: any = {}
 
     if (status) {
@@ -27,6 +29,10 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.content = { contains: search, mode: 'insensitive' }
+    }
+
+    if (topic) {
+      where.topics = { has: topic }
     }
 
     const [posts, total] = await Promise.all([

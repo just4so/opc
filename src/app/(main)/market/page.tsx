@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, Briefcase, Handshake, Share2 } from 'lucide-react'
 import { OrderCard } from '@/components/market/order-card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,7 @@ interface Order {
   budgetMax: number | null
   deadline: string | null
   contentType: string
+  contactType: string | null
   status: string
   viewCount: number
   featured: boolean
@@ -49,7 +50,7 @@ function MarketContent() {
   const page = parseInt(searchParams.get('page') || '1')
 
   const [orders, setOrders] = useState<Order[]>([])
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 12, total: 0, totalPages: 0 })
+  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 24, total: 0, totalPages: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -58,13 +59,13 @@ function MarketContent() {
     if (type) params.set('type', type)
     if (category) params.set('category', category)
     params.set('page', String(page))
-    params.set('limit', '12')
+    params.set('limit', '24')
 
     fetch(`/api/market?${params}`)
       .then(res => res.json())
       .then(data => {
         setOrders(data.data || [])
-        setPagination(data.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 })
+        setPagination(data.pagination || { page: 1, limit: 24, total: 0, totalPages: 0 })
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -92,6 +93,37 @@ function MarketContent() {
         </div>
       </div>
 
+      {/* CTA 引导条 */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-gray-700 font-medium">
+              有合作需求？发布后可被500+创业者看到
+            </p>
+            <div className="flex gap-2">
+              <Link href="/market/new?type=DEMAND">
+                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                  <Briefcase className="h-3.5 w-3.5 mr-1.5" />
+                  发布需求
+                </Button>
+              </Link>
+              <Link href="/market/new?type=COOPERATION">
+                <Button size="sm" variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                  <Handshake className="h-3.5 w-3.5 mr-1.5" />
+                  发布项目
+                </Button>
+              </Link>
+              <Link href="/market/new?type=COOPERATION">
+                <Button size="sm" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50">
+                  <Share2 className="h-3.5 w-3.5 mr-1.5" />
+                  分享资源
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         {/* 筛选栏 */}
         <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
@@ -108,15 +140,27 @@ function MarketContent() {
                 </Badge>
               </Link>
               {CONTENT_TYPES.map((t) => (
-                <Link key={t.id} href={`/market?type=${t.id}`}>
+                'comingSoon' in t && t.comingSoon ? (
                   <Badge
-                    variant={type === t.id ? 'default' : 'outline'}
-                    className="cursor-pointer"
-                    style={type === t.id ? {} : { borderColor: t.color, color: t.color }}
+                    key={t.id}
+                    variant="outline"
+                    className="cursor-not-allowed opacity-60"
+                    style={{ borderColor: t.color, color: t.color }}
                   >
                     {t.name}
+                    <span className="ml-1 text-[10px]">即将上线</span>
                   </Badge>
-                </Link>
+                ) : (
+                  <Link key={t.id} href={`/market?type=${t.id}`}>
+                    <Badge
+                      variant={type === t.id ? 'default' : 'outline'}
+                      className="cursor-pointer"
+                      style={type === t.id ? {} : { borderColor: t.color, color: t.color }}
+                    >
+                      {t.name}
+                    </Badge>
+                  </Link>
+                )
               ))}
             </div>
           </div>

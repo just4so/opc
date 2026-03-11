@@ -45,10 +45,10 @@ export default function MainLayout({
               创业资讯
             </Link>
             <Link
-              href="/models"
+              href="/tools"
               className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
             >
-              模型广场
+              工具导航
             </Link>
           </nav>
 

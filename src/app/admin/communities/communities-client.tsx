@@ -14,6 +14,7 @@ interface Community {
   operator: string | null
   status: string
   featured: boolean
+  applyDifficulty: number | null
   workstations: number | null
 }
 
@@ -238,6 +239,7 @@ export default function CommunitiesClient() {
                     <th className="text-left py-3 px-4 font-medium text-gray-500">运营方</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">状态</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">推荐</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">难度</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">工位数</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">操作</th>
                   </tr>
@@ -289,6 +291,16 @@ export default function CommunitiesClient() {
                               <StarOff className="h-5 w-5" />
                             )}
                           </button>
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          {community.applyDifficulty ? (
+                            <span className="text-yellow-500">
+                              {'★'.repeat(community.applyDifficulty)}
+                              {'☆'.repeat(5 - community.applyDifficulty)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
                           {community.workstations || '-'}
