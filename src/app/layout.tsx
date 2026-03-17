@@ -19,6 +19,11 @@ export const metadata: Metadata = {
       'baidu-site-verification': 'codeva-6pFFAPRpWD',
     },
   },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
@@ -26,6 +31,7 @@ export const metadata: Metadata = {
     siteName: 'OPC创业圈',
     title: 'OPC创业圈 - 一人公司创业社区',
     description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
+    images: ['https://www.opcquan.com/logo.png'],
   },
   twitter: {
     card: 'summary_large_image',
