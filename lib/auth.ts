@@ -9,20 +9,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        // 复用 email 字段传手机号或邮箱（NextAuth credentials key 不影响实际逻辑）
+        email: { label: '手机号或邮箱', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('请输入邮箱和密码')
+          throw new Error('请输入手机号/邮箱和密码')
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+        const identifier = (credentials.email as string).trim()
+
+        // 判断是手机号还是邮箱
+        const isPhone = /^1[3-9]\d{9}$/.test(identifier)
+
+        const user = await prisma.user.findFirst({
+          where: isPhone
+            ? { phone: identifier }
+            : { email: identifier },
         })
 
         if (!user || !user.passwordHash) {
-          throw new Error('用户不存在')
+          throw new Error('账号不存在')
         }
 
         const isValid = await compare(

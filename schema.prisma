@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.1.x", "rhel-openssl-3.0.x"]
@@ -12,56 +9,40 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ==================== 用户模块 ====================
-
 model User {
-  id            String    @id @default(cuid())
-  username      String    @unique
-  email         String?   @unique
-  phone         String?   @unique
-  passwordHash  String?
-  name          String?
-  avatar        String?
-  bio           String?   @db.Text
-  location      String?
-  website       String?
-  wechat        String?
-  mainTrack     String?   // 主赛道
-  startupStage  String?   // 当前阶段
-
-  // 用户类型和认证
-  role          UserRole  @default(USER)
-  level         Int       @default(1)
-  verified      Boolean   @default(false)
-  verifyType    VerifyType?
-
-  // 技能标签
-  skills        String[]
-  canOffer      String[]
-  lookingFor    String[]
-
-  // 时间戳
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  lastActiveAt  DateTime?
-
-  // 关系
-  posts         Post[]
-  projects      Project[]
-  comments      Comment[]
-  likes         Like[]
-  favorites     Favorite[]
-
-  // 社区关系
-  managedCommunities Community[] @relation("CommunityManager")
+  id                 String                    @id @default(cuid())
+  username           String                    @unique
+  email              String?                   @unique
+  phone              String?                   @unique
+  passwordHash       String?
+  name               String?
+  avatar             String?
+  bio                String?
+  location           String?
+  website            String?
+  wechat             String?
+  role               UserRole                  @default(USER)
+  level              Int                       @default(1)
+  verified           Boolean                   @default(false)
+  verifyType         VerifyType?
+  skills             String[]
+  canOffer           String[]
+  lookingFor         String[]
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  lastActiveAt       DateTime?
+  mainTrack          String?
+  startupStage       String?
+  accounts           Account[]
+  comments           Comment[]
   communityReviews   CommunityReview[]
-
-  // OAuth账户
-  accounts      Account[]
-
-  // 私信关系
-  conversations ConversationParticipant[]
-  sentMessages  Message[]
+  conversations      ConversationParticipant[]
+  favorites          Favorite[]
+  likes              Like[]
+  sentMessages       Message[]
+  posts              Post[]
+  projects           Project[]
+  managedCommunities Community[]               @relation("CommunityManager")
 
   @@index([username])
   @@index([location])
@@ -73,16 +54,251 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id_token          String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Community {
+  id              String            @id @default(cuid())
+  slug            String            @unique
+  name            String
+  city            String
+  district        String?
+  address         String
+  latitude        Float?
+  longitude       Float?
+  description     String
+  type            CommunityType     @default(MIXED)
+  focus           String[]
+  operator        String?
+  contactName     String?
+  contactWechat   String?
+  contactPhone    String?
+  website         String?
+  spaceSize       String?
+  workstations    Int?
+  policies        Json?
+  entryProcess    String[]
+  services        String[]
+  suitableFor     String[]
+  notes           String[]
+  links           Json?
+  status          CommunityStatus   @default(ACTIVE)
+  featured        Boolean           @default(false)
+  coverImage      String?
+  images          String[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  applyDifficulty Int?
+  lastVerifiedAt  DateTime?
+  processTime     String?
+  realTips        String[]
+  reviews         CommunityReview[]
+  managers        User[]            @relation("CommunityManager")
+
+  @@index([city])
+  @@index([slug])
+  @@index([status, featured])
+}
+
+model CommunityReview {
+  id          String    @id @default(cuid())
+  communityId String
+  userId      String
+  content     String
+  difficulty  Int?
+  createdAt   DateTime  @default(now())
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+  @@index([communityId])
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  content      String
+  images       String[]
+  type         PostType   @default(DAILY)
+  topics       String[]
+  status       PostStatus @default(PUBLISHED)
+  pinned       Boolean    @default(false)
+  viewCount    Int        @default(0)
+  likeCount    Int        @default(0)
+  commentCount Int        @default(0)
+  shareCount   Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  authorId     String
+  comments     Comment[]
+  favorites    Favorite[]
+  likes        Like[]
+  author       User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([status, pinned])
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  name            String
+  tagline         String
+  description     String
+  logo            String?
+  coverImage      String?
+  screenshots     String[]
+  category        String[]
+  techStack       String[]
+  stage           ProjectStage  @default(IDEA)
+  mrr             Int?
+  userCount       Int?
+  isRevenuePublic Boolean       @default(false)
+  website         String?
+  github          String?
+  productHunt     String?
+  appStore        String?
+  playStore       String?
+  status          ProjectStatus @default(PUBLISHED)
+  featured        Boolean       @default(false)
+  viewCount       Int           @default(0)
+  likeCount       Int           @default(0)
+  commentCount    Int           @default(0)
+  launchedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  ownerId         String
+  budgetMax       Int?
+  budgetMin       Int?
+  budgetType      BudgetType?
+  contactInfo     String?
+  contactType     String?
+  contentType     ContentType   @default(PROJECT)
+  deadline        DateTime?
+  skills          String[]
+  comments        Comment[]
+  favorites       Favorite[]
+  likes           Like[]
+  owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([stage])
+  @@index([slug])
+  @@index([status, featured])
+  @@index([contentType, status])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  postId    String?
+  projectId String?
+  parentId  String?
+  authorId  String
+  likeCount Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  post      Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([projectId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String?
+  projectId String?
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, projectId])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  postId    String?
+  projectId String?
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, projectId])
+}
+
+model News {
+  id          String       @id @default(cuid())
+  title       String
+  summary     String?
+  content     String?
+  url         String       @unique
+  source      String
+  category    NewsCategory
+  coverImage  String?
+  publishedAt DateTime
+  createdAt   DateTime     @default(now())
+  author      String?
+  isOriginal  Boolean      @default(false)
+
+  @@index([category])
+  @@index([publishedAt])
+}
+
+model Conversation {
+  id           String                    @id @default(cuid())
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  userId         String
+  unreadCount    Int          @default(0)
+  lastReadAt     DateTime?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
 }
 
 enum UserRole {
@@ -98,71 +314,6 @@ enum VerifyType {
   COMMUNITY
 }
 
-// ==================== 社区模块 ====================
-
-model Community {
-  id            String    @id @default(cuid())
-  slug          String    @unique
-  name          String
-
-  // 位置信息
-  city          String
-  district      String?
-  address       String
-  latitude      Float?
-  longitude     Float?
-
-  // 基本信息
-  description   String    @db.Text
-  type          CommunityType @default(MIXED)
-  focus         String[]
-
-  // 运营信息
-  operator      String?
-  contactName   String?
-  contactWechat String?
-  contactPhone  String?
-  website       String?
-
-  // 空间信息
-  spaceSize     String?
-  workstations  Int?
-
-  // 入驻政策（JSON存储，灵活扩展）
-  policies      Json?
-  entryProcess  String[]
-  services      String[]
-  suitableFor   String[]
-  notes         String[]
-
-  // 链接
-  links         Json?
-
-  // 状态
-  status        CommunityStatus @default(ACTIVE)
-  featured      Boolean   @default(false)
-
-  // 图片
-  coverImage    String?
-  images        String[]
-
-  // 时间戳
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  realTips         String[]
-  applyDifficulty  Int?
-  processTime      String?
-  lastVerifiedAt   DateTime?
-
-  // 关系
-  managers      User[]    @relation("CommunityManager")
-  reviews       CommunityReview[]
-
-  @@index([city])
-  @@index([slug])
-  @@index([status, featured])
-}
-
 enum CommunityType {
   ONLINE
   OFFLINE
@@ -173,62 +324,6 @@ enum CommunityStatus {
   ACTIVE
   INACTIVE
   PENDING
-}
-
-// ==================== 社区评价 ====================
-
-model CommunityReview {
-  id           String    @id @default(cuid())
-  communityId  String
-  community    Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content      String    @db.Text // 200字以内
-  difficulty   Int?      // 1-5，申请难度评分
-  createdAt    DateTime  @default(now())
-
-  @@unique([communityId, userId]) // 每人每社区只能评一次
-  @@index([communityId])
-}
-
-// ==================== 动态模块（创业广场） ====================
-
-model Post {
-  id            String    @id @default(cuid())
-
-  // 内容
-  content       String    @db.Text
-  images        String[]
-
-  // 分类
-  type          PostType  @default(DAILY)
-  topics        String[]
-
-  // 状态
-  status        PostStatus @default(PUBLISHED)
-  pinned        Boolean   @default(false)
-
-  // 统计
-  viewCount     Int       @default(0)
-  likeCount     Int       @default(0)
-  commentCount  Int       @default(0)
-  shareCount    Int       @default(0)
-
-  // 时间戳
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // 关系
-  authorId      String
-  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments      Comment[]
-  likes         Like[]
-  favorites     Favorite[]
-
-  @@index([authorId])
-  @@index([type])
-  @@index([createdAt])
-  @@index([status, pinned])
 }
 
 enum PostType {
@@ -246,79 +341,6 @@ enum PostStatus {
   DELETED
 }
 
-// ==================== 项目模块 ====================
-
-model Project {
-  id            String    @id @default(cuid())
-  slug          String    @unique
-
-  // 基本信息
-  name          String
-  tagline       String
-  description   String    @db.Text
-  logo          String?
-  coverImage    String?
-  screenshots   String[]
-
-  // 分类
-  category      String[]
-  techStack     String[]
-
-  // 项目阶段
-  stage         ProjectStage @default(IDEA)
-
-  // 商业数据（可选公开）
-  mrr           Int?
-  userCount     Int?
-  isRevenuePublic Boolean @default(false)
-
-  // 链接
-  website       String?
-  github        String?
-  productHunt   String?
-  appStore      String?
-  playStore     String?
-
-  // 状态
-  status        ProjectStatus @default(PUBLISHED)
-  featured      Boolean   @default(false)
-
-  // 统计
-  viewCount     Int       @default(0)
-  likeCount     Int       @default(0)
-  commentCount  Int       @default(0)
-
-  // 内容类型（区分项目/订单）
-  contentType   ContentType @default(PROJECT)
-
-  // 接单市场相关字段
-  budgetType    BudgetType?
-  budgetMin     Int?
-  budgetMax     Int?
-  deadline      DateTime?
-  skills        String[]
-  contactType   String?
-  contactInfo   String?
-
-  // 时间戳
-  launchedAt    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // 关系
-  ownerId       String
-  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  comments      Comment[]
-  likes         Like[]
-  favorites     Favorite[]
-
-  @@index([ownerId])
-  @@index([stage])
-  @@index([slug])
-  @@index([status, featured])
-  @@index([contentType, status])
-}
-
 enum ProjectStage {
   IDEA
   BUILDING
@@ -334,155 +356,24 @@ enum ProjectStatus {
   ARCHIVED
 }
 
-// 内容类型（区分项目/订单）
 enum ContentType {
-  PROJECT     // 原项目展示
-  DEMAND      // 需求订单
-  COOPERATION // 合作需求
+  PROJECT
+  DEMAND
+  COOPERATION
 }
 
-// 预算类型
 enum BudgetType {
-  NEGOTIABLE  // 面议
-  FIXED       // 固定价格
-  RANGE       // 价格区间
-}
-
-// ==================== 互动模块 ====================
-
-model Comment {
-  id            String    @id @default(cuid())
-  content       String    @db.Text
-
-  // 多态关联
-  postId        String?
-  post          Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  projectId     String?
-  project       Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // 回复
-  parentId      String?
-  parent        Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies       Comment[] @relation("CommentReplies")
-
-  // 作者
-  authorId      String
-  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  // 统计
-  likeCount     Int       @default(0)
-
-  // 时间戳
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  @@index([postId])
-  @@index([projectId])
-  @@index([authorId])
-}
-
-model Like {
-  id            String    @id @default(cuid())
-
-  // 多态关联
-  postId        String?
-  post          Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  projectId     String?
-  project       Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt     DateTime  @default(now())
-
-  @@unique([userId, postId])
-  @@unique([userId, projectId])
-}
-
-model Favorite {
-  id            String    @id @default(cuid())
-
-  // 多态关联
-  postId        String?
-  post          Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  projectId     String?
-  project       Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt     DateTime  @default(now())
-
-  @@unique([userId, postId])
-  @@unique([userId, projectId])
-}
-
-// ==================== 资讯模块 ====================
-
-model News {
-  id          String       @id @default(cuid())
-  title       String
-  summary     String?      @db.Text
-  content     String?      @db.Text
-  url         String       @unique    // 原文链接（用于去重）
-  source      String                  // 来源（36氪、虎嗅、政府网站等）
-  category    NewsCategory
-  coverImage  String?
-  publishedAt DateTime
-  createdAt   DateTime     @default(now())
-  isOriginal  Boolean      @default(false)
-  author      String?
-
-  @@index([category])
-  @@index([publishedAt])
+  NEGOTIABLE
+  FIXED
+  RANGE
 }
 
 enum NewsCategory {
-  POLICY      // 政策动态
-  FUNDING     // 融资/补贴
-  EVENT       // 赛事活动
-  TECH        // AI/技术趋势
-  STORY       // 创业故事
-  TOOL        // 工具推荐
-  CASE        // 案例分析
-}
-
-// ==================== 私信模块 ====================
-
-model Conversation {
-  id            String    @id @default(cuid())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  messages      Message[]
-  participants  ConversationParticipant[]
-
-  @@index([updatedAt])
-}
-
-model ConversationParticipant {
-  id              String       @id @default(cuid())
-  conversationId  String
-  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unreadCount     Int          @default(0)
-  lastReadAt      DateTime?
-  createdAt       DateTime     @default(now())
-
-  @@unique([conversationId, userId])
-  @@index([userId])
-}
-
-model Message {
-  id              String       @id @default(cuid())
-  conversationId  String
-  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderId        String
-  sender          User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  content         String       @db.Text
-  createdAt       DateTime     @default(now())
-
-  @@index([conversationId])
-  @@index([createdAt])
+  POLICY
+  FUNDING
+  EVENT
+  TECH
+  STORY
+  TOOL
+  CASE
 }

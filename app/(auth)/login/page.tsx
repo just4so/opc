@@ -13,7 +13,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
 
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -25,16 +25,15 @@ function LoginForm() {
 
     try {
       const result = await signIn('credentials', {
-        email,
+        email: identifier, // auth.ts 里用 email 字段接收，实际支持手机号/邮箱
         password,
         redirect: false,
       })
 
       if (result?.error) {
-        // NextAuth v5 错误类型映射
         const errorMessages: Record<string, string> = {
-          'CredentialsSignin': '邮箱或密码错误',
-          'Configuration': '邮箱或密码错误',
+          'CredentialsSignin': '账号或密码错误',
+          'Configuration': '账号或密码错误',
           'AccessDenied': '访问被拒绝',
           'Verification': '验证失败',
         }
@@ -60,7 +59,7 @@ function LoginForm() {
           </Link>
           <CardTitle className="text-2xl">登录</CardTitle>
           <CardDescription>
-            登录你的账户，开始探索OPC社区
+            登录你的账户，开始探索 OPC 社区
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,16 +71,17 @@ function LoginForm() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                邮箱
+              <label htmlFor="identifier" className="text-sm font-medium text-gray-700">
+                手机号或邮箱
               </label>
               <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="identifier"
+                type="text"
+                placeholder="输入手机号或邮箱"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
+                autoComplete="username"
               />
             </div>
 
@@ -96,6 +96,7 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
 

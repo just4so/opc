@@ -5,8 +5,13 @@ import prisma from '@/lib/db'
 
 const registerSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符').max(20, '用户名最多20个字符'),
-  email: z.string().email('请输入有效的邮箱地址'),
+  phone: z
+    .string({ required_error: '请填写手机号', invalid_type_error: '请填写手机号' })
+    .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号'),
+  email: z.string().email('请输入有效的邮箱地址').optional().or(z.literal('')),
   password: z.string().min(6, '密码至少6个字符'),
+  startupStage: z.string().optional(),
+  mainTrack: z.string().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -15,13 +20,16 @@ export async function POST(request: NextRequest) {
 
     const validation = registerSchema.safeParse(body)
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.issues[0].message },
-        { status: 400 }
-      )
+      // 把 zod 内部错误转成用户友好提示
+      const firstIssue = validation.error.issues[0]
+      let message = firstIssue.message
+      if (message.startsWith('Invalid input') || message.startsWith('Required')) {
+        message = '请填写手机号'
+      }
+      return NextResponse.json({ error: message }, { status: 400 })
     }
 
-    const { username, email, password } = validation.data
+    const { username, phone, email, password, startupStage, mainTrack } = validation.data
 
     // 检查用户名是否已存在
     const existingUsername = await prisma.user.findUnique({
@@ -34,15 +42,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 检查邮箱是否已存在
-    const existingEmail = await prisma.user.findUnique({
-      where: { email },
+    // 检查手机号是否已存在
+    const existingPhone = await prisma.user.findUnique({
+      where: { phone },
     })
-    if (existingEmail) {
+    if (existingPhone) {
       return NextResponse.json(
-        { error: '邮箱已被注册' },
+        { error: '该手机号已被注册' },
         { status: 400 }
       )
+    }
+
+    // 邮箱有填写时才检查重复
+    if (email) {
+      const existingEmail = await prisma.user.findUnique({
+        where: { email },
+      })
+      if (existingEmail) {
+        return NextResponse.json(
+          { error: '邮箱已被注册' },
+          { status: 400 }
+        )
+      }
     }
 
     // 创建用户
@@ -50,12 +71,16 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         username,
-        email,
+        phone,
+        ...(email ? { email } : {}),
         passwordHash,
+        ...(startupStage ? { startupStage } : {}),
+        ...(mainTrack ? { mainTrack } : {}),
       },
       select: {
         id: true,
         username: true,
+        phone: true,
         email: true,
         createdAt: true,
       },

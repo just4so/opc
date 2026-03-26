@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import { SessionProvider } from '@/components/providers/session-provider'
 import './globals.css'
 
@@ -44,6 +45,15 @@ export const metadata: Metadata = {
   },
 }
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'OPC创业圈',
+  url: 'https://www.opcquan.com',
+  description: '一人公司创业者社区，聚合全国OPC创业社区信息、创业工具、合作资源',
+  sameAs: [],
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -51,22 +61,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <head>
-        <script
+      <body className={inter.className}>
+        <SessionProvider>{children}</SessionProvider>
+        {/* JSON-LD 结构化数据 */}
+        <Script
+          id="json-ld"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'OPC创业圈',
-              url: 'https://www.opcquan.com',
-              description: '一人公司创业者社区，聚合全国OPC创业社区信息、创业工具、合作资源',
-              sameAs: [],
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          strategy="afterInteractive"
         />
         {/* 百度自动推送 */}
-        <script
+        <Script
+          id="baidu-push"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){
     var bp = document.createElement('script');
@@ -81,9 +88,6 @@ export default function RootLayout({
 })();`,
           }}
         />
-      </head>
-      <body className={inter.className}>
-        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   )
