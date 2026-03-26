@@ -13,13 +13,15 @@ import {
   Users,
   ExternalLink,
   AlertCircle,
-  FileText,
+  Heart,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CommunityLocationMap } from '@/components/communities/community-location-map'
 import CommunityReviews from '@/components/communities/community-reviews'
+import { LoginGate } from '@/components/communities/login-gate'
+import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
 interface PageProps {
@@ -68,6 +70,11 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   if (!community) {
     notFound()
   }
+
+  const session = await auth()
+  const isLoggedIn = !!session?.user
+  const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
+  const loginUrl = `/login?callbackUrl=/communities/${community.slug}`
 
   const policies = community.policies as any || {}
   const links = community.links as Array<{ title: string; url: string }> || []
@@ -155,9 +162,15 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 <CardTitle className="flex items-center">
                   <Gift className="h-5 w-5 mr-2 text-primary" />
                   入驻政策
+                  {!isLoggedIn && Object.keys(policies).length > 0 && (
+                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">
+                      🎁 此社区有政策扶持
+                    </span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                <LoginGate isLoggedIn={isLoggedIn} message="注册后查看政策详情" registerUrl={registerUrl}>
                 {/* 空间补贴 */}
                 {policies.spaceSubsidy && Object.keys(policies.spaceSubsidy).length > 0 && (
                   <div>
@@ -255,6 +268,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
+                </LoginGate>
               </CardContent>
             </Card>
 
@@ -315,19 +329,25 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             {community.entryProcess.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>入驻流程</CardTitle>
+                  <CardTitle>
+                    {isLoggedIn
+                      ? '入驻流程'
+                      : `入驻流程（共${community.entryProcess.length}步）`}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ol className="relative border-l border-gray-200 ml-3">
-                    {community.entryProcess.map((step, index) => (
-                      <li key={index} className="mb-6 ml-6 last:mb-0">
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-primary rounded-full -left-4 ring-4 ring-white">
-                          <span className="text-white font-semibold text-sm">{index + 1}</span>
-                        </span>
-                        <p className="text-gray-700">{step}</p>
-                      </li>
-                    ))}
-                  </ol>
+                  <LoginGate isLoggedIn={isLoggedIn} message="注册后查看完整流程" registerUrl={registerUrl}>
+                    <ol className="relative border-l border-gray-200 ml-3">
+                      {community.entryProcess.map((step, index) => (
+                        <li key={index} className="mb-6 ml-6 last:mb-0">
+                          <span className="absolute flex items-center justify-center w-8 h-8 bg-primary rounded-full -left-4 ring-4 ring-white">
+                            <span className="text-white font-semibold text-sm">{index + 1}</span>
+                          </span>
+                          <p className="text-gray-700">{step}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </LoginGate>
                 </CardContent>
               </Card>
             )}
@@ -340,13 +360,31 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 </CardHeader>
                 <CardContent>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {community.services.map((service, index) => (
+                    {community.services.slice(0, isLoggedIn ? undefined : 2).map((service, index) => (
                       <li key={index} className="flex items-start">
                         <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-700">{service}</span>
                       </li>
                     ))}
                   </ul>
+                  {!isLoggedIn && community.services.length > 2 && (
+                    <div className="mt-3">
+                      <LoginGate
+                        isLoggedIn={isLoggedIn}
+                        message={`还有${community.services.length - 2}项服务，注册后查看全部`}
+                        registerUrl={registerUrl}
+                      >
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {community.services.slice(2).map((service, index) => (
+                            <li key={index} className="flex items-start">
+                              <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-700">{service}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </LoginGate>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -355,27 +393,35 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           {/* 侧边栏 */}
           <div className="space-y-6">
             {/* 申请入驻 CTA */}
-            <Card className="bg-gradient-to-br from-primary to-primary/80 text-white">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-2">开启你的AI创业之旅</h3>
-                <p className="text-white/90 text-sm mb-4">
-                  入驻{community.name}，享受政策扶持与创业服务
-                </p>
-                {community.website ? (
+            {isLoggedIn ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <Button variant="outline" className="w-full" disabled>
+                    <Heart className="h-4 w-4 mr-2" />
+                    收藏社区
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-gradient-to-br from-primary to-primary/80 text-white">
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-semibold mb-3">🔓 注册后立即解锁</h3>
+                  <ul className="space-y-2 mb-4 text-sm text-white/90">
+                    <li>✅ 精确地址</li>
+                    <li>✅ 联系人和微信</li>
+                    <li>✅ 完整入驻流程</li>
+                    <li>✅ 配套服务详情</li>
+                    <li>✅ 政策扶持详情</li>
+                  </ul>
                   <Button asChild variant="secondary" className="w-full">
-                    <a href={community.website} target="_blank" rel="noopener noreferrer">
-                      <FileText className="h-4 w-4 mr-2" />
-                      立即申请入驻
-                    </a>
+                    <Link href={registerUrl}>立即免费注册</Link>
                   </Button>
-                ) : (
-                  <Button variant="secondary" className="w-full" disabled>
-                    <FileText className="h-4 w-4 mr-2" />
-                    暂无在线申请
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+                  <p className="text-center text-sm text-white/70 mt-3">
+                    已有账户？<Link href={loginUrl} className="text-white underline">登录</Link>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* 社区位置地图 */}
             <Card>
@@ -393,6 +439,13 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   latitude={community.latitude}
                   longitude={community.longitude}
                 />
+                {!isLoggedIn && (
+                  <p className="mt-2 text-sm text-primary">
+                    <Link href={registerUrl} className="hover:underline">
+                      📍 注册后查看精确地址和路线
+                    </Link>
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -407,7 +460,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
                       <div className="text-sm text-gray-500">详细地址</div>
-                      <div className="text-gray-700">{community.address}</div>
+                      <LoginGate isLoggedIn={isLoggedIn} message="免费注册，查看精确地址" registerUrl={registerUrl}>
+                        <div className="text-gray-700">{community.address}</div>
+                      </LoginGate>
                     </div>
                   </div>
                 )}
@@ -425,7 +480,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
                       <div className="text-sm text-gray-500">联系人</div>
-                      <div className="text-gray-700">{community.contactName}</div>
+                      <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系人和微信" registerUrl={registerUrl}>
+                        <div className="text-gray-700">{community.contactName}</div>
+                      </LoginGate>
                     </div>
                   </div>
                 )}
