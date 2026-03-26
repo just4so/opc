@@ -107,7 +107,7 @@ function LoginForm() {
 
           <div className="mt-6 text-center text-sm text-gray-600">
             还没有账户？{' '}
-            <Link href="/register" className="text-primary hover:underline">
+            <Link href={`/register${callbackUrl && callbackUrl !== '/' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`} className="text-primary hover:underline">
               立即注册
             </Link>
           </div>

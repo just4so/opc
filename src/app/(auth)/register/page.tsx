@@ -1,14 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const rawCallbackUrl = searchParams.get('callbackUrl')
+  const callbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith('/') ? rawCallbackUrl : '/'
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -42,8 +46,21 @@ export default function RegisterPage() {
         return
       }
 
-      // 注册成功，跳转到登录页
-      router.push('/login?registered=true')
+      // 注册成功，自动登录
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        // 自动登录失败，降级到手动登录
+        setError('注册成功，请手动登录')
+        setTimeout(() => router.push('/login'), 1500)
+      } else {
+        router.push(callbackUrl)
+        router.refresh()
+      }
     } catch (err) {
       setError('注册失败，请稍后重试')
     } finally {
@@ -145,5 +162,13 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">加载中...</div>}>
+      <RegisterForm />
+    </Suspense>
   )
 }

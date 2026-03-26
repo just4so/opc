@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,7 +26,18 @@ const MAIN_TRACKS = [
 ]
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">加载中...</div>}>
+      <RegisterForm />
+    </Suspense>
+  )
+}
+
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const rawCallbackUrl = searchParams.get('callbackUrl')
+  const callbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith('/') ? rawCallbackUrl : '/'
 
   const [username, setUsername] = useState('')
   const [phone, setPhone] = useState('')
@@ -68,7 +80,21 @@ export default function RegisterPage() {
         return
       }
 
-      router.push('/login?registered=true')
+      // 注册成功，自动登录
+      const loginResult = await signIn('credentials', {
+        email: phone, // auth.ts 支持手机号查找
+        password,
+        redirect: false,
+      })
+
+      if (loginResult?.error) {
+        // 自动登录失败，降级到手动登录页
+        setError('注册成功！正在跳转到登录页...')
+        setTimeout(() => router.push('/login'), 1500)
+      } else {
+        router.push(callbackUrl)
+        router.refresh()
+      }
     } catch (err) {
       setError('注册失败，请稍后重试')
     } finally {

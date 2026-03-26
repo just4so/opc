@@ -6,7 +6,7 @@ import prisma from '@/lib/db'
 const registerSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符').max(20, '用户名最多20个字符'),
   phone: z
-    .string({ required_error: '请填写手机号', invalid_type_error: '请填写手机号' })
+    .string()
     .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号'),
   email: z.string().email('请输入有效的邮箱地址').optional().or(z.literal('')),
   password: z.string().min(6, '密码至少6个字符'),
