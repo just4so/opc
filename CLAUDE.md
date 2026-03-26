@@ -55,21 +55,32 @@ types/                # ← directly under project root
 
 ### Rendering Strategy
 
-| Page | Strategy | Notes |
-|------|----------|-------|
-| Home `/` | SSR + `revalidate=60` | Static pre-render with ISR |
-| News list | SSR + `revalidate=300` | 5-min cache |
-| Communities | SSR + `revalidate=300` | Initial SSR, filter/page via CSR |
-| Plaza `/plaza` | SSR + `force-dynamic` | Initial SSR, real-time updates |
-| Admin pages | `force-dynamic` | Always fresh |
+| Page | Strategy | revalidate | Notes |
+|------|----------|------------|-------|
+| Home `/` | ISR | 300s | Static pre-render with ISR |
+| Communities `/communities` | ISR | 3600s | **全量104条 SSR → 前端 filter/分页，不再调 API** |
+| Community detail `/communities/[slug]` | ISR + generateStaticParams | 3600s | **预生成全部104个静态页，TTFB ~10ms** |
+| News list `/news` | ISR | 300s | select 不含 content 字段（省~80%体积） |
+| Plaza `/plaza` | ISR | 60s | ~~force-dynamic~~ 改 60s ISR，可接受延迟 |
+| Market `/market` | ISR | 120s | **改为 Server Component**，筛选通过 URL searchParams |
+| Admin pages | `force-dynamic` | — | Always fresh |
 
-**Pattern:** Core pages use "SSR initial data + Client Component interaction":
-- Page server component fetches initial data, passes as props to a `*Client` component
-- `*Client` component handles filtering/sorting/pagination via API calls
-- Result: no first-paint white screen, interactive without full-page reload
+**⚠️ 重要架构决策（2026-03-26）：**
+
+1. **Communities 页去掉 API fetch**：104条社区(71.5KB)在 SSR 时全量传给前端，城市筛选和分页全部前端完成。不再调用 `/api/communities`。超过500条时再重新评估。
+
+2. **Market 改为 Server Component**：原来是 Client Component 通过 `useEffect + fetch /api/market` 拉数据（两次串行等待），现在改为 Server Component 直接 Prisma 查询。筛选通过 URL `?type=DEMAND&category=xxx` 驱动。
+
+3. **数据库连接 pgBouncer**：DATABASE_URL 端口改为 6543（Transaction mode），加 `?pgbouncer=true`。DIRECT_URL 保持 5432（migrate 专用）。
+
+**Pattern（现行）：**
+- Communities/Market：Server Component 直接查 Prisma，无中间 API 层
+- Plaza：Server Component 直接查 Prisma + PlazaClient 负责交互
+- 减少"Server Component → API Route → Prisma"的不必要中间层
 
 Example:
 ```
+app/(main)/market/page.tsx       → Server Component (直接 Prisma 查询)
 app/(main)/plaza/page.tsx        → Server Component (SSR)
 components/plaza/plaza-client.tsx → Client Component ('use client')
 ```
