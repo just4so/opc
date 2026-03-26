@@ -25,6 +25,18 @@ import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
+// ISR：1小时静态缓存，社区数据低频变化
+export const revalidate = 3600
+
+// 预生成全部社区静态页，构建时一次性打数据库，之后 CDN 直出
+export async function generateStaticParams() {
+  const communities = await prisma.community.findMany({
+    where: { status: 'ACTIVE' },
+    select: { slug: true },
+  })
+  return communities.map((c) => ({ slug: encodeURIComponent(c.slug) }))
+}
+
 interface PageProps {
   params: { slug: string }
 }

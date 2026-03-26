@@ -18,6 +18,12 @@ async function NewsPageInner({ searchParams }: { searchParams: { category?: stri
       orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
       skip: (page - 1) * limit,
       take: limit,
+      select: {
+        id: true, title: true, summary: true, category: true,
+        source: true, url: true, coverImage: true, author: true,
+        isOriginal: true, publishedAt: true, createdAt: true,
+        // content 不在列表页传输，详情页单独查
+      },
     }),
     prisma.news.count({ where }),
     page === 1 && !category
@@ -25,6 +31,11 @@ async function NewsPageInner({ searchParams }: { searchParams: { category?: stri
           where: { isOriginal: true },
           orderBy: { publishedAt: 'desc' },
           take: 3,
+          select: {
+            id: true, title: true, summary: true, category: true,
+            source: true, url: true, coverImage: true, author: true,
+            isOriginal: true, publishedAt: true, createdAt: true,
+          },
         })
       : Promise.resolve([]),
   ])
