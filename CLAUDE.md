@@ -37,12 +37,20 @@ npm run fetch:news    # Fetch news from RSS sources
 - **Baidu Maps** WebGL API for community map
 
 ### Route Groups
+
+> **⚠️ CRITICAL for Claude Code:** This project has **NO `src/` directory**. All files live directly under the project root `/Users/wei/Documents/opc`. Never write to `src/` — it does not exist and will create duplicate files.
+
 ```
-src/app/
+app/                  # ← directly under project root, NOT under src/
 ├── (auth)/     # Login / Register — no main layout
 ├── (main)/     # Public pages — shared header/footer layout
 ├── admin/      # Admin panel — separate layout, role-protected
 └── api/        # API routes
+
+components/           # ← directly under project root
+lib/                  # ← directly under project root
+constants/            # ← directly under project root
+types/                # ← directly under project root
 ```
 
 ### Rendering Strategy
@@ -62,17 +70,17 @@ src/app/
 
 Example:
 ```
-src/app/(main)/plaza/page.tsx        → Server Component (SSR)
-src/components/plaza/plaza-client.tsx → Client Component ('use client')
+app/(main)/plaza/page.tsx        → Server Component (SSR)
+components/plaza/plaza-client.tsx → Client Component ('use client')
 ```
 
 ### Key Patterns
 
 **Authentication & Authorization:**
-- `src/lib/auth.ts` — NextAuth config
-- `src/lib/admin.ts` — `requireStaff()` (ADMIN/MODERATOR), `requireAdmin()` (ADMIN only)
+- `lib/auth.ts` — NextAuth config
+- `lib/admin.ts` — `requireStaff()` (ADMIN/MODERATOR), `requireAdmin()` (ADMIN only)
 - User roles: `USER`, `MODERATOR`, `ADMIN`
-- Admin layout (`src/app/admin/layout.tsx`) handles role verification
+- Admin layout (`app/admin/layout.tsx`) handles role verification
 
 **Database Access:**
 - Always import Prisma from `@/lib/db` (not directly from `@prisma/client`)
@@ -128,7 +136,7 @@ Theme (defined in `tailwind.config.ts`):
 - Secondary: `#334155` (slate gray)
 - Accent: `#10B981` (emerald)
 
-Topic tag colors (defined in `src/constants/`):
+Topic tag colors (defined in `constants/`):
 - #创业故事, #经验分享 → blue
 - #社区攻略, #补贴攻略 → orange (`#E83E8C` pill)
 - #工具推荐 → green (`#20C997`)
@@ -139,14 +147,14 @@ Topic tag colors (defined in `src/constants/`):
 ### Add new admin feature
 
 ```typescript
-// 1. API route: src/app/api/admin/your-feature/route.ts
+// 1. API route: app/api/admin/your-feature/route.ts
 import { requireAdmin } from '@/lib/admin'
 export async function GET(req: Request) {
   await requireAdmin()
   // your logic
 }
 
-// 2. Page: src/app/admin/your-feature/page.tsx
+// 2. Page: app/admin/your-feature/page.tsx
 // Admin layout handles auth — no need to re-check in page
 export default async function YourFeaturePage() {
   // Server component, direct Prisma access ok
@@ -156,7 +164,7 @@ export default async function YourFeaturePage() {
 ### Add new public page (SSR + CSR pattern)
 
 ```typescript
-// 1. Server component: src/app/(main)/your-page/page.tsx
+// 1. Server component: app/(main)/your-page/page.tsx
 import prisma from '@/lib/db'
 import { YourPageClient } from '@/components/your-page/your-page-client'
 
@@ -167,7 +175,7 @@ export default async function YourPage({ searchParams }) {
   return <YourPageClient initialData={data} />
 }
 
-// 2. Client component: src/components/your-page/your-page-client.tsx
+// 2. Client component: components/your-page/your-page-client.tsx
 'use client'
 export function YourPageClient({ initialData }) {
   const [data, setData] = useState(initialData)
