@@ -41,7 +41,7 @@ export function CommunitiesClient({
   pagination,
   cityCounts,
 }: CommunitiesClientProps) {
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
 
   return (
     <div className="container mx-auto px-4 py-8">

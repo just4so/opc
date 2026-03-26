@@ -13,17 +13,17 @@ interface CommunityPolicies {
 }
 
 const CITY_COLORS: Record<string, string> = {
-  深圳: "bg-blue-500",
-  杭州: "bg-cyan-500",
-  北京: "bg-red-500",
-  上海: "bg-purple-500",
-  苏州: "bg-emerald-500",
-  常州: "bg-teal-500",
-  无锡: "bg-sky-500",
-  成都: "bg-orange-500",
+  深圳: "bg-blue-50 text-blue-400",
+  杭州: "bg-cyan-50 text-cyan-400",
+  北京: "bg-red-50 text-red-400",
+  上海: "bg-purple-50 text-purple-400",
+  苏州: "bg-emerald-50 text-emerald-500",
+  常州: "bg-teal-50 text-teal-400",
+  无锡: "bg-sky-50 text-sky-400",
+  成都: "bg-orange-50 text-orange-400",
 }
 function getCityColor(city: string) {
-  return CITY_COLORS[city] ?? "bg-gray-400"
+  return CITY_COLORS[city] ?? "bg-gray-50 text-gray-400"
 }
 
 interface CommunityCardProps {
@@ -84,8 +84,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
             />
           </div>
         ) : (
-          <div className={`h-36 w-full rounded-t-xl flex items-center justify-center text-4xl font-bold text-white ${getCityColor(community.city)}`}>
-            {community.city.slice(0, 1)}
+          <div className={`h-36 w-full rounded-t-xl flex items-center justify-center text-sm font-medium border-b ${getCityColor(community.city)}`}>
+            {community.city}
           </div>
         )}
         <CardHeader className="pb-3">
