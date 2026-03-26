@@ -78,7 +78,7 @@ export function CommunitiesClient({
 
       {/* 地图视图 */}
       {viewMode === 'map' && (
-        <div className="mb-8">
+        <div>
           <BaiduMap
             communities={communities.map((c) => ({
               id: c.id,
@@ -91,57 +91,58 @@ export function CommunitiesClient({
             }))}
             selectedCity={selectedCity}
           />
+          <p className="text-xs text-gray-400 text-center mt-3">点击地图标记查看社区详情 · 切换「列表」视图浏览全部社区</p>
         </div>
       )}
 
-      {/* 社区卡片网格 */}
-      {communities.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {communities.map((community) => (
-            <CommunityCard
-              key={community.id}
-              community={{
-                ...community,
-                district: community.district ?? undefined,
-                operator: community.operator ?? undefined,
-                spaceSize: community.spaceSize ?? undefined,
-                workstations: community.workstations ?? undefined,
-              }}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-white rounded-lg">
-          <p className="text-gray-500 mb-4">暂无社区数据</p>
-          <p className="text-sm text-gray-400">
-            {selectedCity
-              ? `${selectedCity}暂时没有收录的OPC社区`
-              : '请稍后再来查看'}
-          </p>
-        </div>
-      )}
-
-      {/* 分页 */}
-      {pagination.totalPages > 1 && (
-        <div className="flex justify-center mt-8 space-x-2">
-          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-            (p) => (
-              <a
-                key={p}
-                href={`/communities?${
-                  selectedCity ? `city=${selectedCity}&` : ''
-                }page=${p}`}
-                className={`px-4 py-2 rounded-md text-sm ${
-                  p === pagination.page
-                    ? 'bg-primary text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {p}
-              </a>
-            )
+      {/* 社区卡片网格（仅列表视图）*/}
+      {viewMode === 'list' && (
+        <>
+          {communities.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {communities.map((community) => (
+                <CommunityCard
+                  key={community.id}
+                  community={{
+                    ...community,
+                    district: community.district ?? undefined,
+                    operator: community.operator ?? undefined,
+                    spaceSize: community.spaceSize ?? undefined,
+                    workstations: community.workstations ?? undefined,
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-lg">
+              <p className="text-gray-500 mb-4">暂无社区数据</p>
+              <p className="text-sm text-gray-400">
+                {selectedCity
+                  ? `${selectedCity}暂时没有收录的OPC社区`
+                  : '请稍后再来查看'}
+              </p>
+            </div>
           )}
-        </div>
+
+          {/* 分页 */}
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center mt-8 space-x-2">
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                <a
+                  key={p}
+                  href={`/communities?${selectedCity ? `city=${selectedCity}&` : ''}page=${p}`}
+                  className={`px-4 py-2 rounded-md text-sm ${
+                    p === pagination.page
+                      ? 'bg-primary text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {p}
+                </a>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

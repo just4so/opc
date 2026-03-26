@@ -54,38 +54,33 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
     }
   }, [])
 
-  // 初始化地图
+  // 初始化地图（只跑一次）
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.BMapGL) return
 
     const BMapGL = window.BMapGL
-
-    // 创建地图实例
     const map = new BMapGL.Map(mapRef.current)
 
-    // 设置中心点和缩放级别
-    let center = new BMapGL.Point(116.404, 39.915) // 默认北京
-    let zoom = 5
-
-    if (selectedCity && CITY_COORDINATES[selectedCity]) {
-      const coords = CITY_COORDINATES[selectedCity]
-      center = new BMapGL.Point(coords.lng, coords.lat)
-      zoom = 11
-    }
-
-    map.centerAndZoom(center, zoom)
+    const center = new BMapGL.Point(104.5, 35.5) // 中国地理中心，全国视野
+    map.centerAndZoom(center, 5)
     map.enableScrollWheelZoom(true)
 
-    // 添加地图控件
-    map.addControl(new BMapGL.NavigationControl())
-    map.addControl(new BMapGL.ScaleControl())
-
     setMapInstance(map)
+  }, [isLoaded])
 
-    return () => {
-      // 销毁地图
+  // 城市切换时重新 zoom
+  useEffect(() => {
+    if (!mapInstance || !window.BMapGL) return
+    const BMapGL = window.BMapGL
+    if (selectedCity && CITY_COORDINATES[selectedCity]) {
+      const coords = CITY_COORDINATES[selectedCity]
+      mapInstance.panTo(new BMapGL.Point(coords.lng, coords.lat))
+      mapInstance.setZoom(11)
+    } else if (!selectedCity) {
+      mapInstance.panTo(new BMapGL.Point(104.5, 35.5))
+      mapInstance.setZoom(5)
     }
-  }, [isLoaded, selectedCity])
+  }, [mapInstance, selectedCity])
 
   // 添加标记点
   useEffect(() => {
@@ -110,7 +105,19 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
         return
       }
 
-      const marker = new BMapGL.Marker(point)
+      const marker = new BMapGL.Marker(point, {
+        icon: new BMapGL.Icon(
+          `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+              <defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/></filter></defs>
+              <path d="M14 0C6.27 0 0 6.27 0 14c0 9.33 14 22 14 22S28 23.33 28 14C28 6.27 21.73 0 14 0z" fill="#F97316" filter="url(#shadow)"/>
+              <circle cx="14" cy="14" r="6" fill="white"/>
+            </svg>`
+          )}`,
+          new BMapGL.Size(28, 36),
+          { anchor: new BMapGL.Size(14, 36) }
+        ),
+      })
       mapInstance.addOverlay(marker)
 
       // 创建美化的信息窗口

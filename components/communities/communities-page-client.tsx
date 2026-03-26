@@ -69,16 +69,21 @@ function DifficultyStars({ value }: { value: number }) {
 
 function CityTabs({
   cityCounts,
+  cityDifficulty,
   selectedCity,
   onCityChange,
 }: {
   cityCounts: { city: string; count: number }[]
+  cityDifficulty: CityDifficulty[]
   selectedCity: string
   onCityChange: (city: string) => void
 }) {
+  // 建立城市难度 map 方便 O(1) 查找
+  const diffMap = new Map(cityDifficulty.map((d) => [d.city, d.difficulty]))
+
   return (
     <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-      <div className="flex items-center gap-2 pb-2 min-w-max lg:flex-wrap">
+      <div className="flex items-center gap-2 pb-1 min-w-max lg:flex-wrap">
         <button
           onClick={() => onCityChange('')}
           className={cn(
@@ -90,52 +95,43 @@ function CityTabs({
         >
           全部
         </button>
-        {cityCounts.map((c) => (
-          <button
-            key={c.city}
-            onClick={() => onCityChange(c.city)}
-            className={cn(
-              'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-              selectedCity === c.city
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            )}
-          >
-            {c.city}
-            <span className="ml-1 text-xs opacity-70">({c.count})</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function CityDifficultyBar({
-  cityDifficulty,
-  onCityClick,
-}: {
-  cityDifficulty: CityDifficulty[]
-  onCityClick: (city: string) => void
-}) {
-  if (cityDifficulty.length === 0) return null
-
-  return (
-    <div className="bg-white rounded-lg p-4 shadow-sm">
-      <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
-        <div className="flex items-center gap-4 min-w-max">
-          {cityDifficulty.map((d) => (
+        {cityCounts.map((c) => {
+          const diff = diffMap.get(c.city)
+          const isActive = selectedCity === c.city
+          return (
             <button
-              key={d.city}
-              onClick={() => onCityClick(d.city)}
-              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+              key={c.city}
+              onClick={() => onCityChange(c.city)}
+              className={cn(
+                'flex flex-col items-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
+                isActive
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
             >
-              <span className="text-sm font-medium text-secondary">{d.city}</span>
-              <DifficultyStars value={d.difficulty} />
+              <span>{c.city}<span className="ml-1 text-xs opacity-70">({c.count})</span></span>
+              {diff != null && (
+                <span className={cn('flex items-center gap-0.5 mt-0.5', isActive ? 'opacity-80' : '')}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        'h-2.5 w-2.5',
+                        i < Math.round(diff)
+                          ? isActive ? 'fill-white text-white' : 'fill-amber-400 text-amber-400'
+                          : isActive ? 'text-white/40' : 'text-gray-300'
+                      )}
+                    />
+                  ))}
+                </span>
+              )}
             </button>
-          ))}
-        </div>
+          )
+        })}
       </div>
-      <p className="text-xs text-gray-400 mt-2">基于已入驻创业者反馈，供参考</p>
+      {cityDifficulty.length > 0 && (
+        <p className="text-xs text-gray-400 mt-1.5 pl-1">星级 = 入驻难度，基于创业者反馈</p>
+      )}
     </div>
   )
 }
@@ -160,7 +156,7 @@ export function CommunitiesPageClient({
 
   const [communities, setCommunities] = useState<Community[]>(initialCommunities)
   const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
+    page: page,
     limit: 12,
     total: initialTotal,
     totalPages: Math.ceil(initialTotal / 12),
@@ -216,20 +212,15 @@ export function CommunitiesPageClient({
         </div>
       </div>
 
-      {/* 城市快筛 Tab + 难度对比 */}
+      {/* 城市快筛 Tab（含难度星级）*/}
       <div className="bg-gray-50 border-b">
-        <div className="container mx-auto px-4 py-4 space-y-3">
+        <div className="container mx-auto px-4 py-4">
           <CityTabs
             cityCounts={cityCounts}
+            cityDifficulty={cityDifficulty}
             selectedCity={city}
             onCityChange={handleCityChange}
           />
-          {!loading && (
-            <CityDifficultyBar
-              cityDifficulty={cityDifficulty}
-              onCityClick={handleCityChange}
-            />
-          )}
         </div>
       </div>
 
