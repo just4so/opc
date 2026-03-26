@@ -171,9 +171,10 @@ export function CommunitiesPageClient({
       </div>
 
       {/* 内容区 */}
-      {loading ? (
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {loading && viewMode === 'list' ? (
+        // 列表视图骨架屏
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm">
                 <div className="h-36 bg-gray-200 animate-pulse" />
@@ -194,6 +195,7 @@ export function CommunitiesPageClient({
           cityCounts={cityCounts}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
+          loading={loading}
         />
       )}
     </div>

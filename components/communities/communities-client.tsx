@@ -34,6 +34,7 @@ interface CommunitiesClientProps {
   cityCounts: { city: string; count: number }[]
   viewMode: 'map' | 'list'
   onViewModeChange: (v: 'map' | 'list') => void
+  loading?: boolean
 }
 
 export function CommunitiesClient({
@@ -41,12 +42,13 @@ export function CommunitiesClient({
   selectedCity,
   pagination,
   viewMode,
+  loading,
 }: CommunitiesClientProps) {
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* 地图视图 */}
+      {/* 地图视图：始终渲染，loading 时叠加半透明 overlay */}
       {viewMode === 'map' && (
-        <div>
+        <div className="relative">
           <BaiduMap
             communities={communities.map((c) => ({
               id: c.id,
@@ -59,6 +61,11 @@ export function CommunitiesClient({
             }))}
             selectedCity={selectedCity}
           />
+          {loading && (
+            <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-lg">
+              <div className="text-sm text-gray-400">加载中…</div>
+            </div>
+          )}
           <p className="text-xs text-gray-400 text-center mt-3">
             点击橙色标记查看社区 · 切换「列表」浏览全部
           </p>

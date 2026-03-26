@@ -68,17 +68,15 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
     setMapInstance(map)
   }, [isLoaded])
 
-  // 城市切换时重新 zoom
+  // 城市切换时重新 zoom（用 centerAndZoom 一步到位，避免 panTo+setZoom 竞态）
   useEffect(() => {
     if (!mapInstance || !window.BMapGL) return
     const BMapGL = window.BMapGL
     if (selectedCity && CITY_COORDINATES[selectedCity]) {
       const coords = CITY_COORDINATES[selectedCity]
-      mapInstance.panTo(new BMapGL.Point(coords.lng, coords.lat))
-      mapInstance.setZoom(11)
+      mapInstance.centerAndZoom(new BMapGL.Point(coords.lng, coords.lat), 12)
     } else if (!selectedCity) {
-      mapInstance.panTo(new BMapGL.Point(108.0, 34.0))
-      mapInstance.setZoom(5)
+      mapInstance.centerAndZoom(new BMapGL.Point(108.0, 34.0), 5)
     }
   }, [mapInstance, selectedCity])
 
