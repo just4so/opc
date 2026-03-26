@@ -61,7 +61,7 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
     const BMapGL = window.BMapGL
     const map = new BMapGL.Map(mapRef.current)
 
-    const center = new BMapGL.Point(104.5, 35.5) // 中国地理中心，全国视野
+    const center = new BMapGL.Point(108.0, 34.0) // 中国全国视野（陕西中心）
     map.centerAndZoom(center, 5)
     map.enableScrollWheelZoom(true)
 
@@ -77,7 +77,7 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
       mapInstance.panTo(new BMapGL.Point(coords.lng, coords.lat))
       mapInstance.setZoom(11)
     } else if (!selectedCity) {
-      mapInstance.panTo(new BMapGL.Point(104.5, 35.5))
+      mapInstance.panTo(new BMapGL.Point(108.0, 34.0))
       mapInstance.setZoom(5)
     }
   }, [mapInstance, selectedCity])
