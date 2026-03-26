@@ -1,7 +1,7 @@
 import { PlazaClient } from '@/components/plaza/plaza-client'
 import prisma from '@/lib/db'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // 60秒 ISR，广场发帖可接受延迟
 
 export default async function PlazaPage() {
   const now = new Date()

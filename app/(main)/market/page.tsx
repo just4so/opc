@@ -1,75 +1,59 @@
-'use client'
-
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Briefcase, Handshake, Share2 } from 'lucide-react'
 import { OrderCard } from '@/components/market/order-card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CONTENT_TYPES, MARKET_CATEGORIES } from '@/constants/topics'
+import prisma from '@/lib/db'
 
-interface Order {
-  id: string
-  slug: string
-  name: string
-  tagline: string
-  description: string
-  category: string[]
-  skills: string[]
-  budgetType: string | null
-  budgetMin: number | null
-  budgetMax: number | null
-  deadline: string | null
-  contentType: string
-  contactType: string | null
-  status: string
-  viewCount: number
-  featured: boolean
-  createdAt: string
-  owner: {
-    id: string
-    username: string
-    name: string | null
-    avatar: string | null
-    verified: boolean
+export const revalidate = 120
+
+const PAGE_SIZE = 20
+
+export default async function MarketPage({
+  searchParams,
+}: {
+  searchParams: { type?: string; category?: string; page?: string }
+}) {
+  const type = searchParams.type || ''
+  const category = searchParams.category || ''
+  const page = parseInt(searchParams.page || '1') || 1
+
+  const where: any = {
+    status: 'PUBLISHED',
+    contentType: { in: ['DEMAND', 'COOPERATION'] },
   }
-}
 
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
+  if (type && (type === 'DEMAND' || type === 'COOPERATION')) {
+    where.contentType = type
+  }
 
-function MarketContent() {
-  const searchParams = useSearchParams()
-  const type = searchParams.get('type') || ''
-  const category = searchParams.get('category') || ''
-  const page = parseInt(searchParams.get('page') || '1')
+  if (category) {
+    where.category = { has: category }
+  }
 
-  const [orders, setOrders] = useState<Order[]>([])
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 24, total: 0, totalPages: 0 })
-  const [loading, setLoading] = useState(true)
+  const [orders, total] = await Promise.all([
+    prisma.project.findMany({
+      where,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true,
+            verified: true,
+          },
+        },
+      },
+    }),
+    prisma.project.count({ where }),
+  ])
 
-  useEffect(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (type) params.set('type', type)
-    if (category) params.set('category', category)
-    params.set('page', String(page))
-    params.set('limit', '24')
-
-    fetch(`/api/market?${params}`)
-      .then(res => res.json())
-      .then(data => {
-        setOrders(data.data || [])
-        setPagination(data.pagination || { page: 1, limit: 24, total: 0, totalPages: 0 })
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [type, category, page])
+  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,27 +179,13 @@ function MarketContent() {
         </div>
 
         {/* 订单网格 */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-3" />
-                <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
-                <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse mb-4" />
-                <div className="flex gap-2">
-                  <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse" />
-                  <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : orders.length > 0 ? (
+        {orders.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {orders.map((order) => (
               <OrderCard key={order.id} order={{
                 ...order,
-                deadline: order.deadline ? new Date(order.deadline) : null,
-                createdAt: new Date(order.createdAt),
+                deadline: order.deadline,
+                createdAt: order.createdAt,
               }} />
             ))}
           </div>
@@ -229,14 +199,14 @@ function MarketContent() {
         )}
 
         {/* 分页 */}
-        {!loading && pagination.totalPages > 1 && (
+        {totalPages > 1 && (
           <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <Link
                 key={p}
                 href={`/market?${type ? `type=${type}&` : ''}${category ? `category=${category}&` : ''}page=${p}`}
                 className={`px-4 py-2 rounded-md text-sm ${
-                  p === pagination.page
+                  p === page
                     ? 'bg-primary text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-100'
                 }`}
@@ -248,13 +218,5 @@ function MarketContent() {
         )}
       </div>
     </div>
-  )
-}
-
-export default function MarketPage() {
-  return (
-    <Suspense fallback={null}>
-      <MarketContent />
-    </Suspense>
   )
 }
