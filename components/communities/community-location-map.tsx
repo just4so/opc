@@ -84,8 +84,6 @@ export function CommunityLocationMap({
       map.openInfoWindow(infoWindow, point)
     })
 
-    // Open info window by default
-    map.openInfoWindow(infoWindow, point)
   }, [isLoaded, name, city, address, latitude, longitude])
 
   return (

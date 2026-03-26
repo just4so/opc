@@ -39,6 +39,19 @@ const categoryColors: Record<string, string> = {
   CASE: 'bg-amber-100 text-amber-700',
 }
 
+const categoryBarColors: Record<string, string> = {
+  POLICY: "bg-orange-400",
+  TOOL: "bg-blue-400",
+  CASE: "bg-green-400",
+  EVENT: "bg-purple-400",
+  TECH: "bg-cyan-400",
+  FUNDING: "bg-green-400",
+  STORY: "bg-pink-400",
+}
+function getCategoryBarColor(category: string) {
+  return categoryBarColors[category] ?? "bg-gray-300"
+}
+
 function estimateReadingMinutes(content: string | null | undefined, summary: string | null): number {
   const text = content || summary || ''
   const charCount = text.length
@@ -115,6 +128,7 @@ export function NewsCardCompact({ news }: NewsCardProps) {
       rel={isExternal ? 'noopener noreferrer' : undefined}
       className="block hover:bg-gray-50 p-3 rounded-lg transition-colors"
     >
+      <div className={`h-0.5 w-full rounded-full mb-2 ${getCategoryBarColor(news.category)}`} />
       <div className="flex items-start gap-3">
         {news.isOriginal && (
           <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0">

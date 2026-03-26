@@ -103,8 +103,27 @@ function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex">
+      {/* 左侧品牌 Panel（桌面端显示）*/}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
+        <div className="max-w-sm text-center">
+          <div className="text-5xl font-bold mb-2">OPC</div>
+          <div className="text-2xl font-semibold mb-8 opacity-90">创业圈</div>
+          <p className="text-lg font-medium mb-8 leading-relaxed opacity-95">
+            让 AI 创业者<br />不再孤独前行
+          </p>
+          <ul className="space-y-3 text-left text-sm opacity-80">
+            <li className="flex items-center gap-2">✅ 全国 104+ 个 OPC 社区攻略</li>
+            <li className="flex items-center gap-2">✅ 精确到联系方式和入驻条件</li>
+            <li className="flex items-center gap-2">✅ AI 创业者聚集的广场社区</li>
+            <li className="flex items-center gap-2">✅ 最新 OPC 政策解读</li>
+          </ul>
+        </div>
+      </div>
+      {/* 右侧表单 */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+        <div className="w-full max-w-md">
+      <Card>
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
             <span className="text-2xl font-bold text-primary">OPC</span>
@@ -265,6 +284,8 @@ function RegisterForm() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   )
 }

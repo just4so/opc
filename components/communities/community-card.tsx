@@ -12,6 +12,20 @@ interface CommunityPolicies {
   support?: string[]
 }
 
+const CITY_COLORS: Record<string, string> = {
+  深圳: "bg-blue-500",
+  杭州: "bg-cyan-500",
+  北京: "bg-red-500",
+  上海: "bg-purple-500",
+  苏州: "bg-emerald-500",
+  常州: "bg-teal-500",
+  无锡: "bg-sky-500",
+  成都: "bg-orange-500",
+}
+function getCityColor(city: string) {
+  return CITY_COLORS[city] ?? "bg-gray-400"
+}
+
 interface CommunityCardProps {
   community: {
     id: string
@@ -28,6 +42,7 @@ interface CommunityCardProps {
     focus: string[]
     featured: boolean
     applyDifficulty?: number | null
+    coverImage?: string | null
   }
 }
 
@@ -59,6 +74,20 @@ export function CommunityCard({ community }: CommunityCardProps) {
   return (
     <Link href={`/communities/${community.slug}`}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
+        {/* 封面图 */}
+        {community.coverImage ? (
+          <div className="relative h-36 w-full overflow-hidden rounded-t-xl bg-gray-100">
+            <img
+              src={community.coverImage}
+              alt={community.name}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className={`h-36 w-full rounded-t-xl flex items-center justify-center text-4xl font-bold text-white ${getCityColor(community.city)}`}>
+            {community.city.slice(0, 1)}
+          </div>
+        )}
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">

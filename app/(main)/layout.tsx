@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { UserNav } from '@/components/layout/user-nav'
+import { NavLinks } from '@/components/layout/nav-links'
 
 export default function MainLayout({
   children,
@@ -20,36 +21,7 @@ export default function MainLayout({
 
           {/* 导航链接 */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link
-              href="/communities"
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
-            >
-              社区地图
-            </Link>
-            <Link
-              href="/plaza"
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
-            >
-              创业广场
-            </Link>
-            <Link
-              href="/market"
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
-            >
-              合作广场
-            </Link>
-            <Link
-              href="/news"
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
-            >
-              创业资讯
-            </Link>
-            <Link
-              href="/tools"
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
-            >
-              工具导航
-            </Link>
+            <NavLinks />
           </nav>
 
           {/* 用户操作 */}

@@ -61,7 +61,10 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative py-24 px-4 bg-gradient-subtle overflow-hidden">
+      <section className="relative py-24 px-4 bg-gradient-to-br from-orange-50 via-white to-white overflow-hidden">
+        {/* 背景光晕 */}
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-orange-200/30 rounded-full blur-3xl pointer-events-none" />
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-secondary mb-6 leading-tight">
             让 AI 创业者

@@ -17,8 +17,8 @@ export function LoginGate({ isLoggedIn, message, registerUrl, children }: LoginG
   }
 
   return (
-    <div className="relative">
-      <div className="blur-sm select-none pointer-events-none">
+    <div className="relative min-h-[80px]">
+      <div className="blur-sm select-none pointer-events-none min-h-[80px]">
         {children}
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] rounded-lg">

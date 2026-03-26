@@ -259,28 +259,28 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
                 </select>
               </div>
 
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
                 <button
-                  onClick={() => setViewMode('card')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'card'
-                      ? 'bg-white text-primary shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
+                  onClick={() => setViewMode("card")}
+                  className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
+                    viewMode === "card"
+                      ? "bg-primary text-white"
+                      : "bg-white text-gray-500 hover:bg-gray-50"
                   }`}
-                  title="卡片视图"
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  卡片
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-white text-primary shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
+                  onClick={() => setViewMode("list")}
+                  className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
+                    viewMode === "list"
+                      ? "bg-primary text-white"
+                      : "bg-white text-gray-500 hover:bg-gray-50"
                   }`}
-                  title="列表视图"
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-3.5 w-3.5" />
+                  列表
                 </button>
               </div>
             </div>

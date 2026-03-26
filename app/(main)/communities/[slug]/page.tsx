@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CommunityLocationMap } from '@/components/communities/community-location-map'
 import CommunityReviews from '@/components/communities/community-reviews'
 import { LoginGate } from '@/components/communities/login-gate'
+import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -83,7 +84,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background">
       {/* 返回导航 */}
       <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <Link
             href="/communities"
             className="inline-flex items-center text-gray-600 hover:text-primary transition-colors"
@@ -96,7 +97,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
       {/* 社区头部 */}
       <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -413,7 +414,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <li>✅ 配套服务详情</li>
                     <li>✅ 政策扶持详情</li>
                   </ul>
-                  <Button asChild variant="secondary" className="w-full">
+                  <Button asChild variant="secondary" className="bg-white text-primary hover:bg-orange-50 border-0 w-full">
                     <Link href={registerUrl}>立即免费注册</Link>
                   </Button>
                   <p className="text-center text-sm text-white/70 mt-3">
@@ -560,6 +561,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+      <MobileRegisterBar isLoggedIn={isLoggedIn} registerUrl={registerUrl} />
     </div>
   )
 }
