@@ -1,11 +1,17 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { MapPin, MessageSquare, Handshake, Cpu, ArrowRight } from 'lucide-react'
 import { NewsCardCompact } from '@/components/news/news-card'
 import { ActivityBar } from '@/components/home/activity-bar'
 import { HeroSessionLink, CtaSessionLink } from '@/components/home/session-cta'
 import prisma from '@/lib/db'
 
-export const revalidate = 60
+export const revalidate = 300
+
+export const metadata: Metadata = {
+  title: 'OPC创业圈 · 让 AI 创业者不再孤独前行',
+  description: '全国 OPC 社区攻略聚合平台，覆盖深圳、北京、上海等热门城市，真实入驻者经验分享，帮 AI 创业者找到适合自己的创业空间。',
+}
 
 export default async function HomePage() {
   const [newsItems, statsResult, recentPosts] = await Promise.all([
@@ -31,10 +37,15 @@ export default async function HomePage() {
         by: ['city'],
         where: { status: 'ACTIVE' },
         _count: true,
+        orderBy: { _count: { city: 'desc' } },
       }),
     ]).then(([total, cities]) => ({
       totalCommunities: total,
       totalCities: cities.length,
+      topCities: cities
+        .sort((a, b) => (b._count as number) - (a._count as number))
+        .slice(0, 8)
+        .map(c => ({ name: c.city, count: c._count as number })),
     })),
     prisma.post.findMany({
       take: 5,
@@ -97,70 +108,48 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 真实案例 */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-secondary mb-4">
-              真实创业者在做什么
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                tag: 'AI工具开发·深圳',
-                title: '非程序员用AI 1小时做出App，霸榜App Store付费总榜第1',
-                stats: [
-                  { label: '启动成本', value: '几乎为零' },
-                  { label: '核心工具', value: 'AI辅助开发' },
-                ],
-              },
-              {
-                tag: '跨境电商·深圳',
-                title: '1人管3个独立站，月均净利40%+',
-                stats: [
-                  { label: '工具成本', value: '7000元/月' },
-                  { label: '核心工具', value: 'AI选品+自动化' },
-                ],
-              },
-              {
-                tag: 'AI内容服务·苏州',
-                title: '月产100篇内容，3个固定客户',
-                stats: [
-                  { label: '工具成本', value: '1800元/月' },
-                  { label: '核心工具', value: 'Claude+Canva' },
-                ],
-              },
-            ].map((card, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-soft p-6 flex flex-col">
-                <span className="inline-block self-start px-3 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700 mb-4">
-                  {card.tag}
-                </span>
-                <h3 className="text-lg font-semibold text-secondary mb-4 leading-snug">
-                  {card.title}
-                </h3>
-                <div className="space-y-2 mb-6 flex-1">
-                  {card.stats.map((stat, i) => (
-                    <div key={i} className="flex items-center text-sm text-gray-600">
-                      <span className="text-gray-400 mr-2">{stat.label}：</span>
-                      <span className="font-medium text-secondary">{stat.value}</span>
-                    </div>
-                  ))}
-                </div>
+      {/* 广场动态 */}
+      {recentPosts.length > 0 && (
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-secondary mb-4">
+                创业者在聊什么
+              </h2>
+              <p className="text-gray-500">来自广场的真实动态</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {recentPosts.slice(0, 3).map((post) => (
                 <Link
-                  href="/plaza"
-                  className="text-sm font-medium text-primary hover:text-primary-600 transition-colors"
+                  key={post.id}
+                  href={`/plaza/${post.id}`}
+                  className="bg-white rounded-xl shadow-soft p-6 flex flex-col hover:shadow-soft-lg transition-shadow group"
                 >
-                  → 查看完整路径
+                  <p className="text-sm text-gray-700 leading-relaxed mb-4 flex-1 line-clamp-4">
+                    {post.content.split('\n')[0].slice(0, 120)}
+                    {post.content.length > 120 ? '…' : ''}
+                  </p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-xs text-gray-400">
+                      {post.author.name || post.author.username || '匿名创业者'}
+                    </span>
+                    <span className="text-xs text-primary group-hover:underline">查看全文 →</span>
+                  </div>
                 </Link>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link
+                href="/plaza"
+                className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+              >
+                进入创业广场
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <p className="text-xs text-gray-400 text-center mt-6">
-            数据来源：公开报道 · 2026年3月整理
-          </p>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 核心功能 */}
       <section className="py-20 bg-background">
@@ -223,34 +212,36 @@ export default async function HomePage() {
       </section>
 
       {/* 热门城市 */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-secondary mb-4">
-              热门城市
-            </h2>
-            <p className="text-gray-500">
-              选择城市，探索当地的 OPC 创业社区
-            </p>
+      {statsResult.topCities.length > 0 && (
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-secondary mb-4">
+                热门城市
+              </h2>
+              <p className="text-gray-500">
+                选择城市，探索当地的 OPC 创业社区
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {statsResult.topCities.map((city) => (
+                <Link
+                  key={city.name}
+                  href={`/communities?city=${city.name}`}
+                  className="group p-5 rounded-xl bg-gray-50 hover:bg-primary-50 transition-colors text-center"
+                >
+                  <div className="text-lg font-medium text-secondary group-hover:text-primary transition-colors">
+                    {city.name}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1 group-hover:text-primary-400">
+                    {city.count} 个社区 →
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['深圳', '杭州', '北京', '上海', '苏州', '常州', '无锡', '成都'].map((city) => (
-              <Link
-                key={city}
-                href={`/communities?city=${city}`}
-                className="group p-5 rounded-xl bg-gray-50 hover:bg-primary-50 transition-colors text-center"
-              >
-                <div className="text-lg font-medium text-secondary group-hover:text-primary transition-colors">
-                  {city}
-                </div>
-                <div className="text-xs text-gray-400 mt-1 group-hover:text-primary-400">
-                  查看社区 →
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 创业资讯 */}
       {newsItems.length > 0 && (
