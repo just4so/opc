@@ -1,10 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+// 架构说明：全量数据（104条）在 SSR 时一次性传入，城市筛选和分页全部前端完成。
+// 不再调用 /api/communities（除非社区数量超过 500 条才需要重新评估）。
+// 好处：城市切换零延迟、地图不重载、无网络往返。
+
+import { useState, useMemo } from 'react'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid } from 'lucide-react'
+
+const PAGE_SIZE = 12
 
 interface Community {
   id: string
@@ -29,79 +34,39 @@ interface Community {
   applyDifficulty?: number | null
 }
 
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
-
 interface CommunitiesPageClientProps {
-  initialCommunities: Community[]
-  initialTotal: number
+  // 全量数据，SSR 时传入
+  allCommunities: Community[]
   cityCounts: { city: string; count: number }[]
   cityDifficulty: { city: string; difficulty: number; count: number }[]
 }
 
 export function CommunitiesPageClient({
-  initialCommunities,
-  initialTotal,
-  cityCounts: initialCityCounts,
+  allCommunities,
+  cityCounts,
 }: CommunitiesPageClientProps) {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const pageFromUrl = parseInt(searchParams.get('page') || '1')
-
-  // 城市筛选和视图模式：纯 client state，不触发路由重载
   const [selectedCity, setSelectedCity] = useState('')
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
+  const [page, setPage] = useState(1)
 
-  const [communities, setCommunities] = useState<Community[]>(initialCommunities)
-  const [pagination, setPagination] = useState<Pagination>({
-    page: pageFromUrl,
-    limit: 12,
-    total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 12),
-  })
-  const [cityCounts, setCityCounts] = useState(initialCityCounts)
-  const [loading, setLoading] = useState(false)
+  // 城市筛选：纯前端 filter，零延迟
+  const filtered = useMemo(() => {
+    if (!selectedCity) return allCommunities
+    return allCommunities.filter((c) => c.city === selectedCity)
+  }, [allCommunities, selectedCity])
 
-  // 城市或分页变化时拉新数据
-  useEffect(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (selectedCity) params.set('city', selectedCity)
-    params.set('page', String(pageFromUrl))
-    params.set('limit', '12')
-
-    Promise.all([
-      fetch(`/api/communities?${params}`).then(r => r.json()),
-      fetch('/api/stats').then(r => r.json()),
-    ])
-      .then(([commData, statsData]) => {
-        setCommunities(commData.data || [])
-        setPagination(commData.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 })
-        setCityCounts(statsData.cityCounts || initialCityCounts)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [selectedCity, pageFromUrl])
+  // 分页：前端 slice
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city)
-    // 分页重置回第 1 页（只更新 URL page param，不重载组件树）
-    if (pageFromUrl !== 1) {
-      router.replace('/communities')
-    }
-  }
-
-  const handleViewModeChange = (v: 'map' | 'list') => {
-    setViewMode(v)
+    setPage(1) // 切城市重置到第 1 页
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Header：标题 + 城市筛选 + 视图切换合一 */}
+      {/* Header：标题 + 统计 + 视图切换 + 城市筛选 */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 pt-8 pb-5">
           {/* 标题行 */}
@@ -111,13 +76,13 @@ export function CommunitiesPageClient({
                 全国 OPC 社区地图
               </h1>
               <p className="text-sm text-gray-400 mt-1">
-                {initialTotal} 个社区 · {cityCounts.length} 座城市 · 真实入驻难度参考
+                {allCommunities.length} 个社区 · {cityCounts.length} 座城市 · 真实入驻难度参考
               </p>
             </div>
             {/* 视图切换 */}
             <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 shrink-0">
               <button
-                onClick={() => handleViewModeChange('list')}
+                onClick={() => setViewMode('list')}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
                   viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400 hover:text-gray-600'
@@ -127,7 +92,7 @@ export function CommunitiesPageClient({
                 列表
               </button>
               <button
-                onClick={() => handleViewModeChange('map')}
+                onClick={() => setViewMode('map')}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
                   viewMode === 'map' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400 hover:text-gray-600'
@@ -170,34 +135,17 @@ export function CommunitiesPageClient({
         </div>
       </div>
 
-      {/* 内容区 */}
-      {loading && viewMode === 'list' ? (
-        // 列表视图骨架屏
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm">
-                <div className="h-36 bg-gray-200 animate-pulse" />
-                <div className="p-4 space-y-2">
-                  <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <CommunitiesClient
-          communities={communities.map((c) => ({ ...c, policies: c.policies as any }))}
-          selectedCity={selectedCity || undefined}
-          pagination={pagination}
-          cityCounts={cityCounts}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
-          loading={loading}
-        />
-      )}
+      {/* 内容区：直接渲染，无 loading 状态 */}
+      <CommunitiesClient
+        communities={paginated.map((c) => ({ ...c, policies: c.policies as any }))}
+        allCommunities={filtered.map((c) => ({ ...c, policies: c.policies as any }))}
+        selectedCity={selectedCity || undefined}
+        pagination={{ page, total: filtered.length, totalPages }}
+        cityCounts={cityCounts}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onPageChange={setPage}
+      />
     </div>
   )
 }

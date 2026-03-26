@@ -24,33 +24,31 @@ interface Community {
 }
 
 interface CommunitiesClientProps {
-  communities: Community[]
+  communities: Community[]       // 当前页数据（列表用）
+  allCommunities: Community[]    // 全量筛选后数据（地图用，显示所有标记）
   selectedCity?: string
-  pagination: {
-    page: number
-    total: number
-    totalPages: number
-  }
+  pagination: { page: number; total: number; totalPages: number }
   cityCounts: { city: string; count: number }[]
   viewMode: 'map' | 'list'
   onViewModeChange: (v: 'map' | 'list') => void
-  loading?: boolean
+  onPageChange: (p: number) => void
 }
 
 export function CommunitiesClient({
   communities,
+  allCommunities,
   selectedCity,
   pagination,
   viewMode,
-  loading,
+  onPageChange,
 }: CommunitiesClientProps) {
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* 地图视图：始终渲染，loading 时叠加半透明 overlay */}
+      {/* 地图视图：用全量数据显示所有标记 */}
       {viewMode === 'map' && (
-        <div className="relative">
+        <div>
           <BaiduMap
-            communities={communities.map((c) => ({
+            communities={allCommunities.map((c) => ({
               id: c.id,
               slug: c.slug,
               name: c.name,
@@ -61,11 +59,6 @@ export function CommunitiesClient({
             }))}
             selectedCity={selectedCity}
           />
-          {loading && (
-            <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded-lg">
-              <div className="text-sm text-gray-400">加载中…</div>
-            </div>
-          )}
           <p className="text-xs text-gray-400 text-center mt-3">
             点击橙色标记查看社区 · 切换「列表」浏览全部
           </p>
@@ -103,9 +96,9 @@ export function CommunitiesClient({
           {pagination.totalPages > 1 && (
             <div className="flex justify-center mt-8 gap-2">
               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
-                <a
+                <button
                   key={p}
-                  href={`/communities?page=${p}`}
+                  onClick={() => onPageChange(p)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     p === pagination.page
                       ? 'bg-primary text-white'
@@ -113,7 +106,7 @@ export function CommunitiesClient({
                   }`}
                 >
                   {p}
-                </a>
+                </button>
               ))}
             </div>
           )}
