@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { BaiduMap } from '@/components/communities/baidu-map'
 import { CommunityCard } from '@/components/communities/community-card'
 import { Map, List } from 'lucide-react'
@@ -22,6 +21,7 @@ interface Community {
   focus: string[]
   featured: boolean
   applyDifficulty?: number | null
+  coverImage?: string | null
 }
 
 interface CommunitiesClientProps {
@@ -33,45 +33,42 @@ interface CommunitiesClientProps {
     totalPages: number
   }
   cityCounts: { city: string; count: number }[]
+  viewMode: 'map' | 'list'
+  onViewModeChange: (v: 'map' | 'list') => void
 }
 
 export function CommunitiesClient({
   communities,
   selectedCity,
   pagination,
-  cityCounts,
+  viewMode,
+  onViewModeChange,
 }: CommunitiesClientProps) {
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* 地图视图切换 */}
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-gray-600">
-          {selectedCity ? `${selectedCity}` : '全部城市'} · 共 {pagination.total} 个社区
+    <div className="container mx-auto px-4 py-6">
+      {/* 顶栏：结果统计 + 视图切换 */}
+      <div className="flex items-center justify-between mb-5">
+        <p className="text-sm text-gray-500">
+          {selectedCity ? selectedCity : '全部城市'} · {pagination.total} 个社区
         </p>
-        <div className="flex items-center space-x-2 bg-white rounded-lg p-1 shadow-sm">
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
           <button
-            onClick={() => setViewMode('map')}
-            className={`flex items-center px-3 py-1.5 rounded-md text-sm transition-colors ${
-              viewMode === 'map'
-                ? 'bg-primary text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+            onClick={() => onViewModeChange('list')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
+              viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Map className="h-4 w-4 mr-1" />
-            地图
+            <List className="h-3.5 w-3.5" />
+            列表
           </button>
           <button
-            onClick={() => setViewMode('list')}
-            className={`flex items-center px-3 py-1.5 rounded-md text-sm transition-colors ${
-              viewMode === 'list'
-                ? 'bg-primary text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+            onClick={() => onViewModeChange('map')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
+              viewMode === 'map' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <List className="h-4 w-4 mr-1" />
-            列表
+            <Map className="h-3.5 w-3.5" />
+            地图
           </button>
         </div>
       </div>
@@ -91,15 +88,17 @@ export function CommunitiesClient({
             }))}
             selectedCity={selectedCity}
           />
-          <p className="text-xs text-gray-400 text-center mt-3">点击地图标记查看社区详情 · 切换「列表」视图浏览全部社区</p>
+          <p className="text-xs text-gray-400 text-center mt-3">
+            点击橙色标记查看社区 · 切换「列表」浏览全部
+          </p>
         </div>
       )}
 
-      {/* 社区卡片网格（仅列表视图）*/}
+      {/* 列表视图 */}
       {viewMode === 'list' && (
         <>
           {communities.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {communities.map((community) => (
                 <CommunityCard
                   key={community.id}
@@ -114,27 +113,25 @@ export function CommunitiesClient({
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-lg">
-              <p className="text-gray-500 mb-4">暂无社区数据</p>
+            <div className="text-center py-16 bg-white rounded-xl">
+              <p className="text-gray-500 mb-2">暂无社区数据</p>
               <p className="text-sm text-gray-400">
-                {selectedCity
-                  ? `${selectedCity}暂时没有收录的OPC社区`
-                  : '请稍后再来查看'}
+                {selectedCity ? `${selectedCity}暂时没有收录的 OPC 社区` : '请稍后再来查看'}
               </p>
             </div>
           )}
 
           {/* 分页 */}
           {pagination.totalPages > 1 && (
-            <div className="flex justify-center mt-8 space-x-2">
+            <div className="flex justify-center mt-8 gap-2">
               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
                 <a
                   key={p}
                   href={`/communities?${selectedCity ? `city=${selectedCity}&` : ''}page=${p}`}
-                  className={`px-4 py-2 rounded-md text-sm ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     p === pagination.page
                       ? 'bg-primary text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-100'
+                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                   }`}
                 >
                   {p}

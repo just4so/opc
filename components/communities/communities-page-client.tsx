@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
-import { Star } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 interface Community {
@@ -42,96 +42,42 @@ interface CityDifficulty {
   count: number
 }
 
-function DifficultyStars({ value }: { value: number }) {
-  const full = Math.floor(value)
-  const half = value - full >= 0.5
-  const empty = 5 - full - (half ? 1 : 0)
-
-  return (
-    <span className="inline-flex items-center" aria-label={`难度 ${value} 星`}>
-      {Array.from({ length: full }).map((_, i) => (
-        <Star key={`f${i}`} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-      ))}
-      {half && (
-        <span className="relative inline-block h-3.5 w-3.5">
-          <Star className="absolute h-3.5 w-3.5 text-gray-300" />
-          <span className="absolute overflow-hidden" style={{ width: '50%' }}>
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-          </span>
-        </span>
-      )}
-      {Array.from({ length: empty }).map((_, i) => (
-        <Star key={`e${i}`} className="h-3.5 w-3.5 text-gray-300" />
-      ))}
-    </span>
-  )
-}
-
 function CityTabs({
   cityCounts,
-  cityDifficulty,
   selectedCity,
   onCityChange,
 }: {
   cityCounts: { city: string; count: number }[]
-  cityDifficulty: CityDifficulty[]
   selectedCity: string
   onCityChange: (city: string) => void
 }) {
-  // 建立城市难度 map 方便 O(1) 查找
-  const diffMap = new Map(cityDifficulty.map((d) => [d.city, d.difficulty]))
-
   return (
-    <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-      <div className="flex items-center gap-2 pb-1 min-w-max lg:flex-wrap">
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        onClick={() => onCityChange('')}
+        className={cn(
+          'px-4 py-1.5 rounded-full text-sm font-medium transition-colors',
+          !selectedCity
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary'
+        )}
+      >
+        全部
+      </button>
+      {cityCounts.map((c) => (
         <button
-          onClick={() => onCityChange('')}
+          key={c.city}
+          onClick={() => onCityChange(c.city)}
           className={cn(
-            'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-            !selectedCity
+            'px-4 py-1.5 rounded-full text-sm font-medium transition-colors',
+            selectedCity === c.city
               ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-white text-gray-600 border border-gray-200 hover:border-primary hover:text-primary'
           )}
         >
-          全部
+          {c.city}
         </button>
-        {cityCounts.map((c) => {
-          const diff = diffMap.get(c.city)
-          const isActive = selectedCity === c.city
-          return (
-            <button
-              key={c.city}
-              onClick={() => onCityChange(c.city)}
-              className={cn(
-                'flex flex-col items-center px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
-                isActive
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              )}
-            >
-              <span>{c.city}<span className="ml-1 text-xs opacity-70">({c.count})</span></span>
-              {diff != null && (
-                <span className={cn('flex items-center gap-0.5 mt-0.5', isActive ? 'opacity-80' : '')}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        'h-2.5 w-2.5',
-                        i < Math.round(diff)
-                          ? isActive ? 'fill-white text-white' : 'fill-amber-400 text-amber-400'
-                          : isActive ? 'text-white/40' : 'text-gray-300'
-                      )}
-                    />
-                  ))}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-      {cityDifficulty.length > 0 && (
-        <p className="text-xs text-gray-400 mt-1.5 pl-1">星级 = 入驻难度，基于创业者反馈</p>
-      )}
+      ))}
     </div>
   )
 }
@@ -153,6 +99,7 @@ export function CommunitiesPageClient({
   const router = useRouter()
   const city = searchParams.get('city') || ''
   const page = parseInt(searchParams.get('page') || '1')
+  const view = (searchParams.get('view') || 'list') as 'map' | 'list'
 
   const [communities, setCommunities] = useState<Community[]>(initialCommunities)
   const [pagination, setPagination] = useState<Pagination>({
@@ -195,6 +142,7 @@ export function CommunitiesPageClient({
   const handleCityChange = (newCity: string) => {
     const params = new URLSearchParams()
     if (newCity) params.set('city', newCity)
+    if (view === 'map') params.set('view', 'map') // 保留地图视图状态
     router.push(`/communities${params.toString() ? `?${params}` : ''}`)
   }
 
@@ -217,7 +165,6 @@ export function CommunitiesPageClient({
         <div className="container mx-auto px-4 py-4">
           <CityTabs
             cityCounts={cityCounts}
-            cityDifficulty={cityDifficulty}
             selectedCity={city}
             onCityChange={handleCityChange}
           />
@@ -249,6 +196,13 @@ export function CommunitiesPageClient({
           selectedCity={city || undefined}
           pagination={pagination}
           cityCounts={cityCounts}
+          viewMode={view}
+          onViewModeChange={(v) => {
+            const params = new URLSearchParams()
+            if (city) params.set('city', city)
+            if (v === 'map') params.set('view', 'map')
+            router.push(`/communities${params.toString() ? `?${params}` : ''}`)
+          }}
         />
       )}
     </div>
