@@ -1,12 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
-
-// ISR：构建期不预渲染任何社区页，首次访问时按需生成，之后缓存 1 小时
-// 删除 generateStaticParams 避免构建期 104 并发查询耗尽 Supabase 连接数
-export const revalidate = 3600
-export const dynamicParams = true
-
 import {
   MapPin,
   Building2,
@@ -31,8 +25,8 @@ import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-// ISR 模式：构建期不预渲染，首次访问时按需生成并缓存 1 小时
-// 删除 generateStaticParams 避免构建期 104 并发查询耗尽 Supabase 连接数
+export const revalidate = 3600
+export const dynamicParams = true
 
 interface PageProps {
   params: { slug: string }
