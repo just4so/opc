@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -31,7 +31,7 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 export default async function CommunityDetailPage({ params }: Props) {
-  await requireAdmin()
+  await requireStaff()
   const community = await getCommunity(params.id)
 
   if (!community) {

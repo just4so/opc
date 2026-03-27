@@ -1,8 +1,8 @@
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 import CommunityForm from '../community-form'
 
 export default async function NewCommunityPage() {
-  await requireAdmin()
+  await requireStaff()
 
   return (
     <div>

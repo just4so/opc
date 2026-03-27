@@ -1,8 +1,8 @@
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 import CommunitiesClient from './communities-client'
 
 export default async function AdminCommunitiesPage() {
-  await requireAdmin()
+  await requireStaff()
 
   return <CommunitiesClient />
 }

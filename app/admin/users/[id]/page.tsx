@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { requireStaff } from '@/lib/admin'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
@@ -7,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function UserDetailPage({ params }: { params: { id: string } }) {
+  await requireStaff()
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     include: {

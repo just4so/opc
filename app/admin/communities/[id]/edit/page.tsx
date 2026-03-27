@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
 import CommunityForm from '../../community-form'
 
@@ -15,7 +15,7 @@ async function getCommunity(id: string) {
 }
 
 export default async function EditCommunityPage({ params }: Props) {
-  await requireAdmin()
+  await requireStaff()
   const community = await getCommunity(params.id)
 
   if (!community) {
