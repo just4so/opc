@@ -32,9 +32,9 @@ export const revalidate = 3600
 export async function generateStaticParams() {
   const communities = await prisma.community.findMany({
     where: { status: 'ACTIVE' },
-    select: { slug: true },
+    select: { newSlug: true, slug: true },
   })
-  return communities.map((c) => ({ slug: c.slug }))
+  return communities.map((c) => ({ slug: c.newSlug || c.slug }))
 }
 
 interface PageProps {
@@ -42,12 +42,12 @@ interface PageProps {
 }
 
 async function getCommunity(slug: string) {
-  // 解码 URL 编码的中文 slug
   const decodedSlug = decodeURIComponent(slug)
 
   const community = await prisma.community.findFirst({
     where: {
       OR: [
+        { newSlug: decodedSlug },
         { slug: decodedSlug },
         { id: decodedSlug },
       ],
