@@ -81,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   const communityPages: MetadataRoute.Sitemap = communities.map((community) => ({
-    url: `${baseUrl}/communities/${community.slug}`,
+    url: `${baseUrl}/communities/${community.newSlug ?? community.slug}`,
     lastModified: community.updatedAt,
     changeFrequency: 'weekly',
     priority: 0.7,
