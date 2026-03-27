@@ -34,7 +34,7 @@ export async function generateStaticParams() {
     where: { status: 'ACTIVE' },
     select: { slug: true },
   })
-  return communities.map((c) => ({ slug: encodeURIComponent(c.slug) }))
+  return communities.map((c) => ({ slug: c.slug }))
 }
 
 interface PageProps {
