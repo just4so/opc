@@ -10,15 +10,15 @@ import {
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
-import { AdminSidebar } from './admin-sidebar'
+import { AdminSidebarLink } from './admin-sidebar'
 
 const NAV_ITEMS = [
-  { href: '/admin', label: '仪表盘', icon: LayoutDashboard, adminOnly: false },
-  { href: '/admin/users', label: '用户管理', icon: Users, adminOnly: false },
-  { href: '/admin/posts', label: '动态管理', icon: FileText, adminOnly: false },
-  { href: '/admin/orders', label: '合作管理', icon: Briefcase, adminOnly: false },
-  { href: '/admin/communities', label: '社区管理', icon: MapPin, adminOnly: false },
-  { href: '/admin/news', label: '资讯管理', icon: Newspaper, adminOnly: false },
+  { href: '/admin', label: '仪表盘', icon: <LayoutDashboard className="h-5 w-5" /> },
+  { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
+  { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
+  { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
+  { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
+  { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
 ]
 
 export default async function AdminLayout({
@@ -28,11 +28,6 @@ export default async function AdminLayout({
 }) {
   const staff = await requireStaff()
   const isAdmin = staff.role === 'ADMIN'
-
-  // 根据角色过滤菜单
-  const visibleNavItems = NAV_ITEMS.filter(
-    (item) => !item.adminOnly || isAdmin
-  )
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -59,9 +54,15 @@ export default async function AdminLayout({
       </header>
 
       <div className="flex pt-16">
-        {/* 侧边栏 */}
+        {/* 侧边栏 — icon 在 Server Component 渲染，只传 href/label 给 Client */}
         <aside className="w-64 bg-white border-r min-h-[calc(100vh-4rem)] fixed left-0 top-16">
-          <AdminSidebar items={visibleNavItems} />
+          <nav className="p-4 space-y-1">
+            {NAV_ITEMS.map((item) => (
+              <AdminSidebarLink key={item.href} href={item.href} label={item.label}>
+                {item.icon}
+              </AdminSidebarLink>
+            ))}
+          </nav>
         </aside>
 
         {/* 主内容 */}
