@@ -68,6 +68,7 @@ model Account {
 model Community {
   id              String            @id @default(cuid())
   slug            String            @unique
+  newSlug         String?           @unique
   name            String
   city            String
   district        String?

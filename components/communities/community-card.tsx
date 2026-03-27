@@ -30,6 +30,7 @@ interface CommunityCardProps {
   community: {
     id: string
     slug: string
+    newSlug?: string | null
     name: string
     city: string
     district?: string
@@ -72,7 +73,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
   }
 
   return (
-    <Link href={`/communities/${community.slug}`}>
+    <Link href={`/communities/${community.newSlug || community.slug}`}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
         {/* 封面图 */}
         {community.coverImage ? (

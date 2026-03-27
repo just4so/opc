@@ -86,8 +86,8 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   const session = await auth()
   const isLoggedIn = !!session?.user
-  const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
-  const loginUrl = `/login?callbackUrl=/communities/${community.slug}`
+  const registerUrl = `/register?callbackUrl=/communities/${community.newSlug || community.slug}`
+  const loginUrl = `/login?callbackUrl=/communities/${community.newSlug || community.slug}`
 
   const policies = community.policies as any || {}
   const links = community.links as Array<{ title: string; url: string }> || []
@@ -336,7 +336,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             )}
 
             {/* 创业者评价 */}
-            <CommunityReviews slug={community.slug} />
+            <CommunityReviews slug={community.newSlug || community.slug} />
 
             {/* 入驻流程 */}
             {community.entryProcess.length > 0 && (

@@ -11,8 +11,37 @@ const PROTECTED_PATHS = [
   '/settings',
 ]
 
+async function maybeRedirectCommunitySlug(request: NextRequest, pathname: string) {
+  const match = pathname.match(/^\/communities\/([^/]+)$/)
+  if (!match) return null
+
+  const rawSlug = match[1]
+  let decodedSlug = rawSlug
+  try {
+    decodedSlug = decodeURIComponent(rawSlug)
+  } catch {
+    // keep rawSlug
+  }
+
+  if (!/[\u4e00-\u9fff]/.test(decodedSlug)) return null
+
+  const apiUrl = new URL('/api/communities/slug-redirect', request.url)
+  apiUrl.searchParams.set('old', decodedSlug)
+
+  const res = await fetch(apiUrl.toString(), { cache: 'no-store' })
+  if (!res.ok) return null
+
+  const data = (await res.json()) as { newSlug?: string | null }
+  if (!data.newSlug) return null
+
+  return NextResponse.redirect(new URL(`/communities/${encodeURIComponent(data.newSlug)}`, request.url), 301)
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  const communityRedirect = await maybeRedirectCommunitySlug(request, pathname)
+  if (communityRedirect) return communityRedirect
 
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path))
   if (!isProtected) return NextResponse.next()
@@ -29,6 +58,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/communities/:path*',
     '/plaza/new',
     '/market/new',
     '/profile/:path*',
