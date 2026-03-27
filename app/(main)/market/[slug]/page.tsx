@@ -279,8 +279,12 @@ export default async function OrderDetailPage({ params }: PageProps) {
               <CardContent>
                 <div className="flex items-center space-x-3 mb-3">
                   <Link href={`/profile/${order.owner.username}`}>
-                    <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold hover:ring-2 hover:ring-primary/20 transition-all">
-                      {order.owner.name?.[0] || order.owner.username[0]}
+                    <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                      {order.owner.avatar ? (
+                        <img src={order.owner.avatar} alt={order.owner.name || order.owner.username} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{order.owner.name?.[0] || order.owner.username[0]}</span>
+                      )}
                     </div>
                   </Link>
                   <div>

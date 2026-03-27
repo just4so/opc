@@ -98,8 +98,12 @@ export default async function PostDetailPage({ params }: PageProps) {
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center space-x-4">
                     <Link href={`/profile/${post.author.username}`}>
-                      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold text-lg hover:ring-2 hover:ring-primary/20 transition-all">
-                        {post.author.name?.[0] || post.author.username[0]}
+                      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold text-lg hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                        {post.author.avatar ? (
+                          <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>{post.author.name?.[0] || post.author.username[0]}</span>
+                        )}
                       </div>
                     </Link>
                     <div>
@@ -191,8 +195,12 @@ export default async function PostDetailPage({ params }: PageProps) {
                 <h3 className="font-semibold mb-4">关于作者</h3>
                 <div className="flex items-center space-x-3 mb-4">
                   <Link href={`/profile/${post.author.username}`}>
-                    <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xl hover:ring-2 hover:ring-primary/20 transition-all">
-                      {post.author.name?.[0] || post.author.username[0]}
+                    <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xl hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                      {post.author.avatar ? (
+                        <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{post.author.name?.[0] || post.author.username[0]}</span>
+                      )}
                     </div>
                   </Link>
                   <div>

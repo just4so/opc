@@ -62,8 +62,12 @@ export function PostCard({ post }: PostCardProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Link href={`/profile/${post.author.username}`}>
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all">
-                {post.author.name?.[0] || post.author.username[0]}
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                {post.author.avatar ? (
+                  <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{post.author.name?.[0] || post.author.username[0]}</span>
+                )}
               </div>
             </Link>
             <Link

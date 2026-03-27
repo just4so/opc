@@ -66,8 +66,12 @@ export function UserNav() {
         className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
       >
         <div className="relative">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-            {session.user.name?.[0] || session.user.email?.[0] || 'U'}
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold overflow-hidden">
+            {session.user.image ? (
+              <img src={session.user.image} alt={session.user.name || ''} className="w-full h-full object-cover" />
+            ) : (
+              <span>{session.user.name?.[0] || session.user.email?.[0] || 'U'}</span>
+            )}
           </div>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">

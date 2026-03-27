@@ -113,8 +113,12 @@ export default function ProfilePage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold mb-4">
-                    {user.name?.[0] || user.username[0]}
+                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold mb-4 overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name || user.username} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{user.name?.[0] || user.username[0]}</span>
+                    )}
                   </div>
                   <h2 className="text-xl font-semibold text-secondary">
                     {user.name || user.username}

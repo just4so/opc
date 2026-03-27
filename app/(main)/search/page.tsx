@@ -173,8 +173,12 @@ function SearchContent() {
                       <CardContent className="pt-6">
                         <div className="flex items-center gap-3 mb-3">
                           <Link href={`/profile/${post.author.username}`}>
-                            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all">
-                              {post.author.name?.[0] || post.author.username[0]}
+                            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                              {post.author.avatar ? (
+                                <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{post.author.name?.[0] || post.author.username[0]}</span>
+                              )}
                             </div>
                           </Link>
                           <div>
@@ -271,8 +275,12 @@ function SearchContent() {
                       <Card className="h-full hover:shadow-md transition-shadow">
                         <CardContent className="pt-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold">
-                              {user.name?.[0] || user.username[0]}
+                            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary font-semibold overflow-hidden">
+                              {user.avatar ? (
+                                <img src={user.avatar} alt={user.name || user.username} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{user.name?.[0] || user.username[0]}</span>
+                              )}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">

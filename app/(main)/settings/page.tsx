@@ -25,7 +25,7 @@ interface UserProfile {
 }
 
 export default function SettingsPage() {
-  const { status } = useSession()
+  const { status, update } = useSession()
   const router = useRouter()
 
   const [loading, setLoading] = useState(true)
@@ -99,6 +99,7 @@ export default function SettingsPage() {
       })
 
       if (res.ok) {
+        await update({ name: name || null, image: avatar || null })
         setMessage({ type: 'success', text: '保存成功' })
       } else {
         const data = await res.json()

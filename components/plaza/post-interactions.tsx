@@ -120,8 +120,12 @@ export function PostInteractions({
               {comments.map((comment) => (
                 <div key={comment.id} className="flex space-x-3">
                   <Link href={`/profile/${comment.author.username}`}>
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all">
-                      {comment.author.name?.[0] || comment.author.username[0]}
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                      {comment.author.avatar ? (
+                        <img src={comment.author.avatar} alt={comment.author.name || comment.author.username} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{comment.author.name?.[0] || comment.author.username[0]}</span>
+                      )}
                     </div>
                   </Link>
                   <div className="flex-1">
