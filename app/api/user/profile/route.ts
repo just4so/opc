@@ -67,6 +67,7 @@ export async function PUT(request: NextRequest) {
     // 只允许更新特定字段
     const allowedFields = [
       'name',
+      'avatar',
       'bio',
       'location',
       'website',
@@ -90,6 +91,7 @@ export async function PUT(request: NextRequest) {
         id: true,
         username: true,
         name: true,
+        avatar: true,
         bio: true,
         location: true,
         website: true,

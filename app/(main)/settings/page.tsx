@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, User, MapPin, Globe, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Save, User, MapPin, Globe, MessageSquare, Camera } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AvatarPicker } from '@/components/ui/avatar-picker'
 
 interface UserProfile {
   id: string
   username: string
   name: string | null
+  avatar: string | null
   bio: string | null
   location: string | null
   website: string | null
@@ -29,7 +31,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
+  const [avatar, setAvatar] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
   const [location, setLocation] = useState('')
@@ -55,6 +59,7 @@ export default function SettingsPage() {
       const res = await fetch('/api/user/profile')
       if (res.ok) {
         const data: UserProfile = await res.json()
+        setAvatar(data.avatar)
         setName(data.name || '')
         setBio(data.bio || '')
         setLocation(data.location || '')
@@ -82,6 +87,7 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name || null,
+          avatar: avatar || null,
           bio: bio || null,
           location: location || null,
           website: website || null,
@@ -143,6 +149,48 @@ export default function SettingsPage() {
               {message.text}
             </div>
           )}
+
+          {/* 头像 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <Camera className="h-5 w-5 mr-2 text-primary" />
+                头像
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+                  {avatar ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={avatar} alt="头像" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="h-8 w-8 text-gray-400" />
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                >
+                  更换头像
+                </Button>
+              </div>
+              {showAvatarPicker && (
+                <div className="mt-4">
+                  <AvatarPicker
+                    currentAvatar={avatar}
+                    onSelect={(url) => {
+                      setAvatar(url)
+                      setShowAvatarPicker(false)
+                    }}
+                    onClose={() => setShowAvatarPicker(false)}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* 基本信息 */}
           <Card>
