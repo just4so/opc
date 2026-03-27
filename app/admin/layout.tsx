@@ -10,14 +10,15 @@ import {
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
+import { AdminSidebar } from './admin-sidebar'
 
 const NAV_ITEMS = [
   { href: '/admin', label: '仪表盘', icon: LayoutDashboard, adminOnly: false },
-  { href: '/admin/users', label: '用户管理', icon: Users, adminOnly: true },
+  { href: '/admin/users', label: '用户管理', icon: Users, adminOnly: false },
   { href: '/admin/posts', label: '动态管理', icon: FileText, adminOnly: false },
-  { href: '/admin/orders', label: '订单管理', icon: Briefcase, adminOnly: false },
-  { href: '/admin/communities', label: '社区管理', icon: MapPin, adminOnly: true },
-  { href: '/admin/news', label: '资讯管理', icon: Newspaper, adminOnly: true },
+  { href: '/admin/orders', label: '合作管理', icon: Briefcase, adminOnly: false },
+  { href: '/admin/communities', label: '社区管理', icon: MapPin, adminOnly: false },
+  { href: '/admin/news', label: '资讯管理', icon: Newspaper, adminOnly: false },
 ]
 
 export default async function AdminLayout({
@@ -60,18 +61,7 @@ export default async function AdminLayout({
       <div className="flex pt-16">
         {/* 侧边栏 */}
         <aside className="w-64 bg-white border-r min-h-[calc(100vh-4rem)] fixed left-0 top-16">
-          <nav className="p-4 space-y-1">
-            {visibleNavItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors"
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
+          <AdminSidebar items={visibleNavItems} />
         </aside>
 
         {/* 主内容 */}

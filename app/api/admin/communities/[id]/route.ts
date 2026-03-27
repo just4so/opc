@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { isAdmin } from '@/lib/admin'
+import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityUpdateSchema } from '@/lib/validations/community'
 
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
+    if (!session?.user?.id || !(await isStaff(session.user.id))) {
       return NextResponse.json({ error: '无权限' }, { status: 403 })
     }
 
@@ -35,7 +35,7 @@ export async function PATCH(
 ) {
   try {
     const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
+    if (!session?.user?.id || !(await isStaff(session.user.id))) {
       return NextResponse.json({ error: '无权限' }, { status: 403 })
     }
 
@@ -132,7 +132,7 @@ export async function DELETE(
 ) {
   try {
     const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
+    if (!session?.user?.id || !(await isStaff(session.user.id))) {
       return NextResponse.json({ error: '无权限' }, { status: 403 })
     }
 

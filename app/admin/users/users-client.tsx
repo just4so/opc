@@ -36,7 +36,8 @@ const ROLE_LABELS: Record<string, { label: string; color: string }> = {
   ADMIN: { label: '管理员', color: 'bg-red-100 text-red-800' },
 }
 
-export default function UsersClient() {
+export default function UsersClient({ currentUserRole }: { currentUserRole: string }) {
+  const isAdmin = currentUserRole === 'ADMIN'
   const [users, setUsers] = useState<User[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
@@ -207,15 +208,21 @@ export default function UsersClient() {
                         {user.email || '-'}
                       </td>
                       <td className="py-3 px-4">
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className={`text-xs px-2 py-1 rounded ${ROLE_LABELS[user.role].color}`}
-                        >
-                          <option value="USER">用户</option>
-                          <option value="MODERATOR">版主</option>
-                          <option value="ADMIN">管理员</option>
-                        </select>
+                        {isAdmin ? (
+                          <select
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            className={`text-xs px-2 py-1 rounded ${ROLE_LABELS[user.role].color}`}
+                          >
+                            <option value="USER">用户</option>
+                            <option value="MODERATOR">版主</option>
+                            <option value="ADMIN">管理员</option>
+                          </select>
+                        ) : (
+                          <span className={`text-xs px-2 py-1 rounded ${ROLE_LABELS[user.role].color}`}>
+                            {ROLE_LABELS[user.role].label}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         <Badge variant="outline">Lv.{user.level}</Badge>

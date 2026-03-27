@@ -1,8 +1,8 @@
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 import UsersClient from './users-client'
 
 export default async function AdminUsersPage() {
-  await requireAdmin()
+  const staff = await requireStaff()
 
-  return <UsersClient />
+  return <UsersClient currentUserRole={staff.role} />
 }

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
-import { Search, Trash2 } from 'lucide-react'
+import { Search, Trash2, Pencil } from 'lucide-react'
 
 interface NewsItem {
   id: string
@@ -236,14 +236,29 @@ export default function AdminNewsPage() {
                         {format(new Date(item.publishedAt), 'yyyy-MM-dd HH:mm')}
                       </td>
                       <td className="py-3 px-4">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          {item.isOriginal && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              asChild
+                              title="编辑"
+                            >
+                              <a href={`/admin/news/${item.id}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(item.id)}
+                            title="删除"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
