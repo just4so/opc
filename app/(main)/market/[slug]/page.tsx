@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { formatDistanceToNow, format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+
+export const revalidate = 120 // 合作详情 2 分钟 ISR
 import {
   ArrowLeft,
   Briefcase,

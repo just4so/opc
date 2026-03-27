@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
 import prisma from '@/lib/db'
+
+export const revalidate = 3600 // 资讯详情 1 小时 ISR（内容变化极低频）
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'

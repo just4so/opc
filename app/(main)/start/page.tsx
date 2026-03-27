@@ -1,3 +1,5 @@
+export const revalidate = false // 纯静态页，永久缓存
+
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
