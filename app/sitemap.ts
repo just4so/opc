@@ -77,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 动态页面：社区详情
   const communities = await prisma.community.findMany({
     where: { status: 'ACTIVE' },
-    select: { slug: true, updatedAt: true },
+    select: { slug: true, newSlug: true, updatedAt: true },
   })
 
   const communityPages: MetadataRoute.Sitemap = communities.map((community) => ({

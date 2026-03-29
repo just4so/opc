@@ -33,6 +33,7 @@ model User {
   lastActiveAt       DateTime?
   mainTrack          String?
   startupStage       String?
+  emailVerified      Boolean                   @default(false)
   accounts           Account[]
   comments           Comment[]
   communityReviews   CommunityReview[]
@@ -43,9 +44,24 @@ model User {
   posts              Post[]
   projects           Project[]
   managedCommunities Community[]               @relation("CommunityManager")
+  oneTimeTokens      OneTimeToken[]
 
   @@index([username])
   @@index([location])
+}
+
+model OneTimeToken {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId, type])
 }
 
 model Account {

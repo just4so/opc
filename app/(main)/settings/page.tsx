@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, User, MapPin, Globe, MessageSquare, Camera } from 'lucide-react'
+import { ArrowLeft, Save, User, MapPin, Globe, MessageSquare, Camera, Mail, CheckCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,8 @@ import { AvatarPicker } from '@/components/ui/avatar-picker'
 interface UserProfile {
   id: string
   username: string
+  email: string | null
+  emailVerified: boolean
   name: string | null
   avatar: string | null
   bio: string | null
@@ -42,6 +44,11 @@ export default function SettingsPage() {
   const [skills, setSkills] = useState('')
   const [canOffer, setCanOffer] = useState('')
   const [lookingFor, setLookingFor] = useState('')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [sendingVerify, setSendingVerify] = useState(false)
+  const [verifySent, setVerifySent] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -68,6 +75,8 @@ export default function SettingsPage() {
         setSkills(data.skills.join(', '))
         setCanOffer(data.canOffer.join(', '))
         setLookingFor(data.lookingFor.join(', '))
+        setUserEmail(data.email)
+        setEmailVerified(data.emailVerified)
       }
     } catch (error) {
       console.error('获取用户信息失败:', error)
@@ -109,6 +118,24 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: '保存失败，请稍后重试' })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSendVerifyEmail = async () => {
+    setSendingVerify(true)
+    setVerifyError('')
+    try {
+      const res = await fetch('/api/auth/send-verify-email', { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setVerifySent(true)
+      } else {
+        setVerifyError(data.error || '发送失败')
+      }
+    } catch {
+      setVerifyError('网络错误，请稍后重试')
+    } finally {
+      setSendingVerify(false)
     }
   }
 
@@ -190,6 +217,57 @@ export default function SettingsPage() {
                   />
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* 账户安全 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <Mail className="h-5 w-5 mr-2 text-primary" />
+                账户安全
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">邮箱</p>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {userEmail || '未绑定'}
+                    {userEmail && (
+                      emailVerified ? (
+                        <span className="ml-2 inline-flex items-center text-green-600 text-xs">
+                          <CheckCircle className="h-3.5 w-3.5 mr-0.5" />已验证
+                        </span>
+                      ) : (
+                        <span className="ml-2 inline-flex items-center text-orange-500 text-xs">
+                          <AlertCircle className="h-3.5 w-3.5 mr-0.5" />未验证
+                        </span>
+                      )
+                    )}
+                  </p>
+                </div>
+                {userEmail && !emailVerified && (
+                  <div className="text-right">
+                    {verifySent ? (
+                      <p className="text-sm text-green-600">已发送，请检查收件箱</p>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSendVerifyEmail}
+                        disabled={sendingVerify}
+                      >
+                        {sendingVerify ? '发送中...' : '发送验证邮件'}
+                      </Button>
+                    )}
+                    {verifyError && (
+                      <p className="text-xs text-red-500 mt-1">{verifyError}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import prisma from '@/lib/db'
+import crypto from 'crypto'
+import { sendEmailVerifyEmail } from '@/lib/mailer'
 
 const registerSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符').max(20, '用户名最多20个字符'),
@@ -85,6 +87,15 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     })
+
+    // 注册成功后若填了邮箱，异步发送验证邮件
+    if (user.email) {
+      const verifyToken = crypto.randomBytes(32).toString('hex')
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      prisma.oneTimeToken.create({
+        data: { userId: user.id, type: 'email_verify', token: verifyToken, expiresAt },
+      }).then(() => sendEmailVerifyEmail(user.email!, verifyToken)).catch(console.error)
+    }
 
     return NextResponse.json({
       message: '注册成功',

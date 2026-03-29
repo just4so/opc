@@ -30,6 +30,7 @@ export async function GET() {
         level: true,
         verified: true,
         verifyType: true,
+        emailVerified: true,
         skills: true,
         canOffer: true,
         lookingFor: true,
