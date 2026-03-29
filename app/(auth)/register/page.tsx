@@ -187,6 +187,7 @@ function RegisterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
+              <p className="text-xs text-gray-400">📮 填写邮箱后可通过邮件找回密码</p>
             </div>
 
             <div className="space-y-2">
