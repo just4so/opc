@@ -1,11 +1,6 @@
-import NextAuth from 'next-auth'
-import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const { auth } = NextAuth(authConfig)
-
-// 需要登录才能访问的路由前缀
 const PROTECTED_PATHS = [
   '/plaza/new',
   '/market/new',
@@ -40,6 +35,13 @@ async function maybeRedirectCommunitySlug(request: NextRequest, pathname: string
   return NextResponse.redirect(new URL(`/communities/${encodeURIComponent(data.newSlug)}`, request.url), 301)
 }
 
+function isLoggedIn(request: NextRequest): boolean {
+  const isSecure = request.url.startsWith('https://')
+  const cookieName = isSecure ? '__Secure-authjs.session-token' : 'authjs.session-token'
+  const sessionCookie = request.cookies.get(cookieName)
+  return !!sessionCookie?.value
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -49,8 +51,7 @@ export async function middleware(request: NextRequest) {
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path))
   if (!isProtected) return NextResponse.next()
 
-  const session = await auth()
-  if (!session) {
+  if (!isLoggedIn(request)) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
