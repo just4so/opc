@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           slug: true,
+          newSlug: true,
           name: true,
           city: true,
           district: true,
