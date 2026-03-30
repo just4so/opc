@@ -105,7 +105,6 @@ model Community {
   entryProcess    String[]
   services        String[]
   suitableFor     String[]
-  notes           String[]
   links           Json?
   status          CommunityStatus   @default(ACTIVE)
   featured        Boolean           @default(false)

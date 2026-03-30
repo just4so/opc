@@ -243,7 +243,7 @@ function SearchContent() {
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {results.communities.map((community) => (
-                    <Link key={community.id} href={`/communities/${community.newSlug || community.slug}`}>
+                    <Link key={community.id} href={`/communities/${community.newSlug ?? community.slug}`}>
                       <Card className="h-full hover:shadow-md transition-shadow">
                         <CardContent className="pt-6">
                           <h3 className="font-semibold text-secondary mb-1">{community.name}</h3>

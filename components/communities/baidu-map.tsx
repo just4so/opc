@@ -127,7 +127,7 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
           </div>
           <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1a1a; line-height: 1.3;">${community.name}</h4>
           <p style="margin: 0 0 12px 0; font-size: 12px; color: #666; line-height: 1.4;">${community.address || '地址待确认'}</p>
-          <a href="/communities/${community.newSlug || community.slug}"
+          <a href="/communities/${community.newSlug ?? community.slug}"
              style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #FF6B35 0%, #FF8F5C 100%); color: white; font-size: 13px; font-weight: 500; text-decoration: none; border-radius: 6px; box-shadow: 0 2px 4px rgba(255,107,53,0.3);">
             查看详情 →
           </a>

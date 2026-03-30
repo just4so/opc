@@ -11,11 +11,13 @@ interface ArrayInputProps {
 }
 
 export function ArrayInput({
-  value,
+  value: rawValue,
   onChange,
   placeholder = '输入内容',
   addLabel = '添加',
 }: ArrayInputProps) {
+  const value = Array.isArray(rawValue) ? rawValue : []
+
   const addItem = () => {
     onChange([...value, ''])
   }

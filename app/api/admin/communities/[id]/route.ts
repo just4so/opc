@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
@@ -89,7 +90,6 @@ export async function PATCH(
       'services',
       'suitableFor',
       'entryProcess',
-      'notes',
       'policies',
       'links',
       'coverImage',
@@ -118,6 +118,9 @@ export async function PATCH(
       where: { id: params.id },
       data: updateData,
     })
+
+    revalidatePath('/communities')
+    revalidatePath(`/communities/${community.newSlug ?? community.slug}`)
 
     return NextResponse.json(community)
   } catch (error) {

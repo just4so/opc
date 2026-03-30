@@ -73,7 +73,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
   }
 
   return (
-    <Link href={`/communities/${community.newSlug || community.slug}`}>
+    <Link href={`/communities/${community.newSlug ?? community.slug}`}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
         {/* 封面图 */}
         {community.coverImage ? (

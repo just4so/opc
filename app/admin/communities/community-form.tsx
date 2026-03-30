@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,9 +9,17 @@ import { Button } from '@/components/ui/button'
 import { TagInput } from '@/components/admin/tag-input'
 import { ArrayInput } from '@/components/admin/array-input'
 import { LinksInput } from '@/components/admin/links-input'
+import { ImageUpload } from '@/components/admin/image-upload'
+import { ImagesList } from '@/components/admin/images-list'
 import { LocationPickerMap } from '@/components/admin/location-picker-map'
 import { CITIES } from '@/constants/cities'
 import type { CommunityFormData } from '@/lib/validations/community'
+import type { CommunityPolicies } from '@/lib/types/community'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/admin/rich-text-editor').then((m) => m.RichTextEditor),
+  { ssr: false }
+)
 
 function StarRating({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
   const [hovered, setHovered] = useState<number | null>(null)
@@ -60,7 +69,6 @@ interface Community {
   services: string[]
   suitableFor: string[]
   entryProcess: string[]
-  notes: string[]
   policies: any
   links: any
   coverImage: string | null
@@ -83,21 +91,29 @@ interface Section {
   isOpen: boolean
 }
 
+type FormData = Omit<CommunityFormData, 'policies'> & { policies: CommunityPolicies }
+
 export default function CommunityForm({ mode, initialData }: CommunityFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showMap, setShowMap] = useState(false)
+
+  // Use ref to avoid re-rendering the whole form on every keystroke
+  const descriptionRef = useRef(initialData?.description || '')
+  const handleDescriptionChange = useCallback((v: string) => {
+    descriptionRef.current = v
+  }, [])
 
   const [sections, setSections] = useState<Section[]>([
-    { id: 'basic', title: '基本信息', isOpen: true },
-    { id: 'location', title: '位置信息', isOpen: true },
-    { id: 'operation', title: '运营信息', isOpen: false },
-    { id: 'tags', title: '标签与服务', isOpen: false },
-    { id: 'realinfo', title: '真实入驻信息', isOpen: false },
-    { id: 'media', title: '政策与媒体', isOpen: false },
+    { id: 'identity', title: 'A. 身份信息', isOpen: true },
+    { id: 'location', title: 'B. 位置与空间', isOpen: true },
+    { id: 'contact', title: 'C. 联系与媒体', isOpen: false },
+    { id: 'benefits', title: 'D. 政策与流程', isOpen: false },
+    { id: 'realintel', title: 'E. 真实信息', isOpen: false },
   ])
 
-  const [formData, setFormData] = useState<CommunityFormData>({
+  const [formData, setFormData] = useState<FormData>({
     name: initialData?.name || '',
     slug: initialData?.slug || '',
     city: initialData?.city || '',
@@ -119,9 +135,8 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     services: initialData?.services || [],
     suitableFor: initialData?.suitableFor || [],
     entryProcess: initialData?.entryProcess || [],
-    notes: initialData?.notes || [],
-    policies: initialData?.policies || null,
-    links: initialData?.links || [],
+    policies: (initialData?.policies as CommunityPolicies) || {},
+    links: Array.isArray(initialData?.links) ? initialData.links : [],
     coverImage: initialData?.coverImage || '',
     images: initialData?.images || [],
     featured: initialData?.featured || false,
@@ -150,10 +165,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     )
   }
 
-  const updateField = <K extends keyof CommunityFormData>(
-    field: K,
-    value: CommunityFormData[K]
-  ) => {
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -168,10 +180,23 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
           ? '/api/admin/communities'
           : `/api/admin/communities/${initialData?.id}`
 
+      // Sanitize: merge independent description state, filter empty strings,
+      // ensure links is always an array (DB might store {} for empty)
+      const payload = {
+        ...formData,
+        description: descriptionRef.current,
+        services: formData.services.filter((s) => s.trim()),
+        entryProcess: formData.entryProcess.filter((s) => s.trim()),
+        realTips: formData.realTips.filter((s) => s.trim()),
+        links: (Array.isArray(formData.links) ? formData.links : []).filter(
+          (l: { title: string; url: string }) => l.title.trim() || l.url.trim()
+        ),
+      }
+
       const res = await fetch(url, {
         method: mode === 'create' ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       })
 
       if (!res.ok) {
@@ -211,7 +236,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         </div>
       )}
 
-      {/* 基本信息 */}
+      {/* A. 身份信息 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[0])}
@@ -233,15 +258,22 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Slug <span className="text-red-500">*</span>
+                  Slug {mode === 'create' && <span className="text-red-500">*</span>}
+                  {mode === 'edit' && <span className="text-xs text-gray-400 ml-1">（系统生成，不可修改）</span>}
                 </label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => updateField('slug', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  required
-                />
+                {mode === 'edit' ? (
+                  <div className="w-full px-3 py-2 border border-gray-100 rounded-lg bg-gray-50 text-gray-500 text-sm font-mono">
+                    {formData.slug}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => updateField('slug', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    required
+                  />
+                )}
               </div>
             </div>
 
@@ -294,28 +326,24 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                详细地址 <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                关注领域
               </label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => updateField('address', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                required
+              <TagInput
+                value={formData.focus}
+                onChange={(v) => updateField('focus', v)}
+                placeholder="如: AI、大模型、硬件..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                社区简介 <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                适合人群
               </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => updateField('description', e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                required
+              <TagInput
+                value={formData.suitableFor}
+                onChange={(v) => updateField('suitableFor', v)}
+                placeholder="如: AI创业者、技术团队..."
               />
             </div>
 
@@ -356,27 +384,92 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         )}
       </Card>
 
-      {/* 位置信息 */}
+      {/* B. 位置与空间 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[1])}
         </CardHeader>
         {sections[1].isOpen && (
-          <CardContent className="pt-6">
-            <LocationPickerMap
-              city={formData.city}
-              latitude={formData.latitude}
-              longitude={formData.longitude}
-              onLocationChange={(loc) => {
-                updateField('latitude', loc.latitude)
-                updateField('longitude', loc.longitude)
-              }}
-            />
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                详细地址 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => updateField('address', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                required
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  地图选点
+                </label>
+                <div className="flex items-center gap-3">
+                  {formData.latitude && formData.longitude && (
+                    <span className="text-xs text-gray-500">
+                      已设置：{formData.longitude.toFixed(5)}, {formData.latitude.toFixed(5)}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowMap((v) => !v)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {showMap ? '隐藏地图' : '显示地图'}
+                  </button>
+                </div>
+              </div>
+              {showMap && (
+                <LocationPickerMap
+                  city={formData.city}
+                  latitude={formData.latitude}
+                  longitude={formData.longitude}
+                  onLocationChange={(loc) => {
+                    updateField('latitude', loc.latitude)
+                    updateField('longitude', loc.longitude)
+                  }}
+                />
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  空间面积
+                </label>
+                <input
+                  type="text"
+                  value={formData.spaceSize}
+                  onChange={(e) => updateField('spaceSize', e.target.value)}
+                  placeholder="如: 5000㎡"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  工位数
+                </label>
+                <input
+                  type="number"
+                  value={formData.workstations || ''}
+                  onChange={(e) =>
+                    updateField(
+                      'workstations',
+                      e.target.value ? parseInt(e.target.value) : null
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+            </div>
           </CardContent>
         )}
       </Card>
 
-      {/* 运营信息 */}
+      {/* C. 联系与媒体 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[2])}
@@ -433,141 +526,177 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  官网
-                </label>
-                <input
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => updateField('website', e.target.value)}
-                  placeholder="https://"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  空间面积
-                </label>
-                <input
-                  type="text"
-                  value={formData.spaceSize}
-                  onChange={(e) => updateField('spaceSize', e.target.value)}
-                  placeholder="如: 5000㎡"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  工位数
-                </label>
-                <input
-                  type="number"
-                  value={formData.workstations || ''}
-                  onChange={(e) =>
-                    updateField(
-                      'workstations',
-                      e.target.value ? parseInt(e.target.value) : null
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                官网
+              </label>
+              <input
+                type="url"
+                value={formData.website}
+                onChange={(e) => updateField('website', e.target.value)}
+                placeholder="https://"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                封面图
+              </label>
+              <ImageUpload
+                value={formData.coverImage || null}
+                onChange={(url) => updateField('coverImage', url)}
+                label="封面图"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                图片集
+              </label>
+              <ImagesList
+                value={formData.images}
+                onChange={(urls) => updateField('images', urls)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                参考链接
+              </label>
+              <LinksInput
+                value={formData.links || []}
+                onChange={(v) => updateField('links', v)}
+              />
             </div>
           </CardContent>
         )}
       </Card>
 
-      {/* 标签与服务 */}
+      {/* D. 政策与流程 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[3])}
         </CardHeader>
         {sections[3].isOpen && (
           <CardContent className="pt-6 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                关注领域
-              </label>
-              <TagInput
-                value={formData.focus}
-                onChange={(v) => updateField('focus', v)}
-                placeholder="如: AI、大模型、硬件..."
-              />
+            {/* 入驻政策 */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  政策名称
+                </label>
+                <input
+                  type="text"
+                  value={(formData.policies as CommunityPolicies).policy_name || ''}
+                  onChange={(e) => updateField('policies', { ...formData.policies, policy_name: e.target.value })}
+                  placeholder="如：《海淀区关于推动AI产业发展的若干措施》"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  费用/补贴概览
+                </label>
+                <input
+                  type="text"
+                  value={(formData.policies as CommunityPolicies).price_range || ''}
+                  onChange={(e) => updateField('policies', { ...formData.policies, price_range: e.target.value })}
+                  placeholder="如：提供最高3年场地免租"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  支持方向
+                </label>
+                <input
+                  type="text"
+                  value={(formData.policies as CommunityPolicies).support_directions || ''}
+                  onChange={(e) => updateField('policies', { ...formData.policies, support_directions: e.target.value })}
+                  placeholder="如：场地免租、算力补贴、融资支持"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  政策解读
+                  <span className="text-xs font-normal text-gray-400 ml-1">（可选）</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={(formData.policies as CommunityPolicies).policy_interpretation || ''}
+                  onChange={(e) => updateField('policies', { ...formData.policies, policy_interpretation: e.target.value })}
+                  placeholder="简要说明政策背景和实际效果（可选）"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                配套服务
-              </label>
-              <TagInput
-                value={formData.services}
-                onChange={(v) => updateField('services', v)}
-                placeholder="如: 路演场地、法务支持..."
-              />
-            </div>
+            {/* 分隔 */}
+            <div className="border-t border-gray-200" />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                适合人群
-              </label>
-              <TagInput
-                value={formData.suitableFor}
-                onChange={(v) => updateField('suitableFor', v)}
-                placeholder="如: AI创业者、技术团队..."
-              />
-            </div>
+            {/* 配套服务与入驻流程 */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  入驻流程
+                  <span className="text-xs font-normal text-gray-400 ml-1">（按顺序填写，将以步骤形式展示）</span>
+                </label>
+                <ArrayInput
+                  value={formData.entryProcess}
+                  onChange={(v) => updateField('entryProcess', v)}
+                  placeholder="如：提交申请表"
+                  addLabel="添加步骤"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                入驻流程
-              </label>
-              <ArrayInput
-                value={formData.entryProcess}
-                onChange={(v) => updateField('entryProcess', v)}
-                placeholder="流程步骤"
-                addLabel="添加步骤"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                注意事项
-              </label>
-              <ArrayInput
-                value={formData.notes}
-                onChange={(v) => updateField('notes', v)}
-                placeholder="注意事项"
-                addLabel="添加"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  配套服务
+                  <span className="text-xs font-normal text-gray-400 ml-1">（路演场地、法务支持等，将展示在"配套服务"区）</span>
+                </label>
+                <TagInput
+                  value={formData.services}
+                  onChange={(v) => updateField('services', v)}
+                  placeholder="如: 路演场地、法务支持..."
+                />
+              </div>
             </div>
           </CardContent>
         )}
       </Card>
 
-      {/* 真实入驻信息 */}
+      {/* E. 真实信息 */}
       <Card>
         <CardHeader className="py-0 border-b">
           {renderSectionHeader(sections[4])}
         </CardHeader>
         {sections[4].isOpen && (
-          <CardContent className="pt-6 space-y-4">
+          <CardContent className="pt-6 space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                社区简介 <span className="text-red-500">*</span>
+                <span className="text-xs text-gray-400 ml-1">（支持 Markdown）</span>
+              </label>
+              <div data-color-mode="light">
+                <RichTextEditor
+                  value={initialData?.description || ''}
+                  onChange={handleDescriptionChange}
+                  placeholder="社区详细介绍..."
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 真实入驻提示
               </label>
-              <textarea
-                value={formData.realTips.join('\n')}
-                onChange={(e) =>
-                  updateField(
-                    'realTips',
-                    e.target.value.split('\n').filter((s) => s.trim())
-                  )
-                }
-                rows={4}
-                placeholder="每行一条，回车换行"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              <ArrayInput
+                value={formData.realTips}
+                onChange={(v) => updateField('realTips', v)}
+                placeholder="真实入驻提示"
+                addLabel="添加"
               />
             </div>
 
@@ -606,79 +735,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* 政策与媒体 */}
-      <Card>
-        <CardHeader className="py-0 border-b">
-          {renderSectionHeader(sections[5])}
-        </CardHeader>
-        {sections[5].isOpen && (
-          <CardContent className="pt-6 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                入驻政策 (JSON)
-              </label>
-              <textarea
-                value={
-                  formData.policies ? JSON.stringify(formData.policies, null, 2) : ''
-                }
-                onChange={(e) => {
-                  try {
-                    const parsed = e.target.value ? JSON.parse(e.target.value) : null
-                    updateField('policies', parsed)
-                  } catch {
-                    // Invalid JSON, keep as is for editing
-                  }
-                }}
-                rows={8}
-                placeholder='{"spaceSubsidy": {...}, "computeSubsidy": [...], ...}'
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                参考链接
-              </label>
-              <LinksInput
-                value={formData.links || []}
-                onChange={(v) => updateField('links', v)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                封面图 URL
-              </label>
-              <input
-                type="url"
-                value={formData.coverImage}
-                onChange={(e) => updateField('coverImage', e.target.value)}
-                placeholder="https://"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                图片列表 (每行一个 URL)
-              </label>
-              <textarea
-                value={formData.images.join('\n')}
-                onChange={(e) =>
-                  updateField(
-                    'images',
-                    e.target.value.split('\n').filter((s) => s.trim())
-                  )
-                }
-                rows={4}
-                placeholder="https://example.com/image1.jpg"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-              />
             </div>
           </CardContent>
         )}

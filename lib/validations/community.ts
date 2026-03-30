@@ -32,7 +32,6 @@ export const communityFormSchema = z.object({
   services: z.array(z.string()).default([]),
   suitableFor: z.array(z.string()).default([]),
   entryProcess: z.array(z.string()).default([]),
-  notes: z.array(z.string()).default([]),
 
   // 政策
   policies: z.record(z.string(), z.any()).optional().nullable(),

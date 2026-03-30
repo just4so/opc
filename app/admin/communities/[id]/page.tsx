@@ -221,20 +221,6 @@ export default async function CommunityDetailPage({ params }: Props) {
                 )}
               </dd>
             </div>
-            <div>
-              <dt className="text-sm text-gray-500 mb-2">注意事项</dt>
-              <dd>
-                {community.notes.length > 0 ? (
-                  <ul className="list-disc list-inside space-y-1">
-                    {community.notes.map((note, i) => (
-                      <li key={i}>{note}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  '-'
-                )}
-              </dd>
-            </div>
           </CardContent>
         </Card>
 

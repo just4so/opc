@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
@@ -107,7 +108,6 @@ export async function POST(request: NextRequest) {
         services: data.services,
         suitableFor: data.suitableFor,
         entryProcess: data.entryProcess,
-        notes: data.notes,
         policies: data.policies || undefined,
         links: data.links || undefined,
         coverImage: data.coverImage || null,
@@ -119,6 +119,8 @@ export async function POST(request: NextRequest) {
         lastVerifiedAt: data.lastVerifiedAt ? new Date(data.lastVerifiedAt) : null,
       },
     })
+
+    revalidatePath('/communities')
 
     return NextResponse.json(community)
   } catch (error) {

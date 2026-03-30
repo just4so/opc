@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 interface LinkItem {
   title: string
   url: string
+  id?: string
 }
 
 interface LinksInputProps {
@@ -13,9 +14,11 @@ interface LinksInputProps {
   onChange: (value: LinkItem[]) => void
 }
 
-export function LinksInput({ value, onChange }: LinksInputProps) {
+export function LinksInput({ value: rawValue, onChange }: LinksInputProps) {
+  const value: LinkItem[] = Array.isArray(rawValue) ? rawValue : []
+
   const addLink = () => {
-    onChange([...value, { title: '', url: '' }])
+    onChange([...value, { title: '', url: '', id: `${Date.now()}-${Math.random().toString(36).slice(2)}` }])
   }
 
   const updateLink = (index: number, field: 'title' | 'url', newValue: string) => {
@@ -31,7 +34,7 @@ export function LinksInput({ value, onChange }: LinksInputProps) {
   return (
     <div className="space-y-3">
       {value.map((link, index) => (
-        <div key={index} className="flex items-start gap-2">
+        <div key={link.id ?? index} className="flex items-start gap-2">
           <div className="flex-1 grid grid-cols-2 gap-2">
             <input
               type="text"
