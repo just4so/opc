@@ -53,10 +53,25 @@ async function getCommunity(slug: string) {
   return community
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<\/p>\s*<p>/gi, '\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
+
 function renderDescription(text: string): string {
   if (!text) return ''
-  if (/<[a-z][\s\S]*>/i.test(text)) return text
-  return text.split('\n\n').filter(Boolean).map((p) => `<p>${p.trim()}</p>`).join('')
+  // 如果包含 HTML，先剥离再重新格式化
+  const plainText = /<[a-z][\s\S]*>/i.test(text) ? stripHtml(text) : text
+  return plainText.split('\n\n').filter(Boolean).map((p) => `<p>${p.trim()}</p>`).join('')
 }
 
 function renderStars(difficulty: number): string {
@@ -66,8 +81,10 @@ function renderStars(difficulty: number): string {
 
 function getFirstSentence(text: string): string {
   if (!text) return ''
-  const match = text.match(/^[^。.！!？?]{1,100}[。.！!？?]?/)
-  return match ? match[0].trim() : text.slice(0, 100)
+  // 先剥离 HTML 标签，再提取第一句
+  const plain = /<[a-z][\s\S]*>/i.test(text) ? stripHtml(text) : text
+  const match = plain.match(/^[^。.！!？?]{1,100}[。.！!？?]?/)
+  return match ? match[0].trim() : plain.slice(0, 100)
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -26,6 +26,20 @@ function getCityColor(city: string) {
   return CITY_COLORS[city] ?? "bg-gray-50 text-gray-400"
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<\/p>\s*<p>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
+
 interface CommunityCardProps {
   community: {
     id: string
@@ -124,7 +138,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
         <CardContent className="pt-0">
           {/* 描述 */}
           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {community.description}
+            {/<[a-z][\s\S]*>/i.test(community.description) ? stripHtml(community.description) : community.description}
           </p>
 
           {/* 政策亮点 */}
