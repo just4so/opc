@@ -33,6 +33,7 @@ jobs:
         run: npx prisma validate
         env:
           DATABASE_URL: 'postgresql://placeholder:placeholder@localhost:5432/test'
+          DIRECT_URL: 'postgresql://placeholder:placeholder@localhost:5432/test'
 
       - name: TypeScript check
         run: npx tsc --noEmit
