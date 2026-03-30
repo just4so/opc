@@ -188,9 +188,12 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         services: formData.services.filter((s) => s.trim()),
         entryProcess: formData.entryProcess.filter((s) => s.trim()),
         realTips: formData.realTips.filter((s) => s.trim()),
-        links: (Array.isArray(formData.links) ? formData.links : []).filter(
-          (l: { title: string; url: string }) => l.title.trim() || l.url.trim()
-        ),
+        links: (Array.isArray(formData.links) ? formData.links : [])
+          .filter((l: { title: string; url: string }) => l.title.trim() || l.url.trim())
+          .map((l: { title: string; url: string }) => ({
+            ...l,
+            url: l.url.trim() && !l.url.trim().match(/^https?:\/\//) ? `https://${l.url.trim()}` : l.url.trim(),
+          })),
       }
 
       const res = await fetch(url, {
