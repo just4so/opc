@@ -224,6 +224,17 @@ Original news articles and plaza posts support full Markdown:
 | Community edit (star rating for difficulty) | `/admin/communities/[id]/edit` — `StarRating` inline component in `community-form.tsx` |
 | Market management | `/admin/orders` — export CSV |
 
+## ⚠️ Tool Usage Rules (MANDATORY)
+
+**File operations MUST use native Bash commands only.**
+
+- ✅ `cat`, `echo`, `tee`, `mkdir`, `cp`, `mv` via the `Bash` tool
+- ✅ `npx prisma migrate dev`, `npm install` via the `Bash` tool
+- ❌ NEVER call `filesystem.write_file`, `filesystem.execute_command`, or any `filesystem.*` tool — these do NOT exist in this environment
+- ❌ NEVER call `write_file`, `create_file`, `execute_command` as standalone tools — they do NOT exist
+
+If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob`, `Grep`, or standard Claude Code built-ins, the call will silently fail with no error. Always verify file creation with `ls` after writing.
+
 ## Known Limitations / TODOs
 
 - Registration flow does not include user type selection (low priority)

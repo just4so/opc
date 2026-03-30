@@ -65,9 +65,8 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
 
-    // 只允许更新特定字段
+    // 只允许更新特定字段（name 通过 /api/user/set-name 单独设置，此处不可更新）
     const allowedFields = [
-      'name',
       'avatar',
       'bio',
       'location',

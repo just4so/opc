@@ -39,7 +39,7 @@ function RegisterForm() {
   const rawCallbackUrl = searchParams.get('callbackUrl')
   const callbackUrl = rawCallbackUrl && rawCallbackUrl.startsWith('/') ? rawCallbackUrl : '/'
 
-  const [username, setUsername] = useState('')
+  const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,6 +52,12 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // 昵称校验
+    if (name.trim().length < 2) {
+      setError('昵称至少2个字符')
+      return
+    }
 
     // 手机号格式校验
     if (!/^1[3-9]\d{9}$/.test(phone)) {
@@ -70,7 +76,7 @@ function RegisterForm() {
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, phone, email: email || undefined, password, startupStage, mainTrack }),
+        body: JSON.stringify({ name, phone, email: email || undefined, password, startupStage, mainTrack }),
       })
 
       const data = await res.json()
@@ -143,15 +149,15 @@ function RegisterForm() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-medium text-gray-700">
-                用户名
+              <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                昵称 <span className="text-red-500">*</span>
               </label>
               <Input
-                id="username"
+                id="name"
                 type="text"
-                placeholder="你的用户名（2-20个字符）"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="你的昵称（2-20个字符）"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
                 minLength={2}
                 maxLength={20}
@@ -172,7 +178,6 @@ function RegisterForm() {
                 maxLength={11}
                 autoComplete="tel"
               />
-              <p className="text-xs text-gray-400">手机号可用于登录，不做短信验证</p>
             </div>
 
             <div className="space-y-2">

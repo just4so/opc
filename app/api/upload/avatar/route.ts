@@ -11,7 +11,7 @@ const ALLOWED_TYPES: Record<string, string> = {
   'image/gif': 'gif',
 }
 
-const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+const MAX_SIZE = 10 * 1024 * 1024 // 10MB
 
 function getR2Client() {
   return new S3Client({

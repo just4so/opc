@@ -6,7 +6,7 @@ import crypto from 'crypto'
 import { sendEmailVerifyEmail } from '@/lib/mailer'
 
 const registerSchema = z.object({
-  username: z.string().min(2, '用户名至少2个字符').max(20, '用户名最多20个字符'),
+  name: z.string().min(2, '昵称至少2个字符').max(20, '昵称最多20个字符'),
   phone: z
     .string()
     .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号'),
@@ -16,13 +16,21 @@ const registerSchema = z.object({
   mainTrack: z.string().optional(),
 })
 
+async function generateUsername(): Promise<string> {
+  for (let i = 0; i < 3; i++) {
+    const candidate = 'user_' + Math.random().toString(36).slice(2, 10)
+    const exists = await prisma.user.findUnique({ where: { username: candidate } })
+    if (!exists) return candidate
+  }
+  return 'user_' + Date.now().toString(36)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
     const validation = registerSchema.safeParse(body)
     if (!validation.success) {
-      // 把 zod 内部错误转成用户友好提示
       const firstIssue = validation.error.issues[0]
       let message = firstIssue.message
       if (message.startsWith('Invalid input') || message.startsWith('Required')) {
@@ -31,15 +39,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 })
     }
 
-    const { username, phone, email, password, startupStage, mainTrack } = validation.data
+    const { name, phone, email, password, startupStage, mainTrack } = validation.data
 
-    // 检查用户名是否已存在
-    const existingUsername = await prisma.user.findUnique({
-      where: { username },
+    // 检查昵称是否已存在
+    const existingName = await prisma.user.findFirst({
+      where: { name },
     })
-    if (existingUsername) {
+    if (existingName) {
       return NextResponse.json(
-        { error: '用户名已被使用' },
+        { error: '昵称已被使用' },
         { status: 400 }
       )
     }
@@ -70,9 +78,11 @@ export async function POST(request: NextRequest) {
 
     // 创建用户
     const passwordHash = await hash(password, 12)
+    const username = await generateUsername()
     const user = await prisma.user.create({
       data: {
         username,
+        name,
         phone,
         ...(email ? { email } : {}),
         passwordHash,
@@ -82,6 +92,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         username: true,
+        name: true,
         phone: true,
         email: true,
         createdAt: true,

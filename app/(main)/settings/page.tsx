@@ -36,7 +36,10 @@ export default function SettingsPage() {
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
   const [avatar, setAvatar] = useState<string | null>(null)
+  const [username, setUsername] = useState('')
   const [name, setName] = useState('')
+  const [nameIsSet, setNameIsSet] = useState(false)
+  const [settingName, setSettingName] = useState(false)
   const [bio, setBio] = useState('')
   const [location, setLocation] = useState('')
   const [website, setWebsite] = useState('')
@@ -67,7 +70,9 @@ export default function SettingsPage() {
       if (res.ok) {
         const data: UserProfile = await res.json()
         setAvatar(data.avatar)
+        setUsername(data.username)
         setName(data.name || '')
+        setNameIsSet(!!data.name)
         setBio(data.bio || '')
         setLocation(data.location || '')
         setWebsite(data.website || '')
@@ -95,7 +100,6 @@ export default function SettingsPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name || null,
           avatar: avatar || null,
           bio: bio || null,
           location: location || null,
@@ -108,7 +112,7 @@ export default function SettingsPage() {
       })
 
       if (res.ok) {
-        await update({ name: name || null, image: avatar || null })
+        await update({ image: avatar || null })
         setMessage({ type: 'success', text: '保存成功' })
       } else {
         const data = await res.json()
@@ -118,6 +122,30 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: '保存失败，请稍后重试' })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSetName = async () => {
+    setMessage(null)
+    setSettingName(true)
+    try {
+      const res = await fetch('/api/user/set-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setNameIsSet(true)
+        await update({ name: data.name })
+        setMessage({ type: 'success', text: '昵称设置成功' })
+      } else {
+        setMessage({ type: 'error', text: data.error || '设置失败' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: '设置失败，请稍后重试' })
+    } finally {
+      setSettingName(false)
     }
   }
 
@@ -284,11 +312,28 @@ export default function SettingsPage() {
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   昵称
                 </label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="你的昵称"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="你的昵称"
+                    disabled={nameIsSet}
+                    className={nameIsSet ? 'bg-gray-50 text-gray-500' : ''}
+                  />
+                  {!nameIsSet && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleSetName}
+                      disabled={settingName || !name.trim()}
+                    >
+                      {settingName ? '设置中...' : '设置昵称'}
+                    </Button>
+                  )}
+                </div>
+                {nameIsSet && (
+                  <p className="text-xs text-gray-400 mt-1">昵称设置后不可修改</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -335,6 +380,7 @@ export default function SettingsPage() {
                   placeholder="你的微信号"
                 />
               </div>
+              <p className="text-xs text-gray-400 mt-4">用户ID：{username}（系统生成，不可修改）</p>
             </CardContent>
           </Card>
 

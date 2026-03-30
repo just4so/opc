@@ -1,0 +1,23 @@
+# Implementation Tasks: Email Auth
+
+- [x] Task 1: Update Prisma Schema
+  - Add `emailVerified` boolean to `User` table
+  - Create `OneTimeToken` table
+  - Run `npx prisma migrate dev --name email_auth`
+- [x] Task 2: Install Nodemailer
+  - `npm install nodemailer @types/nodemailer`
+- [x] Task 3: Create Mailer Service
+  - Create `lib/mailer.ts` with `sendPasswordResetEmail` and `sendEmailVerifyEmail`
+- [x] Task 4: Phase 1 - API
+  - Create `app/api/auth/forgot-password/route.ts`
+  - Create `app/api/auth/reset-password/route.ts`
+- [x] Task 5: Phase 1 - Pages
+  - Create `app/(auth)/forgot-password/page.tsx`
+  - Create `app/(auth)/reset-password/page.tsx`
+  - Update `app/(auth)/login/page.tsx` to add "Forgot Password?" link
+- [x] Task 6: Phase 2 - API
+  - Create `app/api/auth/send-verify-email/route.ts`
+  - Create `app/api/auth/verify-email/route.ts`
+- [x] Task 7: Phase 2 - Pages
+  - Create `app/(auth)/verify-email/page.tsx`
+  - Update profile/settings page to include email verification status and send button
