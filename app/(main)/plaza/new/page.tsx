@@ -3,12 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { PostRichTextEditor } from '@/components/plaza/post-rich-text-editor'
 import { PlazaTagInput } from '@/components/plaza/tag-input'
+
+const PostRichTextEditor = dynamic(
+  () => import('@/components/plaza/post-rich-text-editor').then(m => ({ default: m.PostRichTextEditor })),
+  { ssr: false, loading: () => <div className="h-40 rounded-lg border bg-gray-50 animate-pulse" /> }
+)
 
 const POST_TYPES = [
   { id: 'CHAT',   emoji: '💬', name: '聊聊',  desc: '随聊、日记、创业进度' },

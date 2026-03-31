@@ -15,11 +15,16 @@ export const TOPICS = [
 ] as const
 
 export const POST_TYPES = [
-  { id: 'DAILY', name: '日常动态', description: '创业日记、进度分享' },
-  { id: 'EXPERIENCE', name: '经验分享', description: '实战经验、踩坑总结' },
-  { id: 'QUESTION', name: '问题求助', description: '遇到的问题和困惑' },
-  { id: 'RESOURCE', name: '资源推荐', description: '好用的工具、资源' },
-  { id: 'DISCUSSION', name: '观点讨论', description: '行业观点、趋势探讨' },
+  { id: 'CHAT',   name: '聊聊', description: '随聊、日记、创业进度', emoji: '💬' },
+  { id: 'HELP',   name: '求助', description: '遇到问题寻求建议',     emoji: '❓' },
+  { id: 'SHARE',  name: '分享', description: '经验、资源、工具推荐', emoji: '📣' },
+  { id: 'COLLAB', name: '找人', description: '找合伙人、外包或合作', emoji: '🤝' },
+  // 旧值保留，兼容迁移前数据显示
+  { id: 'DAILY',      name: '日常动态', description: '创业日记、进度分享', emoji: '📝' },
+  { id: 'EXPERIENCE', name: '经验分享', description: '实战经验、踩坑总结', emoji: '💡' },
+  { id: 'QUESTION',   name: '问题求助', description: '遇到的问题和困惑',   emoji: '❓' },
+  { id: 'RESOURCE',   name: '资源推荐', description: '好用的工具、资源',   emoji: '🔧' },
+  { id: 'DISCUSSION', name: '观点讨论', description: '行业观点、趋势探讨', emoji: '💬' },
 ] as const
 
 // ==================== 合作广场 ====================

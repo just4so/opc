@@ -85,7 +85,7 @@ export default async function PostDetailPage({ params }: PageProps) {
             className="inline-flex items-center text-gray-600 hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            返回创业广场
+            返回交流广场
           </Link>
         </div>
       </div>
