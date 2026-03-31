@@ -3,8 +3,6 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-
-export const revalidate = 60 // 帖子详情 60 秒 ISR（评论有延迟可接受）
 import { ArrowLeft } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -14,12 +12,17 @@ import { PostInteractions } from '@/components/plaza/post-interactions'
 import prisma from '@/lib/db'
 import { TOPICS, POST_TYPES } from '@/constants/topics'
 
+export const revalidate = 60 // 帖子详情 60 秒 ISR
+
 interface PageProps {
   params: { id: string }
 }
 
-async function getPost(id: string) {
-  const post = await prisma.post.findUnique({
+// 用 React cache 确保同一请求只查一次 DB
+import { cache } from 'react'
+
+const getPost = cache(async (id: string) => {
+  return prisma.post.findUnique({
     where: { id },
     include: {
       author: {
@@ -49,9 +52,7 @@ async function getPost(id: string) {
       },
     },
   })
-
-  return post
-}
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = await getPost(params.id)
