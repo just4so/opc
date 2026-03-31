@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { MapPin, MessageSquare, Handshake, Cpu, ArrowRight } from 'lucide-react'
+import { MapPin, MessageSquare, Cpu, ArrowRight } from 'lucide-react'
 import { NewsCardCompact } from '@/components/news/news-card'
 import { ActivityBar } from '@/components/home/activity-bar'
 import { HeroSessionLink, CtaSessionLink } from '@/components/home/session-cta'
 import prisma from '@/lib/db'
 
-export const revalidate = 300
+export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'OPC创业圈 · 让 AI 创业者不再孤独前行',
@@ -49,9 +49,12 @@ export default async function HomePage() {
     })),
     prisma.post.findMany({
       take: 5,
+      where: { status: 'PUBLISHED' },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
+        type: true,
+        title: true,
         content: true,
         author: { select: { name: true, username: true } },
       },
@@ -117,36 +120,53 @@ export default async function HomePage() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-secondary mb-4">
-                创业者在聊什么
+                交流广场 · 最新动态
               </h2>
-              <p className="text-gray-500">来自广场的真实动态</p>
+              <p className="text-gray-500">来自创业者的真实声音</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
-              {recentPosts.slice(0, 3).map((post) => (
-                <Link
-                  key={post.id}
-                  href={`/plaza/${post.id}`}
-                  className="bg-white rounded-xl shadow-soft p-6 flex flex-col hover:shadow-soft-lg transition-shadow group"
-                >
-                  <p className="text-sm text-gray-700 leading-relaxed mb-4 flex-1 line-clamp-4">
-                    {post.content.split('\n')[0].slice(0, 120)}
-                    {post.content.length > 120 ? '…' : ''}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="text-xs text-gray-400">
-                      {post.author.name || post.author.username || '匿名创业者'}
-                    </span>
-                    <span className="text-xs text-primary group-hover:underline">查看全文 →</span>
-                  </div>
-                </Link>
-              ))}
+              {recentPosts.slice(0, 3).map((post) => {
+                const typeMap: Record<string, { label: string; color: string }> = {
+                  CHAT: { label: '聊聊', color: 'bg-blue-50 text-blue-600' },
+                  HELP: { label: '求助', color: 'bg-orange-50 text-orange-600' },
+                  SHARE: { label: '分享', color: 'bg-green-50 text-green-600' },
+                  COLLAB: { label: '找人', color: 'bg-purple-50 text-purple-600' },
+                }
+                const typeInfo = typeMap[post.type] ?? { label: post.type, color: 'bg-gray-50 text-gray-500' }
+                return (
+                  <Link
+                    key={post.id}
+                    href={`/plaza/${post.id}`}
+                    className="bg-white rounded-xl shadow-soft p-6 flex flex-col hover:shadow-soft-lg transition-shadow group"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeInfo.color}`}>
+                        {typeInfo.label}
+                      </span>
+                    </div>
+                    {post.title && (
+                      <p className="text-sm font-semibold text-secondary mb-2 line-clamp-1">{post.title}</p>
+                    )}
+                    <p className="text-sm text-gray-700 leading-relaxed mb-4 flex-1 line-clamp-4">
+                      {post.content.split('\n')[0].slice(0, 120)}
+                      {post.content.length > 120 ? '…' : ''}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-xs text-gray-400">
+                        {post.author.name || post.author.username || '匿名创业者'}
+                      </span>
+                      <span className="text-xs text-primary group-hover:underline">查看全文 →</span>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
             <div className="text-center mt-8">
               <Link
                 href="/plaza"
                 className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary transition-colors"
               >
-                进入创业广场
+                进入交流广场
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -177,21 +197,14 @@ export default async function HomePage() {
               {
                 icon: MessageSquare,
                 title: '创业广场',
-                desc: '分享想法，碰撞灵感',
+                desc: '聊聊、求助、分享、找人',
                 href: '/plaza',
                 color: 'text-blue-600 bg-blue-50',
               },
               {
-                icon: Handshake,
-                title: '合作广场',
-                desc: '技能互补，资源共享',
-                href: '/market',
-                color: 'text-emerald-600 bg-emerald-50',
-              },
-              {
                 icon: Cpu,
-                title: '工具导航',
-                desc: '低成本接入 AI 能力',
+                title: 'AI工具导航',
+                desc: '精选低成本AI工具',
                 href: '/tools',
                 color: 'text-purple-600 bg-purple-50',
               },
