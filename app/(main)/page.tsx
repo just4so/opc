@@ -113,7 +113,7 @@ export default async function HomePage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-gray-600 border border-gray-200 hover:border-gray-300 hover:text-secondary shadow-soft hover:shadow-soft-lg transition-all hover:-translate-y-0.5"
             >
               <BookOpen className="h-4 w-4" />
-              一人公司入门
+              找到你的起点
             </Link>
           </div>
         </div>
@@ -251,7 +251,7 @@ export default async function HomePage() {
               },
               {
                 icon: BookOpen,
-                title: '入门指南',
+                title: '找到你的起点',
                 desc: '不知道怎么开始？大厂出走 · 应届生 · 自由职业者的路径',
                 href: '/start',
                 iconColor: 'text-green-500',
