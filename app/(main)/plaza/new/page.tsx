@@ -16,10 +16,10 @@ const PostRichTextEditor = dynamic(
 )
 
 const POST_TYPES = [
-  { id: 'CHAT',   emoji: '💬', name: '聊聊',  desc: '随聊、日记、创业进度' },
-  { id: 'HELP',   emoji: '❓', name: '求助',  desc: '遇到问题寻求建议' },
-  { id: 'SHARE',  emoji: '📣', name: '分享',  desc: '经验、资源、工具推荐' },
-  { id: 'COLLAB', emoji: '🤝', name: '找人',  desc: '找合伙人、外包或合作' },
+  { id: 'CHAT',   color: 'bg-gray-400',   name: '聊聊',  desc: '随聊、日记、创业进度' },
+  { id: 'HELP',   color: 'bg-orange-400', name: '求助',  desc: '遇到问题寻求建议' },
+  { id: 'SHARE',  color: 'bg-green-500',  name: '分享',  desc: '经验、资源、工具推荐' },
+  { id: 'COLLAB', color: 'bg-blue-500',   name: '找人',  desc: '找合伙人、外包或合作' },
 ]
 
 const BUDGET_TYPES = [
@@ -141,22 +141,22 @@ export default function NewPostPage() {
 
               {/* 意图选择 */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">选择类型</label>
-                <div className="flex gap-3 overflow-x-auto pb-1">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">选择类型</label>
+                <div className="flex gap-2 flex-wrap">
                   {POST_TYPES.map((pt) => (
                     <button
                       key={pt.id}
                       type="button"
+                      title={pt.desc}
                       onClick={() => setType(pt.id)}
-                      className={`p-3 rounded-xl border-2 text-left transition-all flex-shrink-0 ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all ${
                         type === pt.id
-                          ? 'border-primary bg-primary/5 ring-2 ring-primary shadow-sm'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                          ? 'border-primary bg-primary text-white shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      <div className="text-3xl mb-1">{pt.emoji}</div>
-                      <div className="font-medium text-sm">{pt.name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{pt.desc}</div>
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${pt.color}`} />
+                      {pt.name}
                     </button>
                   ))}
                 </div>
@@ -192,7 +192,7 @@ export default function NewPostPage() {
               {/* COLLAB 专属字段 */}
               {type === 'COLLAB' && (
                 <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <h3 className="text-sm font-semibold text-slate-700">🤝 找人详情</h3>
+                  <h3 className="text-sm font-semibold text-slate-700">找人详情</h3>
 
                   {/* 预算类型 */}
                   <div>

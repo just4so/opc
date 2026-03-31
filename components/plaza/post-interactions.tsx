@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, MessageCircle } from 'lucide-react'
+import { Heart, MessageCircle, Bookmark, Share2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Card, CardContent } from '@/components/ui/card'
@@ -42,6 +42,9 @@ export function PostInteractions({
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [commentCount, setCommentCount] = useState(initialCommentCount)
   const [isLiking, setIsLiking] = useState(false)
+  const [favorited, setFavorited] = useState(false)
+  const [isFavoriting, setIsFavoriting] = useState(false)
+  const [copyTip, setCopyTip] = useState(false)
 
   // 检查是否已点赞
   useEffect(() => {
@@ -49,6 +52,16 @@ export function PostInteractions({
       fetch(`/api/posts/${postId}/like`)
         .then((res) => res.json())
         .then((data) => setLiked(data.liked))
+        .catch(() => {})
+    }
+  }, [postId, session])
+
+  // 检查是否已收藏
+  useEffect(() => {
+    if (session?.user) {
+      fetch(`/api/posts/${postId}/favorite`)
+        .then((res) => res.json())
+        .then((data) => setFavorited(data.favorited))
         .catch(() => {})
     }
   }, [postId, session])
@@ -84,6 +97,41 @@ export function PostInteractions({
     setCommentCount((prev) => prev + 1)
   }
 
+  const handleFavorite = async () => {
+    if (!session) {
+      router.push('/login')
+      return
+    }
+    if (isFavoriting) return
+    setIsFavoriting(true)
+    // 乐观更新
+    setFavorited((prev) => !prev)
+    try {
+      const res = await fetch(`/api/posts/${postId}/favorite`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        setFavorited(data.favorited)
+      } else {
+        setFavorited((prev) => !prev) // 回滚
+      }
+    } catch {
+      setFavorited((prev) => !prev) // 回滚
+    } finally {
+      setIsFavoriting(false)
+    }
+  }
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopyTip(true)
+      setTimeout(() => setCopyTip(false), 2000)
+    } catch {
+      // 降级：选中 URL
+      window.prompt('复制链接', window.location.href)
+    }
+  }
+
   return (
     <>
       {/* 互动栏 */}
@@ -102,6 +150,23 @@ export function PostInteractions({
           <MessageCircle className="h-5 w-5" />
           <span>{commentCount} 评论</span>
         </div>
+        <button
+          onClick={handleFavorite}
+          disabled={isFavoriting}
+          className={`flex items-center space-x-2 transition-colors ${
+            favorited ? 'text-yellow-500' : 'hover:text-yellow-500'
+          }`}
+        >
+          <Bookmark className={`h-5 w-5 ${favorited ? 'fill-current' : ''}`} />
+          <span>{favorited ? '已收藏' : '收藏'}</span>
+        </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center space-x-2 hover:text-primary transition-colors relative"
+        >
+          <Share2 className="h-5 w-5" />
+          <span>{copyTip ? '已复制！' : '分享'}</span>
+        </button>
       </div>
 
       {/* 评论区 */}
