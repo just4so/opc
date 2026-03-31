@@ -1,10 +1,10 @@
+export const revalidate = 3600 // 资讯详情 1 小时 ISR（内容变化极低频）
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
 import prisma from '@/lib/db'
-
-export const revalidate = 3600 // 资讯详情 1 小时 ISR（内容变化极低频）
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
@@ -34,9 +34,9 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-async function getNews(id: string) {
+const getNews = cache(async (id: string) => {
   return prisma.news.findUnique({ where: { id } })
-}
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params

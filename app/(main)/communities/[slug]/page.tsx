@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -33,7 +34,7 @@ interface PageProps {
   params: { slug: string }
 }
 
-async function getCommunity(slug: string) {
+const getCommunity = cache(async (slug: string) => {
   const decodedSlug = decodeURIComponent(slug)
 
   const community = await prisma.community.findFirst({
@@ -51,7 +52,7 @@ async function getCommunity(slug: string) {
   }
 
   return community
-}
+})
 
 function stripHtml(html: string): string {
   return html

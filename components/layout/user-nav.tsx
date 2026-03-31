@@ -12,13 +12,14 @@ export function UserNav() {
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    if (session?.user) {
-      fetchUnreadCount()
-      // Poll every 30 seconds
-      const interval = setInterval(fetchUnreadCount, 30000)
-      return () => clearInterval(interval)
-    }
-  }, [session])
+    if (status === 'loading') return
+    if (status !== 'authenticated' || !session?.user) return
+
+    fetchUnreadCount()
+    // Poll every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [session, status])
 
   const fetchUnreadCount = async () => {
     try {

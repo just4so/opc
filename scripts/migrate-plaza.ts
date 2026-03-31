@@ -33,32 +33,23 @@ async function main() {
   console.log(`Projects (DEMAND+COOPERATION): ${preCounts[5]}`)
   console.log()
 
-  await prisma.$transaction(async (tx) => {
-    // ──────────────────────────────────────────────
-    // Step 1: Remap old PostType values
-    // ──────────────────────────────────────────────
-    console.log('=== Step 1: Remapping PostType values ===')
-
-    const [daily, discussion, question, experience, resource] = await Promise.all([
-      tx.post.updateMany({ where: { type: 'DAILY' },      data: { type: 'CHAT' } }),
-      tx.post.updateMany({ where: { type: 'DISCUSSION' }, data: { type: 'CHAT' } }),
-      tx.post.updateMany({ where: { type: 'QUESTION' },   data: { type: 'HELP' } }),
-      tx.post.updateMany({ where: { type: 'EXPERIENCE' }, data: { type: 'SHARE' } }),
-      tx.post.updateMany({ where: { type: 'RESOURCE' },   data: { type: 'SHARE' } }),
-    ])
-    console.log(`DAILY      → CHAT:  ${daily.count} posts`)
-    console.log(`DISCUSSION → CHAT:  ${discussion.count} posts`)
-    console.log(`QUESTION   → HELP:  ${question.count} posts`)
-    console.log(`EXPERIENCE → SHARE: ${experience.count} posts`)
-    console.log(`RESOURCE   → SHARE: ${resource.count} posts`)
-    console.log()
+  // Step 1: Remap old PostType values（独立事务，快）
+  await prisma.$transaction([
+    prisma.post.updateMany({ where: { type: 'DAILY' },      data: { type: 'CHAT' } }),
+    prisma.post.updateMany({ where: { type: 'DISCUSSION' }, data: { type: 'CHAT' } }),
+    prisma.post.updateMany({ where: { type: 'QUESTION' },   data: { type: 'HELP' } }),
+    prisma.post.updateMany({ where: { type: 'EXPERIENCE' }, data: { type: 'SHARE' } }),
+    prisma.post.updateMany({ where: { type: 'RESOURCE' },   data: { type: 'SHARE' } }),
+  ])
+  console.log(`DAILY/DISCUSSION → CHAT, QUESTION → HELP, EXPERIENCE/RESOURCE → SHARE`)
+  console.log()
 
     // ──────────────────────────────────────────────
     // Step 2: Migrate Project (DEMAND/COOPERATION) → Post
     // ──────────────────────────────────────────────
     console.log('=== Step 2: Migrating Project records to Post ===')
 
-    const projects = await tx.project.findMany({
+    const projects = await prisma.project.findMany({
       where: {
         contentType: { in: ['DEMAND', 'COOPERATION'] },
         status: 'PUBLISHED',
@@ -67,34 +58,32 @@ async function main() {
 
     console.log(`Found ${projects.length} projects to migrate`)
 
-    let migrated = 0
-    for (const proj of projects) {
+    const newPosts = await Promise.all(projects.map(async (proj) => {
       const plainContent = await stripHtml(proj.description)
-      await tx.post.create({
-        data: {
-          title: proj.name,
-          content: plainContent,
-          contentHtml: null,
-          type: 'COLLAB',
-          topics: proj.category,
-          authorId: proj.ownerId,
-          budgetMin: proj.budgetMin,
-          budgetMax: proj.budgetMax,
-          budgetType: proj.budgetType,
-          deadline: proj.deadline,
-          skills: proj.skills,
-          contactInfo: proj.contactInfo,
-          contactType: proj.contactType,
-          likeCount: proj.likeCount,
-          commentCount: proj.commentCount,
-          viewCount: proj.viewCount,
-          createdAt: proj.createdAt,
-        },
-      })
-      migrated++
-    }
-    console.log(`Migrated ${migrated} projects to Post(COLLAB)`)
-  })
+      return {
+        title: proj.name,
+        content: plainContent,
+        contentHtml: null as null,
+        type: 'COLLAB' as const,
+        topics: Array.isArray(proj.category) ? proj.category as string[] : (proj.category ? [proj.category as string] : []),
+        authorId: proj.ownerId,
+        budgetMin: proj.budgetMin,
+        budgetMax: proj.budgetMax,
+        budgetType: proj.budgetType,
+        deadline: proj.deadline,
+        skills: proj.skills,
+        contactInfo: proj.contactInfo,
+        contactType: proj.contactType,
+        likeCount: proj.likeCount,
+        commentCount: proj.commentCount,
+        viewCount: proj.viewCount,
+        createdAt: proj.createdAt,
+      }
+    }))
+
+    // 批量插入，单次事务不超时
+    const result = await prisma.post.createMany({ data: newPosts })
+    console.log(`Migrated ${result.count} projects to Post(COLLAB)`)
 
   // ──────────────────────────────────────────────
   // Post-migration counts

@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
@@ -25,7 +26,7 @@ interface PageProps {
   params: { slug: string }
 }
 
-async function getOrder(slug: string) {
+const getOrder = cache(async (slug: string) => {
   // URL 解码处理中文 slug
   const decodedSlug = decodeURIComponent(slug)
 
@@ -53,7 +54,7 @@ async function getOrder(slug: string) {
   })
 
   return order
-}
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const order = await getOrder(params.slug)

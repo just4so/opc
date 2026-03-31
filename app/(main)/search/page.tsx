@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Search, FileText, Briefcase, MapPin, User, Loader2 } from 'lucide-react'
@@ -43,6 +43,7 @@ function SearchContent() {
   const [activeType, setActiveType] = useState<SearchType>(initialType)
   const [results, setResults] = useState<SearchResults | null>(null)
   const [loading, setLoading] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (initialQuery) {
@@ -98,7 +99,17 @@ function SearchContent() {
               <input
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                const val = e.target.value
+                setQuery(val)
+                if (debounceRef.current) clearTimeout(debounceRef.current)
+                debounceRef.current = setTimeout(() => {
+                  if (val.trim()) {
+                    router.push(`/search?q=${encodeURIComponent(val)}&type=${activeType}`)
+                    performSearch(val, activeType)
+                  }
+                }, 300)
+              }}
                 placeholder="搜索动态、订单、社区、用户..."
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
