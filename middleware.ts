@@ -4,9 +4,13 @@ import type { NextRequest } from 'next/server'
 const PROTECTED_PATHS = [
   '/plaza/new',
   '/market/new',
-  '/profile',
   '/messages',
   '/settings',
+]
+
+// 精确需要登录的路径（不含子路径）
+const PROTECTED_EXACT = [
+  '/profile',
 ]
 
 async function maybeRedirectCommunitySlug(request: NextRequest, pathname: string) {
@@ -49,6 +53,7 @@ export async function middleware(request: NextRequest) {
   if (communityRedirect) return communityRedirect
 
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path))
+    || PROTECTED_EXACT.some((path) => pathname === path)
   if (!isProtected) return NextResponse.next()
 
   if (!isLoggedIn(request)) {
