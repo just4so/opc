@@ -1,15 +1,24 @@
 import Link from 'next/link'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Heart, MessageCircle, Eye } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TOPICS, POST_TYPES } from '@/constants/topics'
+import { TOPICS } from '@/constants/topics'
+
+const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
+  CHAT:  { label: '💬 聊聊',  className: 'bg-gray-100 text-gray-600' },
+  HELP:  { label: '❓ 求助',  className: 'bg-orange-100 text-orange-600' },
+  SHARE: { label: '📣 分享',  className: 'bg-green-100 text-green-700' },
+  COLLAB:{ label: '🤝 找人',  className: 'bg-blue-100 text-blue-700' },
+}
 
 interface PostCardProps {
   post: {
     id: string
     content: string
+    contentHtml?: string | null
+    title?: string | null
     type: string
     topics: string[]
     images: string[]
@@ -17,6 +26,10 @@ interface PostCardProps {
     likeCount: number
     commentCount: number
     createdAt: Date | string
+    budgetMin?: number | null
+    budgetMax?: number | null
+    budgetType?: string | null
+    deadline?: Date | string | null
     author: {
       id: string
       username: string
@@ -31,24 +44,37 @@ interface PostCardProps {
   }
 }
 
+function getPreview(post: PostCardProps['post']): string {
+  const raw = post.contentHtml
+    ? post.contentHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+    : post.content
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/#{1,6}\s+/g, '')
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/^[-*>]\s+/gm, '')
+        .replace(/\n+/g, ' ')
+        .trim()
+  return raw.slice(0, 100)
+}
+
+function getBudgetLabel(post: PostCardProps['post']): string | null {
+  if (post.type !== 'COLLAB') return null
+  if (post.budgetType === 'NEGOTIABLE') return '预算：面议'
+  if (post.budgetType === 'FIXED' && post.budgetMin != null) return `预算：固定 ${post.budgetMin} 元`
+  if (post.budgetType === 'RANGE' && post.budgetMin != null && post.budgetMax != null)
+    return `预算：${post.budgetMin}–${post.budgetMax} 元`
+  return null
+}
+
 export function PostCard({ post }: PostCardProps) {
-  const postType = POST_TYPES.find(t => t.id === post.type)
-  // 基于 post.id 生成稳定的虚拟浏览数（charCode 求和避免 NaN）
+  const typeConfig = TYPE_CONFIG[post.type]
   const hashVal = post.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
   const viewCount = (hashVal % 180) + 30
-
-  // 去掉 Markdown 语法的纯文本预览
-  const preview = post.content
-    .replace(/```[\s\S]*?```/g, '')        // 代码块
-    .replace(/#{1,6}\s+/g, '')             // 标题
-    .replace(/\*\*(.*?)\*\*/g, '$1')       // 加粗
-    .replace(/\*(.*?)\*/g, '$1')           // 斜体
-    .replace(/`([^`]+)`/g, '$1')           // 行内代码
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // 链接
-    .replace(/^[-*>]\s+/gm, '')            // 列表/引用前缀
-    .replace(/\n+/g, ' ')                  // 换行转空格
-    .trim()
-    .slice(0, 120)
+  const preview = getPreview(post)
+  const budgetLabel = getBudgetLabel(post)
 
   return (
     <Card className="hover:shadow-md transition-shadow relative">
@@ -58,7 +84,7 @@ export function PostCard({ post }: PostCardProps) {
         </span>
       )}
       <CardContent className="pt-4">
-        {/* 作者信息 - 紧凑版 */}
+        {/* 作者信息 */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Link href={`/profile/${post.author.username}`}>
@@ -80,22 +106,45 @@ export function PostCard({ post }: PostCardProps) {
               <Badge variant="secondary" className="text-xs py-0">认证</Badge>
             )}
           </div>
-          <span className="text-xs text-gray-400">
-            {formatDistanceToNow(new Date(post.createdAt), {
-              locale: zhCN,
-              addSuffix: true,
-            })}
-          </span>
+          <div className="flex items-center gap-2">
+            {typeConfig && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeConfig.className}`}>
+                {typeConfig.label}
+              </span>
+            )}
+            <span className="text-xs text-gray-400">
+              {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
+            </span>
+          </div>
         </div>
 
-        {/* 内容 - 最多3行 */}
+        {/* 标题（可选） */}
+        {post.title && (
+          <Link href={`/plaza/${post.id}`}>
+            <p className="font-semibold text-gray-900 text-sm mb-1 hover:text-primary transition-colors">
+              {post.title}
+            </p>
+          </Link>
+        )}
+
+        {/* 内容预览 */}
         <Link href={`/plaza/${post.id}`}>
           <p className="text-gray-700 text-sm line-clamp-3 mb-3 hover:text-gray-900 transition-colors">
             {preview}
           </p>
         </Link>
 
-        {/* 图片 - 最多1张 + 数量角标 */}
+        {/* COLLAB 额外信息 */}
+        {post.type === 'COLLAB' && (budgetLabel || post.deadline) && (
+          <div className="flex flex-wrap gap-3 mb-3 text-xs text-gray-500">
+            {budgetLabel && <span>{budgetLabel}</span>}
+            {post.deadline && (
+              <span>截止：{format(new Date(post.deadline), 'yyyy-MM-dd')}</span>
+            )}
+          </div>
+        )}
+
+        {/* 图片 */}
         {post.images.length > 0 && (
           <div className="mb-3 relative rounded-lg overflow-hidden h-36 bg-gray-100">
             <img src={post.images[0]} className="w-full h-full object-cover" alt="" />
@@ -121,11 +170,12 @@ export function PostCard({ post }: PostCardProps) {
                 >
                   #{topic.name}
                 </Badge>
-              ) : null
+              ) : (
+                <Badge key={topicId} variant="outline" className="text-xs">
+                  #{topicId}
+                </Badge>
+              )
             })}
-            {postType && (
-              <Badge variant="outline" className="text-xs">{postType.name}</Badge>
-            )}
           </div>
         )}
       </CardContent>

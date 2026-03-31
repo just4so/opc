@@ -4,8 +4,7 @@ import { usePathname } from "next/navigation"
 
 const links = [
   { href: "/communities", label: "社区地图" },
-  { href: "/plaza", label: "创业广场" },
-  { href: "/market", label: "合作广场" },
+  { href: "/plaza", label: "交流广场" },
   { href: "/news", label: "创业资讯" },
   { href: "/tools", label: "工具导航" },
 ]

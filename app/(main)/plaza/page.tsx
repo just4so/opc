@@ -2,7 +2,7 @@ import { PlazaClient } from '@/components/plaza/plaza-client'
 import prisma from '@/lib/db'
 import { getPlazaStats } from '@/lib/queries/post-stats'
 
-export const revalidate = 60 // 60秒 ISR，广场发帖可接受延迟
+export const revalidate = 60 // 60秒 ISR
 
 export default async function PlazaPage() {
   const [posts, total, stats] = await Promise.all([
@@ -38,6 +38,7 @@ export default async function PlazaPage() {
     commentCount: p._count.comments,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
+    deadline: p.deadline ? p.deadline.toISOString() : null,
   }))
 
   return (

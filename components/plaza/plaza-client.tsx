@@ -6,12 +6,12 @@ import { PenSquare, TrendingUp, LayoutGrid, List } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { TOPICS, POST_TYPES } from '@/constants/topics'
 
 interface Post {
   id: string
   content: string
+  contentHtml?: string | null
+  title?: string | null
   type: string
   topics: string[]
   images: string[]
@@ -19,6 +19,10 @@ interface Post {
   likeCount: number
   commentCount: number
   createdAt: string
+  budgetMin?: number | null
+  budgetMax?: number | null
+  budgetType?: string | null
+  deadline?: string | null
   author: {
     id: string
     username: string
@@ -55,42 +59,41 @@ export interface PlazaClientProps {
   initialStats: {
     todayStats: TodayStats
     topicCounts: TopicCount[]
+    hotTopics: TopicCount[]
+    activeUsers: { id: string; name: string | null; username: string; avatar: string | null; postCount: number }[]
+    weekCount: number
+    monthCount: number
   }
 }
+
+const TYPE_TABS = [
+  { value: '', label: '全部' },
+  { value: 'CHAT',   label: '💬 聊聊' },
+  { value: 'HELP',   label: '❓ 求助' },
+  { value: 'SHARE',  label: '📣 分享' },
+  { value: 'COLLAB', label: '🤝 找人' },
+]
 
 export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaClientProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts)
   const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: 20,
-    total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 20),
+    page: 1, limit: 20, total: initialTotal, totalPages: Math.ceil(initialTotal / 20),
   })
   const [loading, setLoading] = useState(false)
-  const [tab, setTab] = useState<'featured' | 'all'>('all')
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
   const [sort, setSort] = useState('latest')
   const [type, setType] = useState('')
-  const [topic, setTopic] = useState('')
   const [page, setPage] = useState(1)
-  const [todayStats, setTodayStats] = useState<TodayStats>(initialStats.todayStats)
-  const [topicCounts, setTopicCounts] = useState<TopicCount[]>(initialStats.topicCounts)
-
-  // Track whether this is the initial render (skip fetch on mount)
   const [isInitial, setIsInitial] = useState(true)
 
-  // Fetch posts when filters change (skip initial render since we have SSR data)
+  const stats = initialStats
+
   useEffect(() => {
-    if (isInitial) {
-      setIsInitial(false)
-      return
-    }
+    if (isInitial) { setIsInitial(false); return }
 
     setLoading(true)
     const params = new URLSearchParams()
     if (type) params.set('type', type)
-    if (topic) params.set('topic', topic)
-    if (tab === 'featured') params.set('pinned', 'true')
     if (sort !== 'latest') params.set('sort', sort)
     params.set('page', String(page))
     params.set('limit', '20')
@@ -103,27 +106,10 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [type, topic, page, tab, sort])
+  }, [type, page, sort])
 
-  const handleTypeChange = (newType: string) => {
-    setType(newType)
-    setPage(1)
-  }
-
-  const handleTopicChange = (newTopic: string) => {
-    setTopic(newTopic === topic ? '' : newTopic)
-    setPage(1)
-  }
-
-  const handleTabChange = (newTab: 'featured' | 'all') => {
-    setTab(newTab)
-    setPage(1)
-  }
-
-  const handleSortChange = (newSort: string) => {
-    setSort(newSort)
-    setPage(1)
-  }
+  const handleTypeChange = (newType: string) => { setType(newType); setPage(1) }
+  const handleSortChange = (newSort: string) => { setSort(newSort); setPage(1) }
 
   return (
     <div className="min-h-screen bg-background">
@@ -132,15 +118,13 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-secondary mb-2">创业广场</h1>
-              <p className="text-gray-600">
-                分享你的创业故事，与志同道合的创业者交流互动
-              </p>
+              <h1 className="text-3xl font-bold text-secondary mb-2">交流广场</h1>
+              <p className="text-gray-600">OPC创业者的交流空间</p>
             </div>
             <Link href="/plaza/new">
               <Button>
                 <PenSquare className="h-4 w-4 mr-2" />
-                发布动态
+                发帖
               </Button>
             </Link>
           </div>
@@ -148,106 +132,118 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
       </div>
 
       {/* 今日活跃统计条 */}
-      {(todayStats.postCount > 0 || todayStats.participantCount > 0) && (
+      {(stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
         <div className="bg-orange-50 border-b">
           <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-gray-500">
             <TrendingUp className="h-4 w-4 text-orange-400" />
-            <span>今日 <strong className="text-gray-700">{todayStats.postCount}</strong> 条新内容 · <strong className="text-gray-700">{todayStats.participantCount}</strong> 人参与讨论</span>
+            <span>今日 <strong className="text-gray-700">{stats.todayStats.postCount}</strong> 条新内容 · <strong className="text-gray-700">{stats.todayStats.participantCount}</strong> 人参与讨论</span>
           </div>
         </div>
       )}
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* 左侧筛选 */}
-          <aside className="lg:col-span-1">
+          {/* 左侧边栏（desktop only） */}
+          <aside className="hidden lg:block lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* 内容类型 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="font-semibold text-secondary mb-4">内容类型</h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleTypeChange('')}
-                    className={`block w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                      !type ? 'bg-primary text-white' : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    全部
-                  </button>
-                  {POST_TYPES.map((postType) => (
-                    <button
-                      key={postType.id}
-                      onClick={() => handleTypeChange(postType.id)}
-                      className={`block w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                        type === postType.id ? 'bg-primary text-white' : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      {postType.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 热门话题 */}
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="font-semibold text-secondary mb-4">热门话题</h3>
-                <div className="flex flex-wrap gap-2">
-                  {(topicCounts.length > 0
-                    ? topicCounts
-                        .filter(tc => tc.count > 0)
-                        .map(tc => {
-                          const t = TOPICS.find(tp => tp.id === tc.topic)
-                          return t ? { ...t, count: tc.count } : null
-                        })
-                        .filter(Boolean) as (typeof TOPICS[number] & { count: number })[]
-                    : TOPICS.map(t => ({ ...t, count: 0 }))
-                  ).map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => handleTopicChange(t.id)}
-                    >
-                      <Badge
-                        variant={topic === t.id ? 'default' : 'outline'}
-                        className="cursor-pointer"
-                        style={topic === t.id ? {} : { borderColor: t.color, color: t.color }}
+              {/* 热议话题 */}
+              {stats.hotTopics.length > 0 && (
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                  <h3 className="font-semibold text-secondary mb-3 text-sm">🔥 热议话题</h3>
+                  <div className="space-y-2">
+                    {stats.hotTopics.map((t, i) => (
+                      <div
+                        key={t.topic}
+                        className="flex items-center justify-between text-sm cursor-pointer hover:text-primary"
+                        onClick={() => handleTypeChange('')}
                       >
-                        #{t.name}{t.count > 0 ? ` (${t.count})` : ''}
-                      </Badge>
-                    </button>
-                  ))}
+                        <span className="text-gray-600">
+                          <span className="text-gray-400 mr-1">#{i + 1}</span>
+                          {t.topic}
+                        </span>
+                        <span className="text-xs text-gray-400">{t.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 本周活跃用户 */}
+              {stats.activeUsers.length >= 5 && (
+                <div className="bg-white rounded-lg p-5 shadow-sm">
+                  <h3 className="font-semibold text-secondary mb-3 text-sm">⭐ 本周活跃</h3>
+                  <div className="space-y-2">
+                    {stats.activeUsers.map((u) => (
+                      <Link
+                        key={u.id}
+                        href={`/profile/${u.username}`}
+                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary text-xs font-semibold overflow-hidden shrink-0">
+                          {u.avatar ? (
+                            <img src={u.avatar} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{u.name?.[0] || u.username[0]}</span>
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-700 truncate">{u.name || u.username}</span>
+                        <span className="ml-auto text-xs text-gray-400">{u.postCount}篇</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 发布统计 */}
+              <div className="bg-white rounded-lg p-5 shadow-sm">
+                <h3 className="font-semibold text-secondary mb-3 text-sm">📊 发布统计</h3>
+                <div className="space-y-1 text-sm text-gray-600">
+                  <div className="flex justify-between">
+                    <span>本周</span>
+                    <span className="font-medium">{stats.weekCount} 篇</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>本月</span>
+                    <span className="font-medium">{stats.monthCount} 篇</span>
+                  </div>
                 </div>
               </div>
             </div>
           </aside>
 
-          {/* 右侧动态列表 */}
+          {/* 主内容区 */}
           <main className="lg:col-span-3 space-y-6">
-            {/* 精华/全部 Tab + 排序 + 视图切换 */}
+            {/* 类型筛选 Tabs（desktop）/ Select（mobile） */}
             <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+              {/* Desktop tabs */}
+              <div className="hidden md:flex space-x-1 bg-gray-100 rounded-lg p-1">
+                {TYPE_TABS.map(tab => (
                   <button
-                    onClick={() => handleTabChange('featured')}
+                    key={tab.value}
+                    onClick={() => handleTypeChange(tab.value)}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                      tab === 'featured'
+                      type === tab.value
                         ? 'bg-white text-primary shadow-sm'
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    精华
+                    {tab.label}
                   </button>
-                  <button
-                    onClick={() => handleTabChange('all')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                      tab === 'all'
-                        ? 'bg-white text-primary shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    全部
-                  </button>
-                </div>
+                ))}
+              </div>
 
+              {/* Mobile select */}
+              <select
+                value={type}
+                onChange={(e) => handleTypeChange(e.target.value)}
+                className="md:hidden px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {TYPE_TABS.map(tab => (
+                  <option key={tab.value} value={tab.value}>{tab.label}</option>
+                ))}
+              </select>
+
+              <div className="flex items-center gap-2">
                 <select
                   value={sort}
                   onChange={(e) => handleSortChange(e.target.value)}
@@ -257,31 +253,25 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
                   <option value="hot">最多点赞</option>
                   <option value="comments">最多评论</option>
                 </select>
-              </div>
 
-              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
-                <button
-                  onClick={() => setViewMode("card")}
-                  className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
-                    viewMode === "card"
-                      ? "bg-primary text-white"
-                      : "bg-white text-gray-500 hover:bg-gray-50"
-                  }`}
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                  卡片
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
-                    viewMode === "list"
-                      ? "bg-primary text-white"
-                      : "bg-white text-gray-500 hover:bg-gray-50"
-                  }`}
-                >
-                  <List className="h-3.5 w-3.5" />
-                  列表
-                </button>
+                <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+                  <button
+                    onClick={() => setViewMode('card')}
+                    className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
+                      viewMode === 'card' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
+                      viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <List className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -295,11 +285,6 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
                         <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2" />
                         <div className="h-5 w-full bg-gray-200 rounded animate-pulse mb-2" />
                         <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-4" />
-                        <div className="flex gap-4">
-                          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                          <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -336,9 +321,7 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
                     key={p}
                     onClick={() => setPage(p)}
                     className={`px-4 py-2 rounded-md text-sm ${
-                      p === pagination.page
-                        ? 'bg-primary text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-100'
+                      p === pagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
                     }`}
                   >
                     {p}
