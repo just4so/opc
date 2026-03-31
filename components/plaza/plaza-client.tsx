@@ -112,18 +112,18 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
   const handleSortChange = (newSort: string) => { setSort(newSort); setPage(1) }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50">
       {/* 页面标题 */}
       <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-10">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-secondary mb-2">交流广场</h1>
-              <p className="text-gray-600">OPC创业者的交流空间</p>
+              <h1 className="text-3xl font-bold text-secondary mb-1">交流广场</h1>
+              <p className="text-slate-500 text-sm">OPC创业者的交流空间</p>
             </div>
             <Link href="/plaza/new">
-              <Button>
-                <PenSquare className="h-4 w-4 mr-2" />
+              <Button size="lg" className="gap-2 shadow-sm">
+                <PenSquare className="h-4 w-4" />
                 发帖
               </Button>
             </Link>
@@ -133,9 +133,9 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
 
       {/* 今日活跃统计条 */}
       {(stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
-        <div className="bg-orange-50 border-b">
+        <div className="bg-white border-b">
           <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-gray-500">
-            <TrendingUp className="h-4 w-4 text-orange-400" />
+            <TrendingUp className="h-4 w-4 text-slate-400" />
             <span>今日 <strong className="text-gray-700">{stats.todayStats.postCount}</strong> 条新内容 · <strong className="text-gray-700">{stats.todayStats.participantCount}</strong> 人参与讨论</span>
           </div>
         </div>
@@ -148,7 +148,7 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
             <div className="sticky top-24 space-y-6">
               {/* 热议话题 */}
               {stats.hotTopics.length > 0 && (
-                <div className="bg-white rounded-lg p-5 shadow-sm">
+                <div className="bg-white rounded-lg p-5 shadow-sm border-l-2 border-primary/30">
                   <h3 className="font-semibold text-secondary mb-3 text-sm">🔥 热议话题</h3>
                   <div className="space-y-2">
                     {stats.hotTopics.map((t, i) => (
@@ -197,14 +197,15 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
               {/* 发布统计 */}
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <h3 className="font-semibold text-secondary mb-3 text-sm">📊 发布统计</h3>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <div className="flex justify-between">
-                    <span>本周</span>
-                    <span className="font-medium">{stats.weekCount} 篇</span>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-400">本周</span>
+                    <span className="font-semibold text-gray-800">{stats.weekCount}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>本月</span>
-                    <span className="font-medium">{stats.monthCount} 篇</span>
+                  <div className="w-px h-3 bg-gray-200" />
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-400">本月</span>
+                    <span className="font-semibold text-gray-800">{stats.monthCount}</span>
                   </div>
                 </div>
               </div>
@@ -215,15 +216,15 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
           <main className="lg:col-span-3 space-y-6">
             {/* 类型筛选 Tabs（desktop）/ Select（mobile） */}
             <div className="flex items-center justify-between flex-wrap gap-3">
-              {/* Desktop tabs */}
-              <div className="hidden md:flex space-x-1 bg-gray-100 rounded-lg p-1">
+              {/* Desktop tabs - underline style */}
+              <div className="hidden md:flex border-b border-gray-200">
                 {TYPE_TABS.map(tab => (
                   <button
                     key={tab.value}
                     onClick={() => handleTypeChange(tab.value)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 text-sm font-medium transition-colors relative ${
                       type === tab.value
-                        ? 'bg-white text-primary shadow-sm'
+                        ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
@@ -292,7 +293,7 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
               </div>
             ) : posts.length > 0 ? (
               viewMode === 'card' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-4">
                   {posts.map((post) => (
                     <PostCard key={post.id} post={post} />
                   ))}

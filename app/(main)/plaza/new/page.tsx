@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { PostRichTextEditor } from '@/components/plaza/post-rich-text-editor'
 import { PlazaTagInput } from '@/components/plaza/tag-input'
 
@@ -110,7 +110,7 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
           <Link href="/plaza" className="inline-flex items-center text-gray-600 hover:text-primary transition-colors">
@@ -120,12 +120,15 @@ export default function NewPostPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>发布帖子</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        {/* 页面标题区 */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">发帖</h1>
+          <p className="text-slate-500 text-sm mt-1">分享你的想法、问题或寻找合作伙伴</p>
+        </div>
+
+        <Card className="border-0 shadow-sm rounded-2xl">
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm">{error}</div>
@@ -134,19 +137,19 @@ export default function NewPostPage() {
               {/* 意图选择 */}
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">选择类型</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="flex gap-3 overflow-x-auto pb-1">
                   {POST_TYPES.map((pt) => (
                     <button
                       key={pt.id}
                       type="button"
                       onClick={() => setType(pt.id)}
-                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      className={`p-3 rounded-xl border-2 text-left transition-all flex-shrink-0 ${
                         type === pt.id
-                          ? 'border-primary bg-primary/5'
+                          ? 'border-primary bg-primary/5 ring-2 ring-primary shadow-sm'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
                       }`}
                     >
-                      <div className="text-2xl mb-1">{pt.emoji}</div>
+                      <div className="text-3xl mb-1">{pt.emoji}</div>
                       <div className="font-medium text-sm">{pt.name}</div>
                       <div className="text-xs text-gray-500 mt-0.5">{pt.desc}</div>
                     </button>
@@ -183,8 +186,8 @@ export default function NewPostPage() {
 
               {/* COLLAB 专属字段 */}
               {type === 'COLLAB' && (
-                <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                  <h3 className="text-sm font-semibold text-blue-800">🤝 找人详情</h3>
+                <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <h3 className="text-sm font-semibold text-slate-700">🤝 找人详情</h3>
 
                   {/* 预算类型 */}
                   <div>
@@ -282,11 +285,11 @@ export default function NewPostPage() {
               )}
 
               {/* 提交 */}
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-center gap-4 pt-2">
                 <Link href="/plaza">
-                  <Button type="button" variant="outline">取消</Button>
+                  <Button type="button" variant="outline" className="h-11 px-8">取消</Button>
                 </Link>
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} className="h-11 px-8">
                   {loading ? '发布中...' : '发布'}
                 </Button>
               </div>

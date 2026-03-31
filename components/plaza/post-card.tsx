@@ -77,7 +77,7 @@ export function PostCard({ post }: PostCardProps) {
   const budgetLabel = getBudgetLabel(post)
 
   return (
-    <Card className="hover:shadow-md transition-shadow relative">
+    <Card className="rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative">
       {post.pinned && (
         <span className="absolute top-3 right-3 bg-orange-100 text-orange-600 text-xs px-1.5 py-0.5 rounded z-10">
           精华
@@ -85,37 +85,30 @@ export function PostCard({ post }: PostCardProps) {
       )}
       <CardContent className="pt-4">
         {/* 作者信息 */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Link href={`/profile/${post.author.username}`}>
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
-                {post.author.avatar ? (
-                  <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{post.author.name?.[0] || post.author.username[0]}</span>
-                )}
-              </div>
-            </Link>
-            <Link
-              href={`/profile/${post.author.username}`}
-              className="text-sm font-medium text-secondary hover:text-primary transition-colors"
-            >
-              {post.author.name || post.author.username}
-            </Link>
-            {post.author.verified && (
-              <Badge variant="secondary" className="text-xs py-0">认证</Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {typeConfig && (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeConfig.className}`}>
-                {typeConfig.label}
-              </span>
-            )}
-            <span className="text-xs text-gray-400">
-              {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
+        <div className="flex items-center gap-2 mb-3">
+          <Link href={`/profile/${post.author.username}`}>
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+              {post.author.avatar ? (
+                <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
+              ) : (
+                <span>{post.author.name?.[0] || post.author.username[0]}</span>
+              )}
+            </div>
+          </Link>
+          <Link
+            href={`/profile/${post.author.username}`}
+            className="text-sm font-medium text-secondary hover:text-primary transition-colors"
+          >
+            {post.author.name || post.author.username}
+          </Link>
+          {post.author.verified && (
+            <Badge variant="secondary" className="text-xs py-0">认证</Badge>
+          )}
+          {typeConfig && (
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeConfig.className}`}>
+              {typeConfig.label}
             </span>
-          </div>
+          )}
         </div>
 
         {/* 标题（可选） */}
@@ -129,17 +122,23 @@ export function PostCard({ post }: PostCardProps) {
 
         {/* 内容预览 */}
         <Link href={`/plaza/${post.id}`}>
-          <p className="text-gray-700 text-sm line-clamp-3 mb-3 hover:text-gray-900 transition-colors">
+          <p className="text-gray-700 text-[15px] leading-relaxed line-clamp-3 mb-3 hover:text-gray-900 transition-colors">
             {preview}
           </p>
         </Link>
 
         {/* COLLAB 额外信息 */}
         {post.type === 'COLLAB' && (budgetLabel || post.deadline) && (
-          <div className="flex flex-wrap gap-3 mb-3 text-xs text-gray-500">
-            {budgetLabel && <span>{budgetLabel}</span>}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {budgetLabel && (
+              <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                {budgetLabel}
+              </span>
+            )}
             {post.deadline && (
-              <span>截止：{format(new Date(post.deadline), 'yyyy-MM-dd')}</span>
+              <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                截止：{format(new Date(post.deadline), 'yyyy-MM-dd')}
+              </span>
             )}
           </div>
         )}
@@ -162,18 +161,16 @@ export function PostCard({ post }: PostCardProps) {
             {post.topics.map((topicId) => {
               const topic = TOPICS.find(t => t.id === topicId)
               return topic ? (
-                <Badge
+                <span
                   key={topicId}
-                  variant="outline"
-                  className="text-xs"
-                  style={{ borderColor: topic.color, color: topic.color }}
+                  className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full"
                 >
                   #{topic.name}
-                </Badge>
+                </span>
               ) : (
-                <Badge key={topicId} variant="outline" className="text-xs">
+                <span key={topicId} className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full">
                   #{topicId}
-                </Badge>
+                </span>
               )
             })}
           </div>
@@ -181,21 +178,26 @@ export function PostCard({ post }: PostCardProps) {
       </CardContent>
 
       <CardFooter className="pt-0 pb-3 px-4 border-t">
-        <div className="flex items-center gap-4 text-xs text-gray-500 pt-3">
-          <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
-            <Heart className="h-4 w-4" />
-            <span>{post.likeCount}</span>
-          </button>
-          <Link
-            href={`/plaza/${post.id}#comments`}
-            className="flex items-center gap-1 hover:text-primary transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span>{post.commentCount}</span>
-          </Link>
-          <span className="flex items-center gap-1 text-gray-400">
-            <Eye className="h-4 w-4" />
-            <span>{viewCount}</span>
+        <div className="flex items-center justify-between w-full pt-3">
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
+              <Heart className="h-4 w-4" />
+              <span>{post.likeCount}</span>
+            </button>
+            <Link
+              href={`/plaza/${post.id}#comments`}
+              className="flex items-center gap-1 hover:text-primary transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>{post.commentCount}</span>
+            </Link>
+            <span className="flex items-center gap-1 text-gray-400">
+              <Eye className="h-4 w-4" />
+              <span>{viewCount}</span>
+            </span>
+          </div>
+          <span className="text-xs text-gray-400">
+            {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
           </span>
         </div>
       </CardFooter>
