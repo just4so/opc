@@ -69,9 +69,10 @@ function stripHtml(html: string): string {
 
 function renderDescription(text: string): string {
   if (!text) return ''
-  // 如果包含 HTML，先剥离再重新格式化
-  const plainText = /<[a-z][\s\S]*>/i.test(text) ? stripHtml(text) : text
-  return plainText.split('\n\n').filter(Boolean).map((p) => `<p>${p.trim()}</p>`).join('')
+  // 如果已经是 HTML（富文本编辑器输出），直接返回，由 sanitizeHtml 做安全过滤
+  if (/<[a-z][\s\S]*>/i.test(text)) return text
+  // 纯文本：按双换行分段
+  return text.split('\n\n').filter(Boolean).map((p) => `<p>${p.trim()}</p>`).join('')
 }
 
 function renderStars(difficulty: number): string {
@@ -422,10 +423,14 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     dangerouslySetInnerHTML={{
                       __html: sanitizeHtml(renderDescription(community.description ?? ''), {
                         allowedTags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
-                          'strong', 'em', 'a', 'img', 'blockquote', 'code', 'pre', 'hr', 'br', 's'],
+                          'strong', 'em', 'b', 'i', 'u', 's', 'del', 'mark',
+                          'a', 'img', 'blockquote', 'code', 'pre', 'hr', 'br',
+                          'span', 'div', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
                         allowedAttributes: {
                           'a': ['href', 'target', 'rel'],
                           'img': ['src', 'alt', 'width', 'height'],
+                          'td': ['colspan', 'rowspan'],
+                          'th': ['colspan', 'rowspan'],
                         },
                         disallowedTagsMode: 'discard',
                       })

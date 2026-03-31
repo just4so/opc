@@ -679,8 +679,8 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
           <CardContent className="pt-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                社区简介 <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-400 ml-1">（支持 Markdown）</span>
+                社区详情 <span className="text-red-500">*</span>
+                <span className="text-xs text-gray-400 ml-1">（支持富文本）</span>
               </label>
               <div data-color-mode="light">
                 <RichTextEditor
