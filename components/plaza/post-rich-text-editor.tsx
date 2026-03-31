@@ -43,7 +43,7 @@ export function PostRichTextEditor({
     if (!editor) return
     const url = window.prompt('输入链接地址：', 'https://')
     if (url) {
-      editor.chain().focus().extendMarkToLink({ href: url }).run()
+      editor.chain().focus().setLink({ href: url }).run()
     }
   }
 
