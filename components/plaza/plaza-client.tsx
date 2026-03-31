@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { PenSquare, TrendingUp, LayoutGrid, List } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
@@ -75,6 +76,7 @@ const TYPE_TABS = [
 ]
 
 export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaClientProps) {
+  const { data: session } = useSession()
   const [posts, setPosts] = useState<Post[]>(initialPosts)
   const [pagination, setPagination] = useState<Pagination>({
     page: 1, limit: 20, total: initialTotal, totalPages: Math.ceil(initialTotal / 20),
@@ -85,6 +87,7 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
   const [type, setType] = useState('')
   const [page, setPage] = useState(1)
   const [isInitial, setIsInitial] = useState(true)
+  const [likedMap, setLikedMap] = useState<Record<string, boolean>>({})
 
   const stats = initialStats
 
@@ -107,6 +110,16 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
       })
       .catch(() => setLoading(false))
   }, [type, page, sort])
+
+  // Fetch liked state for current posts when user is authenticated
+  useEffect(() => {
+    if (!session?.user || posts.length === 0) return
+    const ids = posts.map(p => p.id).join(',')
+    fetch(`/api/user/liked-posts?ids=${ids}`)
+      .then(res => res.json())
+      .then(map => setLikedMap(map))
+      .catch(() => {})
+  }, [session?.user, posts])
 
   const handleTypeChange = (newType: string) => { setType(newType); setPage(1) }
   const handleSortChange = (newSort: string) => { setSort(newSort); setPage(1) }
@@ -295,7 +308,7 @@ export function PlazaClient({ initialPosts, initialTotal, initialStats }: PlazaC
               viewMode === 'card' ? (
                 <div className="flex flex-col gap-4">
                   {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard key={post.id} post={post} initialLiked={!!likedMap[post.id]} />
                   ))}
                 </div>
               ) : (

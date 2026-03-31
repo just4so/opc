@@ -38,11 +38,26 @@ interface UserProfile {
   }
 }
 
-interface ProfileClientProps {
-  user: UserProfile
+interface RecentPost {
+  id: string
+  title: string | null
+  content: string
+  type: string
+  likeCount: number
+  commentCount: number
+  createdAt: string
 }
 
-export default function ProfileClient({ user }: ProfileClientProps) {
+const TYPE_LABELS: Record<string, string> = {
+  CHAT: '💬 聊聊', HELP: '❓ 求助', SHARE: '📣 分享', COLLAB: '🤝 找人',
+}
+
+interface ProfileClientProps {
+  user: UserProfile
+  recentPosts?: RecentPost[]
+}
+
+export default function ProfileClient({ user, recentPosts = [] }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -282,6 +297,39 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                   </CardContent>
                 </Card>
               )}
+
+            {/* TA的帖子 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">TA的帖子</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentPosts.length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center py-4">暂无帖子</p>
+                ) : (
+                  <div className="space-y-3">
+                    {recentPosts.map(post => (
+                      <Link key={post.id} href={`/plaza/${post.id}`} className="block border rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                        {post.title && (
+                          <p className="font-medium text-sm text-gray-900 truncate">{post.title}</p>
+                        )}
+                        <p className="text-sm text-gray-600 line-clamp-2 mt-0.5">
+                          {post.content.slice(0, 100)}
+                        </p>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                          <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                            {TYPE_LABELS[post.type] || post.type}
+                          </span>
+                          <span>❤️ {post.likeCount}</span>
+                          <span>💬 {post.commentCount}</span>
+                          <span>{new Date(post.createdAt).toLocaleDateString('zh-CN')}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

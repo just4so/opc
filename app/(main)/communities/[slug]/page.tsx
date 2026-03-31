@@ -14,7 +14,6 @@ import {
   Gift,
   Users,
   ExternalLink,
-  Heart,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -472,16 +471,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           {/* ===== 侧边栏 ===== */}
           <div className="space-y-6">
             {/* CTA 卡片 */}
-            {isLoggedIn ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <Button variant="outline" className="w-full" disabled>
-                    <Heart className="h-4 w-4 mr-2" />
-                    收藏社区
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
+            {!isLoggedIn && (
               <Card className="bg-gradient-to-br from-primary to-primary/80 text-white">
                 <CardContent className="pt-6">
                   <h3 className="text-lg font-semibold mb-3">🔓 注册后立即解锁</h3>

@@ -1,3 +1,8 @@
+'use client'
+
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow, format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -42,6 +47,7 @@ interface PostCardProps {
       startupStage?: string | null
     }
   }
+  initialLiked?: boolean
 }
 
 function getPreview(post: PostCardProps['post']): string {
@@ -69,12 +75,36 @@ function getBudgetLabel(post: PostCardProps['post']): string | null {
   return null
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, initialLiked = false }: PostCardProps) {
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [liked, setLiked] = useState(initialLiked)
+  const [likeCount, setLikeCount] = useState(post.likeCount)
+
   const typeConfig = TYPE_CONFIG[post.type]
   const hashVal = post.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
   const viewCount = (hashVal % 180) + 30
   const preview = getPreview(post)
   const budgetLabel = getBudgetLabel(post)
+
+  const handleLike = async () => {
+    if (!session?.user) {
+      router.push('/login')
+      return
+    }
+    const newLiked = !liked
+    setLiked(newLiked)
+    setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
+    try {
+      const res = await fetch(`/api/posts/${post.id}/like`, { method: 'POST' })
+      if (!res.ok) throw new Error('failed')
+      const data = await res.json()
+      setLiked(data.liked)
+    } catch {
+      setLiked(!newLiked)
+      setLikeCount(prev => newLiked ? prev - 1 : prev + 1)
+    }
+  }
 
   return (
     <Card className="rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative">
@@ -180,9 +210,12 @@ export function PostCard({ post }: PostCardProps) {
       <CardFooter className="pt-0 pb-3 px-4 border-t">
         <div className="flex items-center justify-between w-full pt-3">
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
-              <Heart className="h-4 w-4" />
-              <span>{post.likeCount}</span>
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-1 transition-colors ${liked ? 'text-red-500' : 'hover:text-red-500'}`}
+            >
+              <Heart className={`h-4 w-4 ${liked ? 'fill-red-500' : ''}`} />
+              <span>{likeCount}</span>
             </button>
             <Link
               href={`/plaza/${post.id}#comments`}

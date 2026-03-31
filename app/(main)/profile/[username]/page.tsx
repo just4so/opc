@@ -38,11 +38,30 @@ export default async function PublicProfilePage({ params }: PageProps) {
     notFound()
   }
 
-  // Serialize createdAt to string for client component
+  const recentPosts = await prisma.post.findMany({
+    where: { authorId: user.id, status: 'PUBLISHED' },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      type: true,
+      likeCount: true,
+      commentCount: true,
+      createdAt: true,
+    },
+  })
+
   const serializedUser = {
     ...user,
     createdAt: user.createdAt.toISOString(),
   }
 
-  return <ProfileClient user={serializedUser} />
+  const serializedPosts = recentPosts.map(p => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+  }))
+
+  return <ProfileClient user={serializedUser} recentPosts={serializedPosts} />
 }
