@@ -9,7 +9,14 @@ interface PageProps {
 }
 
 export default async function PublicProfilePage({ params }: PageProps) {
-  const { username } = await params
+  const { username: rawUsername } = await params
+  // Next.js soft navigation may pass encoded or decoded username — normalize both
+  let username = rawUsername
+  try {
+    username = decodeURIComponent(rawUsername)
+  } catch {
+    // keep rawUsername if decodeURIComponent fails
+  }
 
   const user = await prisma.user.findUnique({
     where: { username },
