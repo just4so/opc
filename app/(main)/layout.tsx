@@ -16,7 +16,7 @@ export default function MainLayout({
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <span className="text-2xl font-bold text-primary group-hover:text-primary-600 transition-colors">OPC</span>
-            <span className="text-xl font-semibold text-secondary">创业圈</span>
+            <span className="text-xl font-semibold text-secondary">圈</span>
           </Link>
 
           {/* 导航链接 */}
@@ -49,7 +49,7 @@ export default function MainLayout({
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold text-primary">OPC</span>
-              <span className="text-lg font-semibold text-secondary">创业圈</span>
+              <span className="text-lg font-semibold text-secondary">圈</span>
             </div>
             <div className="flex items-center space-x-8">
               <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
@@ -63,7 +63,7 @@ export default function MainLayout({
               </Link>
             </div>
             <div className="text-sm text-gray-400">
-              © 2026 OPC创业圈
+              © 2026 OPC圈
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: '联系方式',
-  description: '联系OPC创业圈团队，商务合作、社区入驻申请、内容投稿，邮箱：cooperation@opcquan.com',
+  description: '联系OPC圈团队，商务合作、社区入驻申请、内容投稿，邮箱：cooperation@opcquan.com',
 }
 
 export default function ContactPage() {
@@ -50,13 +50,13 @@ export default function ContactPage() {
             <ul className="text-gray-600 space-y-2 mb-6 ml-1">
               <li className="flex items-center gap-2"><span className="text-primary">🤝</span> 合作对接 — 寻找搭档、互推资源、商务洽谈</li>
               <li className="flex items-center gap-2"><span className="text-primary">📦</span> 内部资源 — 政策解读、社区攻略、工具推荐优先获取</li>
-              <li className="flex items-center gap-2"><span className="text-primary">🚀</span> 尝鲜反馈 — 优先体验 OPC创业圈新功能，直接和产品团队沟通</li>
+              <li className="flex items-center gap-2"><span className="text-primary">🚀</span> 尝鲜反馈 — 优先体验 OPC圈新功能，直接和产品团队沟通</li>
             </ul>
             <div className="flex flex-col items-center sm:items-start">
               <div className="border border-gray-100 rounded-xl p-4 bg-gray-50 inline-block">
                 <Image
                   src={`https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png?v=${Date.now()}`}
-                  alt="OPC创业圈微信群二维码"
+                  alt="OPC圈微信群二维码"
                   width={200}
                   height={200}
                   className="rounded-lg"

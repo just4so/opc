@@ -58,11 +58,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = await getPost(params.id)
 
   if (!post) {
-    return { title: '动态未找到 - OPC创业圈' }
+    return { title: '动态未找到 - OPC圈' }
   }
 
   return {
-    title: `${post.author.name || post.author.username}的动态 - OPC创业圈`,
+    title: `${post.author.name || post.author.username}的动态 - OPC圈`,
     description: post.content.substring(0, 160),
   }
 }

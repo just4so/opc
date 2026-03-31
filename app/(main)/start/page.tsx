@@ -9,10 +9,10 @@ export const metadata: Metadata = {
   description:
     'OPC一人公司创业指南：大厂出走者、应届生、自由职业者的入门路径。真实案例 + 城市社区推荐，想做一人公司不知道怎么开始？从这里出发。',
   openGraph: {
-    title: 'OPC创业者入门指南 | OPC创业圈',
+    title: 'OPC创业者入门指南 | OPC圈',
     description: 'OPC一人公司创业指南：大厂出走者、应届生、自由职业者的入门路径。真实案例 + 城市社区推荐，想做一人公司不知道怎么开始？从这里出发。',
     url: 'https://www.opcquan.com/start',
-    siteName: 'OPC创业圈',
+    siteName: 'OPC圈',
     locale: 'zh_CN',
     type: 'website',
   },
@@ -130,7 +130,7 @@ export default function StartPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-white hover:bg-primary-600 shadow-soft transition-all"
             >
-              加入OPC创业圈，找到同路人
+              加入OPC圈，找到同路人
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -211,7 +211,7 @@ export default function StartPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-white hover:bg-primary-600 shadow-soft transition-all"
             >
-              加入OPC创业圈，找到同路人
+              加入OPC圈，找到同路人
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -284,7 +284,7 @@ export default function StartPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-white hover:bg-primary-600 shadow-soft transition-all"
             >
-              加入OPC创业圈，找到同路人
+              加入OPC圈，找到同路人
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -357,7 +357,7 @@ export default function StartPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-white hover:bg-primary-600 shadow-soft transition-all"
             >
-              加入OPC创业圈，找到同路人
+              加入OPC圈，找到同路人
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -420,7 +420,7 @@ export default function StartPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-white hover:bg-primary-600 shadow-soft transition-all"
             >
-              加入OPC创业圈，找到同路人
+              加入OPC圈，找到同路人
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

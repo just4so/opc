@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: '隐私政策',
-  description: 'OPC创业圈隐私政策，了解我们如何收集、使用、存储和保护您的个人信息',
+  description: 'OPC圈隐私政策，了解我们如何收集、使用、存储和保护您的个人信息',
 }
 
 export default function PrivacyPage() {
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-secondary mb-4">概述</h2>
               <p className="leading-relaxed">
-                OPC创业圈（以下简称"我们"）非常重视用户的隐私保护。本隐私政策说明了我们如何收集、
+                OPC圈（以下简称"我们"）非常重视用户的隐私保护。本隐私政策说明了我们如何收集、
                 使用、存储和保护您的个人信息。使用我们的服务即表示您同意本政策的条款。
               </p>
             </section>

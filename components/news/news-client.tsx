@@ -55,7 +55,7 @@ function OriginalSection({ items }: { items: NewsItem[] }) {
         <span className="bg-orange-500 text-white text-sm px-3 py-1 rounded-full font-medium">
           原创
         </span>
-        <h2 className="text-xl font-bold text-secondary">OPC创业圈原创</h2>
+        <h2 className="text-xl font-bold text-secondary">OPC圈原创</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {items.map((item) => (

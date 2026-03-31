@@ -9,7 +9,7 @@ export default function NotFound() {
         {/* Logo */}
         <Link href="/" className="inline-block mb-8">
           <span className="text-3xl font-bold text-primary">OPC</span>
-          <span className="text-2xl font-semibold text-secondary">创业圈</span>
+          <span className="text-2xl font-semibold text-secondary">圈</span>
         </Link>
 
         {/* 404 标识 */}

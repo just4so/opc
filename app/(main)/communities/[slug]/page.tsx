@@ -93,12 +93,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!community) {
     return {
-      title: '社区未找到 - OPC创业圈',
+      title: '社区未找到 - OPC圈',
     }
   }
 
   return {
-    title: `${community.name} - ${community.city}OPC社区 - OPC创业圈`,
+    title: `${community.name} - ${community.city}OPC社区 - OPC圈`,
     description: community.description.substring(0, 160),
   }
 }

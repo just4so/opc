@@ -9,7 +9,7 @@ import prisma from '@/lib/db'
 export const revalidate = 600
 
 export const metadata: Metadata = {
-  title: 'OPC创业圈 · 让 AI 创业者不再孤独前行',
+  title: 'OPC圈 · 让 AI 创业者不再孤独前行',
   description: '全国 OPC 社区攻略聚合平台，覆盖深圳、北京、上海等热门城市，真实入驻者经验分享，帮 AI 创业者找到适合自己的创业空间。',
 }
 
@@ -291,7 +291,7 @@ export default async function HomePage() {
             开启你的创业之旅
           </h2>
           <p className="text-gray-300 mb-8 max-w-lg mx-auto">
-            加入 OPC 创业圈，与志同道合的创业者一起成长
+            加入 OPC圈，与志同道合的创业者一起成长
           </p>
           <CtaSessionLink />
         </div>

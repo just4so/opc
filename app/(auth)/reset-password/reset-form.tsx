@@ -67,7 +67,7 @@ export function ResetPasswordForm({ token }: Props) {
       <CardHeader className="text-center">
         <Link href="/" className="inline-block mb-4">
           <span className="text-2xl font-bold text-primary">OPC</span>
-          <span className="text-xl font-semibold text-secondary">创业圈</span>
+          <span className="text-xl font-semibold text-secondary">圈</span>
         </Link>
         <CardTitle className="text-2xl">设置新密码</CardTitle>
         <CardDescription>请输入你的新密码</CardDescription>

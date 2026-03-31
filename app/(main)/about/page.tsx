@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '关于我们',
-  description: 'OPC创业圈是专注于一人公司创业者的社区平台，汇集全国OPC社区资源，为AI创业者提供政策信息、入驻指南、创业交流服务',
+  description: 'OPC圈是专注于一人公司创业者的社区平台，汇集全国OPC社区资源，为AI创业者提供政策信息、入驻指南、创业交流服务',
 }
 
 export default function AboutPage() {
@@ -18,9 +18,9 @@ export default function AboutPage() {
 
         <div className="prose prose-lg max-w-none">
           <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-secondary mb-4">OPC创业圈是什么</h2>
+            <h2 className="text-2xl font-semibold text-secondary mb-4">OPC圈是什么</h2>
             <p className="text-gray-600 leading-relaxed">
-              OPC创业圈是一个专注于一人公司（One Person Company）创业者的社区平台。
+              OPC圈是一个专注于一人公司（One Person Company）创业者的社区平台。
               我们汇集全国各地的OPC创业社区资源，为AI创业者提供政策信息、入驻指南、
               创业交流的一站式服务。
             </p>
@@ -60,7 +60,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-semibold text-secondary mb-4">加入我们</h2>
             <p className="text-gray-600 leading-relaxed mb-6">
               无论你是正在寻找创业空间的独立开发者，还是希望入驻OPC社区的AI创业者，
-              我们都欢迎你加入OPC创业圈。
+              我们都欢迎你加入OPC圈。
             </p>
             <Link
               href="/register"

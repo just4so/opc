@@ -9,12 +9,12 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.opcquan.com'),
   title: {
-    default: 'OPC创业圈 - 一人公司创业社区',
-    template: '%s | OPC创业圈',
+    default: 'OPC圈 - 一人公司创业社区',
+    template: '%s | OPC圈',
   },
   description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
   keywords: ['OPC', '一人公司', '创业', 'AI创业', '独立开发者', '数字游民', '创业社区', '创业政策'],
-  authors: [{ name: 'OPC创业圈' }],
+  authors: [{ name: 'OPC圈' }],
   verification: {
     other: {
       'baidu-site-verification': 'codeva-6pFFAPRpWD',
@@ -29,14 +29,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.opcquan.com',
-    siteName: 'OPC创业圈',
-    title: 'OPC创业圈 - 一人公司创业社区',
+    siteName: 'OPC圈',
+    title: 'OPC圈 - 一人公司创业社区',
     description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
     images: ['https://www.opcquan.com/logo.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OPC创业圈 - 一人公司创业社区',
+    title: 'OPC圈 - 一人公司创业社区',
     description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
   },
   robots: {
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'OPC创业圈',
+  name: 'OPC圈',
   url: 'https://www.opcquan.com',
   description: '一人公司创业者社区，聚合全国OPC创业社区信息、创业工具、合作资源',
   sameAs: [],

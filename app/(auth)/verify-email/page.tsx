@@ -63,7 +63,7 @@ function VerifyEmailContent() {
           <CardHeader className="text-center">
             <Link href="/" className="inline-block mb-4">
               <span className="text-2xl font-bold text-primary">OPC</span>
-              <span className="text-xl font-semibold text-secondary">创业圈</span>
+              <span className="text-xl font-semibold text-secondary">圈</span>
             </Link>
             <CardTitle className="text-2xl">
               {state === 'loading' ? '验证中...' : state === 'success' ? '邮箱验证成功' : '验证失败'}

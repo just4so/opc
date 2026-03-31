@@ -49,10 +49,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: news.title,
     description,
     openGraph: {
-      title: `${news.title} | OPC创业圈`,
+      title: `${news.title} | OPC圈`,
       description,
       url: `https://www.opcquan.com/news/${news.id}`,
-      siteName: 'OPC创业圈',
+      siteName: 'OPC圈',
       locale: 'zh_CN',
       type: 'article',
     },

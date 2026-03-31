@@ -55,7 +55,7 @@ function LoginForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
         <div className="max-w-sm text-center">
           <div className="text-5xl font-bold mb-2">OPC</div>
-          <div className="text-2xl font-semibold mb-8 opacity-90">创业圈</div>
+          <div className="text-2xl font-semibold mb-8 opacity-90">圈</div>
           <p className="text-lg font-medium mb-8 leading-relaxed opacity-95">
             让 AI 创业者<br />不再孤独前行
           </p>
@@ -74,7 +74,7 @@ function LoginForm() {
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
             <span className="text-2xl font-bold text-primary">OPC</span>
-            <span className="text-xl font-semibold text-secondary">创业圈</span>
+            <span className="text-xl font-semibold text-secondary">圈</span>
           </Link>
           <CardTitle className="text-2xl">登录</CardTitle>
           <CardDescription>
