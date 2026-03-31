@@ -21,6 +21,7 @@ export function PostRichTextEditor({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Image,
