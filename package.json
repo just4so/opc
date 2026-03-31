@@ -14,6 +14,7 @@
     "db:verify": "tsx scripts/analyze-data.ts",
     "fetch:news": "tsx scripts/fetch-news.ts",
     "db:seed-plaza": "tsx scripts/seed-plaza.ts",
+    "migrate-plaza": "tsx scripts/migrate-plaza.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
