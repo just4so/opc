@@ -3,14 +3,14 @@
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search, FileText, Briefcase, MapPin, User, Loader2 } from 'lucide-react'
+import { Search, FileText, MapPin, User, Loader2 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-type SearchType = 'all' | 'post' | 'order' | 'community' | 'user'
+type SearchType = 'all' | 'post' | 'community' | 'user'
 
 interface SearchResults {
   posts: any[]
@@ -28,7 +28,6 @@ interface SearchResults {
 const TABS: { id: SearchType; label: string; icon: React.ReactNode }[] = [
   { id: 'all', label: '全部', icon: null },
   { id: 'post', label: '动态', icon: <FileText className="h-4 w-4" /> },
-  { id: 'order', label: '订单', icon: <Briefcase className="h-4 w-4" /> },
   { id: 'community', label: '社区', icon: <MapPin className="h-4 w-4" /> },
   { id: 'user', label: '用户', icon: <User className="h-4 w-4" /> },
 ]
@@ -84,7 +83,7 @@ function SearchContent() {
   }
 
   const totalResults = results
-    ? results.total.posts + results.total.orders + results.total.communities + results.total.users
+    ? results.total.posts + results.total.communities + results.total.users
     : 0
 
   return (
@@ -138,7 +137,7 @@ function SearchContent() {
               {tab.label}
               {results && tab.id !== 'all' && (
                 <span className="text-xs opacity-75">
-                  ({results.total[tab.id === 'post' ? 'posts' : tab.id === 'order' ? 'orders' : tab.id === 'community' ? 'communities' : 'users']})
+                  ({results.total[tab.id === 'post' ? 'posts' : tab.id === 'community' ? 'communities' : 'users']})
                 </span>
               )}
               {results && tab.id === 'all' && (
@@ -211,33 +210,6 @@ function SearchContent() {
                         </Link>
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 订单结果 */}
-            {(activeType === 'all' || activeType === 'order') && results.orders.length > 0 && (
-              <section>
-                {activeType === 'all' && (
-                  <h2 className="text-lg font-semibold text-secondary mb-4 flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    订单 ({results.total.orders})
-                  </h2>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {results.orders.map((order) => (
-                    <Link key={order.id} href={`/market/${order.slug}`}>
-                      <Card className="h-full hover:shadow-md transition-shadow">
-                        <CardContent className="pt-6">
-                          <Badge variant="outline" className="mb-2">
-                            {order.contentType === 'DEMAND' ? '需求订单' : '合作需求'}
-                          </Badge>
-                          <h3 className="font-semibold text-secondary mb-1">{order.name}</h3>
-                          <p className="text-sm text-gray-600 line-clamp-2">{order.tagline}</p>
-                        </CardContent>
-                      </Card>
-                    </Link>
                   ))}
                 </div>
               </section>

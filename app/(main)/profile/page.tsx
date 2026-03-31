@@ -318,7 +318,7 @@ export default function ProfilePage() {
                       发布动态
                     </Button>
                   </Link>
-                  <Link href="/market/new">
+                  <Link href="/plaza/new">
                     <Button variant="outline" className="w-full text-sm">
                       <Briefcase className="h-4 w-4 mr-1.5" />
                       发布需求
