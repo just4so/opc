@@ -139,24 +139,33 @@ model CommunityReview {
 }
 
 model Post {
-  id           String     @id @default(cuid())
+  id           String      @id @default(cuid())
   content      String
   images       String[]
-  type         PostType   @default(DAILY)
+  type         PostType    @default(DAILY)
   topics       String[]
-  status       PostStatus @default(PUBLISHED)
-  pinned       Boolean    @default(false)
-  viewCount    Int        @default(0)
-  likeCount    Int        @default(0)
-  commentCount Int        @default(0)
-  shareCount   Int        @default(0)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  status       PostStatus  @default(PUBLISHED)
+  pinned       Boolean     @default(false)
+  viewCount    Int         @default(0)
+  likeCount    Int         @default(0)
+  commentCount Int         @default(0)
+  shareCount   Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   authorId     String
+  title        String?
+  contentHtml  String?
+  budgetMin    Int?
+  budgetMax    Int?
+  budgetType   BudgetType?
+  deadline     DateTime?
+  skills       String[]
+  contactInfo  String?
+  contactType  String?
   comments     Comment[]
   favorites    Favorite[]
   likes        Like[]
-  author       User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([authorId])
   @@index([type])
@@ -348,6 +357,10 @@ enum PostType {
   QUESTION
   RESOURCE
   DISCUSSION
+  CHAT
+  HELP
+  SHARE
+  COLLAB
 }
 
 enum PostStatus {
