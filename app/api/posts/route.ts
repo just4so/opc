@@ -1,11 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
+import sanitizeHtml from 'sanitize-html'
 
 export const dynamic = 'force-dynamic'
 
+const ALLOWED_HTML_TAGS = [
+  'p', 'h1', 'h2', 'h3', 'strong', 'em', 'ul', 'ol', 'li',
+  'a', 'img', 'blockquote', 'pre', 'code',
+]
+
+const ALLOWED_HTML_ATTRS: Record<string, string[]> = {
+  a: ['href', 'target', 'rel'],
+  img: ['src', 'alt', 'width', 'height'],
+}
+
+function sanitize(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: ALLOWED_HTML_TAGS,
+    allowedAttributes: ALLOWED_HTML_ATTRS,
+  })
+}
+
+function stripTags(html: string): string {
+  return sanitizeHtml(html, { allowedTags: [], allowedAttributes: {} })
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth()
     const { searchParams } = new URL(request.url)
 
     const type = searchParams.get('type')
@@ -64,9 +89,12 @@ export async function GET(request: NextRequest) {
       prisma.post.count({ where }),
     ])
 
+    const isAuthed = !!session?.user?.id
+
     const postsWithCount = posts.map(post => ({
       ...post,
       commentCount: post._count.comments,
+      contactInfo: isAuthed ? post.contactInfo : null,
     }))
 
     return NextResponse.json({
@@ -99,24 +127,54 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { content, type, topics, images } = body
+    const {
+      contentHtml,
+      type,
+      topics,
+      images,
+      title,
+      budgetMin,
+      budgetMax,
+      budgetType,
+      deadline,
+      skills,
+      contactInfo,
+      contactType,
+    } = body
 
-    if (!content || content.trim().length === 0) {
+    if (!contentHtml || contentHtml.trim().length === 0) {
       return NextResponse.json(
         { error: '内容不能为空' },
         { status: 400 }
       )
     }
-    if (content.length > 5000) {
+
+    const cleanHtml = sanitize(contentHtml)
+    const plainContent = stripTags(cleanHtml)
+
+    if (plainContent.length > 5000) {
       return NextResponse.json({ error: '内容不能超过5000字' }, { status: 400 })
+    }
+
+    if (type === 'COLLAB' && (!contactInfo || !contactInfo.trim())) {
+      return NextResponse.json({ error: 'COLLAB类型帖子必须填写联系方式' }, { status: 400 })
     }
 
     const post = await prisma.post.create({
       data: {
-        content,
-        type: type || 'DAILY',
+        content: plainContent,
+        contentHtml: cleanHtml,
+        type: type || 'CHAT',
         topics: topics || [],
         images: images || [],
+        title: title?.trim() || null,
+        budgetMin: budgetMin ? parseInt(budgetMin) : null,
+        budgetMax: budgetMax ? parseInt(budgetMax) : null,
+        budgetType: budgetType || null,
+        deadline: deadline ? new Date(deadline) : null,
+        skills: skills || [],
+        contactInfo: contactInfo?.trim() || null,
+        contactType: contactType || null,
         authorId: session.user.id,
       },
       include: {
