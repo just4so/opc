@@ -4,8 +4,6 @@ import { Metadata } from 'next'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { ArrowLeft } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PostInteractions } from '@/components/plaza/post-interactions'
@@ -135,11 +133,10 @@ export default async function PostDetailPage({ params }: PageProps) {
                 </div>
 
                 {/* 内容 */}
-                <div className="prose prose-gray max-w-none mb-6 text-lg leading-relaxed">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {post.content}
-                  </ReactMarkdown>
-                </div>
+                <div
+                  className="prose prose-gray max-w-none mb-6 text-lg leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: post.contentHtml ?? post.content }}
+                />
 
                 {/* 图片 */}
                 {post.images.length > 0 && (
