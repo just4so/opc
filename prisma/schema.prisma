@@ -15,7 +15,7 @@ model User {
   email              String?                   @unique
   phone              String?                   @unique
   passwordHash       String?
-  name               String?   @unique
+  name               String?                   @unique
   avatar             String?
   bio                String?
   location           String?
@@ -41,10 +41,10 @@ model User {
   favorites          Favorite[]
   likes              Like[]
   sentMessages       Message[]
+  oneTimeTokens      OneTimeToken[]
   posts              Post[]
   projects           Project[]
   managedCommunities Community[]               @relation("CommunityManager")
-  oneTimeTokens      OneTimeToken[]
 
   @@index([username])
   @@index([location])
@@ -84,7 +84,6 @@ model Account {
 model Community {
   id              String            @id @default(cuid())
   slug            String            @unique
-  newSlug         String?           @unique
   name            String
   city            String
   district        String?
@@ -116,6 +115,7 @@ model Community {
   lastVerifiedAt  DateTime?
   processTime     String?
   realTips        String[]
+  newSlug         String?           @unique
   reviews         CommunityReview[]
   managers        User[]            @relation("CommunityManager")
 
@@ -153,15 +153,15 @@ model Post {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   authorId     String
-  title        String?
-  contentHtml  String?
-  budgetMin    Int?
   budgetMax    Int?
+  budgetMin    Int?
   budgetType   BudgetType?
-  deadline     DateTime?
-  skills       String[]
   contactInfo  String?
   contactType  String?
+  contentHtml  String?
+  deadline     DateTime?
+  skills       String[]
+  title        String?
   comments     Comment[]
   favorites    Favorite[]
   likes        Like[]
