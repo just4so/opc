@@ -342,7 +342,14 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       </div>
                     )}
                     <ul className="space-y-2">
-                      {community.realTips.map((tip, index) => (
+                      {community.realTips
+                        .filter(tip => {
+                          // 如果右侧没有任何联系方式，过滤掉引导查看联系方式的tip
+                          const hasContact = !!(community.contactPhone || community.contactName || community.contactWechat || community.website)
+                          if (!hasContact && (tip.includes('右侧') || tip.includes('联系我们') || tip.includes('入驻咨询电话'))) return false
+                          return true
+                        })
+                        .map((tip, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
                           <span className="text-orange-400 mt-0.5 flex-shrink-0">•</span>
                           <span>{tip}</span>
@@ -540,13 +547,15 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
-                {community.contactName && (
+                {(community.contactName || community.contactPhone || community.contactWechat) && (
                   <div className="flex items-start">
                     <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
-                      <div className="text-sm text-gray-500">联系人</div>
-                      <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系人和微信" registerUrl={registerUrl}>
-                        <div className="text-gray-700">{community.contactName}</div>
+                      <div className="text-sm text-gray-500">联系信息</div>
+                      <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系方式" registerUrl={registerUrl}>
+                        {community.contactName && (
+                          <div className="text-gray-700">{community.contactName}</div>
+                        )}
                         {community.contactWechat && (
                           <div className="text-sm text-gray-500 mt-0.5">微信：{community.contactWechat}</div>
                         )}
