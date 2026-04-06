@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { UserNav } from '@/components/layout/user-nav'
 import { NavLinks } from '@/components/layout/nav-links'
+import { MobileMenu } from '@/components/layout/mobile-menu'
 
 export default function MainLayout({
   children,
@@ -33,7 +34,10 @@ export default function MainLayout({
             >
               <Search className="h-5 w-5" />
             </Link>
-            <UserNav />
+            <div className="hidden md:flex">
+              <UserNav />
+            </div>
+            <MobileMenu />
           </div>
         </div>
       </header>
