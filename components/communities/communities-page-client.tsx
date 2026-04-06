@@ -4,7 +4,8 @@
 // 不再调用 /api/communities（除非社区数量超过 500 条才需要重新评估）。
 // 好处：城市切换零延迟、地图不重载、无网络往返。
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid } from 'lucide-react'
@@ -45,9 +46,17 @@ export function CommunitiesPageClient({
   allCommunities,
   cityCounts,
 }: CommunitiesPageClientProps) {
-  const [selectedCity, setSelectedCity] = useState('')
+  const searchParams = useSearchParams()
+  const [selectedCity, setSelectedCity] = useState(() => searchParams.get('city') ?? '')
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   const [page, setPage] = useState(1)
+
+  // 浏览器前进/后退时同步 URL 参数
+  useEffect(() => {
+    const city = searchParams.get('city') ?? ''
+    setSelectedCity(city)
+    setPage(1)
+  }, [searchParams])
 
   // 城市筛选：纯前端 filter，零延迟
   const filtered = useMemo(() => {

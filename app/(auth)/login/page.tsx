@@ -60,7 +60,7 @@ function LoginForm() {
             让 AI 创业者<br />不再孤独前行
           </p>
           <ul className="space-y-3 text-left text-sm opacity-80">
-            <li className="flex items-center gap-2">✅ 全国 104+ 个 OPC 社区攻略</li>
+            <li className="flex items-center gap-2">✅ 全国 110+ 个 OPC 社区攻略</li>
             <li className="flex items-center gap-2">✅ 精确到联系方式和入驻条件</li>
             <li className="flex items-center gap-2">✅ AI 创业者聚集的广场社区</li>
             <li className="flex items-center gap-2">✅ 最新 OPC 政策解读</li>
@@ -101,6 +101,8 @@ function LoginForm() {
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
                 autoComplete="username"
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('请填写手机号或邮箱')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
 
@@ -121,6 +123,8 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('请填写密码')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
 

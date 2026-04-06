@@ -119,7 +119,7 @@ function RegisterForm() {
             让 AI 创业者<br />不再孤独前行
           </p>
           <ul className="space-y-3 text-left text-sm opacity-80">
-            <li className="flex items-center gap-2">✅ 全国 104+ 个 OPC 社区攻略</li>
+            <li className="flex items-center gap-2">✅ 全国 110+ 个 OPC 社区攻略</li>
             <li className="flex items-center gap-2">✅ 精确到联系方式和入驻条件</li>
             <li className="flex items-center gap-2">✅ AI 创业者聚集的广场社区</li>
             <li className="flex items-center gap-2">✅ 最新 OPC 政策解读</li>
