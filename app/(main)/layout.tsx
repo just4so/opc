@@ -50,23 +50,33 @@ export default function MainLayout({
       {/* 底部 */}
       <footer className="border-t border-gray-100 bg-white py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold text-primary">OPC</span>
               <span className="text-lg font-semibold text-secondary">圈</span>
             </div>
-            <div className="flex items-center space-x-8">
-              <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
-                关于我们
-              </Link>
-              <Link href="/contact" className="text-sm text-gray-500 hover:text-primary transition-colors">
-                联系方式
-              </Link>
-              <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary transition-colors">
-                隐私政策
-              </Link>
+            <div className="flex flex-col items-center gap-2 md:flex-1">
+              <div className="flex items-center space-x-8">
+                <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                  关于我们
+                </Link>
+                <Link href="/contact" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                  联系方式
+                </Link>
+                <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                  隐私政策
+                </Link>
+              </div>
+              <a
+                href="https://beian.miit.gov.cn"
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-gray-400 hover:text-primary transition-colors"
+              >
+                京ICP备2025122039号-2
+              </a>
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-400 md:text-right">
               © 2026 OPC圈
             </div>
           </div>

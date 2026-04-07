@@ -1,8 +1,26 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
 import prisma from '@/lib/db'
 
 export const revalidate = 3600 // 1小时缓存（数据变化低频，ISR 静态化首屏）
+
+export const metadata: Metadata = {
+  title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',
+  description: '覆盖全国29城104+个OPC（一人公司）社区的完整信息，包含真实入驻评价、政策补贴、工位价格、入驻难度，帮你找到最适合的一人公司创业社区。',
+  alternates: {
+    canonical: 'https://www.opcquan.com/communities',
+  },
+  openGraph: {
+    title: '全国OPC社区地图 | OPC圈',
+    description: '覆盖全国29城104+个OPC社区完整信息，真实入驻评价，一键找到适合你的一人公司社区。',
+    url: 'https://www.opcquan.com/communities',
+    siteName: 'OPC圈',
+    locale: 'zh_CN',
+    type: 'website',
+    images: [{ url: 'https://www.opcquan.com/logo.png', width: 800, height: 500, alt: 'OPC圈社区地图' }],
+  },
+}
 
 async function CommunitiesPageInner() {
   // 一次性拉全量数据，传给客户端做前端 filter/分页

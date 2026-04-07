@@ -2,6 +2,7 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import Script from 'next/script'
 import { Metadata } from 'next'
 import sanitizeHtml from 'sanitize-html'
 import {
@@ -97,9 +98,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const slug = community.newSlug ?? community.slug
+  const canonicalUrl = `https://www.opcquan.com/communities/${slug}`
+  const description = stripHtml(community.description).slice(0, 160)
+  const ogImage = community.coverImage ?? 'https://www.opcquan.com/logo.png'
+
   return {
-    title: `${community.name} - ${community.city}OPC社区 - OPC圈`,
-    description: community.description.substring(0, 160),
+    title: `${community.name} - ${community.city}OPC社区入驻攻略 - OPC圈`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${community.name} | ${community.city}OPC社区`,
+      description,
+      url: canonicalUrl,
+      siteName: 'OPC圈',
+      locale: 'zh_CN',
+      type: 'website',
+      images: [{ url: ogImage, width: 800, height: 500, alt: community.name }],
+    },
   }
 }
 
@@ -122,6 +140,35 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <Script
+        id={`ld-community-${community.id}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LocalBusiness',
+            name: community.name,
+            description: stripHtml(community.description).slice(0, 200),
+            url: `https://www.opcquan.com/communities/${community.newSlug ?? community.slug}`,
+            address: community.address ? {
+              '@type': 'PostalAddress',
+              streetAddress: community.address,
+              addressLocality: community.city,
+              addressCountry: 'CN',
+            } : undefined,
+            ...(community.latitude && community.longitude ? {
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: community.latitude,
+                longitude: community.longitude,
+              }
+            } : {}),
+            ...(community.contactPhone ? { telephone: community.contactPhone } : {}),
+            ...(community.website ? { sameAs: [community.website] } : {}),
+            ...(community.coverImage ? { image: community.coverImage } : {}),
+          }),
+        }}
+      />
       {/* 返回导航 */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-3">
