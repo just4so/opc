@@ -317,7 +317,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <Button asChild variant="secondary" className="bg-white text-primary hover:bg-orange-50 border-0">
                       <Link href={registerUrl}>立即免费注册</Link>
                     </Button>
-                    <Button asChild variant="outline" className="border-white text-white bg-transparent hover:bg-white/20 hover:text-white">
+                    <Button asChild variant="ghost" className="border border-white text-white hover:bg-white/20 hover:text-white">
                       <Link href={loginUrl}>已有账户，登录</Link>
                     </Button>
                   </div>
