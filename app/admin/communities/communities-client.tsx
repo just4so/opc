@@ -301,6 +301,7 @@ export default function CommunitiesClient() {
                           ) : (
                             <span className="text-gray-300">-</span>
                           )}
+                          <div className="text-[11px] text-gray-400 mt-1">入驻友好度</div>
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
                           {community.workstations || '-'}

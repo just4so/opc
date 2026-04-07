@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: '联系OPC圈团队，商务合作、社区入驻申请、内容投稿，邮箱：cooperation@opcquan.com',
 }
 
+const OPC_GROUP_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -55,7 +57,7 @@ export default function ContactPage() {
             <div className="flex flex-col items-center sm:items-start">
               <div className="border border-gray-100 rounded-xl p-4 bg-gray-50 inline-block">
                 <Image
-                  src={`https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png?v=${Date.now()}`}
+                  src={OPC_GROUP_QR_URL}
                   alt="OPC圈微信群二维码"
                   width={200}
                   height={200}

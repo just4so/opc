@@ -50,6 +50,7 @@ interface Community {
   id: string
   name: string
   slug: string
+  newSlug: string | null
   city: string
   district: string | null
   address: string
@@ -91,7 +92,7 @@ interface Section {
   isOpen: boolean
 }
 
-type FormData = Omit<CommunityFormData, 'policies'> & { policies: CommunityPolicies }
+type FormData = Omit<CommunityFormData, 'policies'> & { policies: CommunityPolicies; newSlug: string }
 
 export default function CommunityForm({ mode, initialData }: CommunityFormProps) {
   const router = useRouter()
@@ -146,6 +147,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     lastVerifiedAt: initialData?.lastVerifiedAt
       ? new Date(initialData.lastVerifiedAt).toISOString().split('T')[0]
       : '',
+    newSlug: initialData?.newSlug || '',
   })
 
   // Auto-generate slug
@@ -182,8 +184,10 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
 
       // Sanitize: merge independent description state, filter empty strings,
       // ensure links is always an array (DB might store {} for empty)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { newSlug: _newSlug, ...restFormData } = formData
       const payload = {
-        ...formData,
+        ...restFormData,
         description: descriptionRef.current,
         services: formData.services.filter((s) => s.trim()),
         entryProcess: formData.entryProcess.filter((s) => s.trim()),
@@ -479,6 +483,27 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         </CardHeader>
         {sections[2].isOpen && (
           <CardContent className="pt-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">前台访问地址</label>
+              <div className="flex items-center gap-2 px-3 py-2 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-500">
+                <span className="flex-1 font-mono truncate">
+                  {formData.newSlug
+                    ? `https://www.opcquan.com/communities/${formData.newSlug}`
+                    : '保存后自动生成'}
+                </span>
+                {formData.newSlug && (
+                  <a
+                    href={`https://www.opcquan.com/communities/${formData.newSlug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-xs"
+                  >
+                    预览 ↗
+                  </a>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -507,23 +532,13 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  联系微信
+                  公众号 / 微信号
                 </label>
                 <input
                   type="text"
                   value={formData.contactWechat}
                   onChange={(e) => updateField('contactWechat', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  联系电话
-                </label>
-                <input
-                  type="text"
-                  value={formData.contactPhone}
-                  onChange={(e) => updateField('contactPhone', e.target.value)}
+                  placeholder="如：公众号名称或微信号"
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
@@ -706,12 +721,15 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  入驻难度 <span className="text-gray-400 font-normal">（1易-5难）</span>
+                  入驻友好度 <span className="text-gray-400 font-normal">（1低-5高）</span>
                 </label>
-                <StarRating
-                  value={formData.applyDifficulty ?? null}
-                  onChange={(v) => updateField('applyDifficulty', v)}
-                />
+                <div className="space-y-1">
+                  <StarRating
+                    value={formData.applyDifficulty ?? null}
+                    onChange={(v) => updateField('applyDifficulty', v)}
+                  />
+                  <p className="text-xs text-gray-400">星级越高代表入驻越容易</p>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

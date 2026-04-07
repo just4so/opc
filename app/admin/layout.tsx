@@ -6,6 +6,7 @@ import {
   Briefcase,
   MapPin,
   Newspaper,
+  Settings,
   ArrowLeft,
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
   { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
   { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
+  { href: '/admin/settings', label: '系统设置', icon: <Settings className="h-5 w-5" /> },
 ]
 
 export default async function AdminLayout({

@@ -54,6 +54,13 @@ const getCommunity = cache(async (slug: string) => {
   return community
 })
 
+async function getQrCodeUrl(): Promise<string> {
+  const setting = await prisma.siteSetting.findUnique({
+    where: { key: 'community_qrcode_url' }
+  })
+  return setting?.value ?? ''
+}
+
 function stripHtml(html: string): string {
   return html
     .replace(/<\/p>\s*<p>/gi, '\n\n')
@@ -130,6 +137,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   const session = await auth()
   const isLoggedIn = !!session?.user
+  const qrCodeUrl = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
   const registerUrl = `/register?callbackUrl=/communities/${community.newSlug ?? community.slug}`
   const loginUrl = `/login?callbackUrl=/communities/${community.newSlug ?? community.slug}`
 
@@ -240,7 +248,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             )}
             {community.applyDifficulty != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-full text-sm text-orange-700">
-                <span className="font-medium">申请难度</span>
+                <span className="font-medium">入驻友好度</span>
                 <span>{renderStars(community.applyDifficulty)}</span>
               </div>
             )}
@@ -261,6 +269,20 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md"
                 >
                   <Users className="h-3 w-3" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* focus tags */}
+          {community.focus.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {community.focus.map((item, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-md"
+                >
                   {item}
                 </span>
               ))}
@@ -295,7 +317,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <Button asChild variant="secondary" className="bg-white text-primary hover:bg-orange-50 border-0">
                       <Link href={registerUrl}>立即免费注册</Link>
                     </Button>
-                    <Button asChild variant="outline" className="border-white text-white hover:bg-white/10">
+                    <Button asChild variant="outline" className="border-white text-white bg-transparent hover:bg-white/20 hover:text-white">
                       <Link href={loginUrl}>已有账户，登录</Link>
                     </Button>
                   </div>
@@ -378,7 +400,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <p className="text-sm text-orange-600 mb-4">基于公开信息整理，区别于官方宣传</p>
                     {community.applyDifficulty && (
                       <div className="text-gray-700 mb-2">
-                        <span className="font-medium">申请难度：</span>
+                        <span className="font-medium">入驻友好度：</span>
                         {renderStars(community.applyDifficulty)}
                       </div>
                     )}
@@ -604,7 +626,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                           <div className="text-gray-700">{community.contactName}</div>
                         )}
                         {community.contactWechat && (
-                          <div className="text-sm text-gray-500 mt-0.5">微信：{community.contactWechat}</div>
+                          <div className="text-sm text-gray-500 mt-0.5">公众号：{community.contactWechat}</div>
                         )}
                         {community.contactPhone && (
                           <div className="text-sm text-gray-500 mt-0.5">电话：{community.contactPhone}</div>
@@ -629,6 +651,22 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden border-primary/10 shadow-sm">
+              <CardContent className="py-6 text-center bg-gradient-to-b from-primary/5 to-white">
+                <p className="text-sm font-semibold text-gray-800 mb-4 tracking-wide">加入 OPC 圈，遇见同路人</p>
+                <div className="inline-flex rounded-2xl bg-white p-3 shadow-sm ring-1 ring-gray-100">
+                  <Image
+                    src={qrCodeUrl}
+                    alt="OPC社群二维码"
+                    width={180}
+                    height={180}
+                    className="mx-auto rounded-xl"
+                    unoptimized
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>

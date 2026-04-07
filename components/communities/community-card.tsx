@@ -114,18 +114,20 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <span>{community.city}{community.district ? ` · ${community.district}` : ''}</span>
               </div>
               {community.applyDifficulty != null && (
-                <div className="flex items-center gap-1 mt-1" title={`入驻难度 ${community.applyDifficulty}/5`}>
-                  <span className="text-xs text-gray-400">入驻难度</span>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-3 w-3 ${
-                        i < community.applyDifficulty!
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1.5 whitespace-nowrap" title={`入驻友好度 ${community.applyDifficulty}/5`}>
+                  <span className="text-[11px] font-medium text-amber-700">入驻友好度</span>
+                  <span className="flex items-center gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-3 w-3 ${
+                          i < community.applyDifficulty!
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-amber-200'
+                        }`}
+                      />
+                    ))}
+                  </span>
                 </div>
               )}
             </div>

@@ -85,7 +85,7 @@ export function CommunitiesPageClient({
                 全国 OPC 社区地图
               </h1>
               <p className="text-sm text-gray-400 mt-1">
-                {allCommunities.length} 个社区 · {cityCounts.length} 座城市 · 真实入驻难度参考
+                {allCommunities.length} 个社区 · {cityCounts.length} 座城市 · 真实入驻友好度参考
               </p>
             </div>
             {/* 视图切换 */}
