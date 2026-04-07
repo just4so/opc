@@ -314,12 +314,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <li>✅ 精确地址 & 联系方式</li>
                   </ul>
                   <div className="flex gap-3">
-                    <Button asChild variant="secondary" className="bg-white text-primary hover:bg-orange-50 border-0">
-                      <Link href={registerUrl}>立即免费注册</Link>
-                    </Button>
-                    <Button asChild variant="ghost" className="border border-white text-white hover:bg-white/20 hover:text-white">
-                      <Link href={loginUrl}>已有账户，登录</Link>
-                    </Button>
+                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-orange-50">
+                      立即免费注册
+                    </Link>
+                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl border border-white/80 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-white/20">
+                      已有账户，登录
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
