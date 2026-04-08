@@ -1,16 +1,21 @@
-export const revalidate = false // 纯静态页，永久缓存
+export const revalidate = 3600 // 每小时重新验证，支持后台更新二维码
 
 import { Metadata } from 'next'
 import Image from 'next/image'
+import prisma from '@/lib/db'
 
 export const metadata: Metadata = {
   title: '联系方式',
   description: '联系OPC圈团队，商务合作、社区入驻申请、内容投稿，邮箱：cooperation@opcquan.com',
 }
 
-const OPC_GROUP_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
+const DEFAULT_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const setting = await prisma.siteSetting.findUnique({
+    where: { key: 'community_qrcode_url' }
+  })
+  const OPC_GROUP_QR_URL = setting?.value || DEFAULT_QR_URL
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 max-w-4xl">

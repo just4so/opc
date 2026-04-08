@@ -137,7 +137,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   const session = await auth()
   const isLoggedIn = !!session?.user
-  const qrCodeUrl = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
+  const qrCodeUrl = await getQrCodeUrl()
   const registerUrl = `/register?callbackUrl=/communities/${community.newSlug ?? community.slug}`
   const loginUrl = `/login?callbackUrl=/communities/${community.newSlug ?? community.slug}`
 
