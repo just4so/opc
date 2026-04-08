@@ -239,7 +239,7 @@ export default function CommunitiesClient() {
                     <th className="text-left py-3 px-4 font-medium text-gray-500">运营方</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">状态</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">推荐</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">难度</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">入驻友好度</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">工位数</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">操作</th>
                   </tr>
