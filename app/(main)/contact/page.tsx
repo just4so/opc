@@ -1,4 +1,4 @@
-export const revalidate = 3600 // 每小时重新验证，支持后台更新二维码
+export const revalidate = 3600
 
 import { Metadata } from 'next'
 import Image from 'next/image'
@@ -15,7 +15,7 @@ export default async function ContactPage() {
   const setting = await prisma.siteSetting.findUnique({
     where: { key: 'community_qrcode_url' }
   })
-  const OPC_GROUP_QR_URL = setting?.value || DEFAULT_QR_URL
+  const OPC_GROUP_QR_URL = (setting?.value && setting.value.startsWith('http')) ? setting.value : DEFAULT_QR_URL
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
