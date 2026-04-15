@@ -234,16 +234,16 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
           {/* 3 stat chips（仅有值时渲染） */}
           <div className="flex flex-wrap gap-3 mb-4">
-            {community.workstations != null && (
+            {(community.totalWorkstations ?? community.workstations) != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Users className="h-4 w-4 text-primary" />
-                <span>{community.workstations} 个工位</span>
+                <span>{community.totalWorkstations ?? community.workstations} 个工位</span>
               </div>
             )}
-            {community.spaceSize && (
+            {(community.totalArea || community.spaceSize) && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Building2 className="h-4 w-4 text-primary" />
-                <span>{community.spaceSize}</span>
+                <span>{community.totalArea || community.spaceSize}</span>
               </div>
             )}
             {community.applyDifficulty != null && (
@@ -258,6 +258,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 <span>有政策扶持</span>
               </div>
             )}
+            {community.benefits != null && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 rounded-full text-sm text-amber-700">
+                <Gift className="h-4 w-4" />
+                <span>有入驻福利</span>
+              </div>
+            )}
           </div>
 
           {/* suitableFor tags */}
@@ -269,6 +275,20 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md"
                 >
                   <Users className="h-3 w-3" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* focusTracks tags */}
+          {community.focusTracks.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {community.focusTracks.map((item, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-md font-medium"
+                >
                   {item}
                 </span>
               ))}
@@ -307,10 +327,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 <CardContent className="pt-6 pb-6">
                   <h3 className="text-xl font-semibold mb-3">🔓 登录后解锁完整信息</h3>
                   <ul className="space-y-2 mb-5 text-sm text-white/90">
-                    <li>✅ 政策扶持详情（空间补贴、算力补贴等）</li>
-                    <li>✅ 完整入驻流程（{community.entryProcess.length} 步）</li>
+                    <li>✅ 五大入驻福利（办公空间、算力资源、资金支持等）</li>
+                    <li>✅ 完整入驻指南（条件、流程、审核周期）</li>
                     <li>✅ 真实入驻说明（创业者经验）</li>
-                    <li>✅ 配套服务详情</li>
+                    <li>✅ 政策详情 & 配套服务</li>
                     <li>✅ 精确地址 & 联系方式</li>
                   </ul>
                   <div className="flex gap-3">
@@ -325,6 +345,55 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </Card>
             ) : (
               <>
+                {/* 入驻福利 */}
+                {(() => {
+                  type BenefitsSection = { summary: string; items: string[] }
+                  type BenefitsJson = {
+                    office?:   BenefitsSection
+                    compute?:  BenefitsSection
+                    business?: BenefitsSection
+                    funding?:  BenefitsSection
+                    housing?:  BenefitsSection
+                  }
+                  const benefitsSectionDefs: Array<{ key: keyof BenefitsJson; label: string }> = [
+                    { key: 'office',   label: '🏢 办公空间' },
+                    { key: 'compute',  label: '💻 算力资源' },
+                    { key: 'business', label: '🤝 业务拓展' },
+                    { key: 'funding',  label: '💰 资金支持' },
+                    { key: 'housing',  label: '🏠 安居保障' },
+                  ]
+                  const benefits = community.benefits as BenefitsJson | null
+                  if (!benefits) return null
+                  const presentSections = benefitsSectionDefs.filter(({ key }) => !!benefits[key])
+                  if (presentSections.length === 0) return null
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>🎁 入驻福利</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {presentSections.map(({ key, label }) => {
+                          const section = benefits[key]!
+                          return (
+                            <div key={key}>
+                              <h4 className="text-sm font-semibold text-secondary mb-1">{label}</h4>
+                              <p className="text-sm text-primary font-medium bg-orange-50 rounded px-2 py-1 mb-2">{section.summary}</p>
+                              <ul className="space-y-1">
+                                {section.items.map((item, i) => (
+                                  <li key={i} className="text-sm text-gray-700 flex items-start gap-1.5">
+                                    <span className="text-gray-400 mt-0.5 flex-shrink-0">•</span>
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )
+                        })}
+                      </CardContent>
+                    </Card>
+                  )
+                })()}
+
                 {/* 1. 入驻政策 */}
                 {hasPolicies && (
                   <Card>
@@ -367,8 +436,67 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   </Card>
                 )}
 
-                {/* 2. 入驻流程 */}
-                {community.entryProcess.length > 0 && (
+                {/* 入驻指南（新字段 entryInfo，优先于 legacy entryProcess） */}
+                {(() => {
+                  type EntryInfoJson = {
+                    requirements?: string[]
+                    steps?:        string[]
+                    duration?:     string
+                  }
+                  const entryInfo = community.entryInfo as EntryInfoJson | null
+                  if (!entryInfo) return null
+                  const hasRequirements = (entryInfo.requirements?.length ?? 0) > 0
+                  const hasSteps = (entryInfo.steps?.length ?? 0) > 0
+                  const hasDuration = !!entryInfo.duration
+                  if (!hasRequirements && !hasSteps && !hasDuration) return null
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>📋 入驻指南</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {hasRequirements && (
+                          <div>
+                            <h4 className="text-sm font-semibold text-secondary mb-2">入驻条件</h4>
+                            <ul className="space-y-2">
+                              {entryInfo.requirements!.map((req, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                  <span>{req}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {hasSteps && (
+                          <div>
+                            <h4 className="text-sm font-semibold text-secondary mb-2">申请流程</h4>
+                            <ol className="relative border-l border-gray-200 ml-3">
+                              {entryInfo.steps!.map((step, index) => (
+                                <li key={index} className="mb-6 ml-6 last:mb-0">
+                                  <span className="absolute flex items-center justify-center w-8 h-8 bg-primary rounded-full -left-4 ring-4 ring-white">
+                                    <span className="text-white font-semibold text-sm">{index + 1}</span>
+                                  </span>
+                                  <p className="text-gray-700">{step}</p>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        )}
+                        {hasDuration && (
+                          <div>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-600">
+                              ⏱ {entryInfo.duration}
+                            </span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )
+                })()}
+
+                {/* 2. 入驻流程（legacy，仅当 entryInfo 为空时显示） */}
+                {!community.entryInfo && community.entryProcess.length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle>📋 入驻流程</CardTitle>
@@ -589,6 +717,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   latitude={community.latitude}
                   longitude={community.longitude}
                 />
+                {community.transit && (
+                  <p className="text-sm text-gray-500 mt-2">🚇 {community.transit}</p>
+                )}
                 {!isLoggedIn && (
                   <p className="mt-2 text-sm text-primary">
                     <Link href={registerUrl} className="hover:underline">
@@ -630,6 +761,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                         )}
                         {community.contactPhone && (
                           <div className="text-sm text-gray-500 mt-0.5">电话：{community.contactPhone}</div>
+                        )}
+                        {community.contactNote && (
+                          <div className="text-xs text-gray-400 mt-0.5">{community.contactNote}</div>
                         )}
                       </LoginGate>
                     </div>
