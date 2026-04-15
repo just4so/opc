@@ -79,6 +79,14 @@ interface Community {
   applyDifficulty: number | null
   processTime: string | null
   lastVerifiedAt: Date | string | null
+  // M2 fields
+  transit: string | null
+  totalArea: string | null
+  totalWorkstations: number | null
+  focusTracks: string[]
+  contactNote: string | null
+  benefits: any
+  entryInfo: any
 }
 
 interface CommunityFormProps {
@@ -92,7 +100,14 @@ interface Section {
   isOpen: boolean
 }
 
-type FormData = Omit<CommunityFormData, 'policies'> & { policies: CommunityPolicies; newSlug: string }
+type BenefitSection = { summary: string; items: string[] }
+
+type FormData = Omit<CommunityFormData, 'policies' | 'benefits' | 'entryInfo'> & {
+  policies: CommunityPolicies
+  benefits: Record<string, BenefitSection>
+  entryInfo: { requirements: string[]; steps: string[]; duration: string }
+  newSlug: string
+}
 
 export default function CommunityForm({ mode, initialData }: CommunityFormProps) {
   const router = useRouter()
@@ -148,6 +163,14 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
       ? new Date(initialData.lastVerifiedAt).toISOString().split('T')[0]
       : '',
     newSlug: initialData?.newSlug || '',
+    // M2 new fields
+    transit: initialData?.transit || '',
+    totalArea: initialData?.totalArea || '',
+    totalWorkstations: initialData?.totalWorkstations || null,
+    focusTracks: initialData?.focusTracks || [],
+    contactNote: initialData?.contactNote || '',
+    benefits: (initialData?.benefits as any) || {},
+    entryInfo: (initialData?.entryInfo as any) || { requirements: [], steps: [], duration: '' },
   })
 
   // Auto-generate slug
@@ -186,11 +209,35 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
       // ensure links is always an array (DB might store {} for empty)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { newSlug: _newSlug, ...restFormData } = formData
+      const cleanBenefits: Record<string, BenefitSection> = {}
+      for (const [k, v] of Object.entries(formData.benefits)) {
+        if (v.summary.trim() || v.items.some((i: string) => i.trim())) {
+          cleanBenefits[k] = { summary: v.summary, items: v.items.filter((i: string) => i.trim()) }
+        }
+      }
       const payload = {
         ...restFormData,
         description: descriptionRef.current,
-        services: formData.services.filter((s) => s.trim()),
-        entryProcess: formData.entryProcess.filter((s) => s.trim()),
+        // legacy fields (kept for API compat, no UI)
+        focus: [],
+        spaceSize: '',
+        workstations: null,
+        services: [],
+        entryProcess: [],
+        processTime: '',
+        policies: {},
+        // new fields
+        transit: formData.transit || null,
+        totalArea: formData.totalArea || '',
+        totalWorkstations: formData.totalWorkstations,
+        focusTracks: formData.focusTracks,
+        contactNote: formData.contactNote || '',
+        benefits: cleanBenefits,
+        entryInfo: {
+          requirements: formData.entryInfo.requirements.filter((s) => s.trim()),
+          steps: formData.entryInfo.steps.filter((s) => s.trim()),
+          duration: formData.entryInfo.duration,
+        },
         realTips: formData.realTips.filter((s) => s.trim()),
         links: (Array.isArray(formData.links) ? formData.links : [])
           .filter((l: { title: string; url: string }) => l.title.trim() || l.url.trim())
@@ -335,11 +382,11 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                关注领域
+                重点赛道
               </label>
               <TagInput
-                value={formData.focus}
-                onChange={(v) => updateField('focus', v)}
+                value={formData.focusTracks}
+                onChange={(v) => updateField('focusTracks', v)}
                 placeholder="如: AI、大模型、硬件..."
               />
             </div>
@@ -412,6 +459,18 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                交通信息
+              </label>
+              <input
+                type="text"
+                value={formData.transit || ''}
+                onChange={(e) => updateField('transit', e.target.value)}
+                placeholder="如: 地铁4号线XX站步行5分钟"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-700">
                   地图选点
@@ -446,26 +505,26 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  空间面积
+                  总面积
                 </label>
                 <input
                   type="text"
-                  value={formData.spaceSize}
-                  onChange={(e) => updateField('spaceSize', e.target.value)}
-                  placeholder="如: 5000㎡"
+                  value={formData.totalArea || ''}
+                  onChange={(e) => updateField('totalArea', e.target.value)}
+                  placeholder="如: 3000㎡ 或 最小5㎡/工位"
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  工位数
+                  总工位数
                 </label>
                 <input
                   type="number"
-                  value={formData.workstations || ''}
+                  value={formData.totalWorkstations || ''}
                   onChange={(e) =>
                     updateField(
-                      'workstations',
+                      'totalWorkstations',
                       e.target.value ? parseInt(e.target.value) : null
                     )
                   }
@@ -559,6 +618,19 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                联系备注
+              </label>
+              <input
+                type="text"
+                value={formData.contactNote || ''}
+                onChange={(e) => updateField('contactNote', e.target.value)}
+                placeholder="如: 工作日9:00-18:00，加微信备注OPC入驻"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 官网
               </label>
               <input
@@ -611,86 +683,94 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         </CardHeader>
         {sections[3].isOpen && (
           <CardContent className="pt-6 space-y-6">
-            {/* 入驻政策 */}
+            {/* 五大政策福利 */}
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  政策名称
-                </label>
-                <input
-                  type="text"
-                  value={(formData.policies as CommunityPolicies).policy_name || ''}
-                  onChange={(e) => updateField('policies', { ...formData.policies, policy_name: e.target.value })}
-                  placeholder="如：《海淀区关于推动AI产业发展的若干措施》"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  费用/补贴概览
-                </label>
-                <input
-                  type="text"
-                  value={(formData.policies as CommunityPolicies).price_range || ''}
-                  onChange={(e) => updateField('policies', { ...formData.policies, price_range: e.target.value })}
-                  placeholder="如：提供最高3年场地免租"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  支持方向
-                </label>
-                <input
-                  type="text"
-                  value={(formData.policies as CommunityPolicies).support_directions || ''}
-                  onChange={(e) => updateField('policies', { ...formData.policies, support_directions: e.target.value })}
-                  placeholder="如：场地免租、算力补贴、融资支持"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  政策解读
-                  <span className="text-xs font-normal text-gray-400 ml-1">（可选）</span>
-                </label>
-                <textarea
-                  rows={3}
-                  value={(formData.policies as CommunityPolicies).policy_interpretation || ''}
-                  onChange={(e) => updateField('policies', { ...formData.policies, policy_interpretation: e.target.value })}
-                  placeholder="简要说明政策背景和实际效果（可选）"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
-              </div>
+              <p className="text-sm font-medium text-gray-700">五大政策福利</p>
+              {(
+                [
+                  { key: 'office', label: '办公空间' },
+                  { key: 'compute', label: '算力资源' },
+                  { key: 'business', label: '业务拓展' },
+                  { key: 'funding', label: '资金支持' },
+                  { key: 'housing', label: '安居保障' },
+                ] as { key: string; label: string }[]
+              ).map(({ key, label }) => {
+                const section: BenefitSection = formData.benefits[key] || { summary: '', items: [] }
+                return (
+                  <div key={key} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                    <p className="text-sm font-medium text-gray-600">{label}</p>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">一句话概括</label>
+                      <input
+                        type="text"
+                        value={section.summary}
+                        onChange={(e) =>
+                          updateField('benefits', {
+                            ...formData.benefits,
+                            [key]: { ...section, summary: e.target.value },
+                          })
+                        }
+                        placeholder={`${label}政策一句话概括`}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">具体条款</label>
+                      <ArrayInput
+                        value={section.items}
+                        onChange={(v) =>
+                          updateField('benefits', {
+                            ...formData.benefits,
+                            [key]: { ...section, items: v },
+                          })
+                        }
+                        placeholder="如: 免租3年"
+                        addLabel="添加条款"
+                      />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
 
             {/* 分隔 */}
             <div className="border-t border-gray-200" />
 
-            {/* 配套服务与入驻流程 */}
-            <div className="space-y-6">
+            {/* 入驻信息 */}
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-gray-700">入驻信息</p>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  入驻流程
-                  <span className="text-xs font-normal text-gray-400 ml-1">（按顺序填写，将以步骤形式展示）</span>
-                </label>
+                <label className="block text-xs text-gray-500 mb-1">入驻条件</label>
                 <ArrayInput
-                  value={formData.entryProcess}
-                  onChange={(v) => updateField('entryProcess', v)}
-                  placeholder="如：提交申请表"
+                  value={formData.entryInfo.requirements}
+                  onChange={(v) =>
+                    updateField('entryInfo', { ...formData.entryInfo, requirements: v })
+                  }
+                  placeholder="如: 需提供订单佐证"
+                  addLabel="添加条件"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">申请流程</label>
+                <ArrayInput
+                  value={formData.entryInfo.steps}
+                  onChange={(v) =>
+                    updateField('entryInfo', { ...formData.entryInfo, steps: v })
+                  }
+                  placeholder="如: 提交BP"
                   addLabel="添加步骤"
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  配套服务
-                  <span className="text-xs font-normal text-gray-400 ml-1">（路演场地、法务支持等，将展示在"配套服务"区）</span>
-                </label>
-                <TagInput
-                  value={formData.services}
-                  onChange={(v) => updateField('services', v)}
-                  placeholder="如: 路演场地、法务支持..."
+                <label className="block text-xs text-gray-500 mb-1">审核周期</label>
+                <input
+                  type="text"
+                  value={formData.entryInfo.duration}
+                  onChange={(e) =>
+                    updateField('entryInfo', { ...formData.entryInfo, duration: e.target.value })
+                  }
+                  placeholder="如: 10-15个工作日"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
                 />
               </div>
             </div>
@@ -731,7 +811,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   入驻友好度 <span className="text-gray-400 font-normal">（1低-5高）</span>
@@ -743,18 +823,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                   />
                   <p className="text-xs text-gray-400">星级越高代表入驻越容易</p>
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  实际办理周期
-                </label>
-                <input
-                  type="text"
-                  value={formData.processTime}
-                  onChange={(e) => updateField('processTime', e.target.value)}
-                  placeholder="如：3-4周"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

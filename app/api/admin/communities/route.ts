@@ -117,6 +117,13 @@ export async function POST(request: NextRequest) {
         applyDifficulty: data.applyDifficulty,
         processTime: data.processTime || null,
         lastVerifiedAt: data.lastVerifiedAt ? new Date(data.lastVerifiedAt) : null,
+        transit: data.transit || null,
+        totalArea: data.totalArea || null,
+        totalWorkstations: data.totalWorkstations,
+        focusTracks: data.focusTracks,
+        contactNote: data.contactNote || null,
+        benefits: data.benefits || undefined,
+        entryInfo: data.entryInfo || undefined,
       },
     })
 

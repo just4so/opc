@@ -111,11 +111,18 @@ model Community {
   images          String[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  applyDifficulty Int?
-  lastVerifiedAt  DateTime?
-  processTime     String?
-  realTips        String[]
-  newSlug         String?           @unique
+  applyDifficulty   Int?
+  lastVerifiedAt    DateTime?
+  processTime       String?
+  realTips          String[]
+  newSlug           String?           @unique
+  transit           String?
+  totalArea         String?
+  totalWorkstations Int?
+  focusTracks       String[]          @default([])
+  contactNote       String?
+  benefits          Json?
+  entryInfo         Json?
   reviews         CommunityReview[]
   managers        User[]            @relation("CommunityManager")
 
@@ -326,6 +333,13 @@ model Message {
   @@index([createdAt])
 }
 
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -405,11 +419,4 @@ enum NewsCategory {
   STORY
   TOOL
   CASE
-}
-
-model SiteSetting {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     String
-  updatedAt DateTime @updatedAt
 }

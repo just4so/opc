@@ -56,6 +56,15 @@ export const communityFormSchema = z.object({
 
   // 推荐
   featured: z.boolean().default(false),
+
+  // M2 新增字段
+  transit: z.string().optional().nullable(),
+  totalArea: z.string().optional().default(''),
+  totalWorkstations: z.number().int().positive().optional().nullable(),
+  focusTracks: z.array(z.string()).default([]),
+  contactNote: z.string().optional().default(''),
+  benefits: z.record(z.string(), z.any()).optional().nullable(),
+  entryInfo: z.record(z.string(), z.any()).optional().nullable(),
 })
 
 export type CommunityFormData = z.infer<typeof communityFormSchema>

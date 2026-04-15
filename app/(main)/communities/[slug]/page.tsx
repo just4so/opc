@@ -142,7 +142,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   const loginUrl = `/login?callbackUrl=/communities/${community.newSlug ?? community.slug}`
 
   const policies = (community.policies as CommunityPolicies) || {}
-  const links = Array.isArray(community.links) ? community.links as Array<{ title: string; url: string }> : []
+  const links = Array.isArray(community.links) ? community.links as Array<{ title?: string; label?: string; url: string }> : []
   const hasPolicies = !!(policies.policy_name || policies.price_range || policies.support_directions)
   const tagline = getFirstSentence(community.description)
 
@@ -535,7 +535,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:underline flex items-center"
                         >
-                          {link.title}
+                          {link.title || link.label || link.url}
                           <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
                       </li>

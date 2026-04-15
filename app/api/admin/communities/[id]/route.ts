@@ -99,6 +99,13 @@ export async function PATCH(
       'applyDifficulty',
       'processTime',
       'lastVerifiedAt',
+      'transit',
+      'totalArea',
+      'totalWorkstations',
+      'focusTracks',
+      'contactNote',
+      'benefits',
+      'entryInfo',
     ]
 
     for (const field of fields) {

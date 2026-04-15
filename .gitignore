@@ -50,3 +50,4 @@ tasks/
 # TypeScript 增量编译缓存
 tsconfig.tsbuildinfo
 *.bak
+.gstack/
