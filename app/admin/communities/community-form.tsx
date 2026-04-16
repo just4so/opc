@@ -243,11 +243,11 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         contactNote: formData.contactNote || '',
         benefits: cleanBenefits,
         entryInfo: {
-          requirements: formData.entryInfo.requirements.filter((s) => s.trim()),
-          steps: formData.entryInfo.steps.filter((s) => s.trim()),
-          duration: formData.entryInfo.duration,
+          requirements: (Array.isArray(formData.entryInfo?.requirements) ? formData.entryInfo.requirements : []).filter((s) => s.trim()),
+          steps: (Array.isArray(formData.entryInfo?.steps) ? formData.entryInfo.steps : []).filter((s) => s.trim()),
+          duration: formData.entryInfo?.duration || '',
         },
-        realTips: formData.realTips.filter((s) => s.trim()),
+        realTips: (Array.isArray(formData.realTips) ? formData.realTips : []).filter((s) => s.trim()),
         links: (Array.isArray(formData.links) ? formData.links : [])
           .filter((l: { title: string; url: string }) => l.title.trim() || l.url.trim())
           .map((l: { title: string; url: string }) => ({
