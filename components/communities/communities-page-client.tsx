@@ -5,7 +5,7 @@
 // 好处：城市切换零延迟、地图不重载、无网络往返。
 
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid } from 'lucide-react'
@@ -47,6 +47,7 @@ export function CommunitiesPageClient({
   cityCounts,
 }: CommunitiesPageClientProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [selectedCity, setSelectedCity] = useState(() => searchParams.get('city') ?? '')
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   const [page, setPage] = useState(1)
@@ -70,7 +71,15 @@ export function CommunitiesPageClient({
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city)
-    setPage(1) // 切城市重置到第 1 页
+    setPage(1)
+    // 将城市写入 URL，进详情页再返回时状态不丢
+    const params = new URLSearchParams(searchParams.toString())
+    if (city) {
+      params.set('city', city)
+    } else {
+      params.delete('city')
+    }
+    router.replace(`/communities?${params.toString()}`, { scroll: false })
   }
 
   return (
