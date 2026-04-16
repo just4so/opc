@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Star } from 'lucide-react'
 
 const POLICY_KEYS = [
   { key: 'office',   label: '办公空间' },
@@ -37,6 +38,18 @@ export function CommunityCard({ community }: CommunityCardProps) {
     return !!(section.summary || (section.items && section.items.length > 0))
   }
 
+  // 描述文字（去除 HTML，截取前 36 字）
+  function getDesc(): string {
+    const raw = community.description || ''
+    const plain = raw
+      .replace(/<\/p>\s*<p>/gi, ' ')
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+      .trim()
+    return plain.length > 36 ? plain.slice(0, 36) + '…' : plain
+  }
+
   // 无封面时用城市首字做渐变占位
   const fallbackBg = 'linear-gradient(135deg, #FFF3ED 0%, #FDEBD0 100%)'
 
@@ -67,25 +80,39 @@ export function CommunityCard({ community }: CommunityCardProps) {
         {/* 内容区 */}
         <div className="px-4 pt-3 pb-4">
 
-          {/* 城市 / 区域 */}
-          <div className="text-[11px] text-gray-400 mb-1 tracking-wide">
-            {community.city}{community.district ? ` · ${community.district}` : ''}
+          {/* 城市/区域 + 推荐 Badge */}
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-[11px] text-gray-400 tracking-wide">
+              {community.city}{community.district ? ` · ${community.district}` : ''}
+            </div>
+            {community.featured && (
+              <span className="text-[10px] font-semibold bg-orange-500 text-white px-[7px] py-[2px] rounded-full">
+                推荐
+              </span>
+            )}
           </div>
 
           {/* 社区名称 */}
-          <div className="text-[14px] font-semibold text-gray-900 leading-snug mb-3 line-clamp-1 group-hover:text-orange-500 transition-colors">
+          <div className="text-[14px] font-semibold text-gray-900 leading-snug mb-2 line-clamp-1 group-hover:text-orange-500 transition-colors">
             {community.name}
           </div>
 
-          {/* 入驻友好度 */}
+          {/* 描述钩子 */}
+          <p className="text-[12px] text-gray-400 leading-relaxed mb-3 line-clamp-2">
+            {getDesc()}
+          </p>
+
+          {/* 入驻友好度 — Star 图标 */}
           {community.applyDifficulty != null && (
             <div className="flex items-center gap-1.5 mb-3">
-              <div className="flex gap-[3px]">
+              <div className="flex gap-[2px]">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div
+                  <Star
                     key={i}
-                    className={`w-[10px] h-[10px] rounded-[2px] ${
-                      i < community.applyDifficulty! ? 'bg-orange-400' : 'bg-gray-200'
+                    className={`h-3 w-3 ${
+                      i < community.applyDifficulty!
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'fill-gray-200 text-gray-200'
                     }`}
                   />
                 ))}
@@ -97,17 +124,17 @@ export function CommunityCard({ community }: CommunityCardProps) {
           {/* 分隔线 */}
           <div className="h-px bg-gray-100 mb-3" />
 
-          {/* 五项政策标签 */}
+          {/* 五项政策标签 — 方案 D：有边框有背景，无边框只灰字 */}
           <div className="flex flex-wrap gap-[6px]">
             {POLICY_KEYS.map(({ key, label }) => {
               const active = hasPolicy(key)
               return (
                 <span
                   key={key}
-                  className={`text-[11px] font-medium px-[9px] py-[3px] rounded-[5px] ${
+                  className={`text-[11px] px-[8px] py-[3px] rounded-[5px] ${
                     active
-                      ? 'bg-orange-50 text-orange-500'
-                      : 'bg-gray-50 text-gray-300'
+                      ? 'border border-orange-200 bg-orange-50 text-orange-500 font-medium'
+                      : 'text-gray-300'
                   }`}
                 >
                   {label}
