@@ -61,7 +61,6 @@ interface Community {
   contactWechat: string | null
   contactPhone: string | null
   website: string | null
-  suitableFor: string[]
   coverImage: string | null
   images: string[]
   featured: boolean
@@ -133,7 +132,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     contactWechat: initialData?.contactWechat || '',
     contactPhone: initialData?.contactPhone || '',
     website: initialData?.website || '',
-    suitableFor: initialData?.suitableFor || [],
     coverImage: initialData?.coverImage || '',
     images: initialData?.images || [],
     featured: initialData?.featured || false,
@@ -365,17 +363,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                 value={formData.focusTracks}
                 onChange={(v) => updateField('focusTracks', v)}
                 placeholder="如: AI、大模型、硬件..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                适合人群
-              </label>
-              <TagInput
-                value={formData.suitableFor}
-                onChange={(v) => updateField('suitableFor', v)}
-                placeholder="如: AI创业者、技术团队..."
               />
             </div>
 

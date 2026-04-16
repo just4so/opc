@@ -183,18 +183,6 @@ export default async function CommunityDetailPage({ params }: Props) {
                   : '-'}
               </dd>
             </div>
-            <div>
-              <dt className="text-sm text-gray-500 mb-2">适合人群</dt>
-              <dd className="flex flex-wrap gap-2">
-                {community.suitableFor.length > 0
-                  ? community.suitableFor.map((s, i) => (
-                      <Badge key={i} variant="outline">
-                        {s}
-                      </Badge>
-                    ))
-                  : '-'}
-              </dd>
-            </div>
           </CardContent>
         </Card>
 

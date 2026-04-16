@@ -254,21 +254,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* suitableFor tags */}
-          {community.suitableFor.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {community.suitableFor.map((item, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md"
-                >
-                  <Users className="h-3 w-3" />
-                  {item}
-                </span>
-              ))}
-            </div>
-          )}
-
           {/* 入驻方向标签 */}
           {community.focusTracks.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">

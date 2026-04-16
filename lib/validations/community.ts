@@ -25,9 +25,6 @@ export const communityFormSchema = z.object({
   contactPhone: z.string().optional().default(''),
   website: z.string().optional().default(''),
 
-  // 标签
-  suitableFor: z.array(z.string()).default([]),
-
   // 图片
   coverImage: z.string().optional().default(''),
   images: z.array(z.string()).default([]),

@@ -97,7 +97,6 @@ model Community {
   contactWechat   String?
   contactPhone    String?
   website         String?
-  suitableFor     String[]
   status          CommunityStatus   @default(ACTIVE)
   featured        Boolean           @default(false)
   coverImage      String?

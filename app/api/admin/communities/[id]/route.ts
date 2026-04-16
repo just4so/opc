@@ -84,7 +84,6 @@ export async function PATCH(
       'contactWechat',
       'contactPhone',
       'website',
-      'suitableFor',
       'coverImage',
       'images',
       'featured',

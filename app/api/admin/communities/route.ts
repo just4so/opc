@@ -102,7 +102,6 @@ export async function POST(request: NextRequest) {
         contactWechat: data.contactWechat || null,
         contactPhone: data.contactPhone || null,
         website: data.website || null,
-        suitableFor: data.suitableFor,
         coverImage: data.coverImage || null,
         images: data.images || undefined,
         featured: data.featured,

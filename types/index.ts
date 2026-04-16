@@ -21,7 +21,6 @@ export interface Community {
   policies?: CommunityPolicies
   entryProcess: string[]
   services: string[]
-  suitableFor: string[]
   notes: string[]
   links?: CommunityLink[]
   status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
