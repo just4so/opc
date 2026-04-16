@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import slugMapping from './scripts/slug-mapping.json'
+
+const SLUG_MAPPING = slugMapping as Record<string, string>
 
 const PROTECTED_PATHS = [
   '/plaza/new',
@@ -13,9 +16,17 @@ const PROTECTED_EXACT = [
   '/profile',
 ]
 
-async function maybeRedirectCommunitySlug(_request: NextRequest, _pathname: string) {
-  // newSlug 字段已删除，所有社区 slug 统一为英文，无需重定向
-  return null
+function maybeRedirectCommunitySlug(request: NextRequest, pathname: string) {
+  if (!pathname.startsWith('/communities/')) return null
+  const rawSlug = pathname.slice('/communities/'.length)
+  if (!rawSlug) return null
+  const oldSlug = decodeURIComponent(rawSlug)
+  const newSlug = SLUG_MAPPING[oldSlug]
+  if (!newSlug) return null
+  return NextResponse.redirect(
+    new URL(`/communities/${newSlug}`, request.url),
+    { status: 301 }
+  )
 }
 
 function isLoggedIn(request: NextRequest): boolean {
@@ -28,7 +39,7 @@ function isLoggedIn(request: NextRequest): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const communityRedirect = await maybeRedirectCommunitySlug(request, pathname)
+  const communityRedirect = maybeRedirectCommunitySlug(request, pathname)
   if (communityRedirect) return communityRedirect
 
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path))
