@@ -31,9 +31,16 @@ body {
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* H5/旧安卓不支持 backdrop-filter 时降级为纯白背景 */
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-strong {
+      background: #ffffff;
+    }
   }
 
   /* 卡片悬浮效果 */
