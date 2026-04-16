@@ -1,0 +1,1688 @@
+{
+  "completed": [
+    {
+      "id": "cmm9dx372000uogtko0axk42a",
+      "name": "超级合子OPC共生社区",
+      "city": "厦门",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-15T18:10:34.304Z"
+    },
+    {
+      "id": "cmnl78pfx0009rm94bscxqwlt",
+      "name": "西安人工智能OPC创新社区",
+      "city": "西安",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T01:59:56.245Z"
+    },
+    {
+      "id": "cmnl78m9m0000rm94s0nauloz",
+      "name": "两江新区星运人工智能OPC社区",
+      "city": "重庆",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:00:05.357Z"
+    },
+    {
+      "id": "cmnl78oem0006rm94ow3t6ucp",
+      "name": "淼老板OPC创业社区",
+      "city": "重庆",
+      "fields": [
+        "office",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:00:13.189Z"
+    },
+    {
+      "id": "cmm9c01yv000ezn2er8vrc4v3",
+      "name": "硅基智能OPC社区",
+      "city": "常州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:00:25.246Z"
+    },
+    {
+      "id": "cmnrjyyk00006147enha3jzvx",
+      "name": "江宁紫金星辰OPC社区",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:01:19.689Z"
+    },
+    {
+      "id": "cmmboyp880011134555t8ygl2",
+      "name": "AIGC创意园OPC社区",
+      "city": "温州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:01:32.764Z"
+    },
+    {
+      "id": "cmnrjyxd60003147eg5rbequp",
+      "name": "番禺万博CBD OPC空间",
+      "city": "广州",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:02:26.737Z"
+    },
+    {
+      "id": "cmnl78vnb000rrm946etyxs71",
+      "name": "辽宁数智创新OPC联盟生态基地",
+      "city": "沈阳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:02:36.767Z"
+    },
+    {
+      "id": "cmmbpty2d002a10mv6kf30tjt",
+      "name": "智萌OPC LAB社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:02:55.231Z"
+    },
+    {
+      "id": "cmmbptxgy002210mvvuqp4k1n",
+      "name": "江南智造OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:03:09.659Z"
+    },
+    {
+      "id": "cmmboyo6b000n1345j73t0cth",
+      "name": "姑苏云谷·长三角数字经济双创中心OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:03:23.100Z"
+    },
+    {
+      "id": "cmnl78tlb000lrm9490s9phoh",
+      "name": "长沙经开区满天星OPC创新基地",
+      "city": "长沙",
+      "fields": [
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:03:31.393Z"
+    },
+    {
+      "id": "cmmboyme300011345okcj5ux8",
+      "name": "诸葛奇正营",
+      "city": "成都",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:03:44.414Z"
+    },
+    {
+      "id": "cmmboynhp000e1345ercyn5lt",
+      "name": "茂林学村城乡OPC俱乐部",
+      "city": "厦门",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:04:51.971Z"
+    },
+    {
+      "id": "cmmbpttis000m10mvn5bcr9a3",
+      "name": "模法学院",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:05:07.178Z"
+    },
+    {
+      "id": "cmmboyp2u000z13452u84j4ud",
+      "name": "壹仁创新社区",
+      "city": "石家庄",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:05:17.692Z"
+    },
+    {
+      "id": "cmnrjywkw0002147e9zqs48bj",
+      "name": "南沙国际OPC生态社区",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:05:55.546Z"
+    },
+    {
+      "id": "cmnl78yva0010rm94c3a6x4me",
+      "name": "昆明AI青创空间OPC社区",
+      "city": "昆明",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:06:03.497Z"
+    },
+    {
+      "id": "cmnrjz057000a147e6677ugrk",
+      "name": "启迪易得Idea Start OPC社区",
+      "city": "宁波",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:06:16.899Z"
+    },
+    {
+      "id": "cmnl78umq000orm94f61pq2eq",
+      "name": "佛山市创业孵化示范基地OPC社区",
+      "city": "佛山",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:06:27.661Z"
+    },
+    {
+      "id": "cmm9c00n50001zn2euzzofybu",
+      "name": "前海深港青年梦工场",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:06:49.909Z"
+    },
+    {
+      "id": "cmnl7920e0019rm94g7u625w8",
+      "name": "粤港澳OPC港澳服务社区",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:07:16.919Z"
+    },
+    {
+      "id": "cmmbptxbn002010mv0dryu6e7",
+      "name": "扬州数智AI OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:08:09.963Z"
+    },
+    {
+      "id": "f744ad14-1567-4cea-8f2d-0c503b943ac7",
+      "name": "虹橙OPC社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:08:23.169Z"
+    },
+    {
+      "id": "cmnrjz0ja000b147e2lme5xao",
+      "name": "明途启航营OPC社区",
+      "city": "成都",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:09:22.353Z"
+    },
+    {
+      "id": "cmnl78wr9000urm94bzc48mnq",
+      "name": "沈阳企商链OPC创业社区",
+      "city": "沈阳",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:09:32.701Z"
+    },
+    {
+      "id": "cmnrjz1br000d147epnijn9j2",
+      "name": "海王星数字文创园OPC社区",
+      "city": "重庆",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:09:42.292Z"
+    },
+    {
+      "id": "cmnl78qhl000crm9407f7vtu2",
+      "name": "西安明德理工学院OPC创新社区",
+      "city": "西安",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:10:02.488Z"
+    },
+    {
+      "id": "cmmbpttd9000k10mve0qcwcie",
+      "name": "徐汇超级创业者社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:10:17.475Z"
+    },
+    {
+      "id": "cmnrjyyyr0007147e40lst97p",
+      "name": "玄武模数师学院OPC社区",
+      "city": "南京",
+      "fields": [
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:10:26.354Z"
+    },
+    {
+      "id": "cmnl78shp000irm946mayzu8t",
+      "name": "大泽湖OPC创业中心",
+      "city": "长沙",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:11:04.860Z"
+    },
+    {
+      "id": "cmm9c024i000gzn2edg53i7d2",
+      "name": "苏州独墅湖青年创新创业港",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:11:19.998Z"
+    },
+    {
+      "id": "cmnl78zxd0013rm94xiuvblng",
+      "name": "海口龙华区特色OPC创业社区",
+      "city": "海口",
+      "fields": [
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:11:31.095Z"
+    },
+    {
+      "id": "cmmbptu4y000u10mvpwgcfuhf",
+      "name": "上地人工智能OPC创新街区友好社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:11:51.224Z"
+    },
+    {
+      "id": "cmnl78xtx000xrm94uclx7lt7",
+      "name": "山西新质出海OPC社区",
+      "city": "太原",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:12:01.463Z"
+    },
+    {
+      "id": "cmnrjyzqj0009147e71f39uy2",
+      "name": "天翅创OPC众创空间",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:12:58.522Z"
+    },
+    {
+      "id": "cmm9dx2wi000qogtkaqz3inyz",
+      "name": "凤鸣智谷AI漫剧创客中心",
+      "city": "青岛",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:13:08.421Z"
+    },
+    {
+      "id": "cmmbpxi860000mu3itjtphdfm",
+      "name": "天府软件π立方OPC社区",
+      "city": "成都",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:13:22.668Z"
+    },
+    {
+      "id": "cmmbptuof001110mvmgv0fkih",
+      "name": "花果山下人工智能OPC社区",
+      "city": "连云港",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:13:34.032Z"
+    },
+    {
+      "id": "117f052e-bf61-4f59-9e99-eff3303c99a0",
+      "name": "丰台青创村OPC社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:13:48.572Z"
+    },
+    {
+      "id": "cmnl79329001crm94koeyh2cx",
+      "name": "黄埔TOKEN 8条OPC社区",
+      "city": "广州",
+      "fields": [
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:13:59.271Z"
+    },
+    {
+      "id": "cmmboymna00031345nstrbqcb",
+      "name": "幻界·智汇OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:15:24.018Z"
+    },
+    {
+      "id": "cmmboyny4000k1345eef39jwq",
+      "name": "广西AI+电商OPC孵化基地",
+      "city": "南宁",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:15:35.580Z"
+    },
+    {
+      "id": "cmmbptuiv000z10mv8qw194ax",
+      "name": "极客部落·AI应用生态园",
+      "city": "北京",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:16:12.546Z"
+    },
+    {
+      "id": "cmntybagj0000oqxgyevp9845",
+      "name": "数智北京创新中心·数智OPC社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:16:26.077Z"
+    },
+    {
+      "id": "cmm9c00vt0003zn2erwwtz1ap",
+      "name": "天使荟",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:18:16.501Z"
+    },
+    {
+      "id": "cmnl78rh3000frm949plub7xy",
+      "name": "天开和平园OPC模创社区",
+      "city": "天津",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:18:48.636Z"
+    },
+    {
+      "id": "cmmboymgu00021345bajbywkq",
+      "name": "模立方OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:19:58.941Z"
+    },
+    {
+      "id": "cmm9c01l5000bzn2et5x5bq26",
+      "name": "鸿鹄汇",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:20:34.020Z"
+    },
+    {
+      "id": "cmmbptz1g002n10mvyajgxtv4",
+      "name": "音界·合柴OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:21:06.605Z"
+    },
+    {
+      "id": "cmmboyobr000p1345gi9a0181",
+      "name": "M+金狮校园里OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:21:22.156Z"
+    },
+    {
+      "id": "cmm9c011j0005zn2el62k4p1l",
+      "name": "模力营",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:21:37.040Z"
+    },
+    {
+      "id": "cmmboyoeg000q1345g91cp0m6",
+      "name": "M+驻这里创意设计产业园OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:22:12.717Z"
+    },
+    {
+      "id": "cmmboyoxe000x1345v7k1ohep",
+      "name": "Solo3OPC数智社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:22:27.890Z"
+    },
+    {
+      "id": "cmnl7954y001irm94agddrjcf",
+      "name": "蓉数OPC创业社区",
+      "city": "成都",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:22:39.408Z"
+    },
+    {
+      "id": "cmmbptyys002m10mv9lvqzjm2",
+      "name": "视界·淝河OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:23:09.196Z"
+    },
+    {
+      "id": "cmmbptyw4002l10mvnqfkp1fj",
+      "name": "游界·滨湖OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:23:22.512Z"
+    },
+    {
+      "id": "cmmbpty52002b10mvkxb9azlc",
+      "name": "栖智·睿力OPC社区",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:23:34.909Z"
+    },
+    {
+      "id": "cmmboyn1600081345fisbjnqi",
+      "name": "数智生态OPC社区",
+      "city": "济南",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:24:08.856Z"
+    },
+    {
+      "id": "cmmboymvl00061345uw95micg",
+      "name": "视听静界·π空间OPC创新社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:24:26.066Z"
+    },
+    {
+      "id": "cmm9c02o4000mzn2e0kbji5il",
+      "name": "广州OPC创业指南",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:24:46.278Z"
+    },
+    {
+      "id": "cmmbptxro002610mvirp23gap",
+      "name": "云启西湖OPC新势力社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:24:59.635Z"
+    },
+    {
+      "id": "cmmbptx8x001z10mvcf2l82s0",
+      "name": "扬州北大科技园·OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:25:13.556Z"
+    },
+    {
+      "id": "cmnonl7yj0000ortfu6gghzh5",
+      "name": "AI原点社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:25:36.421Z"
+    },
+    {
+      "id": "cmmbptxzq002910mvku51k8ap",
+      "name": "智能制造OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:25:57.620Z"
+    },
+    {
+      "id": "cmm9dx39r000vogtkrzyr2fsh",
+      "name": "福建OPC联盟·仓山AI创业助手平台",
+      "city": "福州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:26:16.566Z"
+    },
+    {
+      "id": "cmmbptyah002d10mv326g0mjx",
+      "name": "算立方OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:26:33.704Z"
+    },
+    {
+      "id": "cmmbptuz9001510mv4osm34gp",
+      "name": "极客码头",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:26:49.097Z"
+    },
+    {
+      "id": "cmmbptxeb002110mvp2nx8jsq",
+      "name": "星模湾OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:27:00.087Z"
+    },
+    {
+      "id": "cmmbptydb002e10mv9b0hkz44",
+      "name": "紫光VID网络视听产业园OPC创业社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:27:33.502Z"
+    },
+    {
+      "id": "cmm9c01fg0009zn2eiks65uew",
+      "name": "数栖湾",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:27:49.173Z"
+    },
+    {
+      "id": "cmmbptuln001010mvg3253uey",
+      "name": "海曙AIOPC社区",
+      "city": "宁波",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:28:08.156Z"
+    },
+    {
+      "id": "cmmboynsq000i1345mjrahd6r",
+      "name": "EAST+OPC创新社区",
+      "city": "无锡",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:28:17.455Z"
+    },
+    {
+      "id": "cmnrjyvry0000147e02hudxu9",
+      "name": "琶洲模方",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:28:27.793Z"
+    },
+    {
+      "id": "cmnl79434001frm94gf43zx4q",
+      "name": "智核南沙·一人领创AI社区",
+      "city": "广州",
+      "fields": [
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:28:37.319Z"
+    },
+    {
+      "id": "cmmboyoju000s13458rb6s9r4",
+      "name": "硅基绿洲OPC社区",
+      "city": "南通",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:28:51.857Z"
+    },
+    {
+      "id": "cmmbptxox002510mv1lvvb7m1",
+      "name": "视界1956酷沃克OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:29:11.568Z"
+    },
+    {
+      "id": "cmmboymyf000713451neqg35x",
+      "name": "零界魔方OPC首发社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:30:14.519Z"
+    },
+    {
+      "id": "cmmbptyg0002f10mv5l65wxkz",
+      "name": "苏唱街1号数字游民+OPC融合社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:30:30.471Z"
+    },
+    {
+      "id": "72e16085-78d9-43c5-b886-51c048fd2950",
+      "name": "星地（朝阳）OPC一人创业社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:30:41.672Z"
+    },
+    {
+      "id": "cmmbptxjl002310mvk85ds46x",
+      "name": "玉智OPC社区",
+      "city": "玉林",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:30:52.645Z"
+    },
+    {
+      "id": "cmm9eael3000bgj3ynwww3j3v",
+      "name": "才立方OPC社区",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:31:04.401Z"
+    },
+    {
+      "id": "cmmboyo92000o13456smg86ad",
+      "name": "信息技术应用创新OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:32:05.099Z"
+    },
+    {
+      "id": "03d065d6-9322-47bb-adda-ef169cef55a4",
+      "name": "创新谷",
+      "city": "济南",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:32:16.727Z"
+    },
+    {
+      "id": "cmmboyoh6000r1345krnzcqey",
+      "name": "紫琅智谷OPC创新社区",
+      "city": "南通",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:33:46.597Z"
+    },
+    {
+      "id": "cmmbptxx3002810mv5qz4gf4b",
+      "name": "数智谷·协同OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:34:00.590Z"
+    },
+    {
+      "id": "cmnl78nd40003rm94apgohvu7",
+      "name": "仙桃数据谷OPC创业社区",
+      "city": "重庆",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:34:12.501Z"
+    },
+    {
+      "id": "df6a7a34-e78f-4a66-9042-1147f2513134",
+      "name": "瞧见Club",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:34:46.888Z"
+    },
+    {
+      "id": "cmmbpttzh000s10mvoqrmuu3x",
+      "name": "青苔设计OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:35:01.645Z"
+    },
+    {
+      "id": "cmmbptyqp002j10mv00ovoz6c",
+      "name": "云界·卓越城OPC社区",
+      "city": "合肥",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:35:16.737Z"
+    },
+    {
+      "id": "cmmboynkh000f1345vydjdm21",
+      "name": "青年路9号OPC社区",
+      "city": "无锡",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:35:29.875Z"
+    },
+    {
+      "id": "cmmboyo3k000m1345rl8zj8hz",
+      "name": "栖智·元力OPC社区",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:35:46.741Z"
+    },
+    {
+      "id": "cmmbpty7r002c10mvpoy8ssar",
+      "name": "瑰谷OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:35:59.735Z"
+    },
+    {
+      "id": "cmmbptxm9002410mvn77v2xvi",
+      "name": "秦邮数字全媒体OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:36:13.100Z"
+    },
+    {
+      "id": "cmm9c019r0007zn2e2jwya4d0",
+      "name": "深圳北站港澳青年创新创业中心",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:36:54.969Z"
+    },
+    {
+      "id": "cmmbptwy4001v10mvs3aorwxl",
+      "name": "城市书房OPC生态微社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:37:52.814Z"
+    },
+    {
+      "id": "cmmbptwvf001u10mv4kln3kk6",
+      "name": "光点πOPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:38:17.926Z"
+    },
+    {
+      "id": "cmmbptwnc001r10mv7yiegjoq",
+      "name": "临平区启航创新创业中心OPC社区",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:38:33.482Z"
+    },
+    {
+      "id": "cmmbptuwk001410mvv7iyp4sx",
+      "name": "大数据产业街区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:38:47.756Z"
+    },
+    {
+      "id": "cmm9c02a7000izn2ev35qhhc7",
+      "name": "鸿山·暖村数字游民村落",
+      "city": "无锡",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:39:19.575Z"
+    },
+    {
+      "id": "cmmboynvf000j1345jqpwx4hk",
+      "name": "模立方社区",
+      "city": "东莞",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:39:36.064Z"
+    },
+    {
+      "id": "4406e7fc-8d7d-4554-988a-970114023e09",
+      "name": "声谷滨江科创OPC社区",
+      "city": "常熟",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:40:07.273Z"
+    },
+    {
+      "id": "cmm9dx2z4000rogtkziekww0h",
+      "name": "崂山繁星空间OPC社区",
+      "city": "青岛",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:40:18.805Z"
+    },
+    {
+      "id": "cmmbptwsr001t10mv2x3hc8ms",
+      "name": "伊州开物智坊",
+      "city": "哈密",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:40:31.644Z"
+    },
+    {
+      "id": "cmmboyop8000u1345u77t8fzi",
+      "name": "芯模社区",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:40:51.980Z"
+    },
+    {
+      "id": "cmm9c027d000hzn2eu76hmfiz",
+      "name": "魔方空间",
+      "city": "无锡",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:41:03.801Z"
+    },
+    {
+      "id": "cmm9dx31s000sogtkrvp3t7sa",
+      "name": "OPC云创Labo社区",
+      "city": "宁波",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:41:34.007Z"
+    },
+    {
+      "id": "cmmbptx0u001w10mvt9lf47xs",
+      "name": "城市智谷OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:41:46.117Z"
+    },
+    {
+      "id": "cmm9c02wn000pzn2ezu90d9d4",
+      "name": "亲橙OPC社区",
+      "city": "南京",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:42:03.457Z"
+    },
+    {
+      "id": "085b81d7-1e4e-4670-82e7-38e2334fed98",
+      "name": "京西剧谷OPC创业基地",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:42:31.782Z"
+    },
+    {
+      "id": "99e92d83-5119-47c5-bfa3-47c9a20bb51a",
+      "name": "国知启迪芸思OPC社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:42:48.044Z"
+    },
+    {
+      "id": "cmm9c00hh0000zn2ejnl2bf2a",
+      "name": "光引粒·人工智能创想空间",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:43:02.721Z"
+    },
+    {
+      "id": "cmm9c00sx0002zn2e1atpvr5u",
+      "name": "大公坊AI硬件OPC·Hub",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:43:17.358Z"
+    },
+    {
+      "id": "cmm9c00ym0004zn2el2qh8x7k",
+      "name": "宝安硬创OPC社区",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:43:51.753Z"
+    },
+    {
+      "id": "cmm9c016y0006zn2escv3bjck",
+      "name": "模力谷",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:44:12.660Z"
+    },
+    {
+      "id": "cmm9c021p000fzn2eardsj2hn",
+      "name": "模术空间",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:44:25.065Z"
+    },
+    {
+      "id": "cmm9c02fu000kzn2eg8jvrx7e",
+      "name": "中关村AI北纬社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:44:41.401Z"
+    },
+    {
+      "id": "cmm9eadpo0002gj3y42bdzm5k",
+      "name": "华强北OPC创新社区",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business"
+      ],
+      "timestamp": "2026-04-16T02:45:06.542Z"
+    },
+    {
+      "id": "cmm9eaei5000agj3y1pb6unw3",
+      "name": "罗湖π创空间OPC社区",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:45:22.896Z"
+    },
+    {
+      "id": "cmm9eafs4000ogj3y964ovtsc",
+      "name": "模数OPC社区",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:45:36.467Z"
+    },
+    {
+      "id": "cmmboymq400041345cb088t0k",
+      "name": "复兴岛OPC超级个体社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:46:02.106Z"
+    },
+    {
+      "id": "cmmboymsu0005134536j70f3r",
+      "name": "洞泾人工智能OPC超级创业社区",
+      "city": "上海",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:46:12.515Z"
+    },
+    {
+      "id": "cmmboyorx000v1345yk9vq068",
+      "name": "璞跃中国大湾区国际创新中心",
+      "city": "深圳",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:46:24.742Z"
+    },
+    {
+      "id": "cmmboyp04000y1345gdl4oqhe",
+      "name": "相豫OPC社区",
+      "city": "宿迁",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:46:34.224Z"
+    },
+    {
+      "id": "cmmboyp5j00101345hmdjo2xw",
+      "name": "OPC服务中心和服务联盟",
+      "city": "温州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:46:43.868Z"
+    },
+    {
+      "id": "cmmbpttlj000n10mvcmb3c2te",
+      "name": "江苏省数字金融重点实验室",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:46:55.553Z"
+    },
+    {
+      "id": "cmmbpttr4000p10mv9sbej2t9",
+      "name": "通州硅基绿洲OPC社区",
+      "city": "南通",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:47:07.525Z"
+    },
+    {
+      "id": "cmmbptxub002710mvwau9p3wy",
+      "name": "华贸云享OPC社区",
+      "city": "苏州",
+      "fields": [
+        "office",
+        "compute",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:47:38.156Z"
+    },
+    {
+      "id": "cmmbptyio002g10mveu122rr5",
+      "name": "西交智源·创研OPC生态社区",
+      "city": "扬州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:47:48.014Z"
+    },
+    {
+      "id": "cmnl790yv0016rm94ya68e2hh",
+      "name": "琶洲元创·OPC社区",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:47:58.837Z"
+    },
+    {
+      "id": "cmnrjyw710001147ew01lz3sx",
+      "name": "鱼珠元启OPC生态社区",
+      "city": "广州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:48:09.407Z"
+    },
+    {
+      "id": "cmnrjyxrg0004147evpdtl8x4",
+      "name": "模态空间",
+      "city": "武汉",
+      "fields": [
+        "office",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:48:23.554Z"
+    },
+    {
+      "id": "cmnrjyy5s0005147elpx8teod",
+      "name": "质能·工坊OPC社区",
+      "city": "南京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:48:33.274Z"
+    },
+    {
+      "id": "cmnrjz0xg000c147egoa1pnhp",
+      "name": "星元云智OPC Hub",
+      "city": "成都",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:48:44.224Z"
+    },
+    {
+      "id": "ff7a90ec-8ecf-4edc-a496-dee81d6423d9",
+      "name": "宋庄AI+漫剧OPC创作创业孵化基地",
+      "city": "北京",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:48:55.833Z"
+    },
+    {
+      "id": "cmm9c02tr000ozn2e4x5c6b1j",
+      "name": "武汉滨江亲橙人工智能OPC社区",
+      "city": "武汉",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding",
+        "housing"
+      ],
+      "timestamp": "2026-04-16T02:49:27.039Z"
+    },
+    {
+      "id": "cmmbpttwo000r10mv2j0sw8lr",
+      "name": "未来数智港·青聚枢纽",
+      "city": "杭州",
+      "fields": [
+        "office",
+        "compute",
+        "business",
+        "funding"
+      ],
+      "timestamp": "2026-04-16T02:49:38.056Z"
+    }
+  ],
+  "failed": []
+}
