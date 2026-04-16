@@ -178,7 +178,14 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
       }
       return normalized
     })(),
-    entryInfo: (initialData?.entryInfo as any) || { requirements: [], steps: [], duration: '' },
+    entryInfo: (() => {
+      const raw = (initialData?.entryInfo as any) || {}
+      return {
+        requirements: Array.isArray(raw.requirements) ? raw.requirements : [],
+        steps: Array.isArray(raw.steps) ? raw.steps : [],
+        duration: raw.duration || '',
+      }
+    })(),
   })
 
   // Auto-generate slug
