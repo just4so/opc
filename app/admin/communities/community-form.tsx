@@ -169,7 +169,15 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     totalWorkstations: initialData?.totalWorkstations || null,
     focusTracks: initialData?.focusTracks || [],
     contactNote: initialData?.contactNote || '',
-    benefits: (initialData?.benefits as any) || {},
+    benefits: (() => {
+      const raw = (initialData?.benefits as any) || {}
+      const normalized: Record<string, { summary: string; items: string[] }> = {}
+      for (const [k, v] of Object.entries(raw)) {
+        const section = v as any
+        normalized[k] = { summary: section?.summary || '', items: Array.isArray(section?.items) ? section.items : [] }
+      }
+      return normalized
+    })(),
     entryInfo: (initialData?.entryInfo as any) || { requirements: [], steps: [], duration: '' },
   })
 
@@ -211,8 +219,9 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
       const { newSlug: _newSlug, ...restFormData } = formData
       const cleanBenefits: Record<string, BenefitSection> = {}
       for (const [k, v] of Object.entries(formData.benefits)) {
-        if (v.summary.trim() || v.items.some((i: string) => i.trim())) {
-          cleanBenefits[k] = { summary: v.summary, items: v.items.filter((i: string) => i.trim()) }
+        const items = Array.isArray(v.items) ? v.items : []
+        if (v.summary.trim() || items.some((i: string) => i.trim())) {
+          cleanBenefits[k] = { summary: v.summary, items: items.filter((i: string) => i.trim()) }
         }
       }
       const payload = {
