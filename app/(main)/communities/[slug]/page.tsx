@@ -17,7 +17,6 @@ import {
   ExternalLink,
   FileText,
   ClipboardList,
-  Settings,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,7 +28,6 @@ import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { ImageGallery } from '@/components/image-gallery'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
-import type { CommunityPolicies } from '@/lib/types/community'
 
 export const revalidate = 3600
 export const dynamicParams = true
@@ -44,16 +42,11 @@ const getCommunity = cache(async (slug: string) => {
   const community = await prisma.community.findFirst({
     where: {
       OR: [
-        { newSlug: decodedSlug },
         { slug: decodedSlug },
         { id: decodedSlug },
       ],
     },
   })
-
-  if (community && !community.newSlug) {
-    console.warn(`[community] newSlug is null for community id=${community.id} slug=${community.slug}`)
-  }
 
   return community
 })
@@ -109,7 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const slug = community.newSlug ?? community.slug
+  const slug = community.slug
   const canonicalUrl = `https://www.opcquan.com/communities/${slug}`
   const description = stripHtml(community.description).slice(0, 160)
   const ogImage = community.coverImage ?? 'https://www.opcquan.com/logo.png'
@@ -142,12 +135,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   const session = await auth()
   const isLoggedIn = !!session?.user
   const qrCodeUrl = await getQrCodeUrl()
-  const registerUrl = `/register?callbackUrl=/communities/${community.newSlug ?? community.slug}`
-  const loginUrl = `/login?callbackUrl=/communities/${community.newSlug ?? community.slug}`
+  const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
+  const loginUrl = `/login?callbackUrl=/communities/${community.slug}`
 
-  const policies = (community.policies as CommunityPolicies) || {}
-  const links = Array.isArray(community.links) ? community.links as Array<{ title?: string; label?: string; url: string }> : []
-  const hasPolicies = !!(policies.policy_name || policies.price_range || policies.support_directions)
   const tagline = getFirstSentence(community.description)
 
   return (
@@ -161,7 +151,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             '@type': 'LocalBusiness',
             name: community.name,
             description: stripHtml(community.description).slice(0, 200),
-            url: `https://www.opcquan.com/communities/${community.newSlug ?? community.slug}`,
+            url: `https://www.opcquan.com/communities/${community.slug}`,
             address: community.address ? {
               '@type': 'PostalAddress',
               streetAddress: community.address,
@@ -238,16 +228,16 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
           {/* 3 stat chips（仅有值时渲染） */}
           <div className="flex flex-wrap gap-3 mb-4">
-            {(community.totalWorkstations ?? community.workstations) != null && (
+            {community.totalWorkstations != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Users className="h-4 w-4 text-primary" />
-                <span>{community.totalWorkstations ?? community.workstations} 个工位</span>
+                <span>{community.totalWorkstations} 个工位</span>
               </div>
             )}
-            {(community.totalArea || community.spaceSize) && (
+            {community.totalArea && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Building2 className="h-4 w-4 text-primary" />
-                <span>{community.totalArea || community.spaceSize}</span>
+                <span>{community.totalArea}</span>
               </div>
             )}
             {community.applyDifficulty != null && (
@@ -256,7 +246,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 <span>{renderStars(community.applyDifficulty)}</span>
               </div>
             )}
-            {(hasPolicies || community.benefits != null) && (
+            {community.benefits != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 rounded-full text-sm text-amber-700">
                 <Gift className="h-4 w-4" />
                 <span>有政策支持</span>
@@ -279,10 +269,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* 入驻方向标签：focusTracks 优先，没有则 fallback 到 focus */}
-          {(community.focusTracks.length > 0 ? community.focusTracks : community.focus).length > 0 && (
+          {/* 入驻方向标签 */}
+          {community.focusTracks.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {(community.focusTracks.length > 0 ? community.focusTracks : community.focus).map((item, index) => (
+              {community.focusTracks.map((item, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-md font-medium"
@@ -409,49 +399,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   )
                 })()}
 
-                {/* 1. 入驻政策（仅当 benefits 为空时显示） */}
-                {hasPolicies && !community.benefits && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Gift className="h-5 w-5 mr-2 text-primary" />
-                        入驻政策
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {policies.policy_name && (
-                        <div>
-                          <span className="text-sm font-semibold text-secondary">政策名称</span>
-                          <p className="mt-1 text-gray-700">{policies.policy_name}</p>
-                        </div>
-                      )}
-                      {policies.price_range && (
-                        <div>
-                          <span className="text-sm font-semibold text-secondary">费用/补贴</span>
-                          <p className="mt-1 text-gray-700">{policies.price_range}</p>
-                        </div>
-                      )}
-                      {policies.support_directions && (
-                        <div>
-                          <span className="text-sm font-semibold text-secondary">支持方向</span>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {policies.support_directions.split(/[,，、]/).map((dir, i) => (
-                              <Badge key={i} variant="outline">{dir.trim()}</Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {policies.policy_interpretation && (
-                        <div>
-                          <span className="text-sm font-semibold text-secondary">政策解读</span>
-                          <p className="mt-1 text-sm text-gray-500">{policies.policy_interpretation}</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* 入驻指南（新字段 entryInfo，优先于 legacy entryProcess） */}
+                {/* 入驻指南（entryInfo） */}
                 {(() => {
                   type EntryInfoJson = {
                     requirements?: string[]
@@ -510,27 +458,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   )
                 })()}
 
-                {/* 2. 入驻流程（legacy，仅当 entryInfo 为空时显示） */}
-                {!community.entryInfo && community.entryProcess.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center"><ClipboardList className="h-5 w-5 mr-2 text-primary" />入驻流程</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ol className="space-y-3">
-                        {community.entryProcess.map((step, index) => (
-                          <li key={index} className="flex items-start gap-3">
-                            <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center flex-shrink-0 mt-0.5">
-                              {index + 1}
-                            </span>
-                            <span className="text-sm text-gray-600 leading-relaxed">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </CardContent>
-                  </Card>
-                )}
-
                 {/* 3. 真实入驻说明 */}
                 {community.realTips.length > 0 && (
                   <div className="border-l-4 border-orange-400 bg-orange-50 rounded-r-lg p-5">
@@ -572,24 +499,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   </div>
                 )}
 
-                {/* 4. 配套服务 */}
-                {community.services.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center"><Settings className="h-5 w-5 mr-2 text-primary" />配套服务</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {community.services.map((service, index) => (
-                          <li key={index} className="flex items-start">
-                            <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700">{service}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
+                {/* 4. 配套服务（已迁移至 benefits，不再单独显示） */}
 
                 {/* 5. 社区图集 */}
                 {community.images.length > 0 && (
@@ -613,37 +523,8 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
             {/* ===== Layer 3: 参考资料（始终可见）===== */}
 
-            {/* 参考链接 */}
-            {links.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Globe className="h-5 w-5 mr-2 text-blue-500" />
-                    参考链接
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {links.map((link, index) => (
-                      <li key={index}>
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline flex items-center"
-                        >
-                          {link.title || link.label || link.url}
-                          <ExternalLink className="h-3 w-3 ml-1" />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-
             {/* 创业者评价 */}
-            <CommunityReviews slug={community.newSlug ?? community.slug} />
+            <CommunityReviews slug={community.slug} />
           </div>
 
           {/* ===== 侧边栏 ===== */}

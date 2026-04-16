@@ -13,7 +13,7 @@ export async function GET(
 
     const community = await prisma.community.findFirst({
       where: {
-        OR: [{ slug }, { newSlug: slug }, { id: slug }],
+        OR: [{ slug }, { id: slug }],
       },
       select: { id: true },
     })
@@ -70,7 +70,7 @@ export async function POST(
 
     const community = await prisma.community.findFirst({
       where: {
-        OR: [{ slug }, { newSlug: slug }, { id: slug }],
+        OR: [{ slug }, { id: slug }],
       },
       select: { id: true },
     })

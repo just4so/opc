@@ -13,30 +13,9 @@ const PROTECTED_EXACT = [
   '/profile',
 ]
 
-async function maybeRedirectCommunitySlug(request: NextRequest, pathname: string) {
-  const match = pathname.match(/^\/communities\/([^/]+)$/)
-  if (!match) return null
-
-  const rawSlug = match[1]
-  let decodedSlug = rawSlug
-  try {
-    decodedSlug = decodeURIComponent(rawSlug)
-  } catch {
-    // keep rawSlug
-  }
-
-  if (!/[\u4e00-\u9fff]/.test(decodedSlug)) return null
-
-  const apiUrl = new URL('/api/communities/slug-redirect', request.url)
-  apiUrl.searchParams.set('old', decodedSlug)
-
-  const res = await fetch(apiUrl.toString(), { cache: 'no-store' })
-  if (!res.ok) return null
-
-  const data = (await res.json()) as { newSlug?: string | null }
-  if (!data.newSlug) return null
-
-  return NextResponse.redirect(new URL(`/communities/${encodeURIComponent(data.newSlug)}`, request.url), 301)
+async function maybeRedirectCommunitySlug(_request: NextRequest, _pathname: string) {
+  // newSlug 字段已删除，所有社区 slug 统一为英文，无需重定向
+  return null
 }
 
 function isLoggedIn(request: NextRequest): boolean {

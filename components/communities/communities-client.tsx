@@ -14,10 +14,8 @@ interface Community {
   longitude?: number | null
   description: string
   operator?: string | null
-  spaceSize?: string | null
-  workstations?: number | null
-  policies?: any
-  focus: string[]
+  totalWorkstations?: number | null
+  benefits?: any
   featured: boolean
   applyDifficulty?: number | null
   coverImage?: string | null
@@ -77,8 +75,7 @@ export function CommunitiesClient({
                     ...community,
                     district: community.district ?? undefined,
                     operator: community.operator ?? undefined,
-                    spaceSize: community.spaceSize ?? undefined,
-                    workstations: community.workstations ?? undefined,
+                    totalWorkstations: community.totalWorkstations ?? undefined,
                   }}
                 />
               ))}

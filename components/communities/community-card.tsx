@@ -3,15 +3,6 @@ import { MapPin, Users, Building2, ChevronRight, Star } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-interface CommunityPolicies {
-  spaceSubsidy?: Record<string, string>
-  computeSubsidy?: string[]
-  coreBenefits?: Record<string, string>
-  vouchers?: Record<string, string>
-  comprehensive?: string[]
-  support?: string[]
-}
-
 const CITY_COLORS: Record<string, string> = {
   深圳: "bg-blue-50 text-blue-400",
   杭州: "bg-cyan-50 text-cyan-400",
@@ -44,17 +35,14 @@ interface CommunityCardProps {
   community: {
     id: string
     slug: string
-    newSlug?: string | null
     name: string
     city: string
     district?: string
     address: string
     description: string
     operator?: string
-    spaceSize?: string
-    workstations?: number
-    policies?: CommunityPolicies
-    focus: string[]
+    totalWorkstations?: number | null
+    benefits?: any
     featured: boolean
     applyDifficulty?: number | null
     coverImage?: string | null
@@ -62,32 +50,23 @@ interface CommunityCardProps {
 }
 
 export function CommunityCard({ community }: CommunityCardProps) {
-  // 提取核心政策亮点
+  // 提取核心政策亮点（从新 benefits 字段）
   const highlights: string[] = []
 
-  if (community.policies) {
-    const policies = community.policies as CommunityPolicies
-
-    // 检查空间补贴
-    if (policies.spaceSubsidy) {
-      const rent = policies.spaceSubsidy['租金优惠'] || policies.spaceSubsidy['办公空间']
-      if (rent) highlights.push(rent)
-    }
-
-    // 检查核心福利
-    if (policies.coreBenefits) {
-      const fund = policies.coreBenefits['启动资金']
-      if (fund) highlights.push(fund)
-    }
-
-    // 检查算力补贴
-    if (policies.computeSubsidy && policies.computeSubsidy.length > 0) {
-      highlights.push(policies.computeSubsidy[0])
+  if (community.benefits) {
+    const benefits = community.benefits as Record<string, { summary: string; items: string[] }>
+    for (const key of ['office', 'funding', 'compute']) {
+      const section = benefits[key]
+      if (section?.summary) {
+        highlights.push(section.summary)
+      } else if (section?.items?.[0]) {
+        highlights.push(section.items[0])
+      }
     }
   }
 
   return (
-    <Link href={`/communities/${community.newSlug ?? community.slug}`}>
+    <Link href={`/communities/${community.slug}`}>
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
         {/* 封面图 */}
         {community.coverImage ? (
@@ -163,10 +142,10 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   <span className="line-clamp-1">{community.operator}</span>
                 </div>
               )}
-              {community.workstations && (
+              {community.totalWorkstations && (
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  <span>{community.workstations}工位</span>
+                  <span>{community.totalWorkstations}工位</span>
                 </div>
               )}
             </div>

@@ -24,27 +24,11 @@ export const communityFormSchema = z.object({
   contactWechat: z.string().optional().default(''),
   contactPhone: z.string().optional().default(''),
   website: z.string().optional().default(''),
-  spaceSize: z.string().optional().default(''),
-  workstations: z.number().int().positive().optional().nullable(),
 
   // 标签
-  focus: z.array(z.string()).default([]),
-  services: z.array(z.string()).default([]),
   suitableFor: z.array(z.string()).default([]),
-  entryProcess: z.array(z.string()).default([]),
 
-  // 政策
-  policies: z.record(z.string(), z.any()).optional().nullable(),
-
-  // 链接和图片
-  links: z
-    .array(
-      z.object({
-        title: z.string(),
-        url: z.string(),
-      })
-    )
-    .default([]),
+  // 图片
   coverImage: z.string().optional().default(''),
   images: z.array(z.string()).default([]),
 

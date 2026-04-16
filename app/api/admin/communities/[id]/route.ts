@@ -84,14 +84,7 @@ export async function PATCH(
       'contactWechat',
       'contactPhone',
       'website',
-      'spaceSize',
-      'workstations',
-      'focus',
-      'services',
       'suitableFor',
-      'entryProcess',
-      'policies',
-      'links',
       'coverImage',
       'images',
       'featured',
@@ -127,7 +120,7 @@ export async function PATCH(
     })
 
     revalidatePath('/communities')
-    revalidatePath(`/communities/${community.newSlug ?? community.slug}`)
+    revalidatePath(`/communities/${community.slug}`)
 
     return NextResponse.json(community)
   } catch (error) {

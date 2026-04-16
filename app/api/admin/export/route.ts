@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           { key: 'operator', label: '运营方' },
           { key: 'contactPhone', label: '联系电话' },
           { key: 'status', label: '状态' },
-          { key: 'workstations', label: '工位数' },
+          { key: 'totalWorkstations', label: '工位数' },
           { key: 'createdAt', label: '创建时间' },
         ]
         csv = toCSV(data, columns)

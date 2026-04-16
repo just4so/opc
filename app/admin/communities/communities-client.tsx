@@ -15,7 +15,7 @@ interface Community {
   status: string
   featured: boolean
   applyDifficulty: number | null
-  workstations: number | null
+  totalWorkstations: number | null
 }
 
 interface Pagination {
@@ -304,7 +304,7 @@ export default function CommunitiesClient() {
                           <div className="text-[11px] text-gray-400 mt-1">入驻友好度</div>
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
-                          {community.workstations || '-'}
+                          {community.totalWorkstations || '-'}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1">

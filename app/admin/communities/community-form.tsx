@@ -8,13 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { TagInput } from '@/components/admin/tag-input'
 import { ArrayInput } from '@/components/admin/array-input'
-import { LinksInput } from '@/components/admin/links-input'
 import { ImageUpload } from '@/components/admin/image-upload'
 import { ImagesList } from '@/components/admin/images-list'
 import { LocationPickerMap } from '@/components/admin/location-picker-map'
 import { CITIES } from '@/constants/cities'
 import type { CommunityFormData } from '@/lib/validations/community'
-import type { CommunityPolicies } from '@/lib/types/community'
 
 const RichTextEditor = dynamic(
   () => import('@/components/admin/rich-text-editor').then((m) => m.RichTextEditor),
@@ -50,7 +48,6 @@ interface Community {
   id: string
   name: string
   slug: string
-  newSlug: string | null
   city: string
   district: string | null
   address: string
@@ -64,14 +61,7 @@ interface Community {
   contactWechat: string | null
   contactPhone: string | null
   website: string | null
-  spaceSize: string | null
-  workstations: number | null
-  focus: string[]
-  services: string[]
   suitableFor: string[]
-  entryProcess: string[]
-  policies: any
-  links: any
   coverImage: string | null
   images: string[]
   featured: boolean
@@ -102,11 +92,9 @@ interface Section {
 
 type BenefitSection = { summary: string; items: string[] }
 
-type FormData = Omit<CommunityFormData, 'policies' | 'benefits' | 'entryInfo'> & {
-  policies: CommunityPolicies
+type FormData = Omit<CommunityFormData, 'benefits' | 'entryInfo'> & {
   benefits: Record<string, BenefitSection>
   entryInfo: { requirements: string[]; steps: string[]; duration: string }
-  newSlug: string
 }
 
 export default function CommunityForm({ mode, initialData }: CommunityFormProps) {
@@ -145,14 +133,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     contactWechat: initialData?.contactWechat || '',
     contactPhone: initialData?.contactPhone || '',
     website: initialData?.website || '',
-    spaceSize: initialData?.spaceSize || '',
-    workstations: initialData?.workstations || null,
-    focus: initialData?.focus || [],
-    services: initialData?.services || [],
     suitableFor: initialData?.suitableFor || [],
-    entryProcess: initialData?.entryProcess || [],
-    policies: (initialData?.policies as CommunityPolicies) || {},
-    links: Array.isArray(initialData?.links) ? initialData.links : [],
     coverImage: initialData?.coverImage || '',
     images: initialData?.images || [],
     featured: initialData?.featured || false,
@@ -162,7 +143,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     lastVerifiedAt: initialData?.lastVerifiedAt
       ? new Date(initialData.lastVerifiedAt).toISOString().split('T')[0]
       : '',
-    newSlug: initialData?.newSlug || '',
     // M2 new fields
     transit: initialData?.transit || '',
     totalArea: initialData?.totalArea || '',
@@ -220,10 +200,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
           ? '/api/admin/communities'
           : `/api/admin/communities/${initialData?.id}`
 
-      // Sanitize: merge independent description state, filter empty strings,
-      // ensure links is always an array (DB might store {} for empty)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { newSlug: _newSlug, ...restFormData } = formData
       const cleanBenefits: Record<string, BenefitSection> = {}
       for (const [k, v] of Object.entries(formData.benefits)) {
         const items = Array.isArray(v.items) ? v.items : []
@@ -232,17 +208,8 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         }
       }
       const payload = {
-        ...restFormData,
+        ...formData,
         description: descriptionRef.current,
-        // legacy fields (kept for API compat, no UI)
-        focus: [],
-        spaceSize: '',
-        workstations: null,
-        services: [],
-        entryProcess: [],
-        processTime: '',
-        policies: {},
-        // new fields
         transit: formData.transit || null,
         totalArea: formData.totalArea || '',
         totalWorkstations: formData.totalWorkstations,
@@ -255,12 +222,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
           duration: formData.entryInfo?.duration || '',
         },
         realTips: (Array.isArray(formData.realTips) ? formData.realTips : []).filter((s) => s.trim()),
-        links: (Array.isArray(formData.links) ? formData.links : [])
-          .filter((l: { title: string; url: string }) => l.title.trim() || l.url.trim())
-          .map((l: { title: string; url: string }) => ({
-            ...l,
-            url: l.url.trim() && !l.url.trim().match(/^https?:\/\//) ? `https://${l.url.trim()}` : l.url.trim(),
-          })),
       }
 
       const res = await fetch(url, {
@@ -563,13 +524,13 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               <label className="block text-sm font-medium text-gray-700 mb-1">前台访问地址</label>
               <div className="flex items-center gap-2 px-3 py-2 border border-gray-100 rounded-lg bg-gray-50 text-sm text-gray-500">
                 <span className="flex-1 font-mono truncate">
-                  {formData.newSlug
-                    ? `https://www.opcquan.com/communities/${formData.newSlug}`
+                  {formData.slug
+                    ? `https://www.opcquan.com/communities/${formData.slug}`
                     : '保存后自动生成'}
                 </span>
-                {formData.newSlug && (
+                {formData.slug && (
                   <a
-                    href={`https://www.opcquan.com/communities/${formData.newSlug}`}
+                    href={`https://www.opcquan.com/communities/${formData.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline text-xs"
@@ -676,16 +637,6 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
               <ImagesList
                 value={formData.images}
                 onChange={(urls) => updateField('images', urls)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                参考链接
-              </label>
-              <LinksInput
-                value={formData.links || []}
-                onChange={(v) => updateField('links', v)}
               />
             </div>
           </CardContent>

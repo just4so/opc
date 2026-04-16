@@ -23,11 +23,11 @@ interface Community {
   longitude?: number | null
   description: string
   type: string
-  focus: string[]
+  focusTracks: string[]
   operator?: string | null
-  spaceSize?: string | null
-  workstations?: number | null
-  policies?: any
+  totalArea?: string | null
+  totalWorkstations?: number | null
+  benefits?: any
   status: string
   featured: boolean
   coverImage?: string | null
@@ -146,8 +146,8 @@ export function CommunitiesPageClient({
 
       {/* 内容区：直接渲染，无 loading 状态 */}
       <CommunitiesClient
-        communities={paginated.map((c) => ({ ...c, policies: c.policies as any }))}
-        allCommunities={filtered.map((c) => ({ ...c, policies: c.policies as any }))}
+        communities={paginated}
+        allCommunities={filtered}
         selectedCity={selectedCity || undefined}
         pagination={{ page, total: filtered.length, totalPages }}
         cityCounts={cityCounts}

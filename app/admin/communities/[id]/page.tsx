@@ -154,12 +154,12 @@ export default async function CommunityDetailPage({ params }: Props) {
                 </dd>
               </div>
               <div>
-                <dt className="text-sm text-gray-500">空间面积</dt>
-                <dd className="font-medium">{community.spaceSize || '-'}</dd>
+                <dt className="text-sm text-gray-500">总面积</dt>
+                <dd className="font-medium">{community.totalArea || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm text-gray-500">工位数</dt>
-                <dd className="font-medium">{community.workstations || '-'}</dd>
+                <dt className="text-sm text-gray-500">总工位数</dt>
+                <dd className="font-medium">{community.totalWorkstations || '-'}</dd>
               </div>
             </dl>
           </CardContent>
@@ -172,24 +172,12 @@ export default async function CommunityDetailPage({ params }: Props) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <dt className="text-sm text-gray-500 mb-2">关注领域</dt>
+              <dt className="text-sm text-gray-500 mb-2">重点赛道</dt>
               <dd className="flex flex-wrap gap-2">
-                {community.focus.length > 0
-                  ? community.focus.map((f, i) => (
+                {community.focusTracks.length > 0
+                  ? community.focusTracks.map((f, i) => (
                       <Badge key={i} variant="outline">
                         {f}
-                      </Badge>
-                    ))
-                  : '-'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm text-gray-500 mb-2">配套服务</dt>
-              <dd className="flex flex-wrap gap-2">
-                {community.services.length > 0
-                  ? community.services.map((s, i) => (
-                      <Badge key={i} variant="outline">
-                        {s}
                       </Badge>
                     ))
                   : '-'}
@@ -207,20 +195,6 @@ export default async function CommunityDetailPage({ params }: Props) {
                   : '-'}
               </dd>
             </div>
-            <div>
-              <dt className="text-sm text-gray-500 mb-2">入驻流程</dt>
-              <dd>
-                {community.entryProcess.length > 0 ? (
-                  <ol className="list-decimal list-inside space-y-1">
-                    {community.entryProcess.map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                ) : (
-                  '-'
-                )}
-              </dd>
-            </div>
           </CardContent>
         </Card>
 
@@ -230,34 +204,13 @@ export default async function CommunityDetailPage({ params }: Props) {
             <CardTitle>政策与媒体</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {community.policies && (
+            {community.benefits && (
               <div>
-                <dt className="text-sm text-gray-500 mb-2">入驻政策</dt>
+                <dt className="text-sm text-gray-500 mb-2">入驻政策（benefits）</dt>
                 <dd>
                   <pre className="bg-gray-50 p-4 rounded-lg text-sm overflow-auto">
-                    {JSON.stringify(community.policies, null, 2)}
+                    {JSON.stringify(community.benefits, null, 2)}
                   </pre>
-                </dd>
-              </div>
-            )}
-            {(community.links as any[])?.length > 0 && (
-              <div>
-                <dt className="text-sm text-gray-500 mb-2">参考链接</dt>
-                <dd>
-                  <ul className="space-y-1">
-                    {(community.links as any[]).map((link, i) => (
-                      <li key={i}>
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          {link.title || link.url}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
                 </dd>
               </div>
             )}
