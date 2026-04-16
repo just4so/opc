@@ -26,6 +26,7 @@ import { CommunityLocationMap } from '@/components/communities/community-locatio
 import CommunityReviews from '@/components/communities/community-reviews'
 import { LoginGate } from '@/components/communities/login-gate'
 import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
+import { ImageGallery } from '@/components/image-gallery'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import type { CommunityPolicies } from '@/lib/types/community'
@@ -600,19 +601,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {community.images.map((src, index) => (
-                          <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                            <Image
-                              src={src}
-                              alt={`${community.name} 图片 ${index + 1}`}
-                              fill
-                              className="object-cover"
-                              unoptimized
-                            />
-                          </div>
-                        ))}
-                      </div>
+                      <ImageGallery
+                        images={community.images}
+                        communityName={community.name}
+                      />
                     </CardContent>
                   </Card>
                 )}
