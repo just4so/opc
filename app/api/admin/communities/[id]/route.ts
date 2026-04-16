@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityUpdateSchema } from '@/lib/validations/community'
+import { ensureEnglishSlug } from '@/lib/slug'
 
 export async function GET(
   request: NextRequest,
@@ -51,6 +52,11 @@ export async function PATCH(
     }
 
     const data = validation.data
+
+    // 确保 slug 为英文（含中文时自动转拼音）
+    if (data.slug) {
+      data.slug = ensureEnglishSlug(data.slug)
+    }
 
     // Check if slug already exists (if updating slug)
     if (data.slug) {

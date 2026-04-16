@@ -1,74 +1,36 @@
 import { pinyin } from 'pinyin-pro'
 
-const segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' })
-
 /**
- * Convert a text segment into pinyin words.
- * Chinese words get their characters joined (上海 → shanghai).
- * ASCII runs are preserved as-is (lowercased).
+ * 将任意字符串（含中文）转换为 URL 友好的英文 slug
+ * 例：北京-中关村AI北纬社区 → bei-jing-zhong-guan-cun-ai-bei-wei-she-qu
  */
-function toPinyinWords(text: string): string[] {
-  const segments = Array.from(segmenter.segment(text))
-  const words: string[] = []
-
-  for (const { segment, isWordLike } of segments) {
-    if (!isWordLike) continue
-    if (/[\u4e00-\u9fff]/.test(segment)) {
-      // Chinese word — convert each char to pinyin and join
-      const py = pinyin(segment, { toneType: 'none', type: 'array' }).join('')
-      if (py) words.push(py)
-    } else {
-      // ASCII / alphanumeric
-      const clean = segment.replace(/[^a-zA-Z0-9]/g, '')
-      if (clean) words.push(clean)
-    }
-  }
-
-  return words
+export function toEnglishSlug(input: string): string {
+  const py = pinyin(input, {
+    toneType: 'none',
+    separator: '-',
+    nonZh: 'consecutive',
+  })
+  return py
+    .toLowerCase()
+    .replace(/[·•·\s（）()【】「」《》、，。！？；：""'']+/g, '-')
+    .replace(/[^\w-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 /**
- * Convert Chinese city + name into a lowercase, hyphen-separated pinyin slug.
- * ASCII alphanumeric chars are preserved (lowercased). Max 60 chars, truncated at hyphen boundary.
+ * 判断字符串是否包含中文
  */
-export function generateSlug(city: string, name: string): string {
-  const parts = [city, name].filter((s) => s.trim())
-  if (parts.length === 0) return ''
+export function hasChinese(str: string): boolean {
+  return /[\u4e00-\u9fff]/.test(str)
+}
 
-  const words = parts.flatMap((part) => toPinyinWords(part))
-  let slug = words.join('-').toLowerCase()
-
-  if (slug.length > 60) {
-    slug = slug.slice(0, 61)
-    const lastHyphen = slug.lastIndexOf('-')
-    slug = lastHyphen > 0 ? slug.slice(0, lastHyphen) : slug.slice(0, 60)
+/**
+ * 确保 slug 是英文：如果含中文则自动转换
+ */
+export function ensureEnglishSlug(slug: string): string {
+  if (hasChinese(slug)) {
+    return toEnglishSlug(slug)
   }
-
   return slug
-}
-
-/**
- * Generate a slug guaranteed unique against existingSlugs.
- * Appends -2, -3, etc. on collision.
- */
-export function generateUniqueSlug(
-  city: string,
-  name: string,
-  existingSlugs: string[]
-): string {
-  const base = generateSlug(city, name)
-  if (!existingSlugs.includes(base)) return base
-
-  let counter = 2
-  while (existingSlugs.includes(`${base}-${counter}`)) {
-    counter++
-  }
-  return `${base}-${counter}`
-}
-
-/**
- * Return true if the string contains any CJK Unified Ideographs characters.
- */
-export function isChinese(slug: string): boolean {
-  return /[\u4e00-\u9fff]/.test(slug)
 }

@@ -13,6 +13,7 @@ import { ImagesList } from '@/components/admin/images-list'
 import { LocationPickerMap } from '@/components/admin/location-picker-map'
 import { CITIES } from '@/constants/cities'
 import type { CommunityFormData } from '@/lib/validations/community'
+import { toEnglishSlug } from '@/lib/slug'
 
 const RichTextEditor = dynamic(
   () => import('@/components/admin/rich-text-editor').then((m) => m.RichTextEditor),
@@ -169,10 +170,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
   // Auto-generate slug
   useEffect(() => {
     if (mode === 'create' && formData.city && formData.name) {
-      const slug = `${formData.city}-${formData.name}`
-        .toLowerCase()
-        .replace(/[（）()]/g, '')
-        .replace(/\s+/g, '-')
+      const slug = toEnglishSlug(`${formData.city}-${formData.name}`)
       setFormData((prev) => ({ ...prev, slug }))
     }
   }, [formData.city, formData.name, mode])
