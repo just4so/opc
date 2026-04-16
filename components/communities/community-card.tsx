@@ -1,35 +1,12 @@
 import Link from 'next/link'
-import { MapPin, Users, Building2, ChevronRight, Star } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
-const CITY_COLORS: Record<string, string> = {
-  深圳: "bg-blue-50 text-blue-400",
-  杭州: "bg-cyan-50 text-cyan-400",
-  北京: "bg-red-50 text-red-400",
-  上海: "bg-purple-50 text-purple-400",
-  苏州: "bg-emerald-50 text-emerald-500",
-  常州: "bg-teal-50 text-teal-400",
-  无锡: "bg-sky-50 text-sky-400",
-  成都: "bg-orange-50 text-orange-400",
-}
-function getCityColor(city: string) {
-  return CITY_COLORS[city] ?? "bg-gray-50 text-gray-400"
-}
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<\/p>\s*<p>/gi, ' ')
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .trim()
-}
+const POLICY_KEYS = [
+  { key: 'office',   label: '办公空间' },
+  { key: 'compute',  label: '算力资源' },
+  { key: 'business', label: '商业支持' },
+  { key: 'funding',  label: '资金支持' },
+  { key: 'housing',  label: '安居保障' },
+] as const
 
 interface CommunityCardProps {
   community: {
@@ -50,109 +27,96 @@ interface CommunityCardProps {
 }
 
 export function CommunityCard({ community }: CommunityCardProps) {
-  // 提取核心政策亮点（从新 benefits 字段）
-  const highlights: string[] = []
+  const benefits = community.benefits as Record<string, { summary?: string; items?: string[] }> | null
 
-  if (community.benefits) {
-    const benefits = community.benefits as Record<string, { summary: string; items: string[] }>
-    for (const key of ['office', 'funding', 'compute']) {
-      const section = benefits[key]
-      if (section?.summary) {
-        highlights.push(section.summary)
-      } else if (section?.items?.[0]) {
-        highlights.push(section.items[0])
-      }
-    }
+  // 判断某项政策是否存在（有 summary 或 items 才算有）
+  function hasPolicy(key: string): boolean {
+    if (!benefits) return false
+    const section = benefits[key]
+    if (!section) return false
+    return !!(section.summary || (section.items && section.items.length > 0))
   }
 
+  // 无封面时用城市首字做渐变占位
+  const fallbackBg = 'linear-gradient(135deg, #FFF3ED 0%, #FDEBD0 100%)'
+
   return (
-    <Link href={`/communities/${community.slug}`}>
-      <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
+    <Link href={`/communities/${community.slug}`} className="group block">
+      <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.10),0_0_0_1px_rgba(0,0,0,0.06)] transition-shadow duration-200">
+
         {/* 封面图 */}
         {community.coverImage ? (
-          <div className="relative h-36 w-full overflow-hidden rounded-t-xl bg-gray-100">
+          <div className="h-[110px] w-full overflow-hidden bg-gray-100">
             <img
               src={community.coverImage}
               alt={community.name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
             />
           </div>
         ) : (
-          <div className={`h-36 w-full rounded-t-xl flex items-center justify-center text-sm font-medium border-b ${getCityColor(community.city)}`}>
-            {community.city}
+          <div
+            className="h-[110px] w-full flex items-center justify-center"
+            style={{ background: fallbackBg }}
+          >
+            <span className="text-[#F97316] text-sm font-semibold tracking-wide opacity-80">
+              {community.city} OPC
+            </span>
           </div>
         )}
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-1">
-                {community.name}
-              </CardTitle>
-              <div className="flex items-center text-sm text-gray-500 mt-1">
-                <MapPin className="h-4 w-4 mr-1" />
-                <span>{community.city}{community.district ? ` · ${community.district}` : ''}</span>
-              </div>
-              {community.applyDifficulty != null && (
-                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1.5 whitespace-nowrap" title={`入驻友好度 ${community.applyDifficulty}/5`}>
-                  <span className="text-[11px] font-medium text-amber-700">入驻友好度</span>
-                  <span className="flex items-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3 w-3 ${
-                          i < community.applyDifficulty!
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-amber-200'
-                        }`}
-                      />
-                    ))}
-                  </span>
-                </div>
-              )}
-            </div>
-            {community.featured && (
-              <Badge variant="default" className="ml-2">推荐</Badge>
-            )}
+
+        {/* 内容区 */}
+        <div className="px-4 pt-3 pb-4">
+
+          {/* 城市 / 区域 */}
+          <div className="text-[11px] text-gray-400 mb-1 tracking-wide">
+            {community.city}{community.district ? ` · ${community.district}` : ''}
           </div>
-        </CardHeader>
 
-        <CardContent className="pt-0">
-          {/* 描述 */}
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {/<[a-z][\s\S]*>/i.test(community.description) ? stripHtml(community.description) : community.description}
-          </p>
+          {/* 社区名称 */}
+          <div className="text-[14px] font-semibold text-gray-900 leading-snug mb-3 line-clamp-1 group-hover:text-orange-500 transition-colors">
+            {community.name}
+          </div>
 
-          {/* 政策亮点 */}
-          {highlights.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {highlights.slice(0, 3).map((highlight, index) => (
-                <Badge key={index} variant="outline" className="text-xs bg-primary-50 text-primary border-primary-200">
-                  {highlight.length > 15 ? highlight.substring(0, 15) + '...' : highlight}
-                </Badge>
-              ))}
+          {/* 入驻友好度 */}
+          {community.applyDifficulty != null && (
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="flex gap-[3px]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-[10px] h-[10px] rounded-[2px] ${
+                      i < community.applyDifficulty! ? 'bg-orange-400' : 'bg-gray-200'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-[11px] text-gray-400">入驻友好度</span>
             </div>
           )}
 
-          {/* 底部信息 */}
-          <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t">
-            <div className="flex items-center space-x-4">
-              {community.operator && (
-                <div className="flex items-center">
-                  <Building2 className="h-4 w-4 mr-1" />
-                  <span className="line-clamp-1">{community.operator}</span>
-                </div>
-              )}
-              {community.totalWorkstations && (
-                <div className="flex items-center">
-                  <Users className="h-4 w-4 mr-1" />
-                  <span>{community.totalWorkstations}工位</span>
-                </div>
-              )}
-            </div>
-            <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-primary transition-colors" />
+          {/* 分隔线 */}
+          <div className="h-px bg-gray-100 mb-3" />
+
+          {/* 五项政策标签 */}
+          <div className="flex flex-wrap gap-[6px]">
+            {POLICY_KEYS.map(({ key, label }) => {
+              const active = hasPolicy(key)
+              return (
+                <span
+                  key={key}
+                  className={`text-[11px] font-medium px-[9px] py-[3px] rounded-[5px] ${
+                    active
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'bg-gray-50 text-gray-300'
+                  }`}
+                >
+                  {label}
+                </span>
+              )
+            })}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   )
 }
