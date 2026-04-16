@@ -62,11 +62,40 @@
 ## 7. 真实提示
 - `realTips` (String[]): 入驻前必须知道的真实信息，重点写：隐性费用、条件限制、容易踩的坑、和官方宣传不一致的地方。
 
-## 8. 数据迁移过程中的废弃字段 (Do Not Remove Before M2 ends)
-在前端彻底重构完之前，Prisma Schema 中需保留以下字段，但不再录入新数据：
-- `policies` (Json)
-- `services` (String[])
-- `links` (Json)
-- `newSlug` (String)
+## 8. 废弃字段清理计划
 
-*(注：原有的 `slug` 和 `newSlug` 混乱问题，在本次迁移中将把 `newSlug` 的值统一赋给 `slug`，随后废弃 `newSlug` 字段。)*
+M1-M3 重构完成后，以下旧字段已被新字段替代，**不再录入新数据**。当满足下方「删除条件」后，执行 Prisma Migration 统一清除。
+
+### 待删除字段
+
+| 旧字段 | 替代字段 | 说明 |
+|--------|---------|------|
+| `policies` (Json) | `benefits` (Json) | 非结构化政策文本 → 五大结构化福利 |
+| `services` (String[]) | `benefits.office.items` 等 | 服务列表已拆入对应 benefit 分类 |
+| `links` (Json) | 前端参考链接组件 | 非结构化链接 |
+| `focus` (String[]) | `focusTracks` (String[]) | 字段重命名 |
+| `entryProcess` (String[]) | `entryInfo.steps` (String[]) | 已迁入 entryInfo 结构体 |
+| `workstations` (Int) | `totalWorkstations` (Int) | 字段重命名 |
+| `spaceSize` (String) | `totalArea` (String) | 字段重命名 |
+| `newSlug` (String) | `slug` (String) | newSlug 值已统一赋给 slug |
+
+### 删除条件（全部满足后方可执行）
+
+1. **前端无引用**：`grep -r "policies\|entryProcess\|spaceSize\|workstations\|newSlug\|\.focus" app/ components/` 无命中（注意排除 focusTracks）
+2. **后台无写入**：`community-form.tsx` 和所有 API route 中不再向旧字段写数据
+3. **新字段覆盖率 100%**：所有 143 条记录的 `benefits`、`entryInfo`、`focusTracks` 均非空
+4. **已通过完整回归测试**：社区列表页、详情页、后台编辑页功能正常
+
+### 执行步骤
+```bash
+# 1. 确认无前端引用
+grep -r "policies\|entryProcess\|spaceSize\|\.focus[^T]" app/ components/
+
+# 2. 执行 Prisma Migration 删除旧字段
+npx prisma migrate dev --name remove_legacy_community_fields
+
+# 3. 删除 Schema 中对应字段后跑类型检查
+npx tsc --noEmit
+```
+
+*(注：`links` 字段当前后台表单还有 UI 录入入口，删除前需一并移除表单中的 links 编辑组件。)*
