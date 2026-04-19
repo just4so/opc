@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search } from 'lucide-react'
 import { UserNav } from '@/components/layout/user-nav'
 import { NavLinks } from '@/components/layout/nav-links'
@@ -15,9 +16,15 @@ export default function MainLayout({
       <header className="sticky top-0 z-50 w-full border-b border-gray-100 glass-strong">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <span className="text-2xl font-bold text-primary group-hover:text-primary-600 transition-colors">OPC</span>
-            <span className="text-xl font-semibold text-secondary">圈</span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/logo-wordmark.png"
+              alt="OPC圈"
+              width={150}
+              height={30}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </Link>
 
           {/* 导航链接 */}
@@ -51,9 +58,14 @@ export default function MainLayout({
       <footer className="border-t border-gray-100 bg-white py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-primary">OPC</span>
-              <span className="text-lg font-semibold text-secondary">圈</span>
+            <div className="flex items-center">
+              <Image
+                src="/logo-wordmark.png"
+                alt="OPC圈"
+                width={120}
+                height={24}
+                className="h-6 w-auto object-contain"
+              />
             </div>
             <div className="flex flex-col items-center gap-2 md:flex-1">
               <div className="flex items-center space-x-8">
