@@ -17,7 +17,7 @@ interface Community {
   totalWorkstations?: number | null
   benefits?: any
   featured: boolean
-  applyDifficulty?: number | null
+  entryFriendly?: number | null
   coverImage?: string | null
 }
 

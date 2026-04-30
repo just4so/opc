@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 interface CommunityTips {
   slug: string
   realTips: string[]
-  applyDifficulty: number
+  entryFriendly: number
   processTime: string
 }
 
@@ -19,7 +19,7 @@ const communityTipsData: CommunityTips[] = [
       '"10分钟办公生活圈"确实方便，但周边餐饮选择偏少，建议自备午餐',
       '零租工位名额有限，需通过审核才能获得，建议准备好项目BP',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -30,7 +30,7 @@ const communityTipsData: CommunityTips[] = [
       '园区定期有路演活动，是对接投资人的好机会，建议积极参加',
       '周边高校资源丰富，招实习生比较方便',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-4周',
   },
   {
@@ -40,7 +40,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻门槛不高，适合刚起步的OPC创业者',
       '离市中心较远，通勤需要考虑交通成本',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -50,7 +50,7 @@ const communityTipsData: CommunityTips[] = [
       '园区有不错的展示空间，适合需要线下展示的项目',
       '入驻流程比较简单，基本材料齐全即可',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -60,7 +60,7 @@ const communityTipsData: CommunityTips[] = [
       '租金较低但空间偏小，适合1-3人团队',
       '周边生活配套靠学校，假期可能不太方便',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -70,7 +70,7 @@ const communityTipsData: CommunityTips[] = [
       '实验室资源丰富但使用需要预约排队',
       '适合AI+金融方向的创业者，其他方向建议选其他社区',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-4周',
   },
   {
@@ -80,7 +80,7 @@ const communityTipsData: CommunityTips[] = [
       '空间精致但面积不大，适合小团队',
       '社区活动以设计分享为主，技术交流偏少',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -90,7 +90,7 @@ const communityTipsData: CommunityTips[] = [
       '偏传统产业园风格，OPC社区属性还在建设中',
       '配套服务齐全，物业管理规范',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -100,7 +100,7 @@ const communityTipsData: CommunityTips[] = [
       '有硬件测试和原型制作的共享设备可用',
       '园区与周边制造企业有合作，容易找到落地场景',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -110,7 +110,7 @@ const communityTipsData: CommunityTips[] = [
       '政策支持力度不错但审核周期偏长',
       '适合做国产替代和信创适配的团队',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '3-4周',
   },
   {
@@ -120,7 +120,7 @@ const communityTipsData: CommunityTips[] = [
       '提供外贸相关的共享服务，如报关、物流对接',
       '社区规模中等，氛围比较商务',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -130,7 +130,7 @@ const communityTipsData: CommunityTips[] = [
       '空间偏传统办公，但地理位置好，见客户方便',
       '长三角资源对接是亮点，定期有跨城交流活动',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -141,7 +141,7 @@ const communityTipsData: CommunityTips[] = [
       '学术合作机会多，但商业化支持相对有限',
       '入驻需要有明确的技术方案和研究计划',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '4-6周',
   },
   {
@@ -151,7 +151,7 @@ const communityTipsData: CommunityTips[] = [
       '社区活动丰富，适合喜欢社交的创业者',
       '空间灵活度高，可以根据需求调整工位',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
 
@@ -164,7 +164,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻后资源对接确实强，但需要主动去争取和链接',
       '社区内卷程度高，适合有一定基础和抗压能力的团队',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-6周',
   },
   {
@@ -175,7 +175,7 @@ const communityTipsData: CommunityTips[] = [
       '宝安区制造业配套完善，打样和小批量生产非常方便',
       '覆盖50+国家的服务网络对出海项目很有帮助',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-4周',
   },
   {
@@ -186,7 +186,7 @@ const communityTipsData: CommunityTips[] = [
       '笋岗-清水河片区正在改造中，周边还比较乱',
       '微软深圳出海中心在这里，有国际化资源',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-4周',
   },
   {
@@ -196,7 +196,7 @@ const communityTipsData: CommunityTips[] = [
       '东门商圈生活配套好但租金不便宜',
       '智能硬件孵化加速方向，有对应的导师资源',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -206,7 +206,7 @@ const communityTipsData: CommunityTips[] = [
       '千模应用方向，需要有明确的模型应用落地方案',
       '社区规模不大，胜在精和专',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -217,7 +217,7 @@ const communityTipsData: CommunityTips[] = [
       '算力和数据补贴需要走申请流程，审批周期1-2个月',
       '适合需要大空间、低成本的硬件团队',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -227,7 +227,7 @@ const communityTipsData: CommunityTips[] = [
       '算力和模型支持是亮点，但需要自己去申请对接',
       '新社区还在建设完善中，配套会逐步到位',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -238,7 +238,7 @@ const communityTipsData: CommunityTips[] = [
       '周边非常嘈杂，不适合需要安静办公环境的人',
       '做AI硬件原型开发效率极高，一天就能找到所有元件',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -248,7 +248,7 @@ const communityTipsData: CommunityTips[] = [
       '前海政策红利多但落地需要一定时间',
       '社区偏官方运营风格，创业氛围不如模力营活跃',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '3-4周',
   },
   {
@@ -258,7 +258,7 @@ const communityTipsData: CommunityTips[] = [
       '面向港澳青年为主，内地创业者也可申请但优先级低',
       '空间设施比较新，但社区运营还在磨合期',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -268,7 +268,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻门槛不算高，有AI+硬件项目基本都能通过',
       '周边工厂资源丰富，打样成本低、速度快',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
 
@@ -280,7 +280,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻门槛低，适合想低成本试水的创业者',
       '当地政府支持力度有但资源有限，别期望太高',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -290,7 +290,7 @@ const communityTipsData: CommunityTips[] = [
       '适合不需要频繁见客户的远程办公型创业者',
       '当地人才招聘困难，建议远程协作为主',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -300,7 +300,7 @@ const communityTipsData: CommunityTips[] = [
       '空间不大但氛围不错，创业者之间交流频繁',
       '扬州本地市场有限，做全国性产品需考虑线上获客',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -310,7 +310,7 @@ const communityTipsData: CommunityTips[] = [
       '政府主导运营，流程规范但灵活度一般',
       '有基础的办公和网络设施，够用但不豪华',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -320,7 +320,7 @@ const communityTipsData: CommunityTips[] = [
       '有一定的技术企业聚集，资源对接机会比县区社区多',
       '入驻需要有技术含量的项目，纯贸易型不收',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -330,7 +330,7 @@ const communityTipsData: CommunityTips[] = [
       '适合喜欢安静创作环境的内容创业者',
       '社区人数不多，圈子小但关系紧密',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -340,7 +340,7 @@ const communityTipsData: CommunityTips[] = [
       '基础设施够用，适合预算有限的独立开发者',
       '社区运营团队比较年轻，执行力还在提升中',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -350,7 +350,7 @@ const communityTipsData: CommunityTips[] = [
       '位置非常偏，适合能完全远程工作的人',
       '当地有鸭蛋和邮文化IP可以结合做内容创业',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -360,7 +360,7 @@ const communityTipsData: CommunityTips[] = [
       '有一定的学术和科研资源对接',
       '入驻审核比其他扬州社区稍严，需要有技术项目',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -370,7 +370,7 @@ const communityTipsData: CommunityTips[] = [
       '适合内容创作者和自媒体人，不适合需要大空间的团队',
       '更像共享办公空间而非传统孵化器',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '即来即入',
   },
   {
@@ -380,7 +380,7 @@ const communityTipsData: CommunityTips[] = [
       '云谷品牌在扬州有一定知名度，资源聚合能力尚可',
       '社区配套在扬州算中上水平',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -390,7 +390,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻政策比较灵活，可以谈条件',
       '周边配套还在建设中，短期内不太方便',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -400,7 +400,7 @@ const communityTipsData: CommunityTips[] = [
       '社区管理比较松散，自由度高但服务也少',
       '适合能自己搞定一切只需要个工位的人',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -410,7 +410,7 @@ const communityTipsData: CommunityTips[] = [
       '适合想找合伙人或外包协作的创业者',
       '设施一般但人际关系网络是核心价值',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -420,7 +420,7 @@ const communityTipsData: CommunityTips[] = [
       '有一些本地制造企业资源可以对接',
       '扬州制造业基础一般，不如苏州深圳的产业链完善',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -430,7 +430,7 @@ const communityTipsData: CommunityTips[] = [
       '社区定位偏技术型，有一定技术门槛',
       '在扬州社区中属于中等规模',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -440,7 +440,7 @@ const communityTipsData: CommunityTips[] = [
       '苏唱街在扬州老城区，文化氛围好，适合内容创作',
       '空间偏小众和文艺，不适合做严肃商业项目',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '即来即入',
   },
   {
@@ -450,7 +450,7 @@ const communityTipsData: CommunityTips[] = [
       '偏科研成果转化方向，需有技术积累',
       '在扬州社区中算比较正规的，审核稍严',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
 
@@ -464,7 +464,7 @@ const communityTipsData: CommunityTips[] = [
       '特斯拉等龙头企业真实产业场景是亮点，"揭榜挂帅"机会很好',
       '临港位置偏远，去市区需要1.5小时以上',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-4周',
   },
   {
@@ -475,7 +475,7 @@ const communityTipsData: CommunityTips[] = [
       '复兴岛本身比较偏，但有独特的文艺工业风环境',
       '周周有活动但质量参差不齐，挑感兴趣的参加就好',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-4周',
   },
   {
@@ -486,7 +486,7 @@ const communityTipsData: CommunityTips[] = [
       '有澎湃新闻和上海报业集团资源，做内容创业有优势',
       '投融资对接服务比较形式化，实际成功率不高',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -496,7 +496,7 @@ const communityTipsData: CommunityTips[] = [
       '松江洞泾位置偏远，适合不介意通勤的人',
       '建议等正式开园后再考虑，现在申请意义不大',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '待定',
   },
   {
@@ -506,7 +506,7 @@ const communityTipsData: CommunityTips[] = [
       '竞争相对激烈，需要有一定项目基础',
       '周边大厂多，容易对接企业客户和技术人才',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
 
@@ -519,7 +519,7 @@ const communityTipsData: CommunityTips[] = [
       '数字村民生态有趣但也意味着位置偏，在良渚文化村里面',
       '自2025年9月运营，已链接500+超级个体，人脉资源不错',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -531,7 +531,7 @@ const communityTipsData: CommunityTips[] = [
       '首创"OPC超级个体"人才评定，拿到认定后各种政策都好办',
       '上城区位置好但房租高，工位成本可能比其他社区贵',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-4周',
   },
   {
@@ -541,7 +541,7 @@ const communityTipsData: CommunityTips[] = [
       '入驻门槛不高，适合初创阶段的OPC',
       '周边产业以制造业为主，适合AI+制造方向',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -551,7 +551,7 @@ const communityTipsData: CommunityTips[] = [
       '青年定位明确，适合95后00后创业者',
       '交通枢纽附近出行方便，但周边生活配套一般',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -561,7 +561,7 @@ const communityTipsData: CommunityTips[] = [
       '政策申报服务比较完善，可以帮忙对接各类补贴',
       '空间规模中等，适合小团队入驻',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -572,7 +572,7 @@ const communityTipsData: CommunityTips[] = [
       '聚焦具身机器人和世界模型等前沿方向，门槛偏高',
       '适合有一定技术实力想做AI前沿方向的团队',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
 
@@ -586,7 +586,7 @@ const communityTipsData: CommunityTips[] = [
       '人才公寓月租≤2000元免租2年，这个福利比较实在',
       '依托武大华科等高校，招聘AI人才比较方便',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -597,7 +597,7 @@ const communityTipsData: CommunityTips[] = [
       '武汉文旅资源丰富，做文旅AI有天然场景优势',
       '社区还比较新，运营体系还在完善中',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
 
@@ -611,7 +611,7 @@ const communityTipsData: CommunityTips[] = [
       '20项行动支持听起来多，实际落地需要自己跑流程对接',
       '亦庄位置偏远，离市中心通勤1小时以上',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-6周',
   },
   {
@@ -622,7 +622,7 @@ const communityTipsData: CommunityTips[] = [
       '海淀37所高校是招人的天然池子，实习生好找',
       '竞争激烈，中关村聚集了大量AI创业团队',
     ],
-    applyDifficulty: 4,
+    entryFriendly: 4,
     processTime: '3-4周',
   },
   {
@@ -633,7 +633,7 @@ const communityTipsData: CommunityTips[] = [
       '上地科技企业密集，生态圈成熟，交流机会多',
       '六大维度九条举措覆盖面广，但每项力度不算特别大',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-4周',
   },
   {
@@ -643,7 +643,7 @@ const communityTipsData: CommunityTips[] = [
       '有紫光品牌资源支持，产业链上下游对接有优势',
       '空间设施偏新，但社区生态还在建设中',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -653,7 +653,7 @@ const communityTipsData: CommunityTips[] = [
       'AI应用生态园定位，适合做AI应用层的创业者',
       '社区规模和知名度不如中关村和亦庄的社区',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
 
@@ -666,7 +666,7 @@ const communityTipsData: CommunityTips[] = [
       '合肥生活成本低，创业初期资金压力小',
       '社区运营比较规范，服务到位',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -676,7 +676,7 @@ const communityTipsData: CommunityTips[] = [
       '社区氛围偏技术宅，适合爱折腾的开发者',
       '合肥中科大资源可以辐射到，技术人才好找',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -686,7 +686,7 @@ const communityTipsData: CommunityTips[] = [
       '空间比较新，设施条件不错但位置偏些',
       '租金成本低是优势，适合省钱创业',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -696,7 +696,7 @@ const communityTipsData: CommunityTips[] = [
       '偏游戏和互动娱乐方向，有相关产业聚集',
       '社区年轻化程度高，氛围活跃',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -706,7 +706,7 @@ const communityTipsData: CommunityTips[] = [
       '偏云计算和SaaS方向，有对应的技术基础设施',
       '周边企业多，资源对接和商务合作机会不少',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '2-3周',
   },
   {
@@ -717,7 +717,7 @@ const communityTipsData: CommunityTips[] = [
       '文创氛围浓厚，适合AI+音乐/播客方向的创业者',
       '周末游客较多，工作日比较安静',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
 
@@ -730,7 +730,7 @@ const communityTipsData: CommunityTips[] = [
       '阿里云技术平台可以直接用，对技术型项目有帮助',
       '建邺区河西CBD位置好但周边消费水平高',
     ],
-    applyDifficulty: 3,
+    entryFriendly: 3,
     processTime: '2-3周',
   },
   {
@@ -740,7 +740,7 @@ const communityTipsData: CommunityTips[] = [
       '社区偏早期建设阶段，服务体系还在完善',
       '入驻门槛不高，适合起步阶段的团队',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -750,7 +750,7 @@ const communityTipsData: CommunityTips[] = [
       '空间条件稍好一些，但位置也偏',
       '适合AI+智能制造方向的创业者',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
   {
@@ -760,7 +760,7 @@ const communityTipsData: CommunityTips[] = [
       '适合还在学习阶段想边学边创的人',
       '社区带"学院"风格，有定期课程和分享',
     ],
-    applyDifficulty: 1,
+    entryFriendly: 1,
     processTime: '1周',
   },
   {
@@ -770,7 +770,7 @@ const communityTipsData: CommunityTips[] = [
       '有黑客松等技术活动，适合喜欢技术社交的人',
       '空间设计有特色，码头概念挺有意思',
     ],
-    applyDifficulty: 2,
+    entryFriendly: 2,
     processTime: '1-2周',
   },
 ]
@@ -798,13 +798,13 @@ async function main() {
         where: { id: community.id },
         data: {
           realTips: data.realTips,
-          applyDifficulty: data.applyDifficulty,
+          entryFriendly: data.entryFriendly,
           processTime: data.processTime,
           lastVerifiedAt: new Date('2026-03-11'),
         },
       })
 
-      console.log(`✅ ${community.city} - ${community.name} (${data.realTips.length}条tips, 难度${data.applyDifficulty})`)
+      console.log(`✅ ${community.city} - ${community.name} (${data.realTips.length}条tips, 难度${data.entryFriendly})`)
       successCount++
     } catch (error) {
       console.log(`❌ 更新失败 ${data.slug}:`, error)

@@ -20,7 +20,7 @@ export interface Community {
   workstations?: number
   policies?: CommunityPolicies
   entryProcess: string[]
-  services: string[]
+  amenities: string[]
   notes: string[]
   links?: CommunityLink[]
   status: 'ACTIVE' | 'INACTIVE' | 'PENDING'

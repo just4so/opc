@@ -66,7 +66,7 @@ interface Community {
   images: string[]
   featured: boolean
   realTips: string[]
-  applyDifficulty: number | null
+  entryFriendly: number | null
   processTime: string | null
   lastVerifiedAt: Date | string | null
   // M2 fields
@@ -74,6 +74,7 @@ interface Community {
   totalArea: string | null
   totalWorkstations: number | null
   focusTracks: string[]
+  amenities: string[]
   contactNote: string | null
   benefits: any
   entryInfo: any
@@ -137,7 +138,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     images: initialData?.images || [],
     featured: initialData?.featured || false,
     realTips: initialData?.realTips || [],
-    applyDifficulty: initialData?.applyDifficulty || null,
+    entryFriendly: initialData?.entryFriendly || null,
     processTime: initialData?.processTime || '',
     lastVerifiedAt: initialData?.lastVerifiedAt
       ? new Date(initialData.lastVerifiedAt).toISOString().split('T')[0]
@@ -147,6 +148,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
     totalArea: initialData?.totalArea || '',
     totalWorkstations: initialData?.totalWorkstations || null,
     focusTracks: initialData?.focusTracks || [],
+    amenities: initialData?.amenities || [],
     contactNote: initialData?.contactNote || '',
     benefits: (() => {
       const raw = (initialData?.benefits as any) || {}
@@ -210,6 +212,7 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
         totalArea: formData.totalArea || '',
         totalWorkstations: formData.totalWorkstations,
         focusTracks: formData.focusTracks,
+        amenities: formData.amenities,
         contactNote: formData.contactNote || '',
         benefits: cleanBenefits,
         entryInfo: {
@@ -726,6 +729,39 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                 />
               </div>
             </div>
+
+            {/* 分隔 */}
+            <div className="border-t border-gray-200" />
+
+            {/* 配套服务 */}
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-gray-700">配套服务</p>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {['会议室', '活动空间', '直播间', '影棚', '3D打印', '前台/行政', '打印复印', '餐饮', '停车', '24小时开放', '工商注册协助', '法务支持', '财税服务', '融资/投资对接', '招聘支持'].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => {
+                      if (!formData.amenities.includes(item)) {
+                        updateField('amenities', [...formData.amenities, item])
+                      }
+                    }}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                      formData.amenities.includes(item)
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-gray-200 text-gray-500 hover:border-primary hover:text-primary'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <TagInput
+                value={formData.amenities}
+                onChange={(v) => updateField('amenities', v)}
+                placeholder="输入自定义配套服务后按回车"
+              />
+            </div>
           </CardContent>
         )}
       </Card>
@@ -770,8 +806,8 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                 </label>
                 <div className="space-y-1">
                   <StarRating
-                    value={formData.applyDifficulty ?? null}
-                    onChange={(v) => updateField('applyDifficulty', v)}
+                    value={formData.entryFriendly ?? null}
+                    onChange={(v) => updateField('entryFriendly', v)}
                   />
                   <p className="text-xs text-gray-400">星级越高代表入驻越容易</p>
                 </div>

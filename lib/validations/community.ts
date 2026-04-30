@@ -31,7 +31,7 @@ export const communityFormSchema = z.object({
 
   // 真实入驻信息
   realTips: z.array(z.string()).default([]),
-  applyDifficulty: z.number().int().min(1).max(5).optional().nullable(),
+  entryFriendly: z.number().int().min(1).max(5).optional().nullable(),
   processTime: z.string().optional().default(''),
   lastVerifiedAt: z.string().optional().nullable(),
 
@@ -43,6 +43,7 @@ export const communityFormSchema = z.object({
   totalArea: z.string().optional().default(''),
   totalWorkstations: z.number().int().positive().optional().nullable(),
   focusTracks: z.array(z.string()).default([]),
+  amenities: z.array(z.string()).default([]),
   contactNote: z.string().optional().default(''),
   benefits: z.record(z.string(), z.any()).optional().nullable(),
   entryInfo: z.record(z.string(), z.any()).optional().nullable(),

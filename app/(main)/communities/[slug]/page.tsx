@@ -240,10 +240,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 <span>{community.totalArea}</span>
               </div>
             )}
-            {community.applyDifficulty != null && (
+            {community.entryFriendly != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-full text-sm text-orange-700">
                 <span className="font-medium">入驻友好度</span>
-                <span>{renderStars(community.applyDifficulty)}</span>
+                <span>{renderStars(community.entryFriendly)}</span>
               </div>
             )}
             {community.benefits != null && (
@@ -451,10 +451,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-base font-semibold text-orange-800">🔍 真实提醒</span>
                     </div>
-                    {(community.applyDifficulty || community.processTime) && (
+                    {(community.entryFriendly || community.processTime) && (
                       <div className="flex items-center gap-4 text-sm text-gray-700 mb-3">
-                        {community.applyDifficulty && (
-                          <span><span className="font-medium">入驻友好度：</span>{renderStars(community.applyDifficulty)}</span>
+                        {community.entryFriendly && (
+                          <span><span className="font-medium">入驻友好度：</span>{renderStars(community.entryFriendly)}</span>
                         )}
                         {community.processTime && (
                           <span><span className="font-medium">实际周期：</span>{community.processTime}</span>
@@ -486,7 +486,26 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   </div>
                 )}
 
-                {/* 4. 配套服务（已迁移至 benefits，不再单独显示） */}
+                {/* 4. 配套服务 */}
+                {community.amenities && community.amenities.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <CheckCircle2 className="h-5 w-5 mr-2 text-primary" />
+                        配套服务
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {community.amenities.map((item, index) => (
+                          <span key={index} className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* 5. 社区图集 */}
                 {community.images && community.images.length > 0 && (

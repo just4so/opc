@@ -32,7 +32,7 @@ interface Community {
   featured: boolean
   coverImage?: string | null
   createdAt: string
-  applyDifficulty?: number | null
+  entryFriendly?: number | null
 }
 
 interface CommunitiesPageClientProps {

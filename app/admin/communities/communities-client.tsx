@@ -14,7 +14,7 @@ interface Community {
   operator: string | null
   status: string
   featured: boolean
-  applyDifficulty: number | null
+  entryFriendly: number | null
   totalWorkstations: number | null
 }
 
@@ -293,10 +293,10 @@ export default function CommunitiesClient() {
                           </button>
                         </td>
                         <td className="py-3 px-4 text-sm">
-                          {community.applyDifficulty ? (
+                          {community.entryFriendly ? (
                             <span className="text-yellow-500">
-                              {'★'.repeat(community.applyDifficulty)}
-                              {'☆'.repeat(5 - community.applyDifficulty)}
+                              {'★'.repeat(community.entryFriendly)}
+                              {'☆'.repeat(5 - community.entryFriendly)}
                             </span>
                           ) : (
                             <span className="text-gray-300">-</span>

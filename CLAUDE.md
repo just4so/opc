@@ -119,7 +119,8 @@ components/plaza/plaza-client.tsx → Client Component ('use client')
 **Community:**
 - `slug`: URL-friendly unique identifier
 - `status`: ACTIVE | INACTIVE | PENDING
-- `applyDifficulty`: 1-5 integer (入驻难度，displayed as stars in admin)
+- `entryFriendly`: 1-5 integer (入驻友好度，displayed as stars in admin; 5=easiest)
+- `amenities`: String[] (配套服务，e.g. 会议室、直播间)
 - `realTips`: String[] (真实入驻说明)
 - `lastVerifiedAt`: when info was last verified
 
@@ -221,7 +222,7 @@ Original news articles and plaza posts support full Markdown:
 | Post management | `/admin/posts` — topic filter, content preview expand, pin/hide/delete |
 | News management | `/admin/news` — toggle original, edit author, delete; **+ write original at `/admin/news/new`** |
 | Community list (with difficulty stars) | `/admin/communities` |
-| Community edit (star rating for difficulty) | `/admin/communities/[id]/edit` — `StarRating` inline component in `community-form.tsx` |
+| Community edit (star rating for entryFriendly) | `/admin/communities/[id]/edit` — `StarRating` inline component in `community-form.tsx` |
 | Market management | `/admin/orders` — export CSV |
 
 ## ⚠️ Tool Usage Rules (MANDATORY)

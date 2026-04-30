@@ -49,7 +49,7 @@ async function CommunitiesPageInner() {
         featured: true,
         coverImage: true,
         createdAt: true,
-        applyDifficulty: true,
+        entryFriendly: true,
       },
     }),
     prisma.community.groupBy({
@@ -60,9 +60,9 @@ async function CommunitiesPageInner() {
     }),
     prisma.community.groupBy({
       by: ['city'],
-      where: { status: 'ACTIVE', applyDifficulty: { not: null } },
-      _avg: { applyDifficulty: true },
-      _count: { applyDifficulty: true },
+      where: { status: 'ACTIVE', entryFriendly: { not: null } },
+      _avg: { entryFriendly: true },
+      _count: { entryFriendly: true },
     }),
   ])
 
@@ -72,11 +72,11 @@ async function CommunitiesPageInner() {
   }))
 
   const cityDifficulty = difficultyData
-    .filter((d) => d._avg.applyDifficulty !== null)
+    .filter((d) => d._avg.entryFriendly !== null)
     .map((d) => ({
       city: d.city,
-      difficulty: Math.round(d._avg.applyDifficulty! * 10) / 10,
-      count: d._count.applyDifficulty,
+      difficulty: Math.round(d._avg.entryFriendly! * 10) / 10,
+      count: d._count.entryFriendly,
     }))
     .sort((a, b) => b.difficulty - a.difficulty)
 

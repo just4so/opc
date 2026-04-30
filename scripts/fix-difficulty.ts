@@ -4,22 +4,22 @@ const prisma = new PrismaClient()
 
 async function main() {
   const communities = await prisma.community.findMany({
-    where: { applyDifficulty: { not: null } },
-    select: { id: true, name: true, applyDifficulty: true }
+    where: { entryFriendly: { not: null } },
+    select: { id: true, name: true, entryFriendly: true }
   })
 
-  console.log(`Found ${communities.length} communities with applyDifficulty set`)
+  console.log(`Found ${communities.length} communities with entryFriendly set`)
 
   for (const c of communities) {
-    const newValue = 6 - c.applyDifficulty!
+    const newValue = 6 - c.entryFriendly!
     await prisma.community.update({
       where: { id: c.id },
-      data: { applyDifficulty: newValue }
+      data: { entryFriendly: newValue }
     })
-    console.log(`  ${c.name}: ${c.applyDifficulty} → ${newValue}`)
+    console.log(`  ${c.name}: ${c.entryFriendly} → ${newValue}`)
   }
 
-  console.log('Done reversing applyDifficulty values')
+  console.log('Done reversing entryFriendly values')
 }
 
 main()

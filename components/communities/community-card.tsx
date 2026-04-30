@@ -22,7 +22,7 @@ interface CommunityCardProps {
     totalWorkstations?: number | null
     benefits?: any
     featured: boolean
-    applyDifficulty?: number | null
+    entryFriendly?: number | null
     coverImage?: string | null
   }
 }
@@ -103,14 +103,14 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </p>
 
           {/* 入驻友好度 — Star 图标 */}
-          {community.applyDifficulty != null && (
+          {community.entryFriendly != null && (
             <div className="flex items-center gap-1.5 mb-3">
               <div className="flex gap-[2px]">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
                     className={`h-3 w-3 ${
-                      i < community.applyDifficulty!
+                      i < community.entryFriendly!
                         ? 'fill-amber-400 text-amber-400'
                         : 'fill-gray-200 text-gray-200'
                     }`}

@@ -82,40 +82,41 @@ model Account {
 }
 
 model Community {
-  id              String            @id @default(cuid())
-  slug            String            @unique
-  name            String
-  city            String
-  district        String?
-  address         String
-  latitude        Float?
-  longitude       Float?
-  description     String
-  type            CommunityType     @default(MIXED)
-  operator        String?
-  contactName     String?
-  contactWechat   String?
-  contactPhone    String?
-  website         String?
-  status          CommunityStatus   @default(ACTIVE)
-  featured        Boolean           @default(false)
-  coverImage      String?
-  images          String[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  applyDifficulty   Int?
+  id                String            @id @default(cuid())
+  slug              String            @unique
+  name              String
+  city              String
+  district          String?
+  address           String
+  latitude          Float?
+  longitude         Float?
+  description       String
+  type              CommunityType     @default(MIXED)
+  operator          String?
+  contactName       String?
+  contactWechat     String?
+  contactPhone      String?
+  website           String?
+  status            CommunityStatus   @default(ACTIVE)
+  featured          Boolean           @default(false)
+  coverImage        String?
+  images            String[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  entryFriendly     Int?
   lastVerifiedAt    DateTime?
   processTime       String?
   realTips          String[]
-  transit           String?
+  benefits          Json?
+  contactNote       String?
+  entryInfo         Json?
+  focusTracks       String[]          @default([])
+  amenities         String[]          @default([])
   totalArea         String?
   totalWorkstations Int?
-  focusTracks       String[]          @default([])
-  contactNote       String?
-  benefits          Json?
-  entryInfo         Json?
-  reviews         CommunityReview[]
-  managers        User[]            @relation("CommunityManager")
+  transit           String?
+  reviews           CommunityReview[]
+  managers          User[]            @relation("CommunityManager")
 
   @@index([city])
   @@index([slug])
