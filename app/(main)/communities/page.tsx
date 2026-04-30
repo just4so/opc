@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
 import prisma from '@/lib/db'
 
-export const revalidate = 3600 // 1小时缓存（数据变化低频，ISR 静态化首屏）
+export const revalidate = 60 // 60秒缓存（社区数据更新后快速生效）
 
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',
