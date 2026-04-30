@@ -29,7 +29,7 @@ import { ImageGallery } from '@/components/image-gallery'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-export const revalidate = 3600
+export const revalidate = 60
 export const dynamicParams = true
 
 interface PageProps {
