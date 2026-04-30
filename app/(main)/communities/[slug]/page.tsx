@@ -255,7 +255,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           </div>
 
           {/* 入驻方向标签 */}
-          {community.focusTracks.length > 0 && (
+          {community.focusTracks && community.focusTracks.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {community.focusTracks.map((item, index) => (
                 <span
@@ -446,7 +446,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 })()}
 
                 {/* 3. 真实入驻说明 */}
-                {community.realTips.length > 0 && (
+                {community.realTips && community.realTips.length > 0 && (
                   <div className="border-l-4 border-orange-400 bg-orange-50 rounded-r-lg p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-base font-semibold text-orange-800">🔍 真实提醒</span>
@@ -462,7 +462,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       </div>
                     )}
                     <ul className="space-y-2">
-                      {community.realTips
+                      {(community.realTips || [])
                         .filter(tip => {
                           // 如果右侧没有任何联系方式，过滤掉引导查看联系方式的tip
                           const hasContact = !!(community.contactPhone || community.contactName || community.contactWechat || community.website)
@@ -489,7 +489,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 {/* 4. 配套服务（已迁移至 benefits，不再单独显示） */}
 
                 {/* 5. 社区图集 */}
-                {community.images.length > 0 && (
+                {community.images && community.images.length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center">
