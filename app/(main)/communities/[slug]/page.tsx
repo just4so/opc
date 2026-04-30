@@ -337,7 +337,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               <>
                 {/* 入驻福利 */}
                 {(() => {
-                  type BenefitsSection = { summary: string; items: string[] }
+                  type BenefitsSection = { summary?: string; items?: string[] }
                   type BenefitsJson = {
                     office?:   BenefitsSection
                     compute?:  BenefitsSection
@@ -368,6 +368,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                             <div key={key}>
                               <h4 className="text-sm font-medium text-gray-700 mb-2">{label}</h4>
                               {section.summary && <p className="text-sm text-gray-500 leading-relaxed mb-2">{section.summary}</p>}
+                              {section.items && section.items.length > 0 && (
                               <ul className="space-y-1">
                                 {section.items.map((item, i) => (
                                   <li key={i} className="text-sm text-gray-600 leading-relaxed flex items-start gap-1.5">
@@ -376,6 +377,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                                   </li>
                                 ))}
                               </ul>
+                              )}
                             </div>
                           )
                         })}
