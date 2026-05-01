@@ -237,7 +237,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             {community.totalArea && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
                 <Building2 className="h-4 w-4 text-primary" />
-                <span>{community.totalArea}</span>
+                <span>{community.totalArea}{/^\d+$/.test(community.totalArea) ? '㎡' : ''}</span>
               </div>
             )}
             {community.entryFriendly != null && (
