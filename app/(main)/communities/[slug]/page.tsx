@@ -362,22 +362,32 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                         <CardTitle className="flex items-center"><FileText className="h-5 w-5 mr-2 text-primary" />入驻政策</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {presentSections.map(({ key, label }) => {
+                        {presentSections.map(({ key, label }, idx) => {
                           const section = benefits[key]!
+                          const hasItems = section.items && section.items.length > 0
                           return (
                             <div key={key}>
-                              <h4 className="text-sm font-medium text-gray-700 mb-2">{label}</h4>
-                              {section.summary && <p className="text-sm text-gray-500 leading-relaxed mb-2">{section.summary}</p>}
-                              {section.items && section.items.length > 0 && (
-                              <ul className="space-y-1">
-                                {section.items.map((item, i) => (
-                                  <li key={i} className="text-sm text-gray-600 leading-relaxed flex items-start gap-1.5">
-                                    <span className="text-gray-400 mt-0.5 flex-shrink-0">•</span>
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
+                              {idx > 0 && <div className="border-t border-gray-100 mb-4" />}
+                              <div className="flex items-start justify-between gap-2 mb-1.5">
+                                <h4 className="text-sm font-semibold text-gray-800">{label}</h4>
+                                {section.summary && !hasItems && (
+                                  <span className="text-xs text-gray-400 font-normal">{section.summary}</span>
+                                )}
+                              </div>
+                              {section.summary && hasItems && (
+                                <p className="text-xs text-gray-500 mb-2 leading-relaxed">{section.summary}</p>
                               )}
+                              {hasItems && (
+                                <ul className="space-y-1.5">
+                                  {section.items!.map((item, i) => (
+                                    <li key={i} className="text-sm text-gray-600 leading-relaxed flex items-start gap-2">
+                                      <span className="text-orange-400 mt-0.5 flex-shrink-0 text-xs">▸</span>
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              {!hasItems && !section.summary && null}
                             </div>
                           )
                         })}
