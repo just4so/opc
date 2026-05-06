@@ -24,6 +24,7 @@ interface Community {
   focusTracks: string[]
   operator?: string | null
   totalWorkstations?: number | null
+  benefits?: any
   featured: boolean
   coverImage?: string | null
   entryFriendly?: number | null

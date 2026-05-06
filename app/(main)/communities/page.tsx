@@ -40,6 +40,7 @@ async function CommunitiesPageInner() {
       focusTracks: true,
       operator: true,
       totalWorkstations: true,
+      benefits: true,
       featured: true,
       coverImage: true,
       entryFriendly: true,
