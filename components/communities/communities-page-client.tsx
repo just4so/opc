@@ -1,8 +1,7 @@
 'use client'
 
-// 架构说明：全量数据（104条）在 SSR 时一次性传入，城市筛选和分页全部前端完成。
-// 不再调用 /api/communities（除非社区数量超过 500 条才需要重新评估）。
-// 好处：城市切换零延迟、地图不重载、无网络往返。
+// 架构说明：全量数据在 SSR 时一次性传入，城市筛选和分页全部前端完成。
+// 统计数据（cityCounts / cityDifficulty）由客户端异步加载，不阻塞 SSR。
 
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -22,35 +21,47 @@ interface Community {
   latitude?: number | null
   longitude?: number | null
   description: string
-  type: string
   focusTracks: string[]
   operator?: string | null
-  totalArea?: string | null
   totalWorkstations?: number | null
-  benefits?: any
-  status: string
   featured: boolean
   coverImage?: string | null
-  createdAt: string
   entryFriendly?: number | null
 }
 
 interface CommunitiesPageClientProps {
-  // 全量数据，SSR 时传入
   allCommunities: Community[]
-  cityCounts: { city: string; count: number }[]
-  cityDifficulty: { city: string; difficulty: number; count: number }[]
 }
 
 export function CommunitiesPageClient({
   allCommunities,
-  cityCounts,
 }: CommunitiesPageClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [selectedCity, setSelectedCity] = useState(() => searchParams.get('city') ?? '')
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   const [page, setPage] = useState(1)
+  const [cityCounts, setCityCounts] = useState<{ city: string; count: number }[]>([])
+
+  // 异步加载统计数据
+  useEffect(() => {
+    fetch('/api/community-stats')
+      .then((res) => res.json())
+      .then((data) => {
+        setCityCounts(data.cityCounts || [])
+      })
+      .catch(() => {
+        // 降级：从全量数据中本地计算城市统计
+        const counts: Record<string, number> = {}
+        allCommunities.forEach((c) => {
+          counts[c.city] = (counts[c.city] || 0) + 1
+        })
+        const sorted = Object.entries(counts)
+          .map(([city, count]) => ({ city, count }))
+          .sort((a, b) => b.count - a.count)
+        setCityCounts(sorted)
+      })
+  }, [allCommunities])
 
   // 浏览器前进/后退时同步 URL 参数
   useEffect(() => {
@@ -72,7 +83,6 @@ export function CommunitiesPageClient({
   const handleCityChange = (city: string) => {
     setSelectedCity(city)
     setPage(1)
-    // 将城市写入 URL，进详情页再返回时状态不丢
     const params = new URLSearchParams(searchParams.toString())
     if (city) {
       params.set('city', city)
@@ -94,7 +104,7 @@ export function CommunitiesPageClient({
                 全国 OPC 社区地图
               </h1>
               <p className="text-sm text-gray-400 mt-1">
-                {allCommunities.length} 个社区 · {cityCounts.length} 座城市 · 真实入驻友好度参考
+                {allCommunities.length} 个社区 · {cityCounts.length || '—'} 座城市 · 真实入驻友好度参考
               </p>
             </div>
             {/* 视图切换 */}
@@ -153,7 +163,7 @@ export function CommunitiesPageClient({
         </div>
       </div>
 
-      {/* 内容区：直接渲染，无 loading 状态 */}
+      {/* 内容区 */}
       <CommunitiesClient
         communities={paginated}
         allCommunities={filtered}

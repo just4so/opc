@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
 import prisma from '@/lib/db'
 
-export const revalidate = 60 // 60秒缓存（社区数据更新后快速生效）
+export const revalidate = 300 // 5分钟缓存，降低云函数触发频率
 
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',
@@ -23,74 +23,37 @@ export const metadata: Metadata = {
 }
 
 async function CommunitiesPageInner() {
-  // 一次性拉全量数据，传给客户端做前端 filter/分页
-  // 当前 104 条 × 0.69KB ≈ 71KB，完全可接受
-  const [communities, cityGroupData, difficultyData] = await Promise.all([
-    prisma.community.findMany({
-      where: { status: 'ACTIVE' },
-      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        city: true,
-        district: true,
-        address: true,
-        latitude: true,
-        longitude: true,
-        description: true,
-        type: true,
-        focusTracks: true,
-        operator: true,
-        totalArea: true,
-        totalWorkstations: true,
-        benefits: true,
-        status: true,
-        featured: true,
-        coverImage: true,
-        createdAt: true,
-        entryFriendly: true,
-      },
-    }),
-    prisma.community.groupBy({
-      by: ['city'],
-      where: { status: 'ACTIVE' },
-      _count: { city: true },
-      orderBy: { _count: { city: 'desc' } },
-    }),
-    prisma.community.groupBy({
-      by: ['city'],
-      where: { status: 'ACTIVE', entryFriendly: { not: null } },
-      _avg: { entryFriendly: true },
-      _count: { entryFriendly: true },
-    }),
-  ])
+  // 只拉地图页和列表页必需的字段，统计数据由客户端异步加载
+  const communities = await prisma.community.findMany({
+    where: { status: 'ACTIVE' },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      city: true,
+      district: true,
+      address: true,
+      latitude: true,
+      longitude: true,
+      description: true,
+      focusTracks: true,
+      operator: true,
+      totalWorkstations: true,
+      featured: true,
+      coverImage: true,
+      entryFriendly: true,
+    },
+  })
 
-  const cityCounts = cityGroupData.map((c) => ({
-    city: c.city,
-    count: c._count.city,
-  }))
-
-  const cityDifficulty = difficultyData
-    .filter((d) => d._avg.entryFriendly !== null)
-    .map((d) => ({
-      city: d.city,
-      difficulty: Math.round(d._avg.entryFriendly! * 10) / 10,
-      count: d._count.entryFriendly,
-    }))
-    .sort((a, b) => b.difficulty - a.difficulty)
-
-  // Serialize dates for client component
   const allCommunities = communities.map((c) => ({
     ...c,
-    createdAt: c.createdAt.toISOString(),
+    // 不再需要序列化 createdAt，因为不再 select 它
   }))
 
   return (
     <CommunitiesPageClient
       allCommunities={allCommunities}
-      cityCounts={cityCounts}
-      cityDifficulty={cityDifficulty}
     />
   )
 }
