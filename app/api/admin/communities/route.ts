@@ -126,6 +126,22 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/communities')
 
+    // 百度主动推送：新社区入库后异步通知百度，不阻塞主流程
+    const baiduToken = process.env.BAIDU_PUSH_TOKEN
+    if (baiduToken) {
+      const communityUrl = `https://www.opcquan.com/communities/${community.slug}`
+      fetch(
+        `http://data.zz.baidu.com/urls?site=https://www.opcquan.com&token=${baiduToken}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: communityUrl,
+        }
+      ).catch(() => {
+        // 推送失败不影响入库，静默处理
+      })
+    }
+
     return NextResponse.json(community)
   } catch (error) {
     console.error('创建社区失败:', error)

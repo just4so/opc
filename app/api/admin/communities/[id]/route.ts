@@ -128,6 +128,20 @@ export async function PATCH(
     revalidatePath('/communities')
     revalidatePath(`/communities/${community.slug}`)
 
+    // 百度主动推送：社区更新后异步通知百度
+    const baiduToken = process.env.BAIDU_PUSH_TOKEN
+    if (baiduToken) {
+      const communityUrl = `https://www.opcquan.com/communities/${community.slug}`
+      fetch(
+        `http://data.zz.baidu.com/urls?site=https://www.opcquan.com&token=${baiduToken}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: communityUrl,
+        }
+      ).catch(() => {})
+    }
+
     return NextResponse.json(community)
   } catch (error) {
     console.error('更新社区失败:', error)
