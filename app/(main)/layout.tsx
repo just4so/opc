@@ -79,14 +79,25 @@ export default function MainLayout({
                   隐私政策
                 </Link>
               </div>
-              <a
-                href="https://beian.miit.gov.cn"
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm text-gray-400 hover:text-primary transition-colors"
-              >
-                京ICP备2025122039号-2
-              </a>
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://beian.miit.gov.cn"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-gray-400 hover:text-primary transition-colors"
+                >
+                  京ICP备2025122039号-2
+                </a>
+                <a
+                  href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011502039750"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1 text-sm text-gray-400 hover:text-primary transition-colors"
+                >
+                  <img src="/beian-icon.png" alt="公安备案" width={14} height={14} />
+                  京公网安备11011502039750号
+                </a>
+              </div>
             </div>
             <div className="text-sm text-gray-400 md:text-right">
               © 2026 OPC圈
