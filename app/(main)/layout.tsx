@@ -72,6 +72,12 @@ export default function MainLayout({
                 <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
                   关于我们
                 </Link>
+                <Link href="/data" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                  数据统计
+                </Link>
+                <Link href="/faq" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                  常见问题
+                </Link>
                 <Link href="/contact" className="text-sm text-gray-500 hover:text-primary transition-colors">
                   联系方式
                 </Link>

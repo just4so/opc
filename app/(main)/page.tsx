@@ -10,7 +10,8 @@ export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'OPC圈 · 一人公司，不必一个人摸索',
-  description: '最真最全的一人公司社区信息。人工核实 + 创业者共创，覆盖全国29城104个OPC社区攻略、真实入驻评价，不定期福利资源。',
+  description: '最真最全的一人公司OPC社区信息平台。人工核实 + 创业者共创，收录全国39城159个OPC社区，提供真实入驻攻略、费用对比、政策福利，是一人公司创业者找OPC社区的首选平台。',
+  keywords: 'OPC社区,一人公司,OPC圈,OPC创业,联合办公,一人公司社区,OPC入驻,opcquan',
 }
 
 export default async function HomePage() {
