@@ -25,6 +25,7 @@ import { CommunityLocationMap } from '@/components/communities/community-locatio
 import CommunityReviews from '@/components/communities/community-reviews'
 import { LoginGate } from '@/components/communities/login-gate'
 import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
+import { CommunityFaq } from '@/components/communities/community-faq'
 import { ImageGallery } from '@/components/image-gallery'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
@@ -644,6 +645,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+      <CommunityFaq
+        communityName={community.name}
+        city={community.city}
+        entryFriendly={community.entryFriendly}
+        focusTracks={community.focusTracks ?? []}
+      />
       <MobileRegisterBar isLoggedIn={isLoggedIn} registerUrl={registerUrl} />
     </div>
   )
