@@ -18,14 +18,17 @@ export async function GET() {
     })
 
     const text = await res.text()
-    const firstTitle = text.match(/<title><!\[CDATA\[(.+?)\]\]><\/title>/)?.[1] ?? null
+    const firstTitle =
+      text.match(/<title><!\[CDATA\[(.+?)\]\]><\/title>/)?.[1] ??
+      text.match(/<title>(.+?)<\/title>/g)?.[1]?.replace(/<\/?title>/g, '') ??
+      null
 
     return NextResponse.json({
       ok: res.ok,
       status: res.status,
       ms: Date.now() - start,
       firstItem: firstTitle,
-      verdict: res.ok && firstTitle ? '✅ 能直连，GNews 可迁云端' : '❌ 请求失败',
+      verdict: res.ok ? '✅ 能直连，GNews 可迁云端' : '❌ 请求失败',
     })
   } catch (e: any) {
     return NextResponse.json({
