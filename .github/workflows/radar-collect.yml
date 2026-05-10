@@ -1,0 +1,17 @@
+name: OPC Radar Daily Collect
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 08:00 上海时间 (UTC+8 = UTC 00:00)
+  workflow_dispatch:      # 支持手动触发
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger GNews collection
+        run: |
+          curl -s -X POST "https://opcquan.com/api/radar/collect?mode=gnews" \
+            -H "Content-Type: application/json" \
+            -w "\nHTTP %{http_code} in %{time_total}s" \
+            --max-time 60
