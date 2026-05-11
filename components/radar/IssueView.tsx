@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { ShareIcon } from './ShareIcon'
 
 const CATEGORY_LABELS: Record<string, { zh: string; en: string }> = {
   policy:    { zh: "政策动向", en: "POLICY TRENDS" },
@@ -105,7 +106,9 @@ export function IssueView({ issue }: { issue: RadarIssue }) {
           <span className="text-[#D6D3D1] font-light">/</span>
           <span className="text-[#78716C]">星期{weekday}</span>
           <span className="text-[#D6D3D1] font-light">/</span>
-          <span className="text-[#78716C] flex items-center">{totalItems} ITEMS</span>
+          <span className="text-[#78716C] flex items-center">{totalItems} ITEMS
+            <ShareIcon issueNo={issue.issueNo} title={issue.title || ''} summary={issue.summary || ''} />
+          </span>
         </div>
       </div>
 
