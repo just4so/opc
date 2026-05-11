@@ -63,7 +63,7 @@ export function IssueView({ issue }: { issue: RadarIssue }) {
   const volStr = `VOL.${year}.${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full">
       {/* Hero header — logo + 期号 + meta */}
       <div className="relative mb-0 pt-10 pb-8 px-6 md:px-10 border-b-2 border-[#1C1917] flex flex-col items-center text-center">
         {/* 背景装饰数字 */}

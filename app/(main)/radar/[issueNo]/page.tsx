@@ -53,7 +53,7 @@ export default async function IssueDetailPage({
   const next = adjacent.find(i => i.issueNo === no + 1)
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 py-10">
       <IssueView issue={serializeIssue(issue)} />
 
       <div className="mt-12 pt-6 border-t border-[#E7E5E4] flex justify-between text-sm">
