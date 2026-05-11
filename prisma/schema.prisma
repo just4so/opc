@@ -412,3 +412,62 @@ enum NewsCategory {
   TOOL
   CASE
 }
+
+model RadarItem {
+  id          String      @id @default(cuid())
+  title       String
+  url         String      @unique
+  source      String
+  publishedAt DateTime?
+  collectedAt DateTime    @default(now())
+  summary     String?
+  category    String
+  city        String?
+  importance  Int         @default(3)
+  eventKey    String?     @map("event_key")
+  issueId     String?
+  issue       RadarIssue? @relation(fields: [issueId], references: [id])
+  createdAt   DateTime    @default(now())
+
+  @@map("radar_items")
+  @@index([collectedAt])
+  @@index([category, city])
+}
+
+model RadarIssue {
+  id          String      @id @default(cuid())
+  issueNo     Int         @unique
+  title       String?
+  summary     String?     // 本期 2-3 句编辑总结
+  publishedAt DateTime    @default(now())
+  windowStart DateTime
+  windowEnd   DateTime
+  items       RadarItem[]
+  createdAt   DateTime    @default(now())
+
+  @@map("radar_issues")
+}
+
+model RadarCbArticle {
+  id          String    @id @default(cuid())
+  title       String
+  url         String    @unique
+  summary     String?
+  used        Boolean   @default(false)
+  usedAt      DateTime?
+  collectedAt DateTime  @default(now())
+
+  @@map("radar_cb_articles")
+}
+
+model RadarRun {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  source      String
+  collected   Int      @default(0)
+  skipped     Int      @default(0)
+  error       String?
+
+  @@map("radar_runs")
+  @@index([createdAt])
+}
