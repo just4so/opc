@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { MapPin, MessageSquare, Cpu, ArrowRight, BookOpen, Gift, CheckCircle2, Users } from 'lucide-react'
+import { MapPin, MessageSquare, Cpu, ArrowRight, BookOpen, Gift, CheckCircle2, Users, Radio } from 'lucide-react'
 import { NewsCardCompact } from '@/components/news/news-card'
 import { ActivityBar } from '@/components/home/activity-bar'
 import { HeroSessionLink, CtaSessionLink } from '@/components/home/session-cta'
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [newsItems, statsResult, recentPosts] = await Promise.all([
+  const [newsItems, statsResult, recentPosts, latestRadarIssue] = await Promise.all([
     prisma.news.findMany({
       orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
       take: 6,
@@ -60,6 +60,10 @@ export default async function HomePage() {
         createdAt: true,
         author: { select: { name: true, username: true } },
       },
+    }),
+    prisma.radarIssue.findFirst({
+      orderBy: { issueNo: 'desc' },
+      include: { items: { orderBy: { importance: 'desc' }, take: 4 } },
     }),
   ])
 
@@ -297,6 +301,82 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ===== OPC雷达 简报预览 ===== */}
+      {latestRadarIssue && (
+        <section className="py-20 bg-gradient-to-b from-white to-orange-50/30">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Radio className="h-5 w-5 text-[#F97316]" />
+                  <h2 className="text-2xl font-bold text-secondary">OPC雷达</h2>
+                </div>
+                <p className="text-sm text-gray-400">每期精选 · 一人公司情报简报</p>
+              </div>
+              <Link
+                href={`/radar/${latestRadarIssue.issueNo}`}
+                className="text-sm font-medium text-gray-400 hover:text-[#F97316] transition-colors flex items-center gap-1"
+              >
+                查看完整简报
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* 预览卡片 */}
+            <Link
+              href={`/radar/${latestRadarIssue.issueNo}`}
+              className="block bg-white rounded-2xl border border-gray-100 shadow-soft hover:shadow-md hover:border-[#F97316]/20 transition-all hover:-translate-y-0.5 overflow-hidden group"
+            >
+              <div className="p-6 md:p-8">
+                {/* 头部 */}
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <span className="text-xs text-[#F97316] font-medium tracking-wider uppercase">
+                      第 {latestRadarIssue.issueNo} 期
+                    </span>
+                    <h3 className="text-lg font-bold text-secondary mt-1">
+                      {latestRadarIssue.title || `OPC雷达 第${latestRadarIssue.issueNo}期`}
+                    </h3>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {new Date(latestRadarIssue.publishedAt).toLocaleDateString("zh-CN", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+
+                {/* 精选条目 */}
+                {latestRadarIssue.items.length > 0 && (
+                  <div className="border-t border-gray-50 pt-4 space-y-2.5">
+                    {latestRadarIssue.items.slice(0, 4).map((item: any) => (
+                      <div key={item.id} className="flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#F97316] mt-1.5 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-700 leading-relaxed truncate">{item.title}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-gray-400">{item.source}</span>
+                            {item.city && <span className="text-xs text-gray-300">{item.city}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 主编摘要 */}
+                {latestRadarIssue.summary && (
+                  <div className="mt-5 pt-4 border-t border-gray-50">
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{latestRadarIssue.summary}</p>
+                  </div>
+                )}
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ===== 广场动态 ===== */}
       {recentPosts.length > 0 && (

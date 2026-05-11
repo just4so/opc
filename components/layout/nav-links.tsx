@@ -7,6 +7,7 @@ const links = [
   { href: "/plaza", label: "交流广场" },
   { href: "/news", label: "创业资讯" },
   { href: "/tools", label: "工具导航" },
+  { href: "/radar", label: "OPC雷达" },
 ]
 
 export function NavLinks() {

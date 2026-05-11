@@ -4,13 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Newspaper, Wrench } from 'lucide-react'
+import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Newspaper, Wrench, Radio } from 'lucide-react'
 
 const navLinks = [
   { href: '/communities', label: '社区地图', icon: Map },
   { href: '/plaza', label: '交流广场', icon: MessageCircle },
   { href: '/news', label: '创业资讯', icon: Newspaper },
   { href: '/tools', label: '工具导航', icon: Wrench },
+  { href: '/radar', label: 'OPC雷达', icon: Radio },
 ]
 
 export function MobileMenu() {
