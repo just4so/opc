@@ -18,6 +18,7 @@ const categoryLabels: Record<string, string> = {
   STORY: '故事',
   TOOL: '工具',
   CASE: '案例',
+  REPORT: '报告',
 }
 
 const categoryColors: Record<string, string> = {
@@ -28,6 +29,7 @@ const categoryColors: Record<string, string> = {
   STORY: 'bg-pink-100 text-pink-700',
   TOOL: 'bg-cyan-100 text-cyan-700',
   CASE: 'bg-amber-100 text-amber-700',
+  REPORT: 'bg-red-100 text-red-700',
 }
 
 interface PageProps {

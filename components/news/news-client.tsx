@@ -16,6 +16,7 @@ const categories = [
   { value: 'CASE', label: '案例' },
   { value: 'TECH', label: '科技' },
   { value: 'STORY', label: '故事' },
+  { value: 'REPORT', label: '报告' },
 ]
 
 interface NewsItem {

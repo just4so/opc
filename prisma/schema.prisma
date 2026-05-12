@@ -411,6 +411,7 @@ enum NewsCategory {
   STORY
   TOOL
   CASE
+  REPORT
 }
 
 model RadarItem {

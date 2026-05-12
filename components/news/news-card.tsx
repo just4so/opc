@@ -27,6 +27,7 @@ const categoryLabels: Record<string, string> = {
   STORY: '故事',
   TOOL: '工具',
   CASE: '案例',
+  REPORT: '报告',
 }
 
 const categoryColors: Record<string, string> = {
@@ -37,6 +38,7 @@ const categoryColors: Record<string, string> = {
   STORY: 'bg-pink-100 text-pink-700',
   TOOL: 'bg-cyan-100 text-cyan-700',
   CASE: 'bg-amber-100 text-amber-700',
+  REPORT: 'bg-red-100 text-red-700',
 }
 
 const categoryBarColors: Record<string, string> = {
@@ -47,6 +49,7 @@ const categoryBarColors: Record<string, string> = {
   TECH: "bg-cyan-400",
   FUNDING: "bg-green-400",
   STORY: "bg-pink-400",
+  REPORT: "bg-red-400",
 }
 function getCategoryBarColor(category: string) {
   return categoryBarColors[category] ?? "bg-gray-300"
