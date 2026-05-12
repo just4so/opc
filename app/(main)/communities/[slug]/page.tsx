@@ -667,62 +667,58 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             {/* 本地政策支持 */}
             {localPolicies.length > 0 && (
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-base">
-                    <ScrollText className="h-5 w-5 mr-2 text-teal-600" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center text-sm font-semibold text-gray-700">
+                    <ScrollText className="h-4 w-4 mr-2 text-gray-400" />
                     本地政策支持
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-2 pt-0">
                   {localPolicies.map((policy) => {
                     const level = policy.district ? '区级' : policy.city ? '市级' : '省级'
                     const levelColor =
                       policy.district
-                        ? 'bg-teal-100 text-teal-700'
+                        ? 'bg-teal-50 text-teal-700 border border-teal-200'
                         : policy.city
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-purple-100 text-purple-700'
-                    const titleText =
-                      policy.title.length > 28
-                        ? policy.title.slice(0, 28) + '…'
-                        : policy.title
-                    const summaryText =
-                      policy.summary.length > 40
-                        ? policy.summary.slice(0, 40) + '…'
-                        : policy.summary
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                        : 'bg-violet-50 text-violet-700 border border-violet-200'
 
                     return (
-                      <div key={policy.id} className="text-sm">
-                        <div className="flex items-center gap-1.5 mb-0.5">
+                      <div key={policy.id} className="py-2 border-b border-gray-50 last:border-0">
+                        <div className="flex items-start gap-2">
                           <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${levelColor}`}
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 mt-0.5 ${levelColor}`}
                           >
                             {level}
                           </span>
-                          {policy.sourceUrl ? (
-                            <a
-                              href={policy.sourceUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-gray-800 hover:text-primary flex items-center gap-1"
-                            >
-                              {titleText}
-                              <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                            </a>
-                          ) : (
-                            <span className="font-medium text-gray-800">{titleText}</span>
-                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-medium text-gray-800 leading-snug mb-0.5">
+                              {policy.title.length > 26 ? policy.title.slice(0, 26) + '…' : policy.title}
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs text-gray-400 truncate">
+                                {policy.summary.length > 18 ? policy.summary.slice(0, 18) + '…' : policy.summary}
+                              </p>
+                              {policy.sourceUrl ? (
+                                <a
+                                  href={policy.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline flex-shrink-0 flex items-center gap-0.5"
+                                >
+                                  原文<ExternalLink className="h-2.5 w-2.5" />
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-gray-500 text-xs leading-relaxed pl-0.5">
-                          {summaryText}
-                        </p>
                       </div>
                     )
                   })}
-                  <div className="pt-1 border-t border-gray-100">
+                  <div className="pt-1">
                     <Link
-                      href="/news?category=POLICY"
-                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                      href="/news#policies"
+                      className="text-xs text-gray-400 hover:text-primary flex items-center gap-1 transition-colors"
                     >
                       查看全部政策 →
                     </Link>

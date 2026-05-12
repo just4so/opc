@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, ChevronDown, ChevronUp, ScrollText } from 'lucide-react'
 
 interface Policy {
   id: string
@@ -35,114 +35,166 @@ export default function PoliciesBlock({
   cityCount,
   currentProvince,
 }: PoliciesBlockProps) {
+  const [expanded, setExpanded] = useState(false)
   const [selectedProvince, setSelectedProvince] = useState(currentProvince)
 
   const filtered = selectedProvince
     ? policies.filter((p) => p.province === selectedProvince)
     : policies
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
-      {/* 标题行 */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-lg font-bold text-secondary flex items-center gap-2">
-            📋 专项政策
-          </h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            共 {total} 条，覆盖 {cityCount}+ 城市
-          </p>
-        </div>
-        <a
-          href="/news?category=POLICY"
-          className="text-sm text-primary hover:underline"
+  // 收起状态：只显示入口卡片
+  if (!expanded) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
+        <button
+          onClick={() => setExpanded(true)}
+          className="w-full text-left px-6 py-5 hover:bg-gray-50 transition-colors group"
         >
-          查看政策资讯 →
-        </a>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                <ScrollText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-gray-900">全国 OPC 专项政策库</h2>
+                  <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                    {total} 条
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  覆盖 {cityCount}+ 城市 · 从省级到区县 · 含补贴、算力券、免租工位等
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400 group-hover:text-primary transition-colors ml-4 flex-shrink-0">
+              <span>展开查看</span>
+              <ChevronDown className="h-4 w-4" />
+            </div>
+          </div>
+          {/* 省份预览标签 */}
+          <div className="flex flex-wrap gap-1.5 mt-3 ml-12">
+            {provinces.slice(0, 8).map((p) => (
+              <span key={p} className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded">
+                {p}
+              </span>
+            ))}
+            {provinces.length > 8 && (
+              <span className="text-xs text-gray-400">+{provinces.length - 8} 个省市</span>
+            )}
+          </div>
+        </button>
+      </div>
+    )
+  }
+
+  // 展开状态
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8">
+      {/* 标题行 */}
+      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-50">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+            <ScrollText className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">全国 OPC 专项政策库</h2>
+            <p className="text-xs text-gray-500 mt-0.5">共 {total} 条，覆盖 {cityCount}+ 城市</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setExpanded(false)}
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <span>收起</span>
+          <ChevronUp className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* 省份筛选 */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        <button
-          onClick={() => setSelectedProvince('')}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
-            !selectedProvince
-              ? 'bg-primary text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          全部
-        </button>
-        {provinces.map((p) => (
+      <div className="px-6 pb-6">
+        {/* 省份筛选 */}
+        <div className="flex flex-wrap gap-2 py-4">
           <button
-            key={p}
-            onClick={() => setSelectedProvince(p === selectedProvince ? '' : p)}
+            onClick={() => setSelectedProvince('')}
             className={`px-3 py-1 rounded-full text-sm transition-colors ${
-              selectedProvince === p
+              !selectedProvince
                 ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {p}
+            全部
           </button>
-        ))}
-      </div>
-
-      {/* 政策卡片网格 */}
-      {filtered.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-4">暂无政策数据</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {filtered.map((policy) => {
-            const badge = STATUS_BADGE[policy.status] || STATUS_BADGE.ACTIVE
-            const location = [policy.city, policy.district].filter(Boolean).join(' · ')
-            const isClickable = !!policy.sourceUrl
-
-            const cardContent = (
-              <div className="h-full flex flex-col">
-                <div className="text-xs text-gray-400 mb-1">{location || policy.province}</div>
-                <div className="font-medium text-sm text-gray-800 mb-1.5 line-clamp-2 flex-1">
-                  {policy.title}
-                </div>
-                <p className="text-xs text-gray-500 line-clamp-2 mb-2">{policy.summary}</p>
-                <div className="flex items-center gap-2 mt-auto">
-                  <span
-                    className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${badge.className}`}
-                  >
-                    {badge.label}
-                  </span>
-                  {isClickable && (
-                    <ExternalLink className="h-3 w-3 text-gray-400 ml-auto" />
-                  )}
-                </div>
-              </div>
-            )
-
-            if (isClickable) {
-              return (
-                <a
-                  key={policy.id}
-                  href={policy.sourceUrl!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block p-4 border border-gray-100 rounded-lg hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
-                >
-                  {cardContent}
-                </a>
-              )
-            }
-
-            return (
-              <div
-                key={policy.id}
-                className="p-4 border border-gray-100 rounded-lg cursor-default"
-              >
-                {cardContent}
-              </div>
-            )
-          })}
+          {provinces.map((p) => (
+            <button
+              key={p}
+              onClick={() => setSelectedProvince(p === selectedProvince ? '' : p)}
+              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                selectedProvince === p
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
         </div>
-      )}
+
+        {/* 政策卡片网格 */}
+        {filtered.length === 0 ? (
+          <p className="text-gray-400 text-sm text-center py-4">暂无政策数据</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {filtered.map((policy) => {
+              const badge = STATUS_BADGE[policy.status] || STATUS_BADGE.ACTIVE
+              const location = [policy.city, policy.district].filter(Boolean).join(' · ')
+              const isClickable = !!policy.sourceUrl
+
+              const cardContent = (
+                <div className="h-full flex flex-col">
+                  <div className="text-xs text-gray-400 mb-1">{location || policy.province}</div>
+                  <div className="font-medium text-sm text-gray-800 mb-1.5 line-clamp-2 flex-1">
+                    {policy.title}
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-2">{policy.summary}</p>
+                  <div className="flex items-center gap-2 mt-auto">
+                    <span
+                      className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${badge.className}`}
+                    >
+                      {badge.label}
+                    </span>
+                    {isClickable && (
+                      <span className="ml-auto flex items-center gap-0.5 text-xs text-primary">
+                        查看原文
+                        <ExternalLink className="h-3 w-3" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+
+              if (isClickable) {
+                return (
+                  <a
+                    key={policy.id}
+                    href={policy.sourceUrl!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-4 border border-gray-100 rounded-lg hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
+                  >
+                    {cardContent}
+                  </a>
+                )
+              }
+
+              return (
+                <div key={policy.id} className="p-4 border border-gray-100 rounded-lg">
+                  {cardContent}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
