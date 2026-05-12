@@ -1,6 +1,6 @@
 # Scripts 目录说明
 
-> 最后更新：2026-03-31
+> 最后更新：2026-05-12
 
 ## 还在使用的脚本
 
@@ -10,6 +10,11 @@
 | `fix-counts.ts` | 修正 Post 表的 likeCount / commentCount 与实际 Like/Comment 记录不一致的问题 | `npx tsx scripts/fix-counts.ts` |
 | `seed-avatars.ts` | 给 avatar 为空的用户分配 DiceBear bottts 风格默认头像（idempotent） | `npx tsx scripts/seed-avatars.ts` |
 | `update-coordinates.js` | 调用百度地图 Geocoding API，为缺少经纬度的社区补全坐标 | `node scripts/update-coordinates.js` |
+| `import-policies.ts` | 从本地 md 文件解析全国 OPC 专项政策并批量写入 Policy 表（idempotent，可重跑） | `npx tsx scripts/import-policies.ts` |
+| `daily-run.ts` | OPC Radar 每日采集 + 评分 + 出刊（crontab 08:00 自动触发） | `npx tsx scripts/daily-run.ts` |
+| `collect-cb.ts` | 批量抓取中国经营报 OPC 文章存入 RadarCbArticle 备用池（每周一 22:00） | `npx tsx scripts/collect-cb.ts` |
+| `generate-wechat-draft.ts` | 从 DB 读最新 Radar 期次，Playwright 生成图片并推公众号草稿箱 | `npx tsx scripts/generate-wechat-draft.ts` |
+| `check-issue.ts` | 检查当前 Radar 期次状态 | `npx tsx scripts/check-issue.ts` |
 
 ## 历史/一次性脚本（已完成，不再需要运行）
 

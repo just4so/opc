@@ -58,8 +58,10 @@ types/                # ← directly under project root
 | Page | Strategy | revalidate | Notes |
 |------|----------|------------|-------|
 | Home `/` | ISR | 300s | Static pre-render with ISR |
-| Communities `/communities` | ISR | 3600s | **全量104条 SSR → 前端 filter/分页，不再调 API** |
-| Community detail `/communities/[slug]` | ISR + generateStaticParams | 3600s | **预生成全部104个静态页，TTFB ~10ms** |
+| Communities `/communities` | ISR | 3600s | **全量159条 SSR → 前端 filter/分页，不再调 API** |
+| Community detail `/communities/[slug]` | ISR + generateStaticParams | 3600s | **预生成全部静态页，TTFB ~10ms** |
+| News `/news` (POLICY tab) | ISR | 3600s | 含「专项政策」区块，直接查 Policy 表 |
+| Radar `/radar/[issueNo]` | Dynamic | — | OPC Radar 日报，含侧边栏归档 |
 | News list `/news` | ISR | 300s | select 不含 content 字段（省~80%体积） |
 | Plaza `/plaza` | ISR | 60s | ~~force-dynamic~~ 改 60s ISR，可接受延迟 |
 | Market `/market` | ISR | 120s | **改为 Server Component**，筛选通过 URL searchParams |
@@ -67,7 +69,7 @@ types/                # ← directly under project root
 
 **⚠️ 重要架构决策（2026-03-26）：**
 
-1. **Communities 页去掉 API fetch**：104条社区(71.5KB)在 SSR 时全量传给前端，城市筛选和分页全部前端完成。不再调用 `/api/communities`。超过500条时再重新评估。
+1. **Communities 页去掉 API fetch**：159条社区在 SSR 时全量传给前端，城市筛选和分页全部前端完成。不再调用 `/api/communities`。超过500条时再重新评估。
 
 2. **Market 改为 Server Component**：原来是 Client Component 通过 `useEffect + fetch /api/market` 拉数据（两次串行等待），现在改为 Server Component 直接 Prisma 查询。筛选通过 URL `?type=DEMAND&category=xxx` 驱动。
 
@@ -140,6 +142,14 @@ components/plaza/plaza-client.tsx → Client Component ('use client')
 - `content`: Markdown body (for original articles)
 - `category`: Prisma enum — POLICY | STORY | EVENT | TECH (map from Chinese: 政策资讯→POLICY, 创业干货→STORY, 社区动态→EVENT, 行业观察→TECH)
 - `url`: unique constraint — use `original-${Date.now()}-${random}` for original articles
+
+**Policy:**
+- `province` / `city` / `district`: 不带「市/省」后缀（如「北京」不是「北京市」）；district 为 null 表示市级政策
+- `status`: PolicyStatus enum — ACTIVE | DRAFT | EXPIRED
+- 匹配逻辑：区县级（city+district）→ 市级（city, district=null）→ 省级（city=null），orderBy 区级优先 nulls last
+- 导入脚本：`scripts/import-policies.ts`（幂等，可重跑）
+
+**RadarItem / RadarIssue / RadarRun / RadarCbArticle:** OPC Radar 日报相关模型，详见 `lib/radar/`
 
 ### UI Design System
 
@@ -224,6 +234,8 @@ Original news articles and plaza posts support full Markdown:
 | Community list (with difficulty stars) | `/admin/communities` |
 | Community edit (star rating for entryFriendly) | `/admin/communities/[id]/edit` — `StarRating` inline component in `community-form.tsx` |
 | Market management | `/admin/orders` — export CSV |
+| Policy management | `/admin/policies` — CRUD，省份/状态筛选；Policy 表维护入口 |
+| Radar management | `/admin/radar` — OPC Radar 日报管理，手动编辑 title/summary |
 
 ## ⚠️ Tool Usage Rules (MANDATORY)
 
