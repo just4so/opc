@@ -74,8 +74,8 @@ async function getLocalPolicies(city: string, district: string | null) {
       ],
     },
     orderBy: [
-      { district: 'desc' },
-      { city: 'desc' },
+      { district: { sort: 'desc', nulls: 'last' } },
+      { city: { sort: 'desc', nulls: 'last' } },
       { createdAt: 'asc' },
     ],
     take: 5,
