@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -32,17 +33,17 @@ export function MobileMenu() {
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Overlay + drawer */}
-      {isOpen && (
+      {/* Overlay + drawer — rendered via Portal to escape header's backdrop-filter stacking context */}
+      {isOpen && createPortal(
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-50 bg-black/40"
+            className="fixed inset-0 z-[200] bg-black/40"
             onClick={close}
           />
 
           {/* Drawer */}
-          <div className="fixed top-0 right-0 z-50 h-full w-72 bg-white shadow-xl flex flex-col">
+          <div className="fixed top-0 right-0 z-[200] h-full w-72 bg-white shadow-xl flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <span className="text-lg font-bold text-primary">OPC<span className="text-secondary font-semibold">圈</span></span>
@@ -139,7 +140,7 @@ export function MobileMenu() {
             </div>
           </div>
         </>
-      )}
+      , document.body)}
     </>
   )
 }
