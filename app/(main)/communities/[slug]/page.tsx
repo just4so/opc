@@ -17,6 +17,7 @@ import {
   ExternalLink,
   FileText,
   ClipboardList,
+  ScrollText,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,6 +58,28 @@ async function getQrCodeUrl(): Promise<string> {
     where: { key: 'community_qrcode_url' }
   })
   return setting?.value ?? ''
+}
+
+async function getLocalPolicies(city: string, district: string | null) {
+  return prisma.policy.findMany({
+    where: {
+      status: 'ACTIVE',
+      OR: [
+        // 区县级：精确匹配
+        ...(district ? [{ city, district }] : []),
+        // 市级：同城无区县
+        { city, district: null },
+        // 省级：无城市（province 匹配 city 字段，因直辖市省市同名）
+        { city: null, province: city },
+      ],
+    },
+    orderBy: [
+      { district: 'desc' },
+      { city: 'desc' },
+      { createdAt: 'asc' },
+    ],
+    take: 5,
+  })
 }
 
 function stripHtml(html: string): string {
@@ -105,7 +128,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const slug = community.slug
   const canonicalUrl = `https://www.opcquan.com/communities/${slug}`
-  const description = stripHtml(community.description).slice(0, 160)
+  let description = stripHtml(community.description).slice(0, 160)
+
+  // 追加政策关键词
+  const localPolicies = await getLocalPolicies(community.city, community.district ?? null)
+  if (localPolicies.length > 0) {
+    const policyKeywords = localPolicies
+      .slice(0, 3)
+      .map((p) => p.title.slice(0, 20))
+      .join('、')
+    description = `${description} | 当地OPC政策：${policyKeywords}`
+  }
+
   const ogImage = community.coverImage ?? 'https://www.opcquan.com/logo.png'
 
   return {
@@ -135,7 +169,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
   const session = await auth()
   const isLoggedIn = !!session?.user
-  const qrCodeUrl = await getQrCodeUrl()
+  const [qrCodeUrl, localPolicies] = await Promise.all([
+    getQrCodeUrl(),
+    getLocalPolicies(community.city, community.district ?? null),
+  ])
   const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
   const loginUrl = `/login?callbackUrl=/communities/${community.slug}`
 
@@ -626,6 +663,73 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* 本地政策支持 */}
+            {localPolicies.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-base">
+                    <ScrollText className="h-5 w-5 mr-2 text-teal-600" />
+                    本地政策支持
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {localPolicies.map((policy) => {
+                    const level = policy.district ? '区级' : policy.city ? '市级' : '省级'
+                    const levelColor =
+                      policy.district
+                        ? 'bg-teal-100 text-teal-700'
+                        : policy.city
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-purple-100 text-purple-700'
+                    const titleText =
+                      policy.title.length > 28
+                        ? policy.title.slice(0, 28) + '…'
+                        : policy.title
+                    const summaryText =
+                      policy.summary.length > 40
+                        ? policy.summary.slice(0, 40) + '…'
+                        : policy.summary
+
+                    return (
+                      <div key={policy.id} className="text-sm">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${levelColor}`}
+                          >
+                            {level}
+                          </span>
+                          {policy.sourceUrl ? (
+                            <a
+                              href={policy.sourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-gray-800 hover:text-primary flex items-center gap-1"
+                            >
+                              {titleText}
+                              <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                            </a>
+                          ) : (
+                            <span className="font-medium text-gray-800">{titleText}</span>
+                          )}
+                        </div>
+                        <p className="text-gray-500 text-xs leading-relaxed pl-0.5">
+                          {summaryText}
+                        </p>
+                      </div>
+                    )
+                  })}
+                  <div className="pt-1 border-t border-gray-100">
+                    <Link
+                      href="/news?category=POLICY"
+                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      查看全部政策 →
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="overflow-hidden border-primary/10 shadow-sm">
               <CardContent className="py-6 text-center bg-gradient-to-b from-primary/5 to-white">

@@ -1,10 +1,10 @@
-import { Users, FileText, Briefcase, MapPin, Newspaper, TrendingUp, Star, PenLine } from 'lucide-react'
+import { Users, FileText, Briefcase, MapPin, Newspaper, TrendingUp, Star, PenLine, ScrollText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import prisma from '@/lib/db'
 import { TrendChart } from '@/components/admin/trend-chart'
 
 async function getStats() {
-  const [users, posts, orders, communities, news] = await Promise.all([
+  const [users, posts, orders, communities, news, policies] = await Promise.all([
     prisma.user.count(),
     prisma.post.count({ where: { status: 'PUBLISHED' } }),
     prisma.project.count({
@@ -12,12 +12,17 @@ async function getStats() {
     }),
     prisma.community.count({ where: { status: 'ACTIVE' } }),
     prisma.news.count(),
+    prisma.policy.count({ where: { status: { not: 'EXPIRED' } } }),
   ])
 
   // 原创资讯 & 精华帖
-  const [originalNews, pinnedPosts] = await Promise.all([
+  const [originalNews, pinnedPosts, policyCities] = await Promise.all([
     prisma.news.count({ where: { isOriginal: true } }),
     prisma.post.count({ where: { pinned: true, status: 'PUBLISHED' } }),
+    prisma.policy.groupBy({
+      by: ['city'],
+      where: { city: { not: null }, status: { not: 'EXPIRED' } },
+    }),
   ])
 
   // 今日新增
@@ -29,7 +34,7 @@ async function getStats() {
     prisma.post.count({ where: { createdAt: { gte: today }, status: 'PUBLISHED' } }),
   ])
 
-  return { users, posts, orders, communities, news, todayUsers, todayPosts, originalNews, pinnedPosts }
+  return { users, posts, orders, communities, news, policies, policyCities: policyCities.length, todayUsers, todayPosts, originalNews, pinnedPosts }
 }
 
 export default async function AdminDashboard() {
@@ -73,6 +78,14 @@ export default async function AdminDashboard() {
       color: 'text-pink-600',
       bg: 'bg-pink-50',
       extra: `原创 ${stats.originalNews}`,
+    },
+    {
+      title: '政策总数',
+      value: stats.policies,
+      icon: ScrollText,
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
+      extra: `覆盖 ${stats.policyCities} 个城市`,
     },
   ]
 

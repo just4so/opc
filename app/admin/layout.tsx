@@ -9,6 +9,7 @@ import {
   Settings,
   ArrowLeft,
   Radio,
+  ScrollText,
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
   { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
   { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
+  { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
   { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
   { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
   { href: '/admin/settings', label: '系统设置', icon: <Settings className="h-5 w-5" /> },

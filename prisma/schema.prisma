@@ -471,3 +471,26 @@ model RadarRun {
   @@map("radar_runs")
   @@index([createdAt])
 }
+
+model Policy {
+  id         String       @id @default(cuid())
+  province   String                          // 省份，不带后缀，如"北京"
+  city       String?                         // 城市，不带后缀，如"北京"；省级政策留 null
+  district   String?                         // 区县，带后缀，如"海淀区"；市级/省级政策留 null
+  title      String                          // 政策名称
+  summary    String                          // 核心扶持要点，100字以内
+  sourceUrl  String?                         // 原文链接（可选）
+  status     PolicyStatus @default(ACTIVE)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([city])
+  @@index([province])
+  @@index([status])
+}
+
+enum PolicyStatus {
+  ACTIVE    // 已发布/已实施
+  DRAFT     // 征求意见稿
+  EXPIRED   // 已过期
+}
