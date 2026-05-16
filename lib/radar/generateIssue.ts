@@ -316,8 +316,8 @@ ${titlesForSummary}
 - 直接输出两句话，不加标题，不加序号`
     const comp = await Promise.race([
       aiClient.chat.completions.create({
-        model: AI_MODEL, messages: [{ role: 'user', content: summaryPrompt }],
-        temperature: 0.3, max_tokens: 400,
+        model: CLUSTER_MODEL, messages: [{ role: 'user', content: summaryPrompt }],
+        temperature: 0.3, max_tokens: 200,  // 非推理模型，200 tokens 够两句话
       }),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('summary timeout')), 30000)),
     ])
