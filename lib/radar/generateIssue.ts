@@ -15,6 +15,7 @@ const MIN_IMPORTANCE = 3
 const MIN_ITEMS = 10
 const MIN_CATEGORIES = 3
 const AI_MODEL = 'deepseek-v4-flash'
+const CLUSTER_MODEL = 'deepseek-chat'  // 聚类用非推理模型，避免 reasoning tokens 耗尽
 
 type PrismaAny = any
 
@@ -76,16 +77,20 @@ ${list}
   try {
     const comp = await Promise.race([
       client.chat.completions.create({
-        model: AI_MODEL,
+        model: CLUSTER_MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
-        max_tokens: 6000,
+        max_tokens: 3000,
       }),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('cluster timeout')), 90000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('cluster timeout')), 40000)),
     ])
     const text = (comp as any).choices[0]?.message?.content ?? ''
+    const finishReason = (comp as any).choices[0]?.finish_reason
+    const usage = (comp as any).usage
+    console.log(`[cluster] finish_reason=${finishReason} text_len=${text.length} usage=${JSON.stringify(usage)}`)
+    if (text.length < 10) { console.error('[cluster] AI 返回为空，跳过'); return }
     const match = text.match(/\[[\s\S]*\]/)
-    if (!match) { console.error('[cluster] AI 返回格式异常'); return }
+    if (!match) { console.error('[cluster] AI 返回格式异常，末尾:', JSON.stringify(text.slice(-300))); return }
     const results = JSON.parse(match[0]) as Array<{ id: string; eventKey: string | null; best: boolean }>
 
     let updatedKey = 0, markedNonBest = 0
