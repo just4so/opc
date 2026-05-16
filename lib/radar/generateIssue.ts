@@ -297,8 +297,23 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   // 生成总摘要
   let issueSummary: string | null = null
   try {
-    const titles = selected.map((s: any) => `[${s.category}] ${s.title}`).join('\n')
-    const summaryPrompt = `你是主编，这是新一期雷达收录的 ${selected.length} 篇文章标题：\n${titles}\n\n请用2-3句话总结这期的核心看点，提炼行业趋势，语气客观、专业。每句话必须完整，不要截断。直接输出总结段落，不要废话。`
+    // 按 importance 排序，5星和4星优先标出，给总摘要 AI 明确的重点线索
+    const sortedForSummary = [...selected].sort((a: any, b: any) => b.importance - a.importance)
+    const topItems = sortedForSummary.filter((s: any) => s.importance >= 4).slice(0, 4)
+    const restItems = sortedForSummary.filter((s: any) => s.importance < 4)
+    const topLines = topItems.map((s: any) => `★ [${s.category}] ${s.title}`).join('\n')
+    const restLines = restItems.map((s: any) => `  [${s.category}] ${s.title}`).join('\n')
+    const titlesForSummary = topLines + (restLines ? '\n' + restLines : '')
+    const summaryPrompt = `你是 OPC 雷达主编，写本期导读（给读者看，帮他决定值不值得读这期）。
+
+本期收录 ${selected.length} 篇，重要条目（★）优先：
+${titlesForSummary}
+
+要求：
+- 第1句：点出本期 1-2 个最有料的具体事实，必须有地名或数字（如"北京朝阳算力券上限10万元"、"杭州创业者4个月服务1.5万用户"）
+- 第2句：用一句话说本期整体方向，≤25字
+- 禁止：「各地政策密集出台」「显示出……趋势」「标志着……新阶段」等万能套话
+- 直接输出两句话，不加标题，不加序号`
     const comp = await Promise.race([
       aiClient.chat.completions.create({
         model: AI_MODEL, messages: [{ role: 'user', content: summaryPrompt }],
