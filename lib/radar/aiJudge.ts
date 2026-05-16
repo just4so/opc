@@ -137,7 +137,7 @@ relevant=false 时其他字段可省略。`
 
 /**
  * 调用 AI 判断单条内容的相关性和分类
- * 失败时返回 { relevant: true, fallback: true } 降级结果
+ * 失败时返回 { relevant: false, fallback: true } 降级结果（不入候选池）
  */
 export async function judgeItem(
   client: OpenAI,
@@ -149,6 +149,7 @@ export async function judgeItem(
         model: AI_MODEL,
         messages: [{ role: 'user', content: buildPrompt(input) }],
         temperature: 0.1,
+        response_format: { type: 'json_object' },
       }),
       new Promise<never>((_, rej) =>
         setTimeout(() => rej(new Error('AI timeout')), AI_TIMEOUT_MS)
@@ -168,7 +169,7 @@ export async function judgeItem(
     return r
   } catch {
     // AI 失败：降级，标记 fallback
-    return { relevant: true, importance: 2, summary: null, fallback: true }
+    return { relevant: false, importance: 1, summary: null, fallback: true }  // AI 超时降级：不入候选池
   }
 }
 
@@ -195,13 +196,31 @@ ${itemsText}
 - 大公司（360/百度/阿里等）内部政策、发布会，即使提到「超级个体」，importance 必须 ≤ 2（不是 OPC 创业者的直接信号）
 
 importance 分级（严格执行）：
-policy: 5=国家级/重大补贴 4=省市级政策文件 3=园区公告 2=泛创业政策 1=旧文/广告
-community: 5=一线城市标杆社区开业 4=省会城市新社区 3=普通城市动态 2=信息模糊 1=旧文/广告
-event: 5=全国级OPC峰会 4=省市级主题活动 3=一般沙龙/路演 2=弱相关活动 1=旧文/广告
-case: 5=有具体数字的成功案例 4=有具名创业者的深度报道 3=有价值的痛点分析 2=软文 1=旧文/广告
-opinion: 5=顶级人物重要判断 4=有影响力人士有洞见观点 3=客观讨论有信息密度 2=标题党/重复 1=旧文/广告
+
+policy（政策）：
+5=国家级政策/含具体金额的重大补贴 4=省市级政策文件/园区专项扶持（有明确措施）
+3=园区级公告/信息密度一般的政策解读 2=泛创业政策（未明确提OPC/一人公司）/信息密度低 1=旧文/广告
+
+community（社区）：
+5=一线城市标杆社区开业/大型OPC生态平台落地 4=省会城市/有背景机构的新社区开业或重要动态
+3=普通城市社区动态/一般性入驻报道 2=信息模糊/时效不确定 1=旧文/广告
+
+event（活动）：
+5=全国级OPC峰会/官方主办重大赛事 4=省市级OPC主题活动/知名机构主办
+3=一般性沙龙/路演/论坛 2=与OPC弱相关的泛创业活动 1=旧文/广告
+
+case（实战案例）：
+5=有具体数字（收入/用户量/融资额）的一人公司成功案例 4=有具名创业者、有具体项目的深度报道
+3=有价值的OPC痛点分析/行业洞察深度内容 2=泛泛而谈无具体案例的软文 1=旧文/广告
+
+opinion（观点）：
+5=行业顶级人物对OPC的重要判断（含具体数据/预测）
+4=有影响力人士/媒体对OPC趋势的有洞见观点（有名有姓有具体论点）
+3=媒体对OPC的客观讨论（有信息密度，非标题党）
+2=大公司内部公告蹭OPC/泛AI工具评测/标题党/重复主题第N篇 1=旧文/广告
 
 时效性修正：发布日期不确定→importance降1档；超过30天→importance≤2或relevant=false
+重复转载降权：同省份+同政策关键词的二次转载 importance 最高为3
 
 请返回 JSON 数组，**必须包含 ${items.length} 个元素，顺序与输入完全对应，每条都要有独立的 reason 字段说明判断理由**：
 [
@@ -273,7 +292,7 @@ export async function judgeItemsBatch(
       } catch {
         // 降级：批次失败逐条降级
         for (let i = 0; i < batch.length; i++) {
-          results[startIdx + i] = { relevant: true, importance: 2, summary: null, fallback: true }
+          results[startIdx + i] = { relevant: false, importance: 1, summary: null, fallback: true }  // AI 超时降级：不入候选池
         }
       }
     }

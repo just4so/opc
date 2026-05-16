@@ -33,7 +33,7 @@ interface GenerateResult {
 async function clusterEventKeys(items: any[], prisma: PrismaAny, client: any): Promise<void> {
   if (items.length === 0) return
 
-  // 查最近 3 期已出刊条目标题，用于跨期话题去重
+  // 查最近 5 期已出刊条目标题，用于跨期话题去重
   const recentIssues = await prisma.radarIssue.findMany({
     orderBy: { issueNo: 'desc' },
     take: 5,
@@ -127,25 +127,29 @@ async function editorialReview(
     `${i + 1}. [ID:${item.id}] [${item.category}] ${item.title}\n   摘要：${(item.summary ?? '').slice(0, 80)}`
   ).join('\n')
 
-  const prompt = `你是 OPC 雷达的编辑，负责最终审核本期入选条目。
+  const prompt = `你是 OPC 雷达的编辑，负责最终把关本期内容质量。
 
-候选条目列表：
+候选条目（去重已完成，聚焦做一件事）：
 ${list}
 
-请完成以下两项审核（仅此两项）：
-1. **去重复**：若多条标题高度相似或明显是同一事件的不同报道，只保留最有价值的一条。
-2. **去弱相关**：若某条内容与 OPC（一人公司/超级个体/独立创业/OPC社区）明显无关，标记删除。
+**只做一件事：去弱相关**
+将以下情况的条目标记删除（removal reason 必须具体说明）：
+- 与 OPC/一人公司/超级个体/独立创业/OPC社区 明显无关
+- 内容是大公司发布会/企业动态，蹭 OPC 热点但对独立创业者无实际参考价值
+- 明显软文/广告，信息密度为零
+
+**保留原则**：只要内容对 OPC 创业者有信息价值，即使话题相似也都保留。
 
 返回 JSON（不要其他内容）：
 {
   "keep": ["id1", "id2", ...],
-  "remove": [{"id": "id3", "reason": "原因"}, ...]
+  "remove": [{"id": "id3", "reason": "原因（具体说明为何无关或无价值）"}, ...]
 }`
 
   try {
     const completion = await Promise.race([
       client.chat.completions.create({
-        model: AI_MODEL,
+        model: CLUSTER_MODEL,  // 编辑审核无需推理，用非推理模型避免 tokens 耗尽
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
       }),
