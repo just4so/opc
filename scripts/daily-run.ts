@@ -2,10 +2,9 @@
 /**
  * OPC Radar 每日采集 + 生成脚本（全本地执行）
  *
- * Phase 1: Google News 采集（走代理，8 个查询）
- * Phase 2: RSS 直连采集（人民日报/36氪/澎湃等，不需要代理）
+ * Phase 1+2: GNews（子进程）与 RSS 并行采集
  * Phase 3: 统计未发布条目数
- * Phase 4: 生成新一期（含 AI 编辑审核 + 中经报保底）
+ * Phase 4: 出刊（AI 跨期去重 + 编辑审核 + 中经报保底）
  *
  * 用法：npx tsx scripts/daily-run.ts
  * cron：0 8 * * * cd /Users/wei/Documents/opc && /usr/local/bin/npx tsx scripts/daily-run.ts >> /tmp/opc-radar-daily.log 2>&1
@@ -23,7 +22,7 @@ const ROOT = path.resolve(__dirname, '..')
 dotenv.config({ path: path.join(ROOT, '.env.local') })
 
 import { PrismaClient } from '@prisma/client'
-import { getAIClient, judgeItem, isTooOld } from '../lib/radar/aiJudge'
+import { getAIClient, judgeItem, judgeItemsBatch, isTooOld } from '../lib/radar/aiJudge'
 import { collectRssFeeds, collectTier3, type RadarRawItem } from '../lib/radar/rssProvider'
 import { FILTER_KEYWORDS } from '../config/search-queries'
 import { generateIssue } from '../lib/radar/generateIssue'
@@ -85,12 +84,14 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
   let collected = 0, skipped = 0
   const aiClient = getAIClient()
 
-  // Tier 1 + 2 RSS
-  const rssResult = await collectRssFeeds({ tiers: [1, 2], maxPerSource: 20, concurrency: 6, minPublishedDays: 7 })
-  // Tier 3 with keyword filter
-  const tier3Items = await collectTier3(FILTER_KEYWORDS)
+  // 并行抓取 Tier1+2 和 Tier3
+  const [rssResult, tier3Items] = await Promise.all([
+    collectRssFeeds({ tiers: [1, 2], maxPerSource: 20, concurrency: 6, minPublishedDays: 7 }),
+    collectTier3(FILTER_KEYWORDS),
+  ])
   const allItems: RadarRawItem[] = [...rssResult.items, ...tier3Items]
 
+  // 黑名单 + tier3 关键词过滤
   const filtered = allItems.filter((item) => {
     try {
       const hostname = new URL(item.url).hostname
@@ -101,42 +102,66 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
     return FILTER_KEYWORDS.some((kw) => text.includes(kw))
   })
 
-  for (const item of filtered) {
-    // 时间硬过滤
-    if (isTooOld(item.publishedAt, null)) { skipped++; continue }
-    // URL 去重
-    const existsByUrl = await prisma.radarItem.findFirst({ where: { url: item.url }, select: { id: true } })
-    if (existsByUrl) { skipped++; continue }
-    // 标题去重
-    const existsByTitle = await prisma.radarItem.findFirst({ where: { title: item.title }, select: { id: true } })
-    if (existsByTitle) { skipped++; continue }
+  // 时间硬过滤
+  const timeFiltered = filtered.filter(item => {
+    if (isTooOld(item.publishedAt, null)) { skipped++; return false }
+    return true
+  })
 
-    if (!aiClient) {
+  // 批量 URL + 标题去重（两次 findMany 替代 N 次 findFirst）
+  const allUrls = timeFiltered.map(i => i.url)
+  const allTitles = timeFiltered.map(i => i.title)
+  const [existingByUrl, existingByTitle] = await Promise.all([
+    prisma.radarItem.findMany({ where: { url: { in: allUrls } }, select: { url: true } }),
+    prisma.radarItem.findMany({ where: { title: { in: allTitles } }, select: { title: true } }),
+  ])
+  const existingUrlSet = new Set(existingByUrl.map(r => r.url))
+  const existingTitleSet = new Set(existingByTitle.map(r => r.title))
+
+  const candidates = timeFiltered.filter(item => {
+    if (existingUrlSet.has(item.url) || existingTitleSet.has(item.title)) { skipped++; return false }
+    return true
+  })
+
+  if (candidates.length === 0) return { collected, skipped }
+  log(`RSS 候选 ${candidates.length} 条，开始 AI 批量判断...`)
+
+  if (!aiClient) {
+    // 无 AI：全部降级入库（importance=2，不进候选池）
+    for (const item of candidates) {
       try {
         await prisma.radarItem.create({
-          data: { title: item.title, url: item.url, source: item.source, publishedAt: item.publishedAt, category: item.category ?? 'content', importance: 2 },
+          data: { title: item.title, url: item.url, source: item.source,
+            publishedAt: item.publishedAt, category: item.category ?? 'content', importance: 2 },
         })
         collected++
       } catch { skipped++ }
-      continue
     }
+    return { collected, skipped }
+  }
 
-    // AI 判断
-    const aiResult = await judgeItem(aiClient, {
-      title: item.title, content: item.content, url: item.url,
-      publishedAt: item.publishedAt?.toISOString().slice(0, 10),
-      baseImportanceBonus: item.baseImportanceBonus,
-    })
+  // 批量并发 AI 判断（与 GNews 一致：2条/批，10并发）
+  const aiInputs = candidates.map(item => ({
+    title: item.title, content: item.content, url: item.url,
+    publishedAt: item.publishedAt?.toISOString().slice(0, 10),
+    baseImportanceBonus: item.baseImportanceBonus,
+  }))
+  const aiResults = await judgeItemsBatch(aiClient, aiInputs, 2, 10)
 
-    if (!aiResult.relevant) { skipped++; continue }
-    if (isTooOld(item.publishedAt, aiResult.estimated_date)) { skipped++; continue }
+  // 逐条处理 AI 结果入库
+  for (let i = 0; i < candidates.length; i++) {
+    const item = candidates[i]
+    const result = aiResults[i]
 
-    let importance = Math.max(1, Math.min(5, aiResult.importance ?? 3))
-    if (!aiResult.is_recent && importance > 2) importance = 2
+    if (!result.relevant) { skipped++; continue }
+    if (isTooOld(item.publishedAt, result.estimated_date)) { skipped++; continue }
+
+    let importance = Math.max(1, Math.min(5, result.importance ?? 3))
+    if (!result.is_recent && importance > 2) importance = 2
 
     let finalPublishedAt = item.publishedAt
-    if (!finalPublishedAt && aiResult.estimated_date) {
-      const d = new Date(aiResult.estimated_date)
+    if (!finalPublishedAt && result.estimated_date) {
+      const d = new Date(result.estimated_date)
       finalPublishedAt = isNaN(d.getTime()) ? null : d
     }
     if (!finalPublishedAt) { skipped++; continue }
@@ -145,8 +170,8 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
       await prisma.radarItem.create({
         data: {
           title: item.title, url: item.url, source: item.source, publishedAt: finalPublishedAt,
-          summary: aiResult.summary ?? null, category: aiResult.category ?? item.category ?? 'content',
-          city: aiResult.city ?? null, importance, eventKey: aiResult.event_key ?? null,
+          summary: result.summary ?? null, category: result.category ?? item.category ?? 'content',
+          city: result.city ?? null, importance, eventKey: null,
         },
       })
       collected++
@@ -161,8 +186,8 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
 async function main() {
   log('=== OPC Radar 每日采集开始 ===')
 
-  // Phase 1: Google News 采集（后台异步，不阻塞主流程）
-  log('--- Phase 1: Google News 采集（后台启动）---')
+  // Phase 1+2: GNews（子进程，走代理）与 RSS（直连）并行采集
+  log('--- Phase 1+2: GNews + RSS 并行采集 ---')
   const gnewsProc = spawn('npx', ['tsx', 'scripts/collect-gnews.ts', '3'], {
     cwd: ROOT,
     detached: false,
@@ -172,22 +197,22 @@ async function main() {
   let gnewsOutput = ''
   gnewsProc.stdout?.on('data', (d: Buffer) => { gnewsOutput += d.toString() })
   gnewsProc.stderr?.on('data', (d: Buffer) => { gnewsOutput += d.toString() })
-  // 等待最多 240 秒，超时则继续主流程
   const gnewsDone = new Promise<void>(resolve => {
     const timer = setTimeout(() => {
       log('  ⚠️ GNews 采集超时（240s），继续主流程')
-      gnewsProc.kill()
+      gnewsProc.kill('SIGKILL')  // SIGKILL 确保 Python 子进程也终止
       resolve()
     }, 240000)
     gnewsProc.on('close', () => { clearTimeout(timer); resolve() })
   })
-  await gnewsDone
+
+  // GNews 和 RSS 真正并行
+  const [, rssStats] = await Promise.all([
+    gnewsDone,
+    collectRss(),
+  ])
   const gnewsLines = gnewsOutput.trim().split('\n').filter(l => l.includes('✓') || l.includes('⚠️') || l.includes('saved')).slice(-4).join(' | ')
   log(`GNews 结果: ${gnewsLines || '无输出'}`)
-
-  // Phase 2: RSS 直连采集
-  log('--- Phase 2: RSS 直连采集 ---')
-  const rssStats = await collectRss()
   log(`RSS 采集完成：collected=${rssStats.collected}, skipped=${rssStats.skipped}`)
 
   // 写 RadarRun 记录（RSS 部分）

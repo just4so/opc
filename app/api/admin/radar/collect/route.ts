@@ -3,13 +3,9 @@ import prisma from "@/lib/db";
 import { collectRssFeeds, collectTier3, type RadarRawItem } from "@/lib/radar/rssProvider";
 import { getAIClient, judgeItem, isTooOld } from "@/lib/radar/aiJudge";
 import { requireStaff } from "@/lib/admin";
+import { FILTER_KEYWORDS } from "@/config/search-queries";
 
 export const maxDuration = 60;
-
-const FILTER_KEYWORDS = [
-  "OPC", "一人公司", "众创空间", "创业社区",
-  "孵化器", "孵化基地", "创业园", "补贴", "算力券",
-];
 
 const SOURCE_BLOCKLIST = [
   "facebook.com",
