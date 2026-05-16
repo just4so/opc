@@ -12,7 +12,7 @@ import { PrismaClient } from '@prisma/client'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: require('path').join(__dirname, '..', '.env.local') })
 
-import { getAIClient, judgeItem, isTooOld } from '../lib/radar/aiJudge'
+import { getAIClient, judgeItem, judgeItemsBatch, isTooOld } from '../lib/radar/aiJudge'
 
 const prisma = new PrismaClient()
 
@@ -24,20 +24,25 @@ const PROXY = process.env.HTTP_PROXY || 'http://127.0.0.1:7898'
  *   - 必须含 OPC/一人公司/超级个体 上下文，避免泛化跑偏
  *   - 不用「众创空间」（泛化太强），用「OPC社区」精确指向
  */
+/**
+ * 查询语法：核心词组（OR）+ 场景词组（OR），两组之间 AND
+ * 避免多关键词 AND 导致0结果
+ * 更新时间：2026-05-13
+ */
 const QUERIES = [
   // 政策动向（2条）
-  { q: 'OPC 一人公司 政策 补贴 2026', category: 'policy' },
-  { q: '超级个体 OPC社区 一人公司 扶持 新政 落地', category: 'policy' },
+  { q: '("OPC" OR "一人公司" OR "超级个体") (政策 OR 补贴 OR 扶持 OR 新政)', category: 'policy' },
+  { q: '("OPC" OR "一人公司" OR "OPC社区") (落地 OR 试点 OR 实施 OR 申请)', category: 'policy' },
   // 社区动态（1条）
-  { q: 'OPC 一人公司 OPC社区 超级个体 开业 入驻 落地', category: 'community' },
+  { q: '("OPC社区" OR "一人公司" OR "超级个体") (开业 OR 入驻 OR 揭牌 OR 落地)', category: 'community' },
   // 活动赛事（1条）
-  { q: 'OPC 一人公司 超级个体 峰会 沙龙 路演 大赛', category: 'event' },
+  { q: '("OPC" OR "一人公司" OR "超级个体") (峰会 OR 沙龙 OR 路演 OR 大赛 OR 论坛)', category: 'event' },
   // 实战案例（2条）
-  { q: 'OPC 一人公司 创业者 月入 盈利 收入 故事', category: 'content' },
-  { q: '独立开发者 超级个体 一人公司 产品 收入 2026', category: 'content' },
+  { q: '("一人公司" OR "独立创业者" OR "超级个体") (收入 OR 盈利 OR 月入 OR 变现)', category: 'content' },
+  { q: '("独立开发者" OR "一人公司" OR "超级个体") (产品 OR 出海 OR 副业 OR 项目)', category: 'content' },
   // 新锐观点（2条）
-  { q: 'OPC 一人公司 趋势 报告 研究 分析 洞察', category: 'opinion' },
-  { q: '超级个体 独立创业 一人公司 未来 数据 白皮书', category: 'opinion' },
+  { q: '("OPC" OR "一人公司" OR "超级个体") (趋势 OR 洞察 OR 分析 OR 报告)', category: 'opinion' },
+  { q: '("超级个体" OR "一人公司" OR "独立创业") (未来 OR 机会 OR 挑战 OR 转型)', category: 'opinion' },
 ]
 
 // ─── RSS 解析工具 ──────────────────────────────────────────────────────────
@@ -120,13 +125,21 @@ except ImportError:
 
 with open('${tmpIn}') as f:
     urls = json.load(f)
-results = []
-for u in urls:
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+def decode_one(u):
     try:
         r = new_decoderv1(u)
-        results.append(r.get('decoded_url', u) if r.get('status') else u)
+        return r.get('decoded_url', u) if r.get('status') else u
     except:
-        results.append(u)
+        return u
+
+results = [None] * len(urls)
+with ThreadPoolExecutor(max_workers=10) as ex:
+    futures = {ex.submit(decode_one, u): i for i, u in enumerate(urls)}
+    for f in as_completed(futures):
+        results[futures[f]] = f.result()
+
 with open('${tmpOut}', 'w') as f:
     json.dump(results, f)
 `)
@@ -134,7 +147,7 @@ with open('${tmpOut}', 'w') as f:
   try {
     execSync(`python3 ${tmpScript}`, {
       encoding: 'utf-8',
-      timeout: urls.length * 8000 + 10000,
+      timeout: 60000,  // 并行后固定 60s，不再按条目数线性计算
       env: { ...process.env, HTTPS_PROXY: PROXY, HTTP_PROXY: PROXY },
     })
     const out = fs.readFileSync(tmpOut, 'utf-8')
@@ -163,8 +176,18 @@ async function main() {
     const encoded = encodeURIComponent(`${q} after:${afterDate}`)
     const url = `https://news.google.com/rss/search?q=${encoded}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans`
     console.log(`\n  查询: ${q}`)
-    const xml = fetchGNews(url)
-    if (!xml || xml.includes('Error 400')) { console.log('    → 无结果'); continue }
+
+    // 单查询独立超时：失败不影响其他查询
+    let xml = ''
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      xml = fetchGNews(url)
+      if (xml && !xml.includes('Error 400')) break
+      if (attempt < 2) {
+        console.log(`    → 第${attempt}次失败，5秒后重试...`)
+        await new Promise(r => setTimeout(r, 5000))
+      }
+    }
+    if (!xml || xml.includes('Error 400')) { console.log('    → 2次尝试均失败，跳过此查询'); continue }
     const items = parseFeed(xml, category)
     console.log(`    → ${items.length} 条原始`)
 
@@ -181,48 +204,60 @@ async function main() {
       }
       const successCount = decoded.filter((u, i) => u !== googleUrls[i]).length
       console.log(`    → 解码成功 ${successCount}/${googleUrls.length}`)
+      // 解码失败的条目（仍是 Google 中间链接）降权，避免混入候选池
+      for (const item of items) {
+        if (item.url.includes('news.google.com')) {
+          item._decodeFailure = true
+        }
+      }
     }
 
+    // ── 先做 URL/标题去重 + 时间过滤，收集需要 AI 判断的候选条目 ──
+    const candidates: Array<typeof items[0] & { isDecodeFailure: boolean }> = []
     for (const item of items) {
-      // URL 去重
       const existsByUrl = await prisma.radarItem.findFirst({ where: { url: item.url }, select: { id: true } })
       if (existsByUrl) { skipped++; continue }
-      // 标题去重
       const existsByTitle = await prisma.radarItem.findFirst({ where: { title: item.title }, select: { id: true } })
       if (existsByTitle) { skipped++; continue }
+      if (isTooOld(item.publishedAt, null)) { tooOld++; continue }
+      candidates.push({ ...item, isDecodeFailure: (item as any)._decodeFailure === true })
+    }
 
-      // 时间硬过滤：超过 30 天的旧文直接丢弃
-      if (isTooOld(item.publishedAt, null)) {
-        tooOld++; continue
-      }
+    if (candidates.length === 0) { console.log(`    → 0 条新内容`); continue }
 
-      if (!ai) {
-        // 无 AI：降级入库
+    if (!ai) {
+      // 无 AI：全部降级入库
+      for (const item of candidates) {
         await prisma.radarItem.create({
           data: { title: item.title, url: item.url, source: item.source, publishedAt: item.publishedAt, category: item.category, importance: 2 },
         })
-        fallback++; continue
+        fallback++
       }
+      continue
+    }
 
-      // AI 判断
-      const result = await judgeItem(ai, {
-        title: item.title,
-        content: item.content,
-        url: item.url,
-        publishedAt: item.publishedAt?.toISOString().slice(0, 10) ?? '未知',
-      })
+    // ── 批量并发 AI 判断（2条/批，10并发）──
+    console.log(`    → AI 判断 ${candidates.length} 条（批量并发）...`)
+    const aiInputs = candidates.map(item => ({
+      title: item.title,
+      content: item.content,
+      url: item.url,
+      publishedAt: item.publishedAt?.toISOString().slice(0, 10) ?? '未知',
+    }))
+    const aiResults = await judgeItemsBatch(ai, aiInputs, 2, 10)
+
+    // ── 处理 AI 结果，逐条入库 ──
+    for (let i = 0; i < candidates.length; i++) {
+      const item = candidates[i]
+      const result = aiResults[i]
 
       if (!result.relevant) { skipped++; continue }
-
-      // AI 成功但返回了 estimated_date，再做一次时间过滤
-      if (isTooOld(item.publishedAt, result.estimated_date)) {
-        tooOld++; continue
-      }
+      if (isTooOld(item.publishedAt, result.estimated_date)) { tooOld++; continue }
 
       let importance = Math.max(1, Math.min(5, result.importance ?? 3))
       if (!result.is_recent && importance > 2) importance = 2
+      if (item.isDecodeFailure) importance = Math.min(importance, 2)
 
-      // 解析最终发布时间
       let finalPublishedAt = item.publishedAt
       if (!finalPublishedAt && result.estimated_date) {
         const d = new Date(result.estimated_date)
@@ -237,7 +272,7 @@ async function main() {
           category: result.category ?? item.category,
           city: result.city ?? null,
           importance,
-          eventKey: result.event_key ?? null,
+          eventKey: null,  // 入库时不再由 AI 生成，出刊时统一做重复判断
         },
       })
 

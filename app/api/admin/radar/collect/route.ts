@@ -127,7 +127,7 @@ export async function POST() {
             category: aiResult.category ?? item.category ?? "content",
             city: aiResult.city ?? null,
             importance,
-            eventKey: aiResult.event_key ?? null,
+            eventKey: null,  // 入库时不再由 AI 生成，出刊时统一做重复判断
           },
         });
         collected++;

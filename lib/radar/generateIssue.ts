@@ -2,7 +2,7 @@
  * OPC Radar 期刊生成逻辑（共享模块）
  *
  * daily-run.ts 和 /api/admin/radar/generate 共用此逻辑。
- * 包含：AI聚类打eventKey（含最优选择）、eventKey去重、每类上限、AI编辑审核、中经报保底。
+ * 包含：AI跨期重复判断（duplicate）、候选池内同话题去重、每类上限、AI编辑审核、中经报保底。
  * 时效性权重已合并进 aiJudge.ts 入库时判断，此处不再单独处理。
  *
  * 更新时间：2026-05-13
@@ -27,8 +27,8 @@ interface GenerateResult {
 }
 
 /**
- * Step 1: 出刊前批量 AI 聚类打 eventKey + 最优选择
- * 同事件/同主题打相同 key，每组内非最优的条目降权，确保 eventKey 去重时自然淘汰劣质条目
+ * Step 1: 出刊前 AI 重复判断
+ * 同时做两件事：(1) 标记与近5期已出刊内容重复的条目；(2) 候选池内同话题只保留最优一条
  */
 async function clusterEventKeys(items: any[], prisma: PrismaAny, client: any): Promise<void> {
   if (items.length === 0) return
@@ -36,7 +36,7 @@ async function clusterEventKeys(items: any[], prisma: PrismaAny, client: any): P
   // 查最近 3 期已出刊条目标题，用于跨期话题去重
   const recentIssues = await prisma.radarIssue.findMany({
     orderBy: { issueNo: 'desc' },
-    take: 3,
+    take: 5,
     select: { issueNo: true, items: { select: { title: true, category: true } } },
   })
   const historyLines: string[] = []
@@ -53,26 +53,26 @@ async function clusterEventKeys(items: any[], prisma: PrismaAny, client: any): P
     `${i + 1}. [ID:${item.id}] [${item.category}/${item.importance}★] ${item.title}`
   ).join('\n')
 
-  const prompt = `以下是 OPC 雷达候选条目，请完成两件事：
-1. 将同一事件或同一主题系列的条目归组，每组指定一个 eventKey（5-10字）
-2. 每组内选出最有价值的那条（信息最完整、最具体、来源最权威），标记 best=true，其余 best=false
+  const prompt = `你是 OPC 雷达编辑，对以下候选条目做两步判断：
 
-完全独立的条目：eventKey=null，best=true
+**第一步：跨期去重**
+若候选条目与近5期已出刊内容报道的是同一事件/同一政策文件/同一话题，标记 duplicate=true。
+判断标准：同省份 + 同政策关键词，或同一人物/案例的不同报道角度，视为重复。
 ${historySection}
+
+**第二步：候选池内去重**
+若多条候选条目报道同一事件，只保留信息最完整、来源最权威的那条（keep=true），其余 keep=false。
 
 【本期候选条目】
 ${list}
 
-规则：
-- 同省市同政策文件的多篇报道 → 相同 key，选最完整的为 best
-- 同主题讨论系列（如多篇"一人公司靠谱吗"）→ 相同 key，选观点最独特的为 best
-- 同一活动/社区的多篇报道 → 相同 key，选信息最全的为 best
-- 独立事件 → null
-- ⚠️ 跨期去重：若候选条目与【近3期已出刊内容】中某条高度相似（同一事件/同一话题），
-  则将该候选条目 best=false，并打上 eventKey（格式：HIST_关键词），使其在去重时被淘汰
+返回 JSON 数组（每条必须有 id、duplicate、keep）：
+[{"id": "条目ID", "duplicate": true或false, "keep": true或false}]
 
-只返回 JSON 数组：
-[{"id": "条目ID", "eventKey": "key或null", "best": true或false}, ...]`
+说明：
+- duplicate=true → 该条与历史已出刊内容重复，降权处理
+- keep=false → 该条在候选池内被同话题更优质条目覆盖，降权处理
+- 独立事件：duplicate=false，keep=true`
 
   try {
     const comp = await Promise.race([
@@ -91,23 +91,24 @@ ${list}
     if (text.length < 10) { console.error('[cluster] AI 返回为空，跳过'); return }
     const match = text.match(/\[[\s\S]*\]/)
     if (!match) { console.error('[cluster] AI 返回格式异常，末尾:', JSON.stringify(text.slice(-300))); return }
-    const results = JSON.parse(match[0]) as Array<{ id: string; eventKey: string | null; best: boolean }>
+    const results = JSON.parse(match[0]) as Array<{ id: string; duplicate: boolean; keep: boolean }>
 
-    let updatedKey = 0, markedNonBest = 0
+    let markedDup = 0, markedNonKeep = 0
     for (const r of results) {
-      const data: any = {}
-      if (r.eventKey) { data.eventKey = r.eventKey; updatedKey++ }
-      // 非最优条目降权，eventKey 去重时自然保留最优那条
-      if (r.eventKey && r.best === false) {
-        const orig = items.find(i => i.id === r.id)?.importance ?? 3
-        data.importance = Math.max(1, orig - 2)
-        markedNonBest++
-      }
-      if (Object.keys(data).length > 0) {
-        await prisma.radarItem.update({ where: { id: r.id }, data })
+      const orig = items.find(i => i.id === r.id)?.importance ?? 3
+      // duplicate=true（与历史重复）降到1；keep=false（池内被覆盖）降2分
+      const newImportance = r.duplicate
+        ? 1
+        : !r.keep
+          ? Math.max(1, orig - 2)
+          : null
+      if (newImportance !== null) {
+        await prisma.radarItem.update({ where: { id: r.id }, data: { importance: newImportance } })
+        if (r.duplicate) markedDup++
+        else markedNonKeep++
       }
     }
-    console.log(`[cluster] 聚类完成：打key ${updatedKey} 条，降权非最优 ${markedNonBest} 条`)
+    console.log(`[dedup] 完成：跨期重复降权 ${markedDup} 条，池内覆盖降权 ${markedNonKeep} 条`)
   } catch (e: any) {
     console.error('[cluster] 聚类失败，跳过:', e?.message ?? e)
   }
@@ -117,7 +118,7 @@ ${list}
  * Step 2: AI 编辑审核（去重 + 去弱相关，最后一道防线）
  */
 async function editorialReview(
-  items: Array<{ id: string; title: string; summary: string | null; category: string; eventKey: string | null }>
+  items: Array<{ id: string; title: string; summary: string | null; category: string }>
 ): Promise<string[] | null> {
   const client = getAIClient()
   if (!client) return null
@@ -212,33 +213,24 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
     return null
   }
 
-  // Step 1: AI 聚类打 eventKey + 标记最优
+  // Step 1: AI 重复判断（跨期去重 + 池内去重）
   await clusterEventKeys(candidates, prisma, aiClient)
 
-  // 聚类写回 DB 后重新取最新 importance + eventKey
+  // 重复判断写回 DB 后重新取最新 importance
   const ids = candidates.map((i: any) => i.id)
   const refreshed = await prisma.radarItem.findMany({
     where: { id: { in: ids } },
-    select: { id: true, eventKey: true, importance: true },
+    select: { id: true, importance: true },
   })
   const refreshMap = Object.fromEntries(refreshed.map((r: any) => [r.id, r]))
-  const reranked = candidates
+  // Step 2: 按最新 importance 重新排序，降权条目自然排到后面
+  const keyDeduped = candidates
     .map((item: any) => ({
       ...item,
-      eventKey: refreshMap[item.id]?.eventKey ?? item.eventKey,
       importance: refreshMap[item.id]?.importance ?? item.importance,
     }))
     .filter((item: any) => item.importance >= MIN_IMPORTANCE)
     .sort((a: any, b: any) => b.importance - a.importance || b.collectedAt - a.collectedAt)
-
-  // Step 2: eventKey 去重（此时非最优已降权，自然排到后面被过滤）
-  const seenKeys = new Set<string>()
-  const keyDeduped = reranked.filter((item: any) => {
-    if (!item.eventKey) return true
-    if (seenKeys.has(item.eventKey)) return false
-    seenKeys.add(item.eventKey)
-    return true
-  })
 
   // Step 3: 每类上限
   const catCount: Record<string, number> = {}
