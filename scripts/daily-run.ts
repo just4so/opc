@@ -13,7 +13,7 @@
  * 更新时间：2026-05-10
  */
 
-import { execSync } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
 import * as dotenv from 'dotenv'
@@ -39,7 +39,7 @@ function log(msg: string) {
 function run(cmd: string): string {
   log(`$ ${cmd}`)
   try {
-    return execSync(cmd, { cwd: ROOT, encoding: 'utf-8', timeout: 120000 })
+    return execSync(cmd, { cwd: ROOT, encoding: 'utf-8', timeout: 240000 })
   } catch (e: any) {
     log(`  ⚠️ 命令退出码非零: ${e.message?.split('\n')[0]}`)
     return e.stdout || ''
@@ -161,11 +161,29 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
 async function main() {
   log('=== OPC Radar 每日采集开始 ===')
 
-  // Phase 1: Google News 采集
-  log('--- Phase 1: Google News 采集 ---')
-  const gnewsOut = run('npx tsx scripts/collect-gnews.ts 3')
-  const gnewsLines = gnewsOut.trim().split('\n').slice(-3).join(' | ')
-  log(gnewsLines)
+  // Phase 1: Google News 采集（后台异步，不阻塞主流程）
+  log('--- Phase 1: Google News 采集（后台启动）---')
+  const gnewsProc = spawn('npx', ['tsx', 'scripts/collect-gnews.ts', '3'], {
+    cwd: ROOT,
+    detached: false,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env },
+  })
+  let gnewsOutput = ''
+  gnewsProc.stdout?.on('data', (d: Buffer) => { gnewsOutput += d.toString() })
+  gnewsProc.stderr?.on('data', (d: Buffer) => { gnewsOutput += d.toString() })
+  // 等待最多 240 秒，超时则继续主流程
+  const gnewsDone = new Promise<void>(resolve => {
+    const timer = setTimeout(() => {
+      log('  ⚠️ GNews 采集超时（240s），继续主流程')
+      gnewsProc.kill()
+      resolve()
+    }, 240000)
+    gnewsProc.on('close', () => { clearTimeout(timer); resolve() })
+  })
+  await gnewsDone
+  const gnewsLines = gnewsOutput.trim().split('\n').filter(l => l.includes('✓') || l.includes('⚠️') || l.includes('saved')).slice(-4).join(' | ')
+  log(`GNews 结果: ${gnewsLines || '无输出'}`)
 
   // Phase 2: RSS 直连采集
   log('--- Phase 2: RSS 直连采集 ---')
@@ -193,7 +211,19 @@ async function main() {
 
   if (issueResult) {
     log(`✅ Issue #${issueResult.issueNo} 生成成功（${issueResult.itemCount} 条，编辑审核去除 ${issueResult.editorialRemoved ?? 0} 条）`)
-    await notifyFeishu(`✅ OPC Radar Issue #${issueResult.issueNo} 已生成（${issueResult.itemCount} 条），请审阅`)
+
+    // 飞书通知：带内容预览
+    const issueData = await prisma.radarIssue.findFirst({
+      where: { id: issueResult.issueId },
+      include: { items: { orderBy: [{ importance: 'desc' }], take: 5, select: { title: true, category: true, importance: true } } },
+    })
+    const catStats = issueData?.items.reduce((acc: Record<string, number>, i: any) => {
+      acc[i.category] = (acc[i.category] ?? 0) + 1; return acc
+    }, {})
+    const catLine = Object.entries(catStats ?? {}).map(([k, v]) => `${k}(${v})`).join(' / ')
+    const topTitles = issueData?.items.slice(0, 3).map((i: any, idx: number) => `  ${idx + 1}. [${i.category}] ${i.title.slice(0, 30)}`).join('\n') ?? ''
+    const notifyMsg = `✅ OPC Radar Issue #${issueResult.issueNo} 已生成（${issueResult.itemCount} 条）\n分类：${catLine}\n\n精选预览：\n${topTitles}\n\n🔗 https://opcquan.com/radar`
+    await notifyFeishu(notifyMsg)
   } else {
     log('⚠️ 本次未生成新期刊（条目不足或分类不够）')
   }
@@ -201,7 +231,24 @@ async function main() {
   log('=== OPC Radar 每日采集完成 ===')
 }
 
-main()
+// ─── 数据库连接重试 ───────────────────────────────────────────────────────
+
+async function waitForDb(maxRetries = 3, delayMs = 30000): Promise<void> {
+  for (let i = 1; i <= maxRetries; i++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      if (i > 1) log(`✅ 数据库连接恢复（第 ${i} 次重试成功）`)
+      return
+    } catch (e: any) {
+      if (i === maxRetries) throw e
+      log(`⚠️ 数据库连接失败（第 ${i}/${maxRetries} 次），${delayMs / 1000}s 后重试...`)
+      await new Promise(r => setTimeout(r, delayMs))
+    }
+  }
+}
+
+waitForDb()
+  .then(() => main())
   .catch(async (e) => {
     console.error('Fatal:', e)
     await notifyFeishu(`❌ OPC Radar 每日采集失败\n${String(e).slice(0, 200)}`)
