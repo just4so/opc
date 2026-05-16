@@ -81,7 +81,7 @@ ${list}
         temperature: 0.1,
         max_tokens: 6000,
       }),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('cluster timeout')), 40000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('cluster timeout')), 90000)),
     ])
     const text = (comp as any).choices[0]?.message?.content ?? ''
     const match = text.match(/\[[\s\S]*\]/)
