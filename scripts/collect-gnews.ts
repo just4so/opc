@@ -8,9 +8,15 @@
  * 更新时间：2026-05-10
  */
 import { execSync } from 'child_process'
+import * as fs from 'fs'
+import * as path from 'path'
+import { fileURLToPath } from 'url'
 import { PrismaClient } from '@prisma/client'
 import * as dotenv from 'dotenv'
-dotenv.config({ path: require('path').join(__dirname, '..', '.env.local') })
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+dotenv.config({ path: path.join(__dirname, '..', '.env.local') })
 
 import { getAIClient, judgeItem, judgeItemsBatch, isTooOld } from '../lib/radar/aiJudge'
 
@@ -104,7 +110,6 @@ function parseFeed(xml: string, defaultCat: string) {
  */
 function decodeGoogleNewsUrls(urls: string[]): string[] {
   if (urls.length === 0) return []
-  const fs = require('fs')
   const tmpIn = '/tmp/gnews_urls_in.json'
   const tmpOut = '/tmp/gnews_urls_out.json'
   const tmpScript = '/tmp/gnews_decode.py'
