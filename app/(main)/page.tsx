@@ -1,10 +1,72 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import { MapPin, MessageSquare, Cpu, ArrowRight, BookOpen, Gift, CheckCircle2, Users, Radio } from 'lucide-react'
 import { NewsCardCompact } from '@/components/news/news-card'
 import { ActivityBar } from '@/components/home/activity-bar'
 import { HeroSessionLink, CtaSessionLink } from '@/components/home/session-cta'
 import prisma from '@/lib/db'
+
+// ─── 缓存的 DB 查询（10分钟，与 revalidate 对齐）────────────────────────────
+const getHomeNews = unstable_cache(
+  async () => prisma.news.findMany({
+    orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
+    take: 6,
+    select: {
+      id: true, title: true, summary: true, url: true, source: true,
+      category: true, coverImage: true, publishedAt: true, isOriginal: true, author: true,
+    },
+  }),
+  ['home-news'],
+  { revalidate: 600 }
+)
+
+const getHomeStats = unstable_cache(
+  async () => {
+    const [total, cities] = await Promise.all([
+      prisma.community.count({ where: { status: 'ACTIVE' } }),
+      prisma.community.groupBy({
+        by: ['city'],
+        where: { status: 'ACTIVE' },
+        _count: true,
+        orderBy: { _count: { city: 'desc' } },
+      }),
+    ])
+    return {
+      totalCommunities: total,
+      totalCities: cities.length,
+      topCities: cities
+        .sort((a, b) => (b._count as number) - (a._count as number))
+        .slice(0, 8)
+        .map(c => ({ name: c.city, count: c._count as number })),
+    }
+  },
+  ['home-stats'],
+  { revalidate: 600 }
+)
+
+const getHomeRecentPosts = unstable_cache(
+  async () => prisma.post.findMany({
+    take: 5,
+    where: { status: 'PUBLISHED' },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true, type: true, title: true, content: true, createdAt: true,
+      author: { select: { name: true, username: true } },
+    },
+  }),
+  ['home-recent-posts'],
+  { revalidate: 600 }
+)
+
+const getLatestRadarIssue = unstable_cache(
+  async () => prisma.radarIssue.findFirst({
+    orderBy: { issueNo: 'desc' },
+    include: { items: { orderBy: { importance: 'desc' }, take: 4 } },
+  }),
+  ['home-radar-issue'],
+  { revalidate: 600 }
+)
 
 export const revalidate = 600
 
@@ -16,55 +78,10 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [newsItems, statsResult, recentPosts, latestRadarIssue] = await Promise.all([
-    prisma.news.findMany({
-      orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
-      take: 6,
-      select: {
-        id: true,
-        title: true,
-        summary: true,
-        url: true,
-        source: true,
-        category: true,
-        coverImage: true,
-        publishedAt: true,
-        isOriginal: true,
-        author: true,
-      },
-    }),
-    Promise.all([
-      prisma.community.count({ where: { status: 'ACTIVE' } }),
-      prisma.community.groupBy({
-        by: ['city'],
-        where: { status: 'ACTIVE' },
-        _count: true,
-        orderBy: { _count: { city: 'desc' } },
-      }),
-    ]).then(([total, cities]) => ({
-      totalCommunities: total,
-      totalCities: cities.length,
-      topCities: cities
-        .sort((a, b) => (b._count as number) - (a._count as number))
-        .slice(0, 8)
-        .map(c => ({ name: c.city, count: c._count as number })),
-    })),
-    prisma.post.findMany({
-      take: 5,
-      where: { status: 'PUBLISHED' },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        type: true,
-        title: true,
-        content: true,
-        createdAt: true,
-        author: { select: { name: true, username: true } },
-      },
-    }),
-    prisma.radarIssue.findFirst({
-      orderBy: { issueNo: 'desc' },
-      include: { items: { orderBy: { importance: 'desc' }, take: 4 } },
-    }),
+    getHomeNews(),
+    getHomeStats(),
+    getHomeRecentPosts(),
+    getLatestRadarIssue(),
   ])
 
   return (

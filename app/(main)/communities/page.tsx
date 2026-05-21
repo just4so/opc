@@ -1,8 +1,24 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
 import prisma from '@/lib/db'
+
+const getCommunityList = unstable_cache(
+  async () => prisma.community.findMany({
+    where: { status: 'ACTIVE' },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+    select: {
+      id: true, slug: true, name: true, city: true, district: true,
+      address: true, latitude: true, longitude: true, description: true,
+      focusTracks: true, operator: true, totalWorkstations: true,
+      benefits: true, featured: true, coverImage: true, entryFriendly: true,
+    },
+  }),
+  ['community-list'],
+  { revalidate: 300 }
+)
 
 export const revalidate = 300 // 5分钟缓存，降低云函数触发频率
 
@@ -24,34 +40,8 @@ export const metadata: Metadata = {
 }
 
 async function CommunitiesPageInner() {
-  // 只拉地图页和列表页必需的字段，统计数据由客户端异步加载
-  const communities = await prisma.community.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      city: true,
-      district: true,
-      address: true,
-      latitude: true,
-      longitude: true,
-      description: true,
-      focusTracks: true,
-      operator: true,
-      totalWorkstations: true,
-      benefits: true,
-      featured: true,
-      coverImage: true,
-      entryFriendly: true,
-    },
-  })
-
-  const allCommunities = communities.map((c) => ({
-    ...c,
-    // 不再需要序列化 createdAt，因为不再 select 它
-  }))
+  const communities = await getCommunityList()
+  const allCommunities = communities.map((c) => ({ ...c }))
 
   return (
     <>
