@@ -262,9 +262,19 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：待启动
+### 当前状态：P0 全部完成，待本地验证后 merge 回 main
 
-改版尚未开始。第一个 ACP 任务将创建 `feat/v2-redesign` 分支并开始阶段一。
+**阶段一（commit 098d107）：** token 迁移、Inquiry schema、UI 组件、清理残留
+**阶段二-五（commit a4b19e9）：** +1,210 行，11 文件
+- API: POST/GET /api/inquiries + GET/PATCH /api/admin/inquiries
+- ConnectForm: 两步表单 + 自动填充 + 成功页联系方式解锁
+- ContactUnlock: 社区详情页联系方式模糊化 + 直通车入口
+- FloatingConnectButton: 手机端底部悬浮直通车按钮
+- Admin inquiries: 后台意向管理看板 + 状态流转
+
+**下一步：** 本地 dev server 验证完整流程 → merge 回 main → 部署
+- 社区详情页改造（联系方式模糊化 + 直通车入口 + 手机端悬浮按钮）
+- /admin/inquiries 页面（后台看板）
 
 ### 完整计划
 
