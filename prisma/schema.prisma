@@ -28,6 +28,7 @@ model User {
   skills             String[]
   canOffer           String[]
   lookingFor         String[]
+  showInPlaza        Boolean                   @default(false)
   createdAt          DateTime                  @default(now())
   updatedAt          DateTime                  @updatedAt
   lastActiveAt       DateTime?
@@ -39,6 +40,7 @@ model User {
   communityReviews   CommunityReview[]
   conversations      ConversationParticipant[]
   favorites          Favorite[]
+  inquiries          Inquiry[]
   likes              Like[]
   sentMessages       Message[]
   oneTimeTokens      OneTimeToken[]
@@ -111,11 +113,12 @@ model Community {
   contactNote       String?
   entryInfo         Json?
   focusTracks       String[]          @default([])
-  amenities         String[]          @default([])
   totalArea         String?
   totalWorkstations Int?
   transit           String?
+  amenities         String[]          @default([])
   reviews           CommunityReview[]
+  inquiries         Inquiry[]
   managers          User[]            @relation("CommunityManager")
 
   @@index([city])
@@ -332,6 +335,82 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 }
 
+model RadarItem {
+  id          String      @id @default(cuid())
+  title       String
+  url         String      @unique
+  source      String
+  publishedAt DateTime?
+  collectedAt DateTime    @default(now())
+  summary     String?
+  category    String
+  city        String?
+  importance  Int         @default(3)
+  issueId     String?
+  createdAt   DateTime    @default(now())
+  eventKey    String?     @map("event_key")
+  issue       RadarIssue? @relation(fields: [issueId], references: [id])
+
+  @@index([collectedAt])
+  @@index([category, city])
+  @@map("radar_items")
+}
+
+model RadarIssue {
+  id          String      @id @default(cuid())
+  issueNo     Int         @unique
+  publishedAt DateTime    @default(now())
+  windowStart DateTime
+  windowEnd   DateTime
+  createdAt   DateTime    @default(now())
+  title       String?
+  summary     String?
+  items       RadarItem[]
+
+  @@map("radar_issues")
+}
+
+model RadarCbArticle {
+  id          String    @id @default(cuid())
+  title       String
+  url         String    @unique
+  used        Boolean   @default(false)
+  usedAt      DateTime?
+  collectedAt DateTime  @default(now())
+  summary     String?
+
+  @@map("radar_cb_articles")
+}
+
+model RadarRun {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  source    String
+  collected Int      @default(0)
+  skipped   Int      @default(0)
+  error     String?
+
+  @@index([createdAt])
+  @@map("radar_runs")
+}
+
+model Policy {
+  id        String       @id @default(cuid())
+  province  String
+  city      String?
+  district  String?
+  title     String
+  summary   String
+  sourceUrl String?
+  status    PolicyStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([city])
+  @@index([province])
+  @@index([status])
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -414,84 +493,43 @@ enum NewsCategory {
   REPORT
 }
 
-model RadarItem {
-  id          String      @id @default(cuid())
-  title       String
-  url         String      @unique
-  source      String
-  publishedAt DateTime?
-  collectedAt DateTime    @default(now())
-  summary     String?
-  category    String
-  city        String?
-  importance  Int         @default(3)
-  eventKey    String?     @map("event_key")
-  issueId     String?
-  issue       RadarIssue? @relation(fields: [issueId], references: [id])
-  createdAt   DateTime    @default(now())
-
-  @@map("radar_items")
-  @@index([collectedAt])
-  @@index([category, city])
+enum PolicyStatus {
+  ACTIVE
+  DRAFT
+  EXPIRED
 }
 
-model RadarIssue {
-  id          String      @id @default(cuid())
-  issueNo     Int         @unique
-  title       String?
-  summary     String?     // 本期 2-3 句编辑总结
-  publishedAt DateTime    @default(now())
-  windowStart DateTime
-  windowEnd   DateTime
-  items       RadarItem[]
-  createdAt   DateTime    @default(now())
+model Inquiry {
+  id              String        @id @default(cuid())
+  userId          String
+  communityId     String?
+  communityName   String?
+  name            String
+  contact         String
+  city            String?
+  introduction    String?
+  stage           String?
+  wantCard        Boolean       @default(false)
+  wantVerify      Boolean       @default(false)
+  bpUrl           String?
+  bpFilename      String?
+  status          InquiryStatus @default(PENDING)
+  source          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id])
+  community       Community?    @relation(fields: [communityId], references: [id])
 
-  @@map("radar_issues")
-}
-
-model RadarCbArticle {
-  id          String    @id @default(cuid())
-  title       String
-  url         String    @unique
-  summary     String?
-  used        Boolean   @default(false)
-  usedAt      DateTime?
-  collectedAt DateTime  @default(now())
-
-  @@map("radar_cb_articles")
-}
-
-model RadarRun {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  source      String
-  collected   Int      @default(0)
-  skipped     Int      @default(0)
-  error       String?
-
-  @@map("radar_runs")
+  @@index([status])
+  @@index([communityId])
+  @@index([userId])
+  @@index([userId, communityId])
   @@index([createdAt])
 }
 
-model Policy {
-  id         String       @id @default(cuid())
-  province   String                          // 省份，不带后缀，如"北京"
-  city       String?                         // 城市，不带后缀，如"北京"；省级政策留 null
-  district   String?                         // 区县，带后缀，如"海淀区"；市级/省级政策留 null
-  title      String                          // 政策名称
-  summary    String                          // 核心扶持要点，100字以内
-  sourceUrl  String?                         // 原文链接（可选）
-  status     PolicyStatus @default(ACTIVE)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-
-  @@index([city])
-  @@index([province])
-  @@index([status])
-}
-
-enum PolicyStatus {
-  ACTIVE    // 已发布/已实施
-  DRAFT     // 征求意见稿
-  EXPIRED   // 已过期
+enum InquiryStatus {
+  PENDING
+  CONTACTED
+  DONE
+  CANCELLED
 }
