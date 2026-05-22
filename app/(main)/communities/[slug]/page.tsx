@@ -28,6 +28,8 @@ import { LoginGate } from '@/components/communities/login-gate'
 import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { CommunityFaq } from '@/components/communities/community-faq'
 import { ImageGallery } from '@/components/image-gallery'
+import { ContactUnlock } from '@/components/connect/contact-unlock'
+import { FloatingConnectButton } from '@/components/connect/floating-connect-button'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -624,26 +626,27 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   </div>
                 )}
                 {(community.contactName || community.contactPhone || community.contactWechat) && (
-                  <div className="flex items-start">
-                    <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                    <div>
-                      <div className="text-sm text-gray-500">联系信息</div>
-                      <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系方式" registerUrl={registerUrl}>
-                        {community.contactName && (
-                          <div className="text-gray-700">{community.contactName}</div>
-                        )}
-                        {community.contactWechat && (
-                          <div className="text-sm text-gray-500 mt-0.5">公众号：{community.contactWechat}</div>
-                        )}
-                        {community.contactPhone && (
-                          <div className="text-sm text-gray-500 mt-0.5">电话：{community.contactPhone}</div>
-                        )}
-                        {community.contactNote && (
-                          <div className="text-xs text-gray-400 mt-0.5">{community.contactNote}</div>
-                        )}
-                      </LoginGate>
+                  isLoggedIn ? (
+                    <ContactUnlock
+                      slug={community.slug}
+                      contactName={community.contactName}
+                      contactPhone={community.contactPhone}
+                      contactWechat={community.contactWechat}
+                      contactNote={community.contactNote}
+                    />
+                  ) : (
+                    <div className="flex items-start">
+                      <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <div>
+                        <div className="text-sm text-gray-500">联系信息</div>
+                        <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系方式" registerUrl={registerUrl}>
+                          {community.contactName && (
+                            <div className="text-gray-700">{community.contactName}</div>
+                          )}
+                        </LoginGate>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )}
                 {community.website && (
                   <div className="flex items-start">
@@ -752,6 +755,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         focusTracks={community.focusTracks ?? []}
       />
       <MobileRegisterBar isLoggedIn={isLoggedIn} registerUrl={registerUrl} />
+      {isLoggedIn && (
+        <FloatingConnectButton slug={community.slug} communityName={community.name} />
+      )}
     </div>
   )
 }
