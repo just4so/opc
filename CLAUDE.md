@@ -262,17 +262,21 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：P0 全部完成，待本地验证后 merge 回 main
+### 当前状态：P1 批次 1 进行中
 
-**阶段一（commit 098d107）：** token 迁移、Inquiry schema、UI 组件、清理残留
-**阶段二-五（commit a4b19e9）：** +1,210 行，11 文件
-- API: POST/GET /api/inquiries + GET/PATCH /api/admin/inquiries
-- ConnectForm: 两步表单 + 自动填充 + 成功页联系方式解锁
-- ContactUnlock: 社区详情页联系方式模糊化 + 直通车入口
-- FloatingConnectButton: 手机端底部悬浮直通车按钮
-- Admin inquiries: 后台意向管理看板 + 状态流转
+**P0 已完成（commits: 098d107, a4b19e9）。** Inquiry 全链路：直通车表单 → API → 联系方式解锁 → 后台看板。
 
-**下一步：** 本地 dev server 验证完整流程 → merge 回 main → 部署
+**P1 批次 1 要做的（当前任务）：**
+1. 通用直通车 `/connect`（不指定社区，复用 ConnectForm）
+2. 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
+3. 资讯详情页底部通用 CTA
+
+**约束：**
+- 通用直通车复用已有的 ConnectForm，只加一个 community 可选 + combobox
+- 首页是全新页面，不修改现有首页而是完全重写 app/(main)/page.tsx
+- 资讯页只在底部加一个 CTA 组件，不改其他内容
+- `/connect` 页面加 noindex meta
+- 首页用 Server Component + ISR revalidate=600
 - 社区详情页改造（联系方式模糊化 + 直通车入口 + 手机端悬浮按钮）
 - /admin/inquiries 页面（后台看板）
 
