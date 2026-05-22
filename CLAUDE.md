@@ -255,3 +255,41 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 - Avatar upload not implemented
 - Community image upload not implemented
 - ActivityBar (home page ticker) shows initial posts only — no live polling (by design, to reduce DB load)
+
+---
+
+## 🚧 V2 改版开发（当前活跃）
+
+> **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
+
+### 当前状态：待启动
+
+改版尚未开始。第一个 ACP 任务将创建 `feat/v2-redesign` 分支并开始阶段一。
+
+### 完整计划
+
+详见 `docs/V2-PLAN.md`（5 个阶段、Git 策略、验收标准）。
+
+### PRD
+
+详见 `docs/PRD-v2-redesign.md`（v5.2，35KB，15 章）。**数据模型、API 接口、字段定义以 PRD 为准，不可自行发挥。**
+
+### 设计系统
+
+详见项目根目录 `DESIGN.md`。颜色/字体/圆角/间距/组件以该文件定义的 token 为准。
+
+### 分支规则
+
+- 所有改版代码在 `feat/v2-redesign` 分支上开发，**绝对不能直接提交到 main**
+- 每个阶段有独立子分支，完成后 merge 回 `feat/v2-redesign`
+- 不跨阶段改文件：后端阶段不碰前端，前端阶段不改 API
+
+### 关键约束
+
+1. Inquiry 模型和 User.showInPlaza 是**纯新增**，不改现有表结构
+2. API 接收 `communitySlug`（不是 communityId），后端查 slug → id
+3. 后台 API 权限用 `isStaff`（不是 isAdmin），和现有后台一致
+4. BP 上传 P0 不实现，显示灰态
+5. 注册流程保持现状不改（name+phone+password+email选填+stage/track选填）
+6. contactWechat 实际存的是公众号，不是个人微信，展示文案用「公众号」
+7. 社区详情页是最高风险页面——改之前截图存档，改完逐项对比
