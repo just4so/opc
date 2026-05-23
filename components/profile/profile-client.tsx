@@ -12,8 +12,6 @@ import {
   Send,
   BadgeCheck,
   Briefcase,
-  Target,
-  HandHelping,
   ExternalLink,
   Settings,
   AlertCircle,
@@ -33,8 +31,6 @@ interface UserProfile {
   level: number
   verified: boolean
   verifyType: string | null
-  canOffer: string[]
-  lookingFor: string[]
   mainTrack: string | null
   startupStage: string | null
   showInPlaza: boolean
@@ -137,8 +133,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
     { label: '创业方向', filled: !!user.mainTrack },
     { label: '创业阶段', filled: !!user.startupStage },
     { label: '所在城市', filled: !!user.location },
-    { label: '正在寻找', filled: user.lookingFor.length > 0 },
-    { label: '可以提供', filled: user.canOffer.length > 0 },
+    { label: '产品/项目', filled: projects.length > 0 },
   ]
   const completedCount = completenessFields.filter(f => f.filled).length
   const completenessPercent = Math.round((completedCount / completenessFields.length) * 100)
@@ -296,74 +291,6 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
 
           {/* Right: Tags, projects, posts */}
           <div className="lg:col-span-2 space-y-6">
-            {/* lookingFor */}
-            {user.lookingFor.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <Target className="h-5 w-5 mr-2 text-blue-500" />
-                    正在寻找
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.lookingFor.map((item, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="border-blue-200 text-blue-700"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* canOffer */}
-            {user.canOffer.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <HandHelping className="h-5 w-5 mr-2 text-green-500" />
-                    可以提供
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.canOffer.map((item, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="border-green-200 text-green-700"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* No tags hint */}
-            {user.canOffer.length === 0 && user.lookingFor.length === 0 && (
-              <Card>
-                <CardContent className="py-12 text-center text-gray-500">
-                  {isOwnProfile ? (
-                    <div>
-                      <p className="mb-3">还没有填写「正在寻找」和「可以提供」</p>
-                      <Link href="/settings">
-                        <Button variant="outline" size="sm">去完善卡片</Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    '该用户还没有填写详细信息'
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             {/* Projects */}
             {projects.length > 0 && (
               <Card>

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   PenSquare,
   TrendingUp,
@@ -15,6 +15,11 @@ import {
   Users,
   MessageCircle,
   BadgeCheck,
+  Package,
+  X,
+  Search,
+  ExternalLink,
+  ArrowRight,
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
@@ -49,6 +54,14 @@ interface Post {
   }
 }
 
+interface UserProject {
+  id: string
+  name: string
+  tagline: string
+  stage: string
+  website: string | null
+}
+
 interface PlazaUser {
   id: string
   username: string
@@ -60,8 +73,25 @@ interface PlazaUser {
   startupStage: string | null
   verified: boolean
   verifyType: string | null
-  lookingFor: string[]
-  canOffer: string[]
+  projects: UserProject[]
+}
+
+interface PlazaProject {
+  id: string
+  name: string
+  tagline: string
+  stage: string
+  website: string | null
+  contentType: string
+  owner: {
+    id: string
+    username: string
+    name: string | null
+    avatar: string | null
+    bio: string | null
+    location: string | null
+    verified: boolean
+  }
 }
 
 interface Pagination {
@@ -94,7 +124,21 @@ export interface PlazaClientProps {
   }
   initialPlazaUsers: PlazaUser[]
   initialPlazaUserTotal: number
+  initialProjects: PlazaProject[]
+  initialProjectTotal: number
 }
+
+const STAGE_LABELS: Record<string, string> = {
+  IDEA: '想法', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
+}
+
+const STAGE_OPTIONS = [
+  { value: 'IDEA', label: '想法' },
+  { value: 'BUILDING', label: '开发中' },
+  { value: 'LAUNCHED', label: '已上线' },
+  { value: 'REVENUE', label: '有收入' },
+  { value: 'PROFITABLE', label: '已盈利' },
+]
 
 const TYPE_TABS = [
   { value: '', label: '全部' },
@@ -104,12 +148,7 @@ const TYPE_TABS = [
   { value: 'COLLAB', label: '找人' },
 ]
 
-const LOOKING_FOR_OPTIONS = [
-  '找社区入驻', '找合作伙伴', '找客户', '找投资', '找技术支持', '找曝光机会',
-]
-
-const MAIN_TAB_CARDS = 'cards'
-const MAIN_TAB_POSTS = 'posts'
+type MainTab = 'people' | 'products' | 'posts'
 
 export function PlazaClient({
   initialPosts,
@@ -117,33 +156,66 @@ export function PlazaClient({
   initialStats,
   initialPlazaUsers,
   initialPlazaUserTotal,
+  initialProjects,
+  initialProjectTotal,
 }: PlazaClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [mainTab, setMainTab] = useState(MAIN_TAB_CARDS)
+  // Main tab from URL
+  const tabParam = searchParams.get('tab') as MainTab | null
+  const [mainTab, setMainTab] = useState<MainTab>(
+    tabParam === 'products' || tabParam === 'posts' ? tabParam : 'people'
+  )
+
+  // Shared filters
+  const [filterDirection, setFilterDirection] = useState(searchParams.get('direction') || '')
+  const [filterCity, setFilterCity] = useState(searchParams.get('city') || '')
+  const [filterStage, setFilterStage] = useState(searchParams.get('stage') || '')
+  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '')
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
+
+  // Guide banner
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem('plaza-banner-dismissed')) {
+      setBannerDismissed(true)
+    }
+  }, [])
+
+  const dismissBanner = () => {
+    setBannerDismissed(true)
+    sessionStorage.setItem('plaza-banner-dismissed', '1')
+  }
 
   // Posts state
   const [posts, setPosts] = useState<Post[]>(initialPosts)
-  const [pagination, setPagination] = useState<Pagination>({
+  const [postPagination, setPostPagination] = useState<Pagination>({
     page: 1, limit: 20, total: initialTotal, totalPages: Math.ceil(initialTotal / 20),
   })
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
   const [sort, setSort] = useState('latest')
   const [type, setType] = useState('')
-  const [page, setPage] = useState(1)
-  const [isInitial, setIsInitial] = useState(true)
+  const [postPage, setPostPage] = useState(1)
+  const [isInitialPost, setIsInitialPost] = useState(true)
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({})
 
-  // Card filters
-  const [filterLookingFor, setFilterLookingFor] = useState('')
-  const [filterTrack, setFilterTrack] = useState('')
-  const [filterCity, setFilterCity] = useState('')
+  // Products state (API-driven)
+  const [projects, setProjects] = useState<PlazaProject[]>(initialProjects)
+  const [projectPagination, setProjectPagination] = useState<Pagination>({
+    page: 1, limit: 20, total: initialProjectTotal, totalPages: Math.ceil(initialProjectTotal / 20),
+  })
+  const [projectLoading, setProjectLoading] = useState(false)
+
+  // People pagination (client-side)
+  const [peoplePage, setPeoplePage] = useState(1)
+  const PEOPLE_PER_PAGE = 12
 
   const stats = initialStats
 
-  // Derive unique tracks and cities from plaza users
+  // Derive filter options from SSR data
   const uniqueTracks = useMemo(() => {
     const tracks = new Set<string>()
     initialPlazaUsers.forEach(u => { if (u.mainTrack) tracks.add(u.mainTrack) })
@@ -156,36 +228,124 @@ export function PlazaClient({
     return Array.from(cities).sort()
   }, [initialPlazaUsers])
 
-  // Filter plaza users client-side
+  // URL sync
+  const updateUrl = useCallback((tab: MainTab, direction: string, city: string, stage: string, search: string) => {
+    const params = new URLSearchParams()
+    if (tab !== 'people') params.set('tab', tab)
+    if (direction) params.set('direction', direction)
+    if (city) params.set('city', city)
+    if (stage) params.set('stage', stage)
+    if (search) params.set('search', search)
+    const qs = params.toString()
+    router.replace(`/plaza${qs ? `?${qs}` : ''}`, { scroll: false })
+  }, [router])
+
+  const handleTabChange = (tab: MainTab) => {
+    setMainTab(tab)
+    setPeoplePage(1)
+    updateUrl(tab, filterDirection, filterCity, filterStage, searchQuery)
+  }
+
+  // Search debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
+  // URL sync on filter change
+  useEffect(() => {
+    updateUrl(mainTab, filterDirection, filterCity, filterStage, searchQuery)
+  }, [filterDirection, filterCity, filterStage, searchQuery, mainTab, updateUrl])
+
+  // Filter people (client-side)
   const filteredUsers = useMemo(() => {
     return initialPlazaUsers.filter(u => {
-      if (filterLookingFor && !u.lookingFor.includes(filterLookingFor)) return false
-      if (filterTrack && u.mainTrack !== filterTrack) return false
+      if (filterDirection && u.mainTrack !== filterDirection) return false
       if (filterCity && u.location !== filterCity) return false
+      if (filterStage && u.startupStage !== filterStage) return false
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        const nameMatch = (u.name || '').toLowerCase().includes(q)
+        const bioMatch = (u.bio || '').toLowerCase().includes(q)
+        const trackMatch = (u.mainTrack || '').toLowerCase().includes(q)
+        if (!nameMatch && !bioMatch && !trackMatch) return false
+      }
       return true
     })
-  }, [initialPlazaUsers, filterLookingFor, filterTrack, filterCity])
+  }, [initialPlazaUsers, filterDirection, filterCity, filterStage, searchQuery])
+
+  const paginatedUsers = useMemo(() => {
+    const start = (peoplePage - 1) * PEOPLE_PER_PAGE
+    return filteredUsers.slice(start, start + PEOPLE_PER_PAGE)
+  }, [filteredUsers, peoplePage])
+
+  const peopleTotalPages = Math.ceil(filteredUsers.length / PEOPLE_PER_PAGE)
+
+  // Reset people page when filters change
+  useEffect(() => {
+    setPeoplePage(1)
+  }, [filterDirection, filterCity, filterStage, searchQuery])
+
+  // Products fetch (API-driven)
+  const fetchProjects = useCallback(async (page: number) => {
+    setProjectLoading(true)
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('limit', '20')
+    if (filterDirection) params.set('direction', filterDirection)
+    if (filterCity) params.set('city', filterCity)
+    if (filterStage) params.set('stage', filterStage)
+    if (searchQuery) params.set('search', searchQuery)
+
+    try {
+      const res = await fetch(`/api/plaza/projects?${params}`)
+      const data = await res.json()
+      setProjects(data.projects || [])
+      setProjectPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
+    } catch {
+      // keep current state
+    } finally {
+      setProjectLoading(false)
+    }
+  }, [filterDirection, filterCity, filterStage, searchQuery])
+
+  // Refetch products when filters change or tab switches to products
+  const [productsFetched, setProductsFetched] = useState(false)
+  useEffect(() => {
+    if (mainTab === 'products') {
+      fetchProjects(1)
+      setProductsFetched(true)
+    } else {
+      setProductsFetched(false)
+    }
+  }, [mainTab, filterDirection, filterCity, filterStage, searchQuery, fetchProjects])
+
+  const handleProductPageChange = (p: number) => {
+    fetchProjects(p)
+  }
 
   // Posts fetch
   useEffect(() => {
-    if (isInitial) { setIsInitial(false); return }
+    if (isInitialPost) { setIsInitialPost(false); return }
 
     setLoading(true)
     const params = new URLSearchParams()
     if (type) params.set('type', type)
     if (sort !== 'latest') params.set('sort', sort)
-    params.set('page', String(page))
+    params.set('page', String(postPage))
     params.set('limit', '20')
 
     fetch(`/api/posts?${params}`)
       .then(res => res.json())
       .then(data => {
         setPosts(data.data || [])
-        setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
+        setPostPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [type, page, sort])
+  }, [type, postPage, sort])
 
   useEffect(() => {
     if (!session?.user || posts.length === 0) return
@@ -196,10 +356,10 @@ export function PlazaClient({
       .catch(() => {})
   }, [session?.user, posts])
 
-  const handleTypeChange = (newType: string) => { setType(newType); setPage(1) }
-  const handleSortChange = (newSort: string) => { setSort(newSort); setPage(1) }
+  const handleTypeChange = (newType: string) => { setType(newType); setPostPage(1) }
+  const handleSortChange = (newSort: string) => { setSort(newSort); setPostPage(1) }
 
-  const handleContact = (user: PlazaUser) => {
+  const handleContact = (userId: string, username: string) => {
     if (!session?.user) {
       router.push(`/login?callbackUrl=/plaza`)
       return
@@ -207,7 +367,7 @@ export function PlazaClient({
     fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetUserId: user.id }),
+      body: JSON.stringify({ targetUserId: userId }),
     })
       .then(res => res.json())
       .then(data => {
@@ -216,6 +376,49 @@ export function PlazaClient({
         }
       })
       .catch(() => {})
+  }
+
+  const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery
+  const clearAllFilters = () => {
+    setFilterDirection('')
+    setFilterCity('')
+    setFilterStage('')
+    setSearchInput('')
+    setSearchQuery('')
+  }
+
+  // Guide banner logic
+  const userHasCard = !!(session?.user as any)?.showInPlaza
+  const userProjectCount = 0 // We don't have this in session, but the banner is best-effort
+
+  const renderBanner = () => {
+    if (bannerDismissed) return null
+
+    let text = ''
+    let href = ''
+
+    if (!session?.user) {
+      text = '创建你的名片，让创业者看到你'
+      href = '/register'
+    } else if (!(session.user as any)?.showInPlaza) {
+      text = `创建你的名片，让 ${initialPlazaUserTotal} 位创业者看到你`
+      href = '/settings#card'
+    } else {
+      text = '编辑我的信息'
+      href = '/settings#card'
+    }
+
+    return (
+      <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
+        <Link href={href} className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+          {text}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+        <button onClick={dismissBanner} className="text-gray-400 hover:text-gray-600">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -238,26 +441,38 @@ export function PlazaClient({
         </div>
       </div>
 
-      {/* Main tabs */}
+      {/* Three main tabs */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4">
           <div className="flex">
             <button
-              onClick={() => setMainTab(MAIN_TAB_CARDS)}
+              onClick={() => handleTabChange('people')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
-                mainTab === MAIN_TAB_CARDS
+                mainTab === 'people'
                   ? 'text-primary border-primary'
                   : 'text-gray-500 border-transparent hover:text-gray-900'
               }`}
             >
               <Users className="h-4 w-4" />
-              创业者卡片
+              人
               <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
             </button>
             <button
-              onClick={() => setMainTab(MAIN_TAB_POSTS)}
+              onClick={() => handleTabChange('products')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
-                mainTab === MAIN_TAB_POSTS
+                mainTab === 'products'
+                  ? 'text-primary border-primary'
+                  : 'text-gray-500 border-transparent hover:text-gray-900'
+              }`}
+            >
+              <Package className="h-4 w-4" />
+              产品
+              <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{initialProjectTotal}</span>
+            </button>
+            <button
+              onClick={() => handleTabChange('posts')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+                mainTab === 'posts'
                   ? 'text-primary border-primary'
                   : 'text-gray-500 border-transparent hover:text-gray-900'
               }`}
@@ -270,8 +485,8 @@ export function PlazaClient({
         </div>
       </div>
 
-      {/* Stats bar */}
-      {mainTab === MAIN_TAB_POSTS && (stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
+      {/* Stats bar (posts tab only) */}
+      {mainTab === 'posts' && (stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
         <div className="bg-white border-b">
           <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-gray-500">
             <TrendingUp className="h-4 w-4 text-slate-400" />
@@ -281,61 +496,76 @@ export function PlazaClient({
       )}
 
       <div className="container mx-auto px-4 py-8">
-        {mainTab === MAIN_TAB_CARDS ? (
-          /* ========== CARDS TAB ========== */
-          <div>
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <Filter className="h-4 w-4 text-gray-400" />
+        {/* Guide banner */}
+        {renderBanner()}
+
+        {/* Filter bar (people & products tabs) */}
+        {(mainTab === 'people' || mainTab === 'products') && (
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <Filter className="h-4 w-4 text-gray-400 hidden sm:block" />
+            {uniqueTracks.length > 0 && (
               <select
-                value={filterLookingFor}
-                onChange={e => setFilterLookingFor(e.target.value)}
+                value={filterDirection}
+                onChange={e => setFilterDirection(e.target.value)}
                 className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <option value="">按需求筛选</option>
-                {LOOKING_FOR_OPTIONS.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
+                <option value="">方向</option>
+                {uniqueTracks.map(t => (
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
-              {uniqueTracks.length > 0 && (
-                <select
-                  value={filterTrack}
-                  onChange={e => setFilterTrack(e.target.value)}
-                  className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="">按方向筛选</option>
-                  {uniqueTracks.map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              )}
-              {uniqueCities.length > 0 && (
-                <select
-                  value={filterCity}
-                  onChange={e => setFilterCity(e.target.value)}
-                  className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="">按城市筛选</option>
-                  {uniqueCities.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              )}
-              {(filterLookingFor || filterTrack || filterCity) && (
-                <button
-                  onClick={() => { setFilterLookingFor(''); setFilterTrack(''); setFilterCity('') }}
-                  className="text-xs text-gray-500 hover:text-primary"
-                >
-                  清除筛选
-                </button>
-              )}
+            )}
+            {uniqueCities.length > 0 && (
+              <select
+                value={filterCity}
+                onChange={e => setFilterCity(e.target.value)}
+                className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">城市</option>
+                {uniqueCities.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            )}
+            <select
+              value={filterStage}
+              onChange={e => setFilterStage(e.target.value)}
+              className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">阶段</option>
+              {STAGE_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <div className="relative flex-1 min-w-[200px] max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                placeholder="搜索人名、产品、关键词..."
+                className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
             </div>
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="text-xs text-gray-500 hover:text-primary flex items-center gap-1"
+              >
+                <X className="h-3 w-3" />
+                清除筛选
+              </button>
+            )}
+          </div>
+        )}
 
-            {/* Cards grid */}
-            {filteredUsers.length > 0 ? (
+        {/* ========== PEOPLE TAB ========== */}
+        {mainTab === 'people' && (
+          <div>
+            {paginatedUsers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUsers.map(user => (
-                  <div key={user.id} className="bg-white rounded-2xl border hover:shadow-md transition-shadow p-5">
+                {paginatedUsers.map(user => (
+                  <div key={user.id} className="bg-white rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="flex items-start gap-3 mb-3">
                       {user.avatar ? (
                         <img
@@ -373,22 +603,19 @@ export function PlazaClient({
                       <p className="text-sm text-gray-600 line-clamp-2 mb-3">{user.bio}</p>
                     )}
 
-                    {user.lookingFor.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-2">
-                        {user.lookingFor.map((item, i) => (
-                          <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {user.canOffer.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {user.canOffer.map((item, i) => (
-                          <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-100">
-                            {item}
-                          </span>
+                    {/* Associated products */}
+                    {user.projects.length > 0 && (
+                      <div className="space-y-1.5 mb-3">
+                        {user.projects.map(proj => (
+                          <div key={proj.id} className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg px-2.5 py-1.5">
+                            <Package className="h-3 w-3 text-gray-400 shrink-0" />
+                            <span className="font-medium text-gray-700 truncate">{proj.name}</span>
+                            <span className="text-gray-400 truncate hidden sm:inline">·</span>
+                            <span className="text-gray-500 truncate hidden sm:inline">{proj.tagline}</span>
+                            <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
+                              {STAGE_LABELS[proj.stage] || proj.stage}
+                            </span>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -398,10 +625,10 @@ export function PlazaClient({
                         href={`/profile/${user.username}`}
                         className="flex-1 text-center text-sm py-2 rounded-lg border text-gray-600 hover:bg-gray-50 transition-colors"
                       >
-                        查看详情
+                        查看主页
                       </Link>
                       <button
-                        onClick={() => handleContact(user)}
+                        onClick={() => handleContact(user.id, user.username)}
                         className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
                       >
                         <Send className="h-3.5 w-3.5" />
@@ -414,13 +641,137 @@ export function PlazaClient({
             ) : (
               <div className="text-center py-16 bg-white rounded-2xl">
                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 mb-2">暂无匹配的创业者</p>
+                <p className="text-gray-500 mb-2">没有找到匹配的结果</p>
                 <p className="text-gray-400 text-sm">试试调整筛选条件</p>
               </div>
             )}
+
+            {/* People pagination */}
+            {peopleTotalPages > 1 && (
+              <div className="flex justify-center mt-8 space-x-2">
+                {Array.from({ length: peopleTotalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeoplePage(p)}
+                    className={`px-4 py-2 rounded-md text-sm ${
+                      p === peoplePage ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          /* ========== POSTS TAB ========== */
+        )}
+
+        {/* ========== PRODUCTS TAB ========== */}
+        {mainTab === 'products' && (
+          <div>
+            {projectLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="bg-white rounded-2xl border p-5">
+                    <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse mb-2" />
+                    <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-4" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : projects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {projects.map(proj => (
+                  <div key={proj.id} className="bg-white rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-secondary truncate">{proj.name}</h3>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
+                          {STAGE_LABELS[proj.stage] || proj.stage}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 line-clamp-2">{proj.tagline}</p>
+                      {proj.website && (
+                        <a
+                          href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          访问网站
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Owner info */}
+                    <div className="flex items-center gap-2 mb-3 mt-auto">
+                      {proj.owner.avatar ? (
+                        <img src={proj.owner.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                          {proj.owner.name?.[0] || proj.owner.username[0]}
+                        </div>
+                      )}
+                      <span className="text-sm text-gray-700 truncate">{proj.owner.name || proj.owner.username}</span>
+                      {proj.owner.verified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+                      {proj.owner.location && (
+                        <span className="text-xs text-gray-400 flex items-center gap-0.5 ml-auto">
+                          <MapPin className="h-3 w-3" />
+                          {proj.owner.location}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Link
+                        href={`/profile/${proj.owner.username}`}
+                        className="flex-1 text-center text-sm py-2 rounded-lg border text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        了解更多
+                      </Link>
+                      <button
+                        onClick={() => handleContact(proj.owner.id, proj.owner.username)}
+                        className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        联系创始人
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-white rounded-2xl">
+                <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-2">没有找到匹配的结果</p>
+                <p className="text-gray-400 text-sm">试试调整筛选条件</p>
+              </div>
+            )}
+
+            {/* Products pagination */}
+            {!projectLoading && projectPagination.totalPages > 1 && (
+              <div className="flex justify-center mt-8 space-x-2">
+                {Array.from({ length: projectPagination.totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => handleProductPageChange(p)}
+                    className={`px-4 py-2 rounded-md text-sm ${
+                      p === projectPagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========== POSTS TAB ========== */}
+        {mainTab === 'posts' && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar (desktop) */}
             <aside className="hidden lg:block lg:col-span-1">
@@ -587,14 +938,14 @@ export function PlazaClient({
                 </div>
               )}
 
-              {!loading && pagination.totalPages > 1 && (
+              {!loading && postPagination.totalPages > 1 && (
                 <div className="flex justify-center mt-8 space-x-2">
-                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                  {Array.from({ length: postPagination.totalPages }, (_, i) => i + 1).map((p) => (
                     <button
                       key={p}
-                      onClick={() => setPage(p)}
+                      onClick={() => setPostPage(p)}
                       className={`px-4 py-2 rounded-md text-sm ${
-                        p === pagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                        p === postPagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
                       }`}
                     >
                       {p}

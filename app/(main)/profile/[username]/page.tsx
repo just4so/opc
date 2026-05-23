@@ -58,8 +58,6 @@ export default async function PublicProfilePage({ params }: PageProps) {
       level: true,
       verified: true,
       verifyType: true,
-      canOffer: true,
-      lookingFor: true,
       mainTrack: true,
       startupStage: true,
       showInPlaza: true,

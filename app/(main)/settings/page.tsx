@@ -38,8 +38,6 @@ interface UserProfile {
   location: string | null
   website: string | null
   wechat: string | null
-  canOffer: string[]
-  lookingFor: string[]
   mainTrack: string | null
   startupStage: string | null
   showInPlaza: boolean
@@ -53,14 +51,6 @@ interface ProjectItem {
   website: string | null
   contentType: string
 }
-
-const LOOKING_FOR_OPTIONS = [
-  '找社区入驻', '找合作伙伴', '找客户', '找投资', '找技术支持', '找曝光机会', '其他',
-]
-
-const CAN_OFFER_OPTIONS = [
-  '技术开发', '设计', '内容创作', '市场营销', '财务法务', '行业资源', '其他',
-]
 
 const STAGE_OPTIONS = [
   { value: 'IDEA', label: '想法阶段' },
@@ -110,8 +100,6 @@ export default function SettingsPage() {
   // Card fields
   const [mainTrack, setMainTrack] = useState('')
   const [startupStage, setStartupStage] = useState('')
-  const [lookingFor, setLookingFor] = useState<string[]>([])
-  const [canOffer, setCanOffer] = useState<string[]>([])
   const [showInPlaza, setShowInPlaza] = useState(false)
 
   // Card save state
@@ -151,8 +139,6 @@ export default function SettingsPage() {
         setEmailVerified(data.emailVerified)
         setMainTrack(data.mainTrack || '')
         setStartupStage(data.startupStage || '')
-        setLookingFor(data.lookingFor || [])
-        setCanOffer(data.canOffer || [])
         setShowInPlaza(data.showInPlaza || false)
       }
     } catch (error) {
@@ -219,8 +205,6 @@ export default function SettingsPage() {
           mainTrack: mainTrack || null,
           startupStage: startupStage || null,
           location: location || null,
-          lookingFor,
-          canOffer,
           wechat: wechat || null,
           showInPlaza,
         }),
@@ -281,18 +265,6 @@ export default function SettingsPage() {
     }
   }
 
-  const toggleLookingFor = (val: string) => {
-    setLookingFor(prev =>
-      prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
-    )
-  }
-
-  const toggleCanOffer = (val: string) => {
-    setCanOffer(prev =>
-      prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
-    )
-  }
-
   const handleCreateProject = async () => {
     if (!newProject.name.trim() || !newProject.tagline.trim()) return
     try {
@@ -326,8 +298,7 @@ export default function SettingsPage() {
     { label: '创业方向', filled: !!mainTrack },
     { label: '创业阶段', filled: !!startupStage },
     { label: '所在城市', filled: !!location },
-    { label: '正在寻找', filled: lookingFor.length > 0 },
-    { label: '可以提供', filled: canOffer.length > 0 },
+    { label: '产品/项目', filled: projects.length > 0 },
   ]
   const completedCount = completenessFields.filter(f => f.filled).length
   const completenessPercent = Math.round((completedCount / completenessFields.length) * 100)
@@ -653,51 +624,10 @@ export default function SettingsPage() {
                   ))}
                 </select>
               </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">正在寻找（多选）</label>
-                <div className="flex flex-wrap gap-2">
-                  {LOOKING_FOR_OPTIONS.map(opt => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => toggleLookingFor(opt)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        lookingFor.includes(opt)
-                          ? 'bg-blue-50 border-blue-300 text-blue-700'
-                          : 'bg-white border-gray-200 text-gray-600 hover:border-blue-200'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">可以提供（多选）</label>
-                <div className="flex flex-wrap gap-2">
-                  {CAN_OFFER_OPTIONS.map(opt => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => toggleCanOffer(opt)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        canOffer.includes(opt)
-                          ? 'bg-green-50 border-green-300 text-green-700'
-                          : 'bg-white border-gray-200 text-gray-600 hover:border-green-200'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </CardContent>
           </Card>
 
-          {/* Projects CRUD */}
-          <Card>
+          {/* Projects CRUD */}          <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center justify-between">
                 <span>关联项目</span>

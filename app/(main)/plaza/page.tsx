@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PlazaPage() {
-  const [posts, total, stats, plazaUsers, plazaUserTotal] = await Promise.all([
+  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal] = await Promise.all([
     prisma.post.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
@@ -63,11 +63,57 @@ export default async function PlazaPage() {
         startupStage: true,
         verified: true,
         verifyType: true,
-        lookingFor: true,
-        canOffer: true,
+        projects: {
+          where: { status: 'PUBLISHED' },
+          take: 2,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            name: true,
+            tagline: true,
+            stage: true,
+            website: true,
+          },
+        },
       },
     }),
     prisma.user.count({ where: { showInPlaza: true } }),
+    prisma.project.findMany({
+      where: {
+        status: 'PUBLISHED',
+        owner: { showInPlaza: true },
+      },
+      orderBy: [
+        { owner: { verified: 'desc' } },
+        { createdAt: 'desc' },
+      ],
+      take: 20,
+      select: {
+        id: true,
+        name: true,
+        tagline: true,
+        stage: true,
+        website: true,
+        contentType: true,
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true,
+            bio: true,
+            location: true,
+            verified: true,
+          },
+        },
+      },
+    }),
+    prisma.project.count({
+      where: {
+        status: 'PUBLISHED',
+        owner: { showInPlaza: true },
+      },
+    }),
   ])
 
   const postsWithCount = posts.map(p => ({
@@ -85,6 +131,8 @@ export default async function PlazaPage() {
       initialStats={stats}
       initialPlazaUsers={plazaUsers}
       initialPlazaUserTotal={plazaUserTotal}
+      initialProjects={initialProjects}
+      initialProjectTotal={initialProjectTotal}
     />
   )
 }
