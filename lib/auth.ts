@@ -59,6 +59,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id
         token.role = (user as any).role
         token.image = (user as any).image
+        prisma.user.update({ where: { id: user.id as string }, data: { lastActiveAt: new Date() } }).catch(() => {})
       }
       if (trigger === 'update' && updateData) {
         if (updateData.name !== undefined) token.name = updateData.name

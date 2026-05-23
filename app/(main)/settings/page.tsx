@@ -76,6 +76,12 @@ const CONTENT_TYPE_OPTIONS = [
   { value: 'COOPERATION', label: '合作' },
 ]
 
+function ensureUrl(url: string): string {
+  if (!url) return url
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `https://${url}`
+}
+
 export default function SettingsPage() {
   const { status, update } = useSession()
   const router = useRouter()
@@ -771,7 +777,7 @@ export default function SettingsPage() {
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5">{proj.tagline}</p>
                     {proj.website && (
-                      <a href={proj.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+                      <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
                         <ExternalLink className="h-3 w-3" />{proj.website}
                       </a>
                     )}

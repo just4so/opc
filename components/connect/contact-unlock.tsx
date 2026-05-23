@@ -58,11 +58,12 @@ export function ContactUnlock({
           <>
             {contactName && <div className="text-gray-700">{contactName}</div>}
             {contactWechat && (
-              <div className="text-sm text-gray-400 mt-0.5">公众号：****</div>
+              <div className="text-sm text-gray-500 mt-0.5">公众号：{contactWechat}</div>
             )}
             {contactPhone && (
               <div className="text-sm text-gray-400 mt-0.5">电话：****</div>
             )}
+            <p className="text-xs text-gray-400 mt-1.5">提交资料后由 OPC圈 审核推荐，同时解锁联系方式</p>
             <Link
               href={`/connect/${slug}`}
               className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-lg hover:bg-primary-600 transition-colors"

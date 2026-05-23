@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
+import { auth } from '@/lib/auth'
 
 export const revalidate = 600
 
@@ -69,10 +70,11 @@ const getLatestRadarIssue = unstable_cache(
 )
 
 export default async function HomePage() {
-  const [stats, creators, radarIssue] = await Promise.all([
+  const [stats, creators, radarIssue, session] = await Promise.all([
     getHomeStats(),
     getLatestCreators(),
     getLatestRadarIssue(),
+    auth(),
   ])
 
   return (
@@ -81,7 +83,7 @@ export default async function HomePage() {
       <section className="bg-surface-soft py-20 md:py-28 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-[28px] md:text-[44px] font-bold leading-[1.15] tracking-tight text-ink mb-4">
-            OPC创业者，在这里找到社区、被行业看见。
+            OPC创业者，在这里连接、让世界看见
           </h1>
           <p className="text-base text-mute mb-8">
             全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市
@@ -91,13 +93,13 @@ export default async function HomePage() {
               href="/communities"
               className="bg-primary text-on-primary rounded-xl px-8 py-4 font-semibold text-center hover:bg-primary-600 transition-colors"
             >
-              找社区入驻
+              找到我的社区
             </Link>
             <Link
-              href="/settings"
+              href={session?.user ? "/settings#card" : "/register"}
               className="border border-hairline bg-canvas rounded-xl px-8 py-4 font-semibold text-center text-ink hover:bg-surface-soft transition-colors"
             >
-              展示我的项目
+              让世界看见我
             </Link>
           </div>
           <p className="text-sm text-ash">
@@ -124,7 +126,7 @@ export default async function HomePage() {
                 emoji: '\u{1F4E3}',
                 title: '认证创业者，进入媒体推荐池',
                 desc: '展示你的项目，获得认证标识，进入行业推荐视野',
-                href: '/connect',
+                href: '/plaza',
               },
               {
                 emoji: '\u{1F91D}',
@@ -298,7 +300,7 @@ export default async function HomePage() {
                 <h3 className="text-lg font-semibold text-ink mb-4">
                   你是社区运营方？联系我们
                 </h3>
-                <p className="text-sm text-mute">微信：opcquan01</p>
+                <p className="text-sm text-mute">邮箱：cooperation@opcquan.com</p>
               </div>
             </div>
           </div>

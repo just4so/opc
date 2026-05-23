@@ -4,8 +4,9 @@ import { usePathname } from "next/navigation"
 
 const links = [
   { href: "/communities", label: "找社区" },
-  { href: "/plaza", label: "创业者广场" },
-  { href: "/radar", label: "OPC雷达" },
+  { href: "/plaza", label: "广场" },
+  { href: "/news", label: "资讯" },
+  { href: "/radar", label: "雷达" },
 ]
 
 export function NavLinks() {

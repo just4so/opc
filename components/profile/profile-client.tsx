@@ -86,6 +86,12 @@ interface ProfileClientProps {
   projects?: ProjectItem[]
 }
 
+function ensureUrl(url: string): string {
+  if (!url) return url
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `https://${url}`
+}
+
 export default function ProfileClient({ user, recentPosts = [], projects = [] }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -261,7 +267,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
                     <div className="flex items-center text-sm text-gray-600">
                       <Globe className="h-4 w-4 mr-2 text-gray-400" />
                       <a
-                        href={user.website}
+                        href={ensureUrl(user.website)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
@@ -386,7 +392,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
                           </div>
                           {proj.website && (
                             <a
-                              href={proj.website}
+                              href={ensureUrl(proj.website)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="shrink-0 ml-2 text-gray-400 hover:text-primary"

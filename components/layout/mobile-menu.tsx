@@ -5,12 +5,13 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Radio } from 'lucide-react'
+import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Radio, Newspaper } from 'lucide-react'
 
 const navLinks = [
   { href: '/communities', label: '找社区', icon: Map },
-  { href: '/plaza', label: '创业者广场', icon: MessageCircle },
-  { href: '/radar', label: 'OPC雷达', icon: Radio },
+  { href: '/plaza', label: '广场', icon: MessageCircle },
+  { href: '/news', label: '资讯', icon: Newspaper },
+  { href: '/radar', label: '雷达', icon: Radio },
 ]
 
 export function MobileMenu() {
