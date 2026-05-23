@@ -262,23 +262,20 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：P1 批次 1 进行中
+### 当前状态：P1 Batch 1 已完成，等待 Batch 2
 
 **P0 已完成（commits: 098d107, a4b19e9）。** Inquiry 全链路：直通车表单 → API → 联系方式解锁 → 后台看板。
 
-**P1 批次 1 要做的（当前任务）：**
-1. 通用直通车 `/connect`（不指定社区，复用 ConnectForm）
-2. 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
-3. 资讯详情页底部通用 CTA
+**P1 Batch 1 已完成（commit: fdab6f8，2026-05-23 10:09）：**
+1. ✅ 通用直通车 `/connect`（不指定社区，含社区 combobox + 帮我推荐选项）
+2. ✅ 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
+3. ✅ 资讯详情页底部通用 CTA
 
-**约束：**
-- 通用直通车复用已有的 ConnectForm，只加一个 community 可选 + combobox
-- 首页是全新页面，不修改现有首页而是完全重写 app/(main)/page.tsx
-- 资讯页只在底部加一个 CTA 组件，不改其他内容
-- `/connect` 页面加 noindex meta
-- 首页用 Server Component + ISR revalidate=600
-- 社区详情页改造（联系方式模糊化 + 直通车入口 + 手机端悬浮按钮）
-- /admin/inquiries 页面（后台看板）
+**P1 Batch 2 待做：**
+4. 创业者广场 `/plaza` 重构（卡片墙）
+5. 用户主页 `/profile/[username]` 改造
+6. 我的卡片 `/settings/card`
+7. 注册流程精简（4 字段 + skills 清理）
 
 ### 完整计划
 
