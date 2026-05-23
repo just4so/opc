@@ -147,12 +147,19 @@ async function NewsPageInner({
   }
 
   // Serialize dates to strings for client component
+  // Note: unstable_cache may return dates as strings already
+  const toISO = (d: any) => {
+    if (!d) return ''
+    if (typeof d === 'string') return d
+    if (d instanceof Date) return d.toISOString()
+    return String(d)
+  }
   const serializeNews = (items: any[]) =>
     items.map((item) => ({
       ...item,
-      publishedAt: item.publishedAt?.toISOString() ?? '',
-      createdAt: item.createdAt?.toISOString() ?? '',
-      updatedAt: item.updatedAt?.toISOString() ?? '',
+      publishedAt: toISO(item.publishedAt),
+      createdAt: toISO(item.createdAt),
+      updatedAt: toISO(item.updatedAt),
     }))
 
   return (

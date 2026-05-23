@@ -94,7 +94,7 @@ export default async function HomePage() {
               找社区入驻
             </Link>
             <Link
-              href="/connect"
+              href="/settings"
               className="border border-hairline bg-canvas rounded-xl px-8 py-4 font-semibold text-center text-ink hover:bg-surface-soft transition-colors"
             >
               展示我的项目

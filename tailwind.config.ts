@@ -73,6 +73,10 @@ const config: Config = {
         'surface-elevated': '#ffffff',
         'surface-dark': '#262622',
 
+        // shadcn 组件兼容
+        popover: '#ffffff',
+        'popover-foreground': '#262622',
+
         // 分割线
         hairline: '#dadad3',
         'hairline-soft': '#e5e5e0',
