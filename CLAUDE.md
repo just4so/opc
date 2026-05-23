@@ -312,3 +312,4 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 5. 注册流程保持现状不改（name+phone+password+email选填+stage/track选填）
 6. contactWechat 实际存的是公众号，不是个人微信，展示文案用「公众号」
 7. 社区详情页是最高风险页面——改之前截图存档，改完逐项对比
+8. **V2 改版开发流程必须走 OpenSpec：** 先 `openspec propose` 生成 spec → 确认 → ACP `openspec apply` 执行 → 完成后 `openspec archive` 归档。纯配置/文档修改可跳过（`--skip-specs`）。读 openspec-dev SKILL.md 获取完整命令。

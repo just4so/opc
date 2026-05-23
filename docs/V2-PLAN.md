@@ -99,6 +99,7 @@ main (生产，始终可部署)
 3. **不能跨阶段改文件：** 后端阶段不碰前端，前端阶段不改 API
 4. **社区详情页是最高风险页面：** 改之前截图存档，改完逐项对比
 5. **每个阶段完成后 commit 一次：** 格式 `feat(xxx): 描述`，不要整个阶段打成多个小 commit
+6. **开发流程必须走 OpenSpec：** 先 `openspec propose` 生成 spec → 确认 → ACP `openspec apply` 执行 → 完成后 `openspec archive` 归档。纯配置/文档修改可 `--skip-specs`。
 
 ## 相关文件
 
