@@ -118,6 +118,8 @@ main (生产，始终可部署)
 | 三：前端改造 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（ContactUnlock + FloatingCTA） |
 | 四：直通车 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（ConnectForm 369行） |
 | 五：后台看板 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（InquiriesClient 219行） |
+| P1 Batch 1 | ✅ 完成 | 2026-05-23 01:53 | 2026-05-23 10:09 | commit fdab6f8, 通用 /connect + 首页重写 + 资讯 CTA |
+| P1 Batch 2 | ✅ 完成 | 2026-05-23 | 2026-05-23 | commit 7530437, 广场重构 + 卡片体系 + 清理 |
 
 ### P0 总结
 - **代码量：** +1,210 行（11 文件）
@@ -130,3 +132,14 @@ main (生产，始终可部署)
 - **完成内容：** 通用直通车 `/connect`、首页 `/` 重写、资讯详情页底部 CTA
 - **build 状态：** ✅ 零报错
 - **待做（Batch 2）：** 创业者广场 `/plaza` 重构、用户主页 `/profile/[username]` 改造、我的卡片 `/settings/card`
+
+### P1 Batch 2 总结
+- **完成时间：** 2026-05-23，commit 7530437
+- **完成内容：**
+  - 创业者广场 `/plaza` 重构：双 Tab 布局（创业者卡片 + 动态），卡片网格 + 筛选栏（需求/方向/城市），联系TA 触发私信
+  - 用户主页 `/profile/[username]` 改造：卡片信息展示、关联项目列表、OG Meta、本人可见完善度提示
+  - 个人设置 `/settings` 新增「创业者卡片」Section：多选标签 UI、showInPlaza toggle、项目 CRUD、完善度进度条
+  - 新增 API `/api/user/card`（GET/PUT）
+  - 清理：删除 `/start` 页面、前端去掉 skills 展示、sitemap 去掉 /start
+- **代码量：** +1,247 行 / -787 行（12 文件）
+- **build 状态：** ✅ 零报错

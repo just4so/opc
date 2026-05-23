@@ -262,7 +262,7 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：P1 Batch 1 已完成，等待 Batch 2
+### 当前状态：P1 Batch 2 已完成，等待 Batch 3
 
 **P0 已完成（commits: 098d107, a4b19e9）。** Inquiry 全链路：直通车表单 → API → 联系方式解锁 → 后台看板。
 
@@ -271,11 +271,16 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 2. ✅ 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
 3. ✅ 资讯详情页底部通用 CTA
 
-**P1 Batch 2 待做：**
-4. 创业者广场 `/plaza` 重构（卡片墙）
-5. 用户主页 `/profile/[username]` 改造
-6. 我的卡片 `/settings/card`
-7. 注册流程精简（4 字段 + skills 清理）
+**P1 Batch 2 已完成（commit: 7530437，2026-05-23）：**
+4. ✅ 创业者广场 `/plaza` 重构（双 Tab：创业者卡片 + 动态帖子）
+5. ✅ 用户主页 `/profile/[username]` 改造（卡片信息 + 项目列表 + OG Meta + 完善度提示）
+6. ✅ 个人设置 `/settings` 新增「创业者卡片」Section（多选标签 + showInPlaza toggle + 项目 CRUD + 完善度进度条）
+7. ✅ 新增 API `/api/user/card`（GET/PUT）
+8. ✅ 清理：删除 `/start` 页面、前端去掉 skills 展示、session-cta 改链 /register
+9. ✅ sitemap.ts 去掉 /start
+
+**P1 Batch 3 待做：**
+- 注册流程精简（4 字段 + skills 清理）
 
 ### 完整计划
 
