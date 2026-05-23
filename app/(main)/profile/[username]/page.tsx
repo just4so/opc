@@ -62,6 +62,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       startupStage: true,
       showInPlaza: true,
       createdAt: true,
+      lastActiveAt: true,
       _count: {
         select: { posts: true },
       },
@@ -74,7 +75,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     prisma.post.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       orderBy: { createdAt: 'desc' },
-      take: 10,
+      take: 3,
       select: {
         id: true,
         title: true,
@@ -103,6 +104,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const serializedUser = {
     ...user,
     createdAt: user.createdAt.toISOString(),
+    lastActiveAt: user.lastActiveAt?.toISOString() ?? null,
   }
 
   // Fire-and-forget notification when someone views a plaza profile

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowLeft,
   Save,
   User,
   MapPin,
@@ -21,8 +20,8 @@ import {
   Plus,
   Trash2,
   ExternalLink,
+  Rocket,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AvatarPicker } from '@/components/ui/avatar-picker'
@@ -66,6 +65,14 @@ const CONTENT_TYPE_OPTIONS = [
   { value: 'COOPERATION', label: '合作' },
 ]
 
+type SettingsSection = 'basic' | 'card' | 'projects'
+
+const NAV_ITEMS: { key: SettingsSection; label: string; icon: React.ReactNode }[] = [
+  { key: 'basic', label: '基本信息', icon: <User className="h-4 w-4" /> },
+  { key: 'card', label: '创业者卡片', icon: <CreditCard className="h-4 w-4" /> },
+  { key: 'projects', label: '我的产品', icon: <Rocket className="h-4 w-4" /> },
+]
+
 function ensureUrl(url: string): string {
   if (!url) return url
   if (url.startsWith('http://') || url.startsWith('https://')) return url
@@ -77,8 +84,7 @@ export default function SettingsPage() {
   const router = useRouter()
 
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [activeSection, setActiveSection] = useState<SettingsSection>('basic')
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
   // Basic fields
@@ -97,12 +103,14 @@ export default function SettingsPage() {
   const [verifySent, setVerifySent] = useState(false)
   const [verifyError, setVerifyError] = useState('')
 
+  // Save state
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
   // Card fields
   const [mainTrack, setMainTrack] = useState('')
   const [startupStage, setStartupStage] = useState('')
   const [showInPlaza, setShowInPlaza] = useState(false)
-
-  // Card save state
   const [savingCard, setSavingCard] = useState(false)
   const [cardMessage, setCardMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -110,6 +118,19 @@ export default function SettingsPage() {
   const [projects, setProjects] = useState<ProjectItem[]>([])
   const [showNewProject, setShowNewProject] = useState(false)
   const [newProject, setNewProject] = useState({ name: '', tagline: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+
+  // Hash-based section navigation
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '') as SettingsSection
+    if (['basic', 'card', 'projects'].includes(hash)) {
+      setActiveSection(hash)
+    }
+  }, [])
+
+  const switchSection = (section: SettingsSection) => {
+    setActiveSection(section)
+    window.history.replaceState(null, '', `#${section}`)
+  }
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -158,7 +179,6 @@ export default function SettingsPage() {
     } catch {}
   }
 
-  // Basic profile save
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
@@ -191,7 +211,6 @@ export default function SettingsPage() {
     }
   }
 
-  // Card save
   const handleCardSave = async () => {
     setCardMessage(null)
     setSavingCard(true)
@@ -305,431 +324,447 @@ export default function SettingsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-gray-500">加载中...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#fbfbf9' }}>
+        <div style={{ color: '#91918c' }}>加载中...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Link
-            href="/profile"
-            className="inline-flex items-center text-gray-600 hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回个人中心
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen" style={{ backgroundColor: '#fbfbf9' }}>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 className="text-2xl font-bold mb-6" style={{ color: '#000' }}>账号设置</h1>
 
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-2xl font-bold text-secondary mb-6">账号设置</h1>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {message && (
-            <div
-              className={`px-4 py-3 rounded-md text-sm ${
-                message.type === 'success'
-                  ? 'bg-green-50 text-green-600'
-                  : 'bg-red-50 text-red-600'
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
-
-          {/* Avatar */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Camera className="h-5 w-5 mr-2 text-primary" />
-                头像
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
-                  {avatar ? (
-                    <img src={avatar} alt="头像" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="h-8 w-8 text-gray-400" />
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left sidebar nav */}
+          <nav className="md:w-48 shrink-0">
+            <div className="md:sticky md:top-24 space-y-1">
+              {NAV_ITEMS.map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => switchSection(item.key)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
+                    activeSection === item.key
+                      ? 'text-white'
+                      : ''
+                  }`}
+                  style={activeSection === item.key
+                    ? { backgroundColor: '#F97316', color: '#fff' }
+                    : { color: '#62625b' }
+                  }
+                  onMouseEnter={e => {
+                    if (activeSection !== item.key) {
+                      (e.target as HTMLElement).style.backgroundColor = '#f6f6f3'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (activeSection !== item.key) {
+                      (e.target as HTMLElement).style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
-                  更换头像
-                </Button>
-              </div>
-              {showAvatarPicker && (
-                <div className="mt-4">
-                  <AvatarPicker
-                    currentAvatar={avatar}
-                    onSelect={(url) => {
-                      setAvatar(url)
-                      setShowAvatarPicker(false)
-                    }}
-                    onClose={() => setShowAvatarPicker(false)}
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  {item.icon}
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </nav>
 
-          {/* Account Security */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Mail className="h-5 w-5 mr-2 text-primary" />
-                账户安全
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">邮箱</p>
-                  <p className="text-sm text-gray-500 mt-0.5">
-                    {userEmail || '未绑定'}
-                    {userEmail && (
-                      emailVerified ? (
-                        <span className="ml-2 inline-flex items-center text-green-600 text-xs">
-                          <CheckCircle className="h-3.5 w-3.5 mr-0.5" />已验证
-                        </span>
-                      ) : (
-                        <span className="ml-2 inline-flex items-center text-orange-500 text-xs">
-                          <AlertCircle className="h-3.5 w-3.5 mr-0.5" />未验证
-                        </span>
-                      )
-                    )}
-                  </p>
-                </div>
-                {userEmail && !emailVerified && (
-                  <div className="text-right">
-                    {verifySent ? (
-                      <p className="text-sm text-green-600">已发送，请检查收件箱</p>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleSendVerifyEmail}
-                        disabled={sendingVerify}
-                      >
-                        {sendingVerify ? '发送中...' : '发送验证邮件'}
-                      </Button>
-                    )}
-                    {verifyError && (
-                      <p className="text-xs text-red-500 mt-1">{verifyError}</p>
-                    )}
+          {/* Right content area */}
+          <div className="flex-1 min-w-0">
+
+            {/* ===== BASIC INFO SECTION ===== */}
+            {activeSection === 'basic' && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {message && (
+                  <div
+                    className="px-4 py-3 rounded-xl text-sm"
+                    style={message.type === 'success'
+                      ? { backgroundColor: '#c7f0da', color: '#103c25' }
+                      : { backgroundColor: '#FEE2E2', color: '#9e0a0a' }
+                    }
+                  >
+                    {message.text}
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Basic Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <User className="h-5 w-5 mr-2 text-primary" />
-                基本信息
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">昵称</label>
-                <div className="flex gap-2">
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="你的昵称"
-                    disabled={nameIsSet}
-                    className={nameIsSet ? 'bg-gray-50 text-gray-500' : ''}
-                  />
-                  {!nameIsSet && (
+                {/* Avatar */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <h3 className="text-base font-semibold mb-4 flex items-center gap-2" style={{ color: '#000' }}>
+                    <Camera className="h-4 w-4" style={{ color: '#F97316' }} />
+                    头像
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden flex items-center justify-center" style={{ border: '2px solid #e5e5e0', backgroundColor: '#f6f6f3' }}>
+                      {avatar ? (
+                        <img src={avatar} alt="头像" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-8 w-8" style={{ color: '#91918c' }} />
+                      )}
+                    </div>
                     <Button
                       type="button"
+                      variant="outline"
                       size="sm"
-                      onClick={handleSetName}
-                      disabled={settingName || !name.trim()}
+                      onClick={() => setShowAvatarPicker(!showAvatarPicker)}
                     >
-                      {settingName ? '设置中...' : '设置昵称'}
+                      更换头像
                     </Button>
+                  </div>
+                  {showAvatarPicker && (
+                    <div className="mt-4">
+                      <AvatarPicker
+                        currentAvatar={avatar}
+                        onSelect={(url) => {
+                          setAvatar(url)
+                          setShowAvatarPicker(false)
+                        }}
+                        onClose={() => setShowAvatarPicker(false)}
+                      />
+                    </div>
                   )}
                 </div>
-                {nameIsSet && (
-                  <p className="text-xs text-gray-400 mt-1">昵称设置后不可修改</p>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">个人简介</label>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="介绍一下你自己..."
-                  className="w-full h-24 px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  <MapPin className="h-4 w-4 inline mr-1" />
-                  所在城市
-                </label>
-                <Input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="如：深圳"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  <Globe className="h-4 w-4 inline mr-1" />
-                  个人网站
-                </label>
-                <Input
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="https://your-website.com"
-                  type="url"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  <MessageSquare className="h-4 w-4 inline mr-1" />
-                  微信号
-                </label>
-                <Input
-                  value={wechat}
-                  onChange={(e) => setWechat(e.target.value)}
-                  placeholder="你的微信号"
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-4">用户ID：{username}（系统生成，不可修改）</p>
-            </CardContent>
-          </Card>
 
-          {/* Submit basic */}
-          <div className="flex justify-end space-x-4">
-            <Link href="/profile">
-              <Button type="button" variant="outline">取消</Button>
-            </Link>
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? '保存中...' : '保存基本信息'}
-            </Button>
-          </div>
-        </form>
-
-        {/* ======== Entrepreneur Card Section ======== */}
-        <div className="mt-10 space-y-6">
-          <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-primary" />
-            <h2 className="text-xl font-bold text-secondary">创业者卡片</h2>
-          </div>
-
-          {cardMessage && (
-            <div
-              className={`px-4 py-3 rounded-md text-sm ${
-                cardMessage.type === 'success'
-                  ? 'bg-green-50 text-green-600'
-                  : 'bg-red-50 text-red-600'
-              }`}
-            >
-              {cardMessage.text}
-            </div>
-          )}
-
-          {/* Completeness bar */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">卡片完善度</span>
-                <span className="text-sm font-semibold text-primary">{completenessPercent}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                <div
-                  className="bg-primary rounded-full h-2 transition-all"
-                  style={{ width: `${completenessPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500">
-                完善卡片信息，让其他创业者更容易找到你
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* showInPlaza toggle */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">在广场展示卡片</p>
-                  <p className="text-xs text-gray-500 mt-0.5">开启后，你的卡片将出现在创业者广场</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowInPlaza(!showInPlaza)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    showInPlaza ? 'bg-primary' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
-                      showInPlaza ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-              <div className="mt-2 flex items-center gap-1 text-xs text-gray-400">
-                {showInPlaza ? (
-                  <><Eye className="h-3.5 w-3.5" /> 当前：公开展示</>
-                ) : (
-                  <><EyeOff className="h-3.5 w-3.5" /> 当前：不展示</>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Card fields */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">卡片信息</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">创业方向（赛道）</label>
-                <Input
-                  value={mainTrack}
-                  onChange={(e) => setMainTrack(e.target.value)}
-                  placeholder="如：AI教育、跨境电商、SaaS"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">创业阶段</label>
-                <select
-                  value={startupStage}
-                  onChange={(e) => setStartupStage(e.target.value)}
-                  className="w-full px-4 py-2.5 border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="">请选择</option>
-                  {STAGE_OPTIONS.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Projects CRUD */}          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
-                <span>关联项目</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowNewProject(!showNewProject)}
-                  className="gap-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  添加
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {showNewProject && (
-                <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
-                  <Input
-                    value={newProject.name}
-                    onChange={e => setNewProject(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="项目名称"
-                  />
-                  <Input
-                    value={newProject.tagline}
-                    onChange={e => setNewProject(prev => ({ ...prev, tagline: e.target.value }))}
-                    placeholder="一句话描述"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <select
-                      value={newProject.stage}
-                      onChange={e => setNewProject(prev => ({ ...prev, stage: e.target.value }))}
-                      className="px-3 py-2 text-sm border rounded-lg bg-white"
-                    >
-                      {STAGE_OPTIONS.map(o => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={newProject.contentType}
-                      onChange={e => setNewProject(prev => ({ ...prev, contentType: e.target.value }))}
-                      className="px-3 py-2 text-sm border rounded-lg bg-white"
-                    >
-                      {CONTENT_TYPE_OPTIONS.map(o => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <Input
-                    value={newProject.website}
-                    onChange={e => setNewProject(prev => ({ ...prev, website: e.target.value }))}
-                    placeholder="网站 URL（可选）"
-                  />
-                  <div className="flex gap-2">
-                    <Button type="button" size="sm" onClick={handleCreateProject} disabled={!newProject.name.trim()}>
-                      创建
-                    </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={() => setShowNewProject(false)}>
-                      取消
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {projects.length === 0 && !showNewProject && (
-                <p className="text-sm text-gray-400 text-center py-4">暂无关联项目</p>
-              )}
-
-              {projects.map(proj => (
-                <div key={proj.id} className="border rounded-lg p-3 flex items-start justify-between">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-secondary">{proj.name}</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                        {CONTENT_TYPE_OPTIONS.find(o => o.value === proj.contentType)?.label || proj.contentType}
-                      </span>
+                {/* Account security */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <h3 className="text-base font-semibold mb-4 flex items-center gap-2" style={{ color: '#000' }}>
+                    <Mail className="h-4 w-4" style={{ color: '#F97316' }} />
+                    邮箱
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm" style={{ color: '#33332e' }}>
+                        {userEmail || '未绑定'}
+                        {userEmail && (
+                          emailVerified ? (
+                            <span className="ml-2 inline-flex items-center text-xs" style={{ color: '#103c25' }}>
+                              <CheckCircle className="h-3.5 w-3.5 mr-0.5" />已验证
+                            </span>
+                          ) : (
+                            <span className="ml-2 inline-flex items-center text-xs" style={{ color: '#EA580C' }}>
+                              <AlertCircle className="h-3.5 w-3.5 mr-0.5" />未验证
+                            </span>
+                          )
+                        )}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{proj.tagline}</p>
-                    {proj.website && (
-                      <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
-                        <ExternalLink className="h-3 w-3" />{proj.website}
-                      </a>
+                    {userEmail && !emailVerified && (
+                      <div className="text-right">
+                        {verifySent ? (
+                          <p className="text-sm" style={{ color: '#103c25' }}>已发送，请检查收件箱</p>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSendVerifyEmail}
+                            disabled={sendingVerify}
+                          >
+                            {sendingVerify ? '发送中...' : '发送验证邮件'}
+                          </Button>
+                        )}
+                        {verifyError && (
+                          <p className="text-xs mt-1" style={{ color: '#9e0a0a' }}>{verifyError}</p>
+                        )}
+                      </div>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteProject(proj.id)}
-                    className="text-gray-400 hover:text-red-500 shrink-0 ml-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
 
-          {/* Save card */}
-          <div className="flex justify-end">
-            <Button onClick={handleCardSave} disabled={savingCard}>
-              <Save className="h-4 w-4 mr-2" />
-              {savingCard ? '保存中...' : '保存卡片'}
-            </Button>
+                {/* Basic fields */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <h3 className="text-base font-semibold mb-4 flex items-center gap-2" style={{ color: '#000' }}>
+                    <User className="h-4 w-4" style={{ color: '#F97316' }} />
+                    基本信息
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>昵称</label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="你的昵称"
+                          disabled={nameIsSet}
+                          className={nameIsSet ? 'bg-gray-50 text-gray-500' : ''}
+                        />
+                        {!nameIsSet && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={handleSetName}
+                            disabled={settingName || !name.trim()}
+                          >
+                            {settingName ? '设置中...' : '设置昵称'}
+                          </Button>
+                        )}
+                      </div>
+                      {nameIsSet && (
+                        <p className="text-xs mt-1" style={{ color: '#91918c' }}>昵称设置后不可修改</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>个人简介</label>
+                      <textarea
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="介绍一下你自己..."
+                        className="w-full h-24 px-4 py-3 border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>
+                        <MapPin className="h-4 w-4 inline mr-1" />
+                        所在城市
+                      </label>
+                      <Input
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="如：深圳"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>
+                        <Globe className="h-4 w-4 inline mr-1" />
+                        个人网站
+                      </label>
+                      <Input
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        placeholder="https://your-website.com"
+                        type="url"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>
+                        <MessageSquare className="h-4 w-4 inline mr-1" />
+                        微信号
+                      </label>
+                      <Input
+                        value={wechat}
+                        onChange={(e) => setWechat(e.target.value)}
+                        placeholder="你的微信号"
+                      />
+                    </div>
+                    <p className="text-xs" style={{ color: '#91918c' }}>用户ID：{username}（系统生成，不可修改）</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={saving} className="gap-2">
+                    <Save className="h-4 w-4" />
+                    {saving ? '保存中...' : '保存基本信息'}
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* ===== CARD SECTION ===== */}
+            {activeSection === 'card' && (
+              <div className="space-y-6">
+                {cardMessage && (
+                  <div
+                    className="px-4 py-3 rounded-xl text-sm"
+                    style={cardMessage.type === 'success'
+                      ? { backgroundColor: '#c7f0da', color: '#103c25' }
+                      : { backgroundColor: '#FEE2E2', color: '#9e0a0a' }
+                    }
+                  >
+                    {cardMessage.text}
+                    {cardMessage.type === 'success' && showInPlaza && (
+                      <Link href="/plaza" className="ml-2 underline font-medium" style={{ color: '#103c25' }}>
+                        去广场看看你的卡片 →
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* Completeness */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium" style={{ color: '#33332e' }}>卡片完善度</span>
+                    <span className="text-sm font-semibold" style={{ color: '#F97316' }}>{completenessPercent}%</span>
+                  </div>
+                  <div className="w-full rounded-full h-2 mb-2" style={{ backgroundColor: '#e5e5e0' }}>
+                    <div
+                      className="rounded-full h-2 transition-all"
+                      style={{ width: `${completenessPercent}%`, backgroundColor: '#F97316' }}
+                    />
+                  </div>
+                  <p className="text-xs" style={{ color: '#91918c' }}>
+                    完善卡片信息，让其他创业者更容易找到你
+                  </p>
+                </div>
+
+                {/* Show in plaza toggle */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: '#33332e' }}>在广场展示卡片</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#91918c' }}>开启后，你的卡片将出现在创业者广场</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowInPlaza(!showInPlaza)}
+                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      style={{ backgroundColor: showInPlaza ? '#F97316' : '#c8c8c1' }}
+                    >
+                      <span
+                        className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
+                        style={{ transform: showInPlaza ? 'translateX(24px)' : 'translateX(4px)' }}
+                      />
+                    </button>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1 text-xs" style={{ color: '#91918c' }}>
+                    {showInPlaza ? (
+                      <><Eye className="h-3.5 w-3.5" /> 当前：公开展示</>
+                    ) : (
+                      <><EyeOff className="h-3.5 w-3.5" /> 当前：不展示</>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card fields */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <h3 className="text-base font-semibold mb-4" style={{ color: '#000' }}>卡片信息</h3>
+                  <div className="space-y-5">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>创业方向（赛道）</label>
+                      <Input
+                        value={mainTrack}
+                        onChange={(e) => setMainTrack(e.target.value)}
+                        placeholder="如：AI教育、跨境电商、SaaS"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block" style={{ color: '#33332e' }}>创业阶段</label>
+                      <select
+                        value={startupStage}
+                        onChange={(e) => setStartupStage(e.target.value)}
+                        className="w-full px-4 py-2.5 border rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        style={{ color: '#33332e' }}
+                      >
+                        <option value="">请选择</option>
+                        {STAGE_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={handleCardSave} disabled={savingCard} className="gap-2">
+                    <Save className="h-4 w-4" />
+                    {savingCard ? '保存中...' : '保存卡片'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ===== PROJECTS SECTION ===== */}
+            {activeSection === 'projects' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold" style={{ color: '#000' }}>我的产品</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowNewProject(!showNewProject)}
+                    className="gap-1"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    添加
+                  </Button>
+                </div>
+
+                {showNewProject && (
+                  <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: '#f6f6f3', border: '1px solid #dadad3' }}>
+                    <Input
+                      value={newProject.name}
+                      onChange={e => setNewProject(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="项目名称"
+                    />
+                    <Input
+                      value={newProject.tagline}
+                      onChange={e => setNewProject(prev => ({ ...prev, tagline: e.target.value }))}
+                      placeholder="一句话描述"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <select
+                        value={newProject.stage}
+                        onChange={e => setNewProject(prev => ({ ...prev, stage: e.target.value }))}
+                        className="px-3 py-2 text-sm border rounded-xl bg-white"
+                      >
+                        {STAGE_OPTIONS.map(o => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={newProject.contentType}
+                        onChange={e => setNewProject(prev => ({ ...prev, contentType: e.target.value }))}
+                        className="px-3 py-2 text-sm border rounded-xl bg-white"
+                      >
+                        {CONTENT_TYPE_OPTIONS.map(o => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <Input
+                      value={newProject.website}
+                      onChange={e => setNewProject(prev => ({ ...prev, website: e.target.value }))}
+                      placeholder="网站 URL（可选）"
+                    />
+                    <div className="flex gap-2">
+                      <Button type="button" size="sm" onClick={handleCreateProject} disabled={!newProject.name.trim()}>
+                        创建
+                      </Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => setShowNewProject(false)}>
+                        取消
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {projects.length === 0 && !showNewProject && (
+                  <div className="bg-white rounded-2xl p-8 text-center" style={{ border: '1px solid #dadad3' }}>
+                    <Rocket className="h-10 w-10 mx-auto mb-3" style={{ color: '#c8c8c1' }} />
+                    <p className="text-sm" style={{ color: '#91918c' }}>暂无产品，点击"添加"创建你的第一个产品</p>
+                  </div>
+                )}
+
+                {projects.map(proj => (
+                  <div key={proj.id} className="bg-white rounded-2xl p-5 flex items-start justify-between" style={{ border: '1px solid #dadad3' }}>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm" style={{ color: '#000' }}>{proj.name}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#f6f6f3', color: '#62625b' }}>
+                          {CONTENT_TYPE_OPTIONS.find(o => o.value === proj.contentType)?.label || proj.contentType}
+                        </span>
+                      </div>
+                      <p className="text-xs mt-1" style={{ color: '#62625b' }}>{proj.tagline}</p>
+                      {proj.website && (
+                        <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center gap-1 mt-1.5 hover:underline" style={{ color: '#F97316' }}>
+                          <ExternalLink className="h-3 w-3" />{proj.website}
+                        </a>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProject(proj.id)}
+                      className="shrink-0 ml-3 p-1.5 rounded-lg transition-colors"
+                      style={{ color: '#91918c' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9e0a0a' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#91918c' }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
         </div>
       </div>
