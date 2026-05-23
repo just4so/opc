@@ -159,6 +159,15 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </div>
       )}
 
+      {/* CTA */}
+      <div className="mt-12 py-8 border-t border-hairline text-center">
+        <p className="text-lg font-semibold text-ink mb-2">想入驻 OPC 社区？一键对接</p>
+        <p className="text-sm text-mute mb-4">提交意向后，专人帮你对接最合适的社区</p>
+        <Link href="/connect" className="inline-block bg-primary text-on-primary font-bold rounded-xl px-8 py-3 hover:bg-primary-600 transition-colors">
+          社区直通车 →
+        </Link>
+      </div>
+
       {/* Footer */}
       <div className="mt-10 pt-6 border-t border-gray-200">
         <Link

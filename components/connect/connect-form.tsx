@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckCircle2, Copy, Check, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Copy, Check, ArrowRight, X } from 'lucide-react'
 
 interface ConnectFormProps {
   community: {
@@ -25,7 +25,7 @@ interface ConnectFormProps {
     contactName: string | null
     contactPhone: string | null
     contactWechat: string | null
-  }
+  } | null
   user: {
     name: string
     contact: string
@@ -34,6 +34,7 @@ interface ConnectFormProps {
     startupStage: string
   }
   cities: string[]
+  communities?: { name: string; slug: string }[]
 }
 
 const step1Schema = z.object({
@@ -56,13 +57,33 @@ type SuccessData = {
   communityContact: { name?: string; phone?: string; wechat?: string } | null
 }
 
-export function ConnectForm({ community, user, cities }: ConnectFormProps) {
+export function ConnectForm({ community, user, cities, communities = [] }: ConnectFormProps) {
   const [step, setStep] = useState<'step1' | 'step2' | 'success'>('step1')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [successData, setSuccessData] = useState<SuccessData | null>(null)
   const [copied, setCopied] = useState(false)
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
+
+  const [selectedCommunity, setSelectedCommunity] = useState<{ slug: string; name: string } | 'recommend' | null>(null)
+  const [communitySearch, setCommunitySearch] = useState('')
+  const [showCommunityDropdown, setShowCommunityDropdown] = useState(false)
+  const [communityError, setCommunityError] = useState('')
+  const comboboxRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (comboboxRef.current && !comboboxRef.current.contains(e.target as Node)) {
+        setShowCommunityDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const filteredCommunities = communities.filter(c =>
+    c.name.toLowerCase().includes(communitySearch.toLowerCase())
+  )
 
   const form1 = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
@@ -84,6 +105,11 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
   })
 
   function handleStep1(data: Step1Data) {
+    if (!community && !selectedCommunity) {
+      setCommunityError('请选择意向社区')
+      return
+    }
+    setCommunityError('')
     setStep1Data(data)
     setStep('step2')
   }
@@ -93,12 +119,18 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
     setSubmitting(true)
     setError('')
 
+    const communitySlug = community
+      ? community.slug
+      : selectedCommunity && selectedCommunity !== 'recommend'
+        ? selectedCommunity.slug
+        : undefined
+
     try {
       const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          communitySlug: community.slug,
+          communitySlug: communitySlug || undefined,
           name: step1Data.name,
           contact: step1Data.contact,
           city: step1Data.city,
@@ -149,6 +181,13 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const isRecommend = !community && selectedCommunity === 'recommend'
+  const displayCommunityName = community
+    ? community.name
+    : selectedCommunity && selectedCommunity !== 'recommend'
+      ? selectedCommunity.name
+      : null
+
   if (step === 'success') {
     const contact = successData?.communityContact
     return (
@@ -158,10 +197,14 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="text-xl font-bold text-secondary mb-2">提交成功！</h2>
-          <p className="text-sm text-mute">我们会尽快帮你对接 {community.name}</p>
+          {isRecommend ? (
+            <p className="text-sm text-mute">我们会在 1 个工作日内推荐适合你的社区并通过微信联系你</p>
+          ) : (
+            <p className="text-sm text-mute">我们会尽快帮你对接 {displayCommunityName}</p>
+          )}
         </div>
 
-        {contact && (contact.name || contact.phone || contact.wechat) && (
+        {!isRecommend && contact && (contact.name || contact.phone || contact.wechat) && (
           <div className="bg-surface-soft rounded-xl p-5 mb-6">
             <h3 className="text-sm font-semibold text-secondary mb-3">社区联系方式</h3>
             <div className="space-y-2 text-sm text-body">
@@ -210,10 +253,13 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
     <div className="w-full max-w-lg mx-auto bg-canvas rounded-2xl shadow-soft p-8">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-secondary mb-1">社区直通车</h2>
-        <p className="text-sm text-mute">提交意向，专人帮你对接 {community.name}</p>
+        <p className="text-sm text-mute">
+          {community
+            ? `提交意向，专人帮你对接 ${community.name}`
+            : '提交意向，专人帮你对接合适的 OPC 社区'}
+        </p>
       </div>
 
-      {/* Step indicators */}
       <div className="flex items-center gap-2 mb-6">
         <div className={`flex-1 h-1 rounded-full ${step === 'step1' ? 'bg-primary' : 'bg-primary'}`} />
         <div className={`flex-1 h-1 rounded-full ${step === 'step2' ? 'bg-primary' : 'bg-gray-200'}`} />
@@ -275,14 +321,83 @@ export function ConnectForm({ community, user, cities }: ConnectFormProps) {
             )}
           </div>
 
-          <div>
-            <Label>意向社区</Label>
-            <Input
-              value={community.name}
-              disabled
-              className="mt-1.5 bg-gray-50"
-            />
-          </div>
+          {community ? (
+            <div>
+              <Label>意向社区</Label>
+              <Input
+                value={community.name}
+                disabled
+                className="mt-1.5 bg-gray-50"
+              />
+            </div>
+          ) : (
+            <div>
+              <Label>意向社区 *</Label>
+              <div className="relative mt-1.5" ref={comboboxRef}>
+                {selectedCommunity ? (
+                  <div className="flex items-center justify-between border border-input rounded-md h-10 px-3 bg-background text-sm">
+                    <span>
+                      {selectedCommunity === 'recommend' ? '不确定，帮我推荐' : selectedCommunity.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCommunity(null)}
+                      className="text-ash hover:text-mute transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <Input
+                    placeholder="搜索社区..."
+                    value={communitySearch}
+                    onChange={(e) => {
+                      setCommunitySearch(e.target.value)
+                      setShowCommunityDropdown(true)
+                    }}
+                    onFocus={() => setShowCommunityDropdown(true)}
+                  />
+                )}
+                {showCommunityDropdown && !selectedCommunity && (
+                  <div className="absolute z-50 w-full mt-1 bg-canvas border border-hairline rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCommunity('recommend')
+                        setShowCommunityDropdown(false)
+                        setCommunitySearch('')
+                        setCommunityError('')
+                      }}
+                      className="w-full text-left px-3.5 py-2.5 text-sm text-primary font-medium hover:bg-surface-soft border-b border-hairline-soft"
+                    >
+                      不确定，帮我推荐
+                    </button>
+                    {filteredCommunities.map((c) => (
+                      <button
+                        type="button"
+                        key={c.slug}
+                        onClick={() => {
+                          setSelectedCommunity(c)
+                          setShowCommunityDropdown(false)
+                          setCommunitySearch('')
+                          setCommunityError('')
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 text-sm text-body hover:bg-surface-soft"
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                    {filteredCommunities.length === 0 && communitySearch && (
+                      <div className="px-3.5 py-2.5 text-sm text-ash">未找到匹配的社区</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {communityError && (
+                <p className="text-red-500 text-xs mt-1">{communityError}</p>
+              )}
+            </div>
+          )}
 
           <Button type="submit" className="w-full">
             下一步
