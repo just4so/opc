@@ -34,6 +34,9 @@ export async function GET() {
         skills: true,
         canOffer: true,
         lookingFor: true,
+        mainTrack: true,
+        startupStage: true,
+        showInPlaza: true,
         createdAt: true,
         _count: {
           select: {
@@ -75,6 +78,9 @@ export async function PUT(request: NextRequest) {
       'skills',
       'canOffer',
       'lookingFor',
+      'mainTrack',
+      'startupStage',
+      'showInPlaza',
     ]
 
     const updateData: Record<string, any> = {}

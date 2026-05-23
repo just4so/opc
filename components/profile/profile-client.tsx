@@ -5,14 +5,18 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  User,
   MapPin,
   Globe,
   Calendar,
-  Briefcase,
-  Award,
   MessageSquare,
   Send,
+  BadgeCheck,
+  Briefcase,
+  Target,
+  HandHelping,
+  ExternalLink,
+  Settings,
+  AlertCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -29,9 +33,11 @@ interface UserProfile {
   level: number
   verified: boolean
   verifyType: string | null
-  skills: string[]
   canOffer: string[]
   lookingFor: string[]
+  mainTrack: string | null
+  startupStage: string | null
+  showInPlaza: boolean
   createdAt: string
   _count: {
     posts: number
@@ -48,16 +54,35 @@ interface RecentPost {
   createdAt: string
 }
 
+interface ProjectItem {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  stage: string
+  website: string | null
+  contentType: string
+}
+
 const TYPE_LABELS: Record<string, string> = {
-  CHAT: '💬 聊聊', HELP: '❓ 求助', SHARE: '📣 分享', COLLAB: '🤝 找人',
+  CHAT: '聊聊', HELP: '求助', SHARE: '分享', COLLAB: '找人',
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  IDEA: '想法阶段', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
+}
+
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  PROJECT: '项目', DEMAND: '需求', COOPERATION: '合作',
 }
 
 interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
+  projects?: ProjectItem[]
 }
 
-export default function ProfileClient({ user, recentPosts = [] }: ProfileClientProps) {
+export default function ProfileClient({ user, recentPosts = [], projects = [] }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -87,30 +112,75 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
         router.push(`/messages/${data.conversation.id}`)
       } else {
         setChatError(data.error || '创建对话失败，请重试')
-        console.error('创建对话失败:', data.error)
       }
-    } catch (error) {
+    } catch {
       setChatError('网络错误，请重试')
-      console.error('创建对话失败:', error)
     } finally {
       setStartingChat(false)
     }
   }
 
+  // Completeness calculation for own profile
+  const completenessFields = [
+    { label: '头像', filled: !!user.avatar },
+    { label: '个人简介', filled: !!user.bio },
+    { label: '创业方向', filled: !!user.mainTrack },
+    { label: '创业阶段', filled: !!user.startupStage },
+    { label: '所在城市', filled: !!user.location },
+    { label: '正在寻找', filled: user.lookingFor.length > 0 },
+    { label: '可以提供', filled: user.canOffer.length > 0 },
+  ]
+  const completedCount = completenessFields.filter(f => f.filled).length
+  const completenessPercent = Math.round((completedCount / completenessFields.length) * 100)
+  const missingFields = completenessFields.filter(f => !f.filled)
+
   return (
     <div className="min-h-screen bg-background">
-      {/* 页面标题 */}
+      {/* Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-secondary">用户主页</h1>
+          <h1 className="text-2xl font-bold text-secondary">
+            {isOwnProfile ? '我的主页' : '用户主页'}
+          </h1>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Owner completeness hint */}
+        {isOwnProfile && completenessPercent < 100 && (
+          <div className="mb-6 bg-primary/5 border border-primary/20 rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-secondary">卡片完善度</span>
+              </div>
+              <span className="text-sm font-semibold text-primary">{completenessPercent}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+              <div
+                className="bg-primary rounded-full h-2 transition-all"
+                style={{ width: `${completenessPercent}%` }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {missingFields.map(f => (
+                <span key={f.label} className="text-xs px-2 py-1 rounded-full bg-white border text-gray-500">
+                  缺少{f.label}
+                </span>
+              ))}
+            </div>
+            <Link href="/settings">
+              <Button size="sm" variant="outline" className="gap-1">
+                <Settings className="h-3.5 w-3.5" />
+                去完善
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 左侧：用户信息卡片 */}
+          {/* Left: User card */}
           <div className="lg:col-span-1 space-y-6">
-            {/* 基本信息 */}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
@@ -128,25 +198,27 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
                   <h2 className="text-xl font-semibold text-secondary">
                     {user.name || user.username}
                   </h2>
-                  <p className="text-gray-500">@{user.username}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="secondary">Lv.{user.level}</Badge>
+                  <p className="text-gray-500 text-sm">@{user.username}</p>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
                     {user.verified && (
-                      <Badge variant="default">
-                        <Award className="h-3 w-3 mr-1" />
+                      <Badge variant="default" className="gap-1">
+                        <BadgeCheck className="h-3 w-3" />
                         已认证
                       </Badge>
+                    )}
+                    {user.mainTrack && (
+                      <Badge variant="secondary">{user.mainTrack}</Badge>
+                    )}
+                    {user.startupStage && (
+                      <Badge variant="outline">{STAGE_LABELS[user.startupStage] || user.startupStage}</Badge>
                     )}
                   </div>
                 </div>
 
                 {user.bio && (
-                  <p className="text-gray-600 text-center mt-4 text-sm">
-                    {user.bio}
-                  </p>
+                  <p className="text-gray-600 text-center mt-4 text-sm">{user.bio}</p>
                 )}
 
-                {/* 发送私信按钮 */}
                 {!isOwnProfile && (
                   <div className="mt-6">
                     <Button
@@ -155,7 +227,7 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
                       disabled={startingChat}
                     >
                       <Send className="h-4 w-4 mr-2" />
-                      {startingChat ? '正在创建...' : '发送私信'}
+                      {startingChat ? '正在创建...' : '联系TA'}
                     </Button>
                     {chatError && (
                       <p className="text-red-500 text-sm mt-2 text-center">{chatError}</p>
@@ -164,10 +236,11 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
                 )}
 
                 {isOwnProfile && (
-                  <div className="mt-6">
-                    <Link href="/profile">
-                      <Button variant="outline" className="w-full">
-                        查看我的主页
+                  <div className="mt-6 flex gap-2">
+                    <Link href="/settings" className="flex-1">
+                      <Button variant="outline" className="w-full gap-1">
+                        <Settings className="h-4 w-4" />
+                        编辑资料
                       </Button>
                     </Link>
                   </div>
@@ -201,73 +274,24 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
               </CardContent>
             </Card>
 
-            {/* 统计数据 */}
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {user._count.posts}
-                  </div>
+                  <div className="text-2xl font-bold text-primary">{user._count.posts}</div>
                   <div className="text-sm text-gray-500">动态</div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* 右侧：技能和内容 */}
+          {/* Right: Tags, projects, posts */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 技能标签 */}
-            {user.skills.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2 text-primary" />
-                    技能专长
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 可以提供 */}
-            {user.canOffer.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2 text-green-500" />
-                    可以提供
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.canOffer.map((item, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="border-green-200 text-green-700"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 正在寻找 */}
+            {/* lookingFor */}
             {user.lookingFor.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
-                    <User className="h-5 w-5 mr-2 text-blue-500" />
+                    <Target className="h-5 w-5 mr-2 text-blue-500" />
                     正在寻找
                   </CardTitle>
                 </CardHeader>
@@ -287,25 +311,104 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
               </Card>
             )}
 
-            {/* 无内容提示 */}
-            {user.skills.length === 0 &&
-              user.canOffer.length === 0 &&
-              user.lookingFor.length === 0 && (
-                <Card>
-                  <CardContent className="py-12 text-center text-gray-500">
-                    该用户还没有填写详细信息
-                  </CardContent>
-                </Card>
-              )}
+            {/* canOffer */}
+            {user.canOffer.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <HandHelping className="h-5 w-5 mr-2 text-green-500" />
+                    可以提供
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {user.canOffer.map((item, index) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-green-200 text-green-700"
+                      >
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* TA的帖子 */}
+            {/* No tags hint */}
+            {user.canOffer.length === 0 && user.lookingFor.length === 0 && (
+              <Card>
+                <CardContent className="py-12 text-center text-gray-500">
+                  {isOwnProfile ? (
+                    <div>
+                      <p className="mb-3">还没有填写「正在寻找」和「可以提供」</p>
+                      <Link href="/settings">
+                        <Button variant="outline" size="sm">去完善卡片</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    '该用户还没有填写详细信息'
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Projects */}
+            {projects.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2 text-primary" />
+                    关联项目
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {projects.map(proj => (
+                      <div key={proj.id} className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-secondary">{proj.name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {CONTENT_TYPE_LABELS[proj.contentType] || proj.contentType}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {STAGE_LABELS[proj.stage] || proj.stage}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-0.5">{proj.tagline}</p>
+                          </div>
+                          {proj.website && (
+                            <a
+                              href={proj.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0 ml-2 text-gray-400 hover:text-primary"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Recent posts */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">TA的帖子</CardTitle>
+                <CardTitle className="text-lg flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2 text-gray-500" />
+                  最近动态
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {recentPosts.length === 0 ? (
-                  <p className="text-gray-400 text-sm text-center py-4">暂无帖子</p>
+                  <p className="text-gray-400 text-sm text-center py-4">暂无动态</p>
                 ) : (
                   <div className="space-y-3">
                     {recentPosts.map(post => (
@@ -320,8 +423,8 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
                           <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
                             {TYPE_LABELS[post.type] || post.type}
                           </span>
-                          <span>❤️ {post.likeCount}</span>
-                          <span>💬 {post.commentCount}</span>
+                          <span>{post.likeCount} 赞</span>
+                          <span>{post.commentCount} 评</span>
                           <span>{new Date(post.createdAt).toLocaleDateString('zh-CN')}</span>
                         </div>
                       </Link>

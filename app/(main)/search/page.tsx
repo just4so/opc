@@ -281,11 +281,11 @@ function SearchContent() {
                           {user.bio && (
                             <p className="text-sm text-gray-600 mt-3 line-clamp-2">{user.bio}</p>
                           )}
-                          {user.skills.length > 0 && (
+                          {user.lookingFor && user.lookingFor.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-3">
-                              {user.skills.slice(0, 3).map((skill: string) => (
-                                <Badge key={skill} variant="outline" className="text-xs">
-                                  {skill}
+                              {user.lookingFor.slice(0, 3).map((item: string) => (
+                                <Badge key={item} variant="outline" className="text-xs border-blue-200 text-blue-700">
+                                  {item}
                                 </Badge>
                               ))}
                             </div>
