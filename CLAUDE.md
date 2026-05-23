@@ -262,25 +262,28 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：P1 Batch 2 已完成，等待 Batch 3
+### 当前状态：P2 Batch 1 已完成，等待 Batch 2
 
 **P0 已完成（commits: 098d107, a4b19e9）。** Inquiry 全链路：直通车表单 → API → 联系方式解锁 → 后台看板。
 
-**P1 Batch 1 已完成（commit: fdab6f8，2026-05-23 10:09）：**
-1. ✅ 通用直通车 `/connect`（不指定社区，含社区 combobox + 帮我推荐选项）
+**P1 全部完成：**
+1. ✅ 通用直通车 `/connect`（含社区 combobox + 帮我推荐）
 2. ✅ 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
 3. ✅ 资讯详情页底部通用 CTA
+4. ✅ 创业者广场 `/plaza` 重构（双 Tab + 筛选 + 卡片墙）
+5. ✅ 用户主页 `/profile/[username]` 改造
+6. ✅ 个人设置 `/settings` 创业者卡片 Section
+7. ✅ Project CRUD API + Bug fixes（commits 10a9340, bf1840a）
 
-**P1 Batch 2 已完成（commit: 7530437，2026-05-23）：**
-4. ✅ 创业者广场 `/plaza` 重构（双 Tab：创业者卡片 + 动态帖子）
-5. ✅ 用户主页 `/profile/[username]` 改造（卡片信息 + 项目列表 + OG Meta + 完善度提示）
-6. ✅ 个人设置 `/settings` 新增「创业者卡片」Section（多选标签 + showInPlaza toggle + 项目 CRUD + 完善度进度条）
-7. ✅ 新增 API `/api/user/card`（GET/PUT）
-8. ✅ 清理：删除 `/start` 页面、前端去掉 skills 展示、session-cta 改链 /register
-9. ✅ sitemap.ts 去掉 /start
+**P2 Batch 1 已完成（commit e76a3b4，2026-05-23 15:30）：**
+8. ✅ 认证体系：后台审核页 `/admin/verify` + API + badge展示 + 卡片置顶
+9. ✅ 导航重组：精简为 3 项（找社区/创业者广场/OPC雷达）+ 未登录右上角「登录 + 创建卡片」
+10. ✅ 后台意向统计条（今日新增/状态分布/热门社区 Top5）
 
-**P1 Batch 3 待做：**
-- 注册流程精简（4 字段 + skills 清理）
+**P2 Batch 2 待做：**
+- 通知机制（卡片被查看/被联系）
+- 社区运营方入口（联系 → 认领/纠错）
+- 社区收录申请（功能化）
 
 ### 完整计划
 

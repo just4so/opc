@@ -120,6 +120,8 @@ main (生产，始终可部署)
 | 五：后台看板 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（InquiriesClient 219行） |
 | P1 Batch 1 | ✅ 完成 | 2026-05-23 01:53 | 2026-05-23 10:09 | commit fdab6f8, 通用 /connect + 首页重写 + 资讯 CTA |
 | P1 Batch 2 | ✅ 完成 | 2026-05-23 | 2026-05-23 | commit 7530437, 广场重构 + 卡片体系 + 清理 |
+| P1 Bug fixes | ✅ 完成 | 2026-05-23 | 2026-05-23 | commits 10a9340 + bf1840a, Project CRUD API + news日期序列化 + 首页链接 + popover背景 |
+| P2 Batch 1 | ✅ 完成 | 2026-05-23 15:15 | 2026-05-23 15:30 | commit e76a3b4, 认证体系 + 导航重组 + 后台统计 |
 
 ### P0 总结
 - **代码量：** +1,210 行（11 文件）
@@ -143,3 +145,26 @@ main (生产，始终可部署)
   - 清理：删除 `/start` 页面、前端去掉 skills 展示、sitemap 去掉 /start
 - **代码量：** +1,247 行 / -787 行（12 文件）
 - **build 状态：** ✅ 零报错
+
+### P1 Bug Fixes 总结
+- **commits:** 10a9340 + bf1840a
+- **修复内容：**
+  - 新增 Project CRUD API（`/api/user/projects` POST + `/api/user/projects/[id]` DELETE）
+  - Settings 前端从废弃的 `/api/market` 改为 `/api/user/projects`
+  - `/news` 页面 `unstable_cache` 日期序列化报错修复
+  - 首页「展示我的项目」链接从 `/connect` 改为 `/settings`
+  - 补充 tailwind `popover`/`popover-foreground` 颜色（shadcn Select 透明背景修复）
+
+### P2 Batch 1 总结
+- **完成时间：** 2026-05-23 15:30，commit e76a3b4
+- **完成内容：**
+  - 认证审核后台 `/admin/verify`（列表 + 筛选 + Dialog 认证/取消）
+  - 认证 API（PUT `/api/admin/verify/[userId]` + GET `/api/admin/verify`）
+  - Badge 展示：广场卡片 + 用户主页显示蓝色 BadgeCheck
+  - 认证用户卡片置顶（verified DESC 排序）
+  - 导航精简为 3 项：找社区 / 创业者广场 / OPC雷达
+  - 未登录右上角：登录 + 创建卡片
+  - 后台意向统计条（今日新增/状态分布/热门社区 Top5）
+- **代码量：** +497 行 / -16 行（14 文件，其中 5 个新建）
+- **build 状态：** ✅ 零报错
+- **待做（Batch 2）：** 通知机制 + 社区运营方入口 + 收录申请
