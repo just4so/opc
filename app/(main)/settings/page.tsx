@@ -290,7 +290,7 @@ export default function SettingsPage() {
   const handleCreateProject = async () => {
     if (!newProject.name.trim() || !newProject.tagline.trim()) return
     try {
-      const res = await fetch('/api/market', {
+      const res = await fetch('/api/user/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProject),
@@ -306,7 +306,7 @@ export default function SettingsPage() {
 
   const handleDeleteProject = async (id: string) => {
     try {
-      const res = await fetch(`/api/market/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/user/projects/${id}`, { method: 'DELETE' })
       if (res.ok) {
         setProjects(prev => prev.filter(p => p.id !== id))
       }
