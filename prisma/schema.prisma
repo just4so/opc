@@ -47,6 +47,7 @@ model User {
   posts              Post[]
   projects           Project[]
   managedCommunities Community[]               @relation("CommunityManager")
+  notifications      Notification[]
 
   @@index([username])
   @@index([location])
@@ -120,6 +121,7 @@ model Community {
   reviews           CommunityReview[]
   inquiries         Inquiry[]
   managers          User[]            @relation("CommunityManager")
+  claims            CommunityClaim[]
 
   @@index([city])
   @@index([slug])
@@ -532,4 +534,35 @@ enum InquiryStatus {
   CONTACTED
   DONE
   CANCELLED
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  content   String?
+  isRead    Boolean  @default(false)
+  relatedId String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model CommunityClaim {
+  id            String     @id @default(cuid())
+  communityId   String?
+  communityName String
+  contactName   String
+  contactInfo   String
+  description   String?
+  status        String     @default("PENDING")
+  type          String     @default("CLAIM")
+  city          String?
+  createdAt     DateTime   @default(now())
+  community     Community? @relation(fields: [communityId], references: [id])
+
+  @@index([status])
 }

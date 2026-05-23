@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
+import { createInquiryStatusNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +90,8 @@ export async function PATCH(request: NextRequest) {
       where: { id },
       data: { status: status as 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED' },
     })
+
+    void createInquiryStatusNotification(inquiry.userId, inquiry.id, status)
 
     return NextResponse.json({
       ...inquiry,

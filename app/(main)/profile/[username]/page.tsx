@@ -3,6 +3,8 @@ export const revalidate = 60
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import prisma from '@/lib/db'
+import { auth } from '@/lib/auth'
+import { createCardViewedNotification } from '@/lib/notifications'
 import ProfileClient from '@/components/profile/profile-client'
 
 interface PageProps {
@@ -103,6 +105,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const serializedUser = {
     ...user,
     createdAt: user.createdAt.toISOString(),
+  }
+
+  // Fire-and-forget notification when someone views a plaza profile
+  const session = await auth()
+  if (session?.user?.id && session.user.id !== user.id && user.showInPlaza) {
+    void createCardViewedNotification(user.id, session.user.name || '', session.user.id)
   }
 
   const serializedPosts = recentPosts.map(p => ({

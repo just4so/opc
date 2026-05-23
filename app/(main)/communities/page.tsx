@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
+import { CommunitySubmissionTrigger } from '@/components/communities/community-submission-trigger'
 import prisma from '@/lib/db'
 
 const getCommunityList = unstable_cache(
@@ -85,6 +86,7 @@ async function CommunitiesPageInner() {
           </p>
         </div>
       </div>
+      <CommunitySubmissionTrigger />
     </>
   )
 }

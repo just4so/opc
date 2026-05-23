@@ -30,6 +30,7 @@ import { CommunityFaq } from '@/components/communities/community-faq'
 import { ImageGallery } from '@/components/image-gallery'
 import { ContactUnlock } from '@/components/connect/contact-unlock'
 import { FloatingConnectButton } from '@/components/connect/floating-connect-button'
+import { CommunityClaimTrigger } from '@/components/communities/community-claim-trigger'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -745,6 +746,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 </div>
               </CardContent>
             </Card>
+            <CommunityClaimTrigger communityId={community.id} communityName={community.name} />
           </div>
         </div>
       </div>

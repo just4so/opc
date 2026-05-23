@@ -16,6 +16,7 @@ interface Community {
   featured: boolean
   entryFriendly: number | null
   totalWorkstations: number | null
+  _count?: { claims: number }
 }
 
 interface Pagination {
@@ -241,6 +242,7 @@ export default function CommunitiesClient() {
                     <th className="text-left py-3 px-4 font-medium text-gray-500">推荐</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">入驻友好度</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">工位数</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">认领</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500">操作</th>
                   </tr>
                 </thead>
@@ -295,8 +297,8 @@ export default function CommunitiesClient() {
                         <td className="py-3 px-4 text-sm">
                           {community.entryFriendly ? (
                             <span className="text-yellow-500">
-                              {'★'.repeat(community.entryFriendly)}
-                              {'☆'.repeat(5 - community.entryFriendly)}
+                              {'★'.repeat(Math.min(community.entryFriendly, 5))}
+                              {'☆'.repeat(Math.max(0, 5 - community.entryFriendly))}
                             </span>
                           ) : (
                             <span className="text-gray-300">-</span>
@@ -305,6 +307,15 @@ export default function CommunitiesClient() {
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
                           {community.totalWorkstations || '-'}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          {(community._count?.claims ?? 0) > 0 ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                              {community._count!.claims}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1">

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 export function UserNav() {
   const { data: session, status } = useSession()
@@ -61,7 +62,9 @@ export function UserNav() {
   }
 
   return (
-    <div className="relative">
+    <div className="flex items-center gap-1">
+      <NotificationBell />
+      <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
@@ -153,6 +156,7 @@ export function UserNav() {
           </div>
         </>
       )}
+    </div>
     </div>
   )
 }
