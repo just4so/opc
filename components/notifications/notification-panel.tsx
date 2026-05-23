@@ -21,9 +21,9 @@ const TYPE_ICON: Record<string, typeof Eye> = {
 }
 
 const TYPE_NAV: Record<string, string> = {
-  CARD_VIEWED: '/profile',
-  CARD_CONTACTED: '/profile',
-  INQUIRY_STATUS: '/settings',
+  CARD_VIEWED: '/messages',
+  CARD_CONTACTED: '/messages',
+  INQUIRY_STATUS: '/messages',
 }
 
 function relativeTime(dateStr: string): string {
@@ -131,16 +131,22 @@ export function NotificationPanel({
           })
         )}
       </div>
-      {notifications.some((n) => !n.isRead) && (
-        <div className="px-4 py-2 border-t">
+      <div className="px-4 py-2 border-t flex items-center justify-between">
+        {notifications.some((n) => !n.isRead) ? (
           <button
             onClick={markAllRead}
             className="text-xs text-primary hover:underline"
           >
             全部标记已读
           </button>
-        </div>
-      )}
+        ) : <span />}
+        <button
+          onClick={() => { onClose(); router.push('/messages') }}
+          className="text-xs text-gray-500 hover:text-primary hover:underline"
+        >
+          查看全部私信 →
+        </button>
+      </div>
     </div>
   )
 }
