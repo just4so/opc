@@ -3,15 +3,35 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { z } from 'zod'
 
+const PRODUCT_STAGE_MAP: Record<string, string> = {
+  '想法阶段': 'IDEA',
+  '开发中': 'BUILDING',
+  '已上线': 'LAUNCHED',
+  '有收入': 'REVENUE',
+  '已盈利': 'PROFITABLE',
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w一-鿿]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+}
+
 const createInquirySchema = z.object({
   communitySlug: z.string().optional(),
   name: z.string().min(1, '请填写称呼').max(50),
   contact: z.string().min(1, '请填写联系方式').max(100),
   city: z.string().max(50).optional(),
-  introduction: z.string().max(500).optional(),
-  stage: z.string().max(50).optional(),
-  wantCard: z.boolean().optional().default(false),
-  wantVerify: z.boolean().optional().default(false),
+  bio: z.string().max(200).optional(),
+  productName: z.string().max(100).optional(),
+  productTagline: z.string().max(100).optional(),
+  productStage: z.string().max(50).optional(),
+  productWebsite: z.string().max(200).optional(),
+  showInPlaza: z.boolean().optional().default(true),
+  bpUrl: z.string().max(500).optional(),
+  bpFilename: z.string().max(200).optional(),
   source: z.string().max(500).optional(),
 })
 
@@ -31,9 +51,12 @@ export async function POST(req: Request) {
       )
     }
 
-    const { communitySlug, name, contact, city, introduction, stage, wantCard, wantVerify, source } = parsed.data
+    const {
+      communitySlug, name, contact, city,
+      bio, productName, productTagline, productStage, productWebsite,
+      showInPlaza, bpUrl, bpFilename, source,
+    } = parsed.data
 
-    // Resolve community if slug provided
     let communityId: string | null = null
     let communityName: string | null = null
     let communityContact: { name?: string; phone?: string; wechat?: string } | null = null
@@ -62,7 +85,6 @@ export async function POST(req: Request) {
         }
       }
 
-      // Check duplicate: same user + same community + PENDING/CONTACTED
       const existing = await prisma.inquiry.findFirst({
         where: {
           userId: session.user.id,
@@ -80,7 +102,6 @@ export async function POST(req: Request) {
               status: existing.status,
               createdAt: existing.createdAt.toISOString(),
             },
-            // Still return contact info since they already submitted
             communityContact,
             unlocked: true,
           },
@@ -89,52 +110,64 @@ export async function POST(req: Request) {
       }
     }
 
-    // Create inquiry
-    const inquiry = await prisma.inquiry.create({
-      data: {
-        userId: session.user.id,
-        communityId,
-        communityName,
-        name,
-        contact,
-        city,
-        introduction,
-        stage,
-        wantCard,
-        wantVerify,
-        source,
-      },
-    })
+    const userId = session.user.id
 
-    // Sync user fields from inquiry data
-    const userUpdate: Record<string, unknown> = {}
-    if (name && !session.user.name) userUpdate.name = name
-    if (city) userUpdate.location = city
-    if (introduction) userUpdate.mainTrack = introduction
-    if (stage) userUpdate.startupStage = stage
-    // Detect if contact is phone or wechat
-    if (contact) {
-      if (/^1\d{10}$/.test(contact.replace(/[-\s]/g, ''))) {
-        userUpdate.phone = contact.replace(/[-\s]/g, '')
-      } else {
-        userUpdate.wechat = contact
-      }
-    }
+    const result = await prisma.$transaction(async (tx) => {
+      const inquiry = await tx.inquiry.create({
+        data: {
+          userId,
+          communityId,
+          communityName,
+          name,
+          contact,
+          city,
+          bpUrl,
+          bpFilename,
+          source,
+        },
+      })
 
-    // Set showInPlaza if wantCard
-    if (wantCard) {
-      userUpdate.showInPlaza = true
-    }
+      const userUpdate: Record<string, unknown> = {}
+      if (bio) userUpdate.bio = bio
+      if (city) userUpdate.location = city
+      if (name && !session.user?.name) userUpdate.name = name
+      userUpdate.wechat = contact
+      userUpdate.showInPlaza = showInPlaza
 
-    if (Object.keys(userUpdate).length > 0) {
-      await prisma.user.update({
-        where: { id: session.user.id },
+      await tx.user.update({
+        where: { id: userId },
         data: userUpdate,
       })
-    }
+
+      let projectId: string | null = null
+      if (productName) {
+        const baseSlug = slugify(productName) || 'project'
+        const suffix = Date.now().toString(36)
+        const projectSlug = `${baseSlug}-${suffix}`
+        const stageEnum = (productStage && PRODUCT_STAGE_MAP[productStage]) || 'IDEA'
+
+        const project = await tx.project.create({
+          data: {
+            slug: projectSlug,
+            name: productName,
+            tagline: productTagline || '',
+            description: '',
+            stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
+            website: productWebsite || null,
+            ownerId: userId,
+            status: 'PUBLISHED',
+            contentType: 'PROJECT',
+          },
+        })
+        projectId = project.id
+      }
+
+      return { inquiryId: inquiry.id, projectId }
+    })
 
     return NextResponse.json({
-      id: inquiry.id,
+      id: result.inquiryId,
+      projectId: result.projectId,
       communityContact,
       unlocked: true,
     })
@@ -144,7 +177,6 @@ export async function POST(req: Request) {
   }
 }
 
-// GET: Check if current user has unlocked contact info (has any inquiry)
 export async function GET() {
   try {
     const session = await auth()

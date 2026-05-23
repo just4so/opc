@@ -16,12 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckCircle2, Copy, Check, ArrowRight, X } from 'lucide-react'
+import { CheckCircle2, ArrowRight, X, Upload, Loader2 } from 'lucide-react'
 
 interface ConnectFormProps {
   community: {
     slug: string
     name: string
+    city: string
     contactName: string | null
     contactPhone: string | null
     contactWechat: string | null
@@ -34,7 +35,7 @@ interface ConnectFormProps {
     startupStage: string
   }
   cities: string[]
-  communities?: { name: string; slug: string }[]
+  communities?: { name: string; slug: string; city: string }[]
 }
 
 const step1Schema = z.object({
@@ -44,32 +45,33 @@ const step1Schema = z.object({
 })
 
 const step2Schema = z.object({
-  introduction: z.string().optional(),
-  stage: z.string().optional(),
-  wantCard: z.boolean().optional(),
-  wantVerify: z.boolean().optional(),
+  bio: z.string().max(200).optional(),
+  productName: z.string().max(100).optional(),
+  productTagline: z.string().max(100).optional(),
+  productStage: z.string().optional(),
+  productWebsite: z.string().max(200).optional(),
+  showInPlaza: z.boolean().optional(),
 })
 
 type Step1Data = z.infer<typeof step1Schema>
 type Step2Data = z.infer<typeof step2Schema>
 
-type SuccessData = {
-  communityContact: { name?: string; phone?: string; wechat?: string } | null
-}
-
 export function ConnectForm({ community, user, cities, communities = [] }: ConnectFormProps) {
   const [step, setStep] = useState<'step1' | 'step2' | 'success'>('step1')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [successData, setSuccessData] = useState<SuccessData | null>(null)
-  const [copied, setCopied] = useState(false)
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
 
-  const [selectedCommunity, setSelectedCommunity] = useState<{ slug: string; name: string } | 'recommend' | null>(null)
+  const [selectedCommunity, setSelectedCommunity] = useState<{ slug: string; name: string; city: string } | 'recommend' | null>(null)
   const [communitySearch, setCommunitySearch] = useState('')
   const [showCommunityDropdown, setShowCommunityDropdown] = useState(false)
   const [communityError, setCommunityError] = useState('')
   const comboboxRef = useRef<HTMLDivElement>(null)
+
+  const [bpFile, setBpFile] = useState<{ url: string; filename: string } | null>(null)
+  const [bpUploading, setBpUploading] = useState(false)
+  const [bpError, setBpError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -81,9 +83,10 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filteredCommunities = communities.filter(c =>
-    c.name.toLowerCase().includes(communitySearch.toLowerCase())
-  )
+  const filteredCommunities = communities.filter(c => {
+    const q = communitySearch.toLowerCase()
+    return c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)
+  })
 
   const form1 = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
@@ -97,10 +100,12 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   const form2 = useForm<Step2Data>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      introduction: user.mainTrack,
-      stage: user.startupStage,
-      wantCard: false,
-      wantVerify: false,
+      bio: '',
+      productName: '',
+      productTagline: '',
+      productStage: '',
+      productWebsite: '',
+      showInPlaza: true,
     },
   })
 
@@ -134,10 +139,14 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           name: step1Data.name,
           contact: step1Data.contact,
           city: step1Data.city,
-          introduction: step2Data?.introduction || undefined,
-          stage: step2Data?.stage || undefined,
-          wantCard: step2Data?.wantCard || false,
-          wantVerify: step2Data?.wantVerify || false,
+          bio: step2Data?.bio || undefined,
+          productName: step2Data?.productName || undefined,
+          productTagline: step2Data?.productTagline || undefined,
+          productStage: step2Data?.productStage || undefined,
+          productWebsite: step2Data?.productWebsite || undefined,
+          showInPlaza: step2Data?.showInPlaza ?? true,
+          bpUrl: bpFile?.url || undefined,
+          bpFilename: bpFile?.filename || undefined,
           source: window.location.href,
         }),
       })
@@ -147,7 +156,6 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       if (res.status === 409) {
         setError(data.error || '你已提交过该社区的对接意向')
         if (data.communityContact) {
-          setSuccessData({ communityContact: data.communityContact })
           setStep('success')
         }
         return
@@ -158,7 +166,6 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
         return
       }
 
-      setSuccessData({ communityContact: data.communityContact })
       setStep('success')
     } catch {
       setError('网络错误，请重试')
@@ -175,57 +182,58 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
     await submitInquiry()
   }
 
-  function handleCopy(text: string) {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  async function handleBpUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setBpError('文件大小不能超过 10MB')
+      return
+    }
+    setBpError('')
+    setBpUploading(true)
+    try {
+      const res = await fetch('/api/upload/bp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || '获取上传地址失败')
+      }
+      const { uploadUrl, publicUrl } = await res.json()
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      })
+      if (!putRes.ok) throw new Error('文件上传失败')
+      setBpFile({ url: publicUrl, filename: file.name })
+    } catch (err) {
+      setBpError(err instanceof Error ? err.message : '上传失败')
+    } finally {
+      setBpUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
-  const isRecommend = !community && selectedCommunity === 'recommend'
-  const displayCommunityName = community
-    ? community.name
-    : selectedCommunity && selectedCommunity !== 'recommend'
-      ? selectedCommunity.name
-      : null
-
   if (step === 'success') {
-    const contact = successData?.communityContact
     return (
       <div className="w-full max-w-lg mx-auto bg-canvas rounded-2xl shadow-soft p-8">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <h2 className="text-xl font-bold text-secondary mb-2">提交成功！</h2>
-          {isRecommend ? (
-            <p className="text-sm text-mute">我们会在 1 个工作日内推荐适合你的社区并通过微信联系你</p>
-          ) : (
-            <p className="text-sm text-mute">我们会尽快帮你对接 {displayCommunityName}</p>
-          )}
+          <h2 className="text-xl font-bold text-secondary mb-2">资料已提交</h2>
+          <p className="text-sm text-mute">OPC圈将在 1 个工作日内审核，审核通过后将直接推荐给社区</p>
         </div>
 
-        {!isRecommend && contact && (contact.name || contact.phone || contact.wechat) && (
-          <div className="bg-surface-soft rounded-xl p-5 mb-6">
-            <h3 className="text-sm font-semibold text-secondary mb-3">社区联系方式</h3>
-            <div className="space-y-2 text-sm text-body">
-              {contact.name && <p>联系人：{contact.name}</p>}
-              {contact.phone && <p>电话：{contact.phone}</p>}
-              {contact.wechat && <p>公众号：{contact.wechat}</p>}
+        <div className="bg-surface-soft rounded-xl p-5 mb-6">
+          <p className="text-sm font-semibold text-secondary mb-3">关注 OPC圈 公众号，第一时间获取审核结果</p>
+          <div className="flex items-center justify-center">
+            <div className="w-[200px] h-[200px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-mute">
+              请在后台上传二维码
             </div>
-          </div>
-        )}
-
-        <div className="bg-orange-50 rounded-xl p-5 mb-6">
-          <p className="text-sm font-medium text-orange-800 mb-2">急需对接？添加微信号：</p>
-          <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-orange-900">opcquan01</span>
-            <button
-              onClick={() => handleCopy('opcquan01')}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-white rounded-lg border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors"
-            >
-              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-              {copied ? '已复制' : '复制'}
-            </button>
           </div>
         </div>
 
@@ -234,14 +242,14 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
             href="/plaza"
             className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-secondary hover:bg-surface-card transition-colors"
           >
-            <span>去创业广场看看</span>
+            <span>去广场看看其他创业者</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/communities"
+            href="/settings#card"
             className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-secondary hover:bg-surface-card transition-colors"
           >
-            <span>浏览更多社区</span>
+            <span>完善你的创业者卡片</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -287,10 +295,10 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="contact">联系方式 *</Label>
+            <Label htmlFor="contact">微信号（用于社区对接） *</Label>
             <Input
               id="contact"
-              placeholder="手机号或微信号"
+              placeholder="你的微信号"
               className="mt-1.5"
               {...form1.register('contact')}
             />
@@ -325,7 +333,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
             <div>
               <Label>意向社区</Label>
               <Input
-                value={community.name}
+                value={`${community.name} · ${community.city}`}
                 disabled
                 className="mt-1.5 bg-gray-50"
               />
@@ -337,7 +345,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
                 {selectedCommunity ? (
                   <div className="flex items-center justify-between border border-input rounded-md h-10 px-3 bg-background text-sm">
                     <span>
-                      {selectedCommunity === 'recommend' ? '不确定，帮我推荐' : selectedCommunity.name}
+                      {selectedCommunity === 'recommend' ? '不确定，帮我推荐' : `${selectedCommunity.name} · ${selectedCommunity.city}`}
                     </span>
                     <button
                       type="button"
@@ -384,7 +392,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
                         }}
                         className="w-full text-left px-3.5 py-2.5 text-sm text-body hover:bg-surface-soft"
                       >
-                        {c.name}
+                        {c.name} · {c.city}
                       </button>
                     ))}
                     {filteredCommunities.length === 0 && communitySearch && (
@@ -408,75 +416,143 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       {step === 'step2' && (
         <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5">
           <div>
-            <Label htmlFor="introduction">方向（选填）</Label>
+            <Label htmlFor="bio">一句话介绍自己（选填）</Label>
+            <textarea
+              id="bio"
+              placeholder="例：3年独立开发者，专注AI工具"
+              maxLength={200}
+              rows={2}
+              className="mt-1.5 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              {...form2.register('bio')}
+            />
+            <p className="text-xs text-mute mt-1">{form2.watch('bio')?.length || 0}/200</p>
+          </div>
+
+          <div>
+            <Label htmlFor="productName">产品/服务名称（选填）</Label>
             <Input
-              id="introduction"
-              placeholder="你在做什么方向"
+              id="productName"
+              placeholder="你的产品或服务名称"
               className="mt-1.5"
-              {...form2.register('introduction')}
+              {...form2.register('productName')}
             />
           </div>
 
           <div>
-            <Label>阶段（选填）</Label>
+            <Label htmlFor="productTagline">一句话介绍产品（选填）</Label>
+            <Input
+              id="productTagline"
+              placeholder="例：帮助创业者快速搭建落地页"
+              maxLength={100}
+              className="mt-1.5"
+              {...form2.register('productTagline')}
+            />
+          </div>
+
+          <div>
+            <Label>产品阶段（选填）</Label>
             <Select
-              value={form2.watch('stage') || ''}
-              onValueChange={(val) => form2.setValue('stage', val)}
+              value={form2.watch('productStage') || ''}
+              onValueChange={(val) => form2.setValue('productStage', val)}
             >
               <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder="选择阶段" />
+                <SelectValue placeholder="选择产品阶段" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="还在想">还在想</SelectItem>
-                <SelectItem value="已注册公司">已注册公司</SelectItem>
-                <SelectItem value="已有收入">已有收入</SelectItem>
+                <SelectItem value="想法阶段">想法阶段</SelectItem>
+                <SelectItem value="开发中">开发中</SelectItem>
+                <SelectItem value="已上线">已上线</SelectItem>
+                <SelectItem value="有收入">有收入</SelectItem>
+                <SelectItem value="已盈利">已盈利</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="wantCard"
-                checked={form2.watch('wantCard') || false}
-                onCheckedChange={(checked) => form2.setValue('wantCard', checked === true)}
-              />
-              <Label htmlFor="wantCard" className="text-sm font-normal leading-snug cursor-pointer">
-                展示在创业者广场
-              </Label>
-            </div>
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="wantVerify"
-                checked={form2.watch('wantVerify') || false}
-                onCheckedChange={(checked) => form2.setValue('wantVerify', checked === true)}
-              />
-              <Label htmlFor="wantVerify" className="text-sm font-normal leading-snug cursor-pointer">
-                申请认证
-              </Label>
-            </div>
+          <div>
+            <Label htmlFor="productWebsite">产品网站（选填）</Label>
+            <Input
+              id="productWebsite"
+              placeholder="https://"
+              className="mt-1.5"
+              {...form2.register('productWebsite')}
+            />
           </div>
 
           <div>
-            <Button type="button" variant="outline" disabled className="w-full opacity-50">
-              上传 BP（即将开放）
-            </Button>
+            <Label>BP / 公司介绍（选填）</Label>
+            <p className="text-xs text-mute mt-0.5 mb-2">上传 BP 或公司介绍，可大幅提高推荐成功率</p>
+            {bpFile ? (
+              <div className="flex items-center gap-2 px-3 py-2 border border-input rounded-md bg-surface-soft text-sm">
+                <Upload className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="truncate flex-1">{bpFile.filename}</span>
+                <button
+                  type="button"
+                  onClick={() => setBpFile(null)}
+                  className="text-ash hover:text-mute transition-colors flex-shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx"
+                  className="hidden"
+                  onChange={handleBpUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={bpUploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full"
+                >
+                  {bpUploading ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />上传中...</>
+                  ) : (
+                    <><Upload className="h-4 w-4 mr-2" />选择文件（PDF/DOC/PPT，最大 10MB）</>
+                  )}
+                </Button>
+              </div>
+            )}
+            {bpError && <p className="text-red-500 text-xs mt-1">{bpError}</p>}
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="showInPlaza"
+              checked={form2.watch('showInPlaza') ?? true}
+              onCheckedChange={(checked) => form2.setValue('showInPlaza', checked === true)}
+            />
+            <Label htmlFor="showInPlaza" className="text-sm font-normal leading-snug cursor-pointer">
+              同时展示在创业者广场
+            </Label>
           </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={submitting} className="flex-1">
-              {submitting ? '提交中...' : '提交'}
-            </Button>
             <Button
               type="button"
               variant="outline"
-              disabled={submitting}
-              onClick={handleSkip}
-              className="flex-1"
+              onClick={() => setStep('step1')}
+              className="flex-shrink-0"
             >
-              跳过，先提交基本信息
+              上一步
+            </Button>
+            <Button type="submit" disabled={submitting} className="flex-1">
+              {submitting ? '提交中...' : '提交'}
             </Button>
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={submitting}
+            onClick={handleSkip}
+            className="w-full text-mute"
+          >
+            跳过，先提交基本信息
+          </Button>
         </form>
       )}
     </div>

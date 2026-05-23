@@ -354,22 +354,19 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
             {/* ===== Layer 2: 深度了解（登录可见）===== */}
             {!isLoggedIn ? (
-              <Card className="bg-gradient-to-br from-primary to-primary/80 text-white">
-                <CardContent className="pt-6 pb-6">
-                  <h3 className="text-xl font-semibold mb-3">🔓 登录后解锁完整信息</h3>
-                  <ul className="space-y-2 mb-5 text-sm text-white/90">
-                    <li>✅ 五大入驻福利（办公空间、算力资源、资金支持等）</li>
-                    <li>✅ 完整入驻指南（条件、流程、审核周期）</li>
-                    <li>✅ 真实入驻说明（创业者经验）</li>
-                    <li>✅ 政策详情 & 配套服务</li>
-                    <li>✅ 精确地址 & 联系方式</li>
-                  </ul>
-                  <div className="flex gap-3">
-                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-orange-50">
-                      立即免费注册
+              <Card className="border-primary/20 bg-orange-50/50">
+                <CardContent className="pt-6 pb-6 text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-secondary mb-2">登录后查看入驻指南和联系方式</h3>
+                  <p className="text-sm text-gray-500 mb-5">免费注册即可查看完整的入驻权益、入驻流程和联系方式</p>
+                  <div className="flex gap-3 justify-center">
+                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
+                      登录查看
                     </Link>
-                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl border border-white/80 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-white/20">
-                      已有账户，登录
+                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-6 py-2.5 text-sm font-medium text-secondary shadow-sm transition-colors hover:bg-gray-50">
+                      免费注册
                     </Link>
                   </div>
                 </CardContent>

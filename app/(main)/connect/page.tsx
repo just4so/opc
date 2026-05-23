@@ -19,7 +19,7 @@ export default async function GenericConnectPage() {
   const [communities, user] = await Promise.all([
     prisma.community.findMany({
       where: { status: 'ACTIVE' },
-      select: { name: true, slug: true },
+      select: { name: true, slug: true, city: true },
       orderBy: { name: 'asc' },
     }),
     prisma.user.findUnique({

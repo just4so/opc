@@ -26,6 +26,7 @@ export default async function ConnectPage({ params }: PageProps) {
       id: true,
       name: true,
       slug: true,
+      city: true,
       contactName: true,
       contactPhone: true,
       contactWechat: true,
@@ -57,6 +58,7 @@ export default async function ConnectPage({ params }: PageProps) {
           community={{
             slug: community.slug,
             name: community.name,
+            city: community.city,
             contactName: community.contactName,
             contactPhone: community.contactPhone,
             contactWechat: community.contactWechat,
