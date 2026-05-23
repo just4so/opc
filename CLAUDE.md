@@ -286,11 +286,40 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 13. ✅ 社区收录申请：复用 CommunityClaim（type=SUBMISSION）+ Dialog
 14. ✅ 后台社区列表加认领申请数量列
 
-**P2 全部完成。V2 改版功能开发完毕，待本地全量测试后 merge 到 main 并部署。**
+**P2 全部完成。V2 初版功能开发完毕。**
+
+---
+
+### 🚧 V2.1 优化改造（当前活跃）
+
+> **详细计划：** `docs/V2.1-PLAN.md`
+> **讨论结论：** `docs/V2-DISCUSSION.md`
+> **开发流程：** 每个 Phase 走 OpenSpec（propose → tasks.md → 确认 → apply → archive）
+
+**当前阶段：待开始 Phase 1**
+
+**7 个 Phase：**
+1. 基础修复（11项文案/bug）— 直接 ACP，不用 openspec
+2. 直通车重构（三层权限 + 表单重设计 + BP上传 + 广场联动）
+3. 广场三视图重构（人/产品/动态）
+4. Profile + Settings 改造
+5. 通知→私信联动 + 社区列表省份分组
+6. 后台优化（分组+Dashboard+意向补全+认领合并）
+7. 视觉改造（设计方案→确认→开发，不赶时间）
+
+**关键设计决策（V2.1 新增，必须遵守）：**
+- 导航四项：找社区 · 广场 · 资讯 · 雷达
+- 主标题：“OPC创业者，在这里连接、让世界看见”
+- CTA：“找到我的社区” / “让世界看见我”
+- 社区详情三层权限：未登录（基本信息+政策，无入驻指南/联系方式）→ 已登录未解锁（+入驻指南）→ 已解锁（+联系方式）
+- 直通车提交自动创建广场卡片（写 User profile + 创建 Project + showInPlaza=true）
+- 广场三视图：人/产品/动态，砂掉 lookingFor/canOffer 前端展示
+- 通知点击统一跳私信，触发时同时写系统消息
+- 后台侧边栏三组：运营中心/内容管理/系统
 
 ### 完整计划
 
-详见 `docs/V2-PLAN.md`（5 个阶段、Git 策略、验收标准）。
+详见 `docs/V2-PLAN.md`（V2 初版）和 `docs/V2.1-PLAN.md`（V2.1 优化）。
 
 ### PRD
 
