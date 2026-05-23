@@ -280,10 +280,13 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 9. ✅ 导航重组：精简为 3 项（找社区/创业者广场/OPC雷达）+ 未登录右上角「登录 + 创建卡片」
 10. ✅ 后台意向统计条（今日新增/状态分布/热门社区 Top5）
 
-**P2 Batch 2 待做：**
-- 通知机制（卡片被查看/被联系）
-- 社区运营方入口（联系 → 认领/纠错）
-- 社区收录申请（功能化）
+**P2 Batch 2 已完成（commit c42bd8d，2026-05-23 16:30）：**
+11. ✅ 通知机制：Notification 模型 + 3 个 API + 铃铛 UI + 触发器（卡片查看/联系/意向状态）
+12. ✅ 社区认领：CommunityClaim 模型 + Dialog + API（无需登录）
+13. ✅ 社区收录申请：复用 CommunityClaim（type=SUBMISSION）+ Dialog
+14. ✅ 后台社区列表加认领申请数量列
+
+**P2 全部完成。V2 改版功能开发完毕，待本地全量测试后 merge 到 main 并部署。**
 
 ### 完整计划
 
