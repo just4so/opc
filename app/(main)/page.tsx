@@ -31,7 +31,7 @@ const getLatestCreators = unstable_cache(
   async () =>
     prisma.user.findMany({
       where: { showInPlaza: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ verified: 'desc' }, { createdAt: 'desc' }],
       take: 4,
       select: {
         id: true,

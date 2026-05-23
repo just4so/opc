@@ -3,10 +3,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const links = [
-  { href: "/communities", label: "社区地图" },
-  { href: "/plaza", label: "交流广场" },
-  { href: "/news", label: "创业资讯" },
-  { href: "/tools", label: "工具导航" },
+  { href: "/communities", label: "找社区" },
+  { href: "/plaza", label: "创业者广场" },
   { href: "/radar", label: "OPC雷达" },
 ]
 

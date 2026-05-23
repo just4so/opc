@@ -50,7 +50,7 @@ export default async function PlazaPage() {
     getPlazaStats(),
     prisma.user.findMany({
       where: { showInPlaza: true },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [{ verified: 'desc' }, { createdAt: 'desc' }],
       take: 50,
       select: {
         id: true,

@@ -354,7 +354,7 @@ export function PlazaClient({
                             {user.name || user.username}
                           </span>
                           {user.verified && (
-                            <BadgeCheck className="h-4 w-4 text-primary shrink-0" />
+                            <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">

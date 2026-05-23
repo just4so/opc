@@ -28,6 +28,12 @@ interface Pagination {
   totalPages: number
 }
 
+interface InquiryStats {
+  todayCount: number
+  statusMap: Record<string, number>
+  topCommunities: { name: string; count: number }[]
+}
+
 const STATUS_TABS: { label: string; value: InquiryStatus | 'ALL' }[] = [
   { label: '全部', value: 'ALL' },
   { label: '待跟进', value: 'PENDING' },
@@ -54,6 +60,7 @@ export function InquiriesClient() {
   const [tab, setTab] = useState<InquiryStatus | 'ALL'>('ALL')
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [stats, setStats] = useState<InquiryStats | null>(null)
 
   const fetchInquiries = useCallback(async () => {
     setLoading(true)
@@ -75,6 +82,13 @@ export function InquiriesClient() {
   useEffect(() => {
     fetchInquiries()
   }, [fetchInquiries])
+
+  useEffect(() => {
+    fetch('/api/admin/stats/inquiries')
+      .then(res => res.json())
+      .then(setStats)
+      .catch(() => {})
+  }, [])
 
   function handleTabChange(newTab: InquiryStatus | 'ALL') {
     setTab(newTab)
@@ -106,6 +120,40 @@ export function InquiriesClient() {
 
   return (
     <div>
+      {/* Stats bar */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-sm text-gray-500 mb-1">今日新增</div>
+            <div className="text-2xl font-bold text-primary">{stats.todayCount}</div>
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-sm text-gray-500 mb-2">状态分布</div>
+            <div className="flex flex-wrap gap-2">
+              {(['PENDING', 'CONTACTED', 'DONE', 'CANCELLED'] as InquiryStatus[]).map(s => (
+                <Badge key={s} className={STATUS_BADGE[s].className}>
+                  {STATUS_BADGE[s].label} {stats.statusMap[s] || 0}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-sm text-gray-500 mb-2">热门社区 Top 5</div>
+            {stats.topCommunities.length > 0 ? (
+              <div className="space-y-1">
+                {stats.topCommunities.map((c, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700 truncate">{c.name}</span>
+                    <span className="text-gray-400 ml-2 shrink-0">{c.count}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="text-sm text-gray-400">暂无数据</span>
+            )}
+          </div>
+        </div>
+      )}
       {/* Tabs */}
       <div className="flex gap-1 mb-4 border-b">
         {STATUS_TABS.map((t) => (

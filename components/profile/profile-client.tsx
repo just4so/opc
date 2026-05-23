@@ -68,6 +68,10 @@ const TYPE_LABELS: Record<string, string> = {
   CHAT: '聊聊', HELP: '求助', SHARE: '分享', COLLAB: '找人',
 }
 
+const VERIFY_TYPE_LABELS: Record<string, string> = {
+  IDENTITY: '身份认证', ENTREPRENEUR: '创业者认证', EXPERT: '专家认证', COMMUNITY: '社区认证',
+}
+
 const STAGE_LABELS: Record<string, string> = {
   IDEA: '想法阶段', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
 }
@@ -201,9 +205,9 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
                   <p className="text-gray-500 text-sm">@{user.username}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
                     {user.verified && (
-                      <Badge variant="default" className="gap-1">
+                      <Badge variant="default" className="gap-1 bg-blue-500">
                         <BadgeCheck className="h-3 w-3" />
-                        已认证
+                        {user.verifyType ? VERIFY_TYPE_LABELS[user.verifyType] : '已认证'}
                       </Badge>
                     )}
                     {user.mainTrack && (
