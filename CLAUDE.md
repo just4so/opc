@@ -296,12 +296,13 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 > **讨论结论：** `docs/V2-DISCUSSION.md`
 > **开发流程：** 每个 Phase 走 OpenSpec（propose → tasks.md → 确认 → apply → archive）
 
-**当前阶段：Phase 4 ✅ → 待开始 Phase 5**
+**当前阶段：Phase 5 ✅ → 待开始 Phase 6**
 
 Phase 1 完成（commit 58bf276）：11项基础修复+文案更新
 Phase 2 完成（commit a756e68）：直通车重构+社区三层权限+R2上传
 Phase 3 完成（commit 3ce05ab）：广场三视图重构
 Phase 4 完成（commit 005b069）：用户主页+设置页改造
+Phase 5 完成（commit b21aa18）：通知跳转统一+社区列表省份分组+搜索
 
 **7 个 Phase：**
 1. 基础修复（11项文案/bug）— 直接 ACP，不用 openspec
