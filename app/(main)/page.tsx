@@ -88,28 +88,34 @@ export default async function HomePage() {
         <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-[720px] mx-auto text-center">
-          <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
-            OPC创业者，在这里<br />
-            <span className="gradient-text-orange">连接、让世界看见</span>
-          </h1>
-          <p className="text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
+          <div className="hero-animate">
+            <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
+              OPC创业者，在这里
+            </h1>
+          </div>
+          <div className="hero-animate hero-delay-1">
+            <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
+              <span className="gradient-text-orange">连接、让世界看见</span>
+            </h1>
+          </div>
+          <p className="hero-animate hero-delay-2 text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
             全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市 · 真实信息人工核实，一键对接入驻
           </p>
-          <div className="flex gap-3 justify-center mb-7">
+          <div className="hero-animate hero-delay-3 flex gap-3 justify-center mb-7">
             <Link
               href="/communities"
-              className="bg-primary text-on-primary rounded-xl px-9 py-3.5 font-semibold shadow-[0_4px_16px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.35)] hover:-translate-y-px transition-all"
+              className="btn-press bg-primary text-on-primary rounded-xl px-9 py-3.5 font-semibold shadow-[0_4px_16px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.35)] hover:-translate-y-px transition-all"
             >
               找到我的社区
             </Link>
             <Link
               href={session?.user ? '/settings#card' : '/register'}
-              className="bg-transparent border-[1.5px] border-hairline text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
+              className="btn-press bg-transparent border-[1.5px] border-hairline text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
             >
               让世界看见我
             </Link>
           </div>
-          <p className="text-[13px] text-ash">
+          <p className="hero-animate hero-delay-4 text-[13px] text-ash">
             不确定？先看看{' '}
             <Link href="/communities" className="text-mute hover:text-ink border-b border-hairline-soft hover:border-ink transition-colors">
               全国 OPC 社区的分布
@@ -119,15 +125,16 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 价值区 ===== */}
-      <ScrollReveal>
-        <section className="py-20 px-6 max-w-[1100px] mx-auto">
+      <section className="py-20 px-6 max-w-[1100px] mx-auto">
+        <ScrollReveal>
           <div className="text-xs font-semibold text-primary uppercase tracking-[1.5px] text-center mb-3">
             为什么选择 OPC圈
           </div>
           <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-12">
             三个动作，开启创业新阶段
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        </ScrollReveal>
+        <ScrollReveal stagger className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 icon: Building2,
@@ -151,7 +158,7 @@ export default async function HomePage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className="bg-canvas rounded-2xl p-10 border border-hairline-soft hover:border-transparent hover:shadow-soft hover:-translate-y-1 transition-all duration-300 group"
+                className="card-interactive bg-canvas p-10 group"
               >
                 <card.icon className="h-8 w-8 text-primary mb-5" strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-ink mb-2">{card.title}</h3>
@@ -161,9 +168,8 @@ export default async function HomePage() {
                 </span>
               </Link>
             ))}
-          </div>
-        </section>
-      </ScrollReveal>
+        </ScrollReveal>
+      </section>
 
       {/* ===== 深色数据区 ===== */}
       <ScrollReveal>
@@ -205,16 +211,17 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {/* ===== 创业者区 ===== */}
-      <ScrollReveal>
-        <section className="py-20 px-6 max-w-[1100px] mx-auto">
+      <section className="py-20 px-6 max-w-[1100px] mx-auto">
+        <ScrollReveal>
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="text-2xl font-bold text-ink">最新入驻的创业者</h2>
             <Link href="/plaza" className="text-sm text-mute hover:text-primary transition-colors">
               查看全部 →
             </Link>
           </div>
-          {creators.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        </ScrollReveal>
+        {creators.length > 0 ? (
+          <ScrollReveal stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {creators.map((creator) => (
                 <div key={creator.id} className="card-interactive p-6">
                   <div className="flex items-center gap-3 mb-3">
@@ -253,12 +260,11 @@ export default async function HomePage() {
                   )}
                 </div>
               ))}
-            </div>
-          ) : (
-            <p className="text-mute">创业者卡片即将上线，敬请期待</p>
-          )}
-        </section>
-      </ScrollReveal>
+          </ScrollReveal>
+        ) : (
+          <p className="text-mute">创业者卡片即将上线，敬请期待</p>
+        )}
+      </section>
 
       {/* ===== 雷达区 ===== */}
       {radarIssue && (

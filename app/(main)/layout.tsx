@@ -4,6 +4,7 @@ import { Search } from 'lucide-react'
 import { UserNav } from '@/components/layout/user-nav'
 import { NavLinks } from '@/components/layout/nav-links'
 import { MobileMenu } from '@/components/layout/mobile-menu'
+import { ScrollHeader } from '@/components/layout/scroll-header'
 
 export default function MainLayout({
   children,
@@ -12,8 +13,8 @@ export default function MainLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* 顶部导航 - 玻璃态效果 */}
-      <header className="sticky top-0 z-50 w-full border-b border-hairline-soft glass-nav">
+      {/* 顶部导航 - 滚动感知 */}
+      <ScrollHeader>
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
@@ -47,7 +48,7 @@ export default function MainLayout({
             <MobileMenu />
           </div>
         </div>
-      </header>
+      </ScrollHeader>
 
       {/* 主内容区 */}
       <main className="flex-1">

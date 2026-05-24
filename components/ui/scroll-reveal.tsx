@@ -4,10 +4,11 @@ import { useEffect, useRef, ReactNode } from 'react'
 interface ScrollRevealProps {
   children: ReactNode
   delay?: number
+  stagger?: boolean
   className?: string
 }
 
-export function ScrollReveal({ children, delay = 0, className = '' }: ScrollRevealProps) {
+export function ScrollReveal({ children, delay = 0, stagger = false, className = '' }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function ScrollReveal({ children, delay = 0, className = '' }: ScrollReve
   return (
     <div
       ref={ref}
-      className={`sr-init ${className}`}
+      className={`sr-init ${stagger ? 'sr-stagger' : ''} ${className}`}
       style={{ transitionDelay: delay ? `${delay}ms` : undefined }}
     >
       {children}

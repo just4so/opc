@@ -5,6 +5,9 @@
 :root {
   --foreground-rgb: 51, 65, 85;
   --background-rgb: 249, 250, 251;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-subtle: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 body {
@@ -159,13 +162,66 @@ body {
 
 /* Card hover pattern */
 .card-interactive {
-  border: 1px solid #e8e8e3;
+  border: 1px solid #e5e5e0;
   background: #ffffff;
   border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition:
+    border-color 0.25s var(--ease-subtle),
+    box-shadow 0.25s var(--ease-subtle),
+    transform 0.25s var(--ease-out-expo);
 }
 .card-interactive:hover {
-  border-color: transparent;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border-color: #dadad3;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
   transform: translateY(-2px);
+}
+
+/* ===== Hero entrance sequence ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-animate {
+  opacity: 0;
+  animation: fadeInUp 0.6s var(--ease-out-expo) forwards;
+}
+.hero-delay-1 { animation-delay: 0.2s; }
+.hero-delay-2 { animation-delay: 0.4s; }
+.hero-delay-3 { animation-delay: 0.6s; }
+.hero-delay-4 { animation-delay: 0.8s; }
+
+/* ===== Button press feedback ===== */
+.btn-press {
+  transition:
+    background-color 0.15s var(--ease-subtle),
+    box-shadow 0.2s var(--ease-subtle),
+    transform 0.1s var(--ease-spring);
+}
+.btn-press:hover {
+  filter: brightness(1.05);
+}
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* ===== ScrollReveal stagger ===== */
+.sr-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+.sr-stagger.sr-visible > :nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(2) { transition-delay: 100ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(3) { transition-delay: 200ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(4) { transition-delay: 300ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(5) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(6) { transition-delay: 500ms; opacity: 1; transform: translateY(0); }
+
+/* ===== Reduced motion — disable ALL interaction animations ===== */
+@media (prefers-reduced-motion: reduce) {
+  .hero-animate { opacity: 1; animation: none; }
+  .btn-press:active { transform: none; }
+  .card-interactive { transition: none; }
+  .sr-stagger > * { opacity: 1; transform: none; transition: none; }
+  .sticky[class*="transition-"] { transition: none; }
 }
