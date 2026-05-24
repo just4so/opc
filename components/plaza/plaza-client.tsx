@@ -401,7 +401,7 @@ export function PlazaClient({
       text = '创建你的名片，让创业者看到你'
       href = '/register'
     } else if (!(session.user as any)?.showInPlaza) {
-      text = `创建你的名片，让 ${initialPlazaUserTotal} 位创业者看到你`
+      text = '创建你的名片，让更多创业者看到你'
       href = '/settings#card'
     } else {
       text = '编辑我的信息'

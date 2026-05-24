@@ -11,7 +11,7 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ]
 
-const MAX_SIZE_MB = 10
+const MAX_SIZE_MB = 20
 
 const schema = z.object({
   filename: z.string().min(1).max(200),

@@ -645,12 +645,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       </div>
                     </div>
                   )
-                ) : isLoggedIn ? (
+                ) : (
                   <div className="flex items-start">
                     <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
-                      <div className="text-sm text-gray-500">联系信息</div>
-                      <p className="text-xs text-gray-400 mt-1">该社区暂无联系方式</p>
                       <Link
                         href={`/connect/${community.slug}`}
                         className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-lg hover:bg-primary-600 transition-colors"
@@ -659,7 +657,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       </Link>
                     </div>
                   </div>
-                ) : null}
+                )}
                 {community.website && (
                   <div className="flex items-start">
                     <Globe className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />

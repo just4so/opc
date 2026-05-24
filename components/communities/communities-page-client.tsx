@@ -86,10 +86,11 @@ export function CommunitiesPageClient({
       result = result.filter((c) => c.city === selectedCity)
     }
     if (isSearching) {
-      const q = searchQuery.trim().toLowerCase()
-      result = result.filter(
-        (c) => c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q)
-      )
+      const keywords = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
+      result = result.filter((c) => {
+        const haystack = `${c.name} ${c.city}`.toLowerCase()
+        return keywords.every((kw) => haystack.includes(kw))
+      })
     }
     return result
   }, [allCommunities, selectedCity, searchQuery, isSearching])

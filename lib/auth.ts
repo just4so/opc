@@ -61,6 +61,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.image = (user as any).image
         prisma.user.update({ where: { id: user.id as string }, data: { lastActiveAt: new Date() } }).catch(() => {})
       }
+      if (trigger === 'signIn' || trigger === 'update') {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: (token.sub ?? token.id) as string },
+          select: { showInPlaza: true },
+        })
+        if (dbUser) token.showInPlaza = dbUser.showInPlaza
+      }
       if (trigger === 'update' && updateData) {
         if (updateData.name !== undefined) token.name = updateData.name
         if (updateData.image !== undefined) token.image = updateData.image
@@ -72,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string
         ;(session.user as any).role = token.role
         session.user.image = token.image as string | null
+        ;(session.user as any).showInPlaza = token.showInPlaza ?? false
       }
       return session
     },
