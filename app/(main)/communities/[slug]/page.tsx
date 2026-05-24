@@ -352,28 +352,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </Card>
             )}
 
-            {/* ===== Layer 2: 深度了解（登录可见）===== */}
-            {!isLoggedIn ? (
-              <Card className="border-primary/20 bg-orange-50/50">
-                <CardContent className="pt-6 pb-6 text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
-                    <Building2 className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-ink mb-2">登录后查看入驻指南和联系方式</h3>
-                  <p className="text-sm text-mute mb-5">免费注册即可查看完整的入驻权益、入驻流程和联系方式</p>
-                  <div className="flex gap-3 justify-center">
-                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
-                      登录查看
-                    </Link>
-                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
-                      免费注册
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {/* 入驻福利 */}
+            {/* ===== 入驻政策/福利（始终可见）===== */}
                 {(() => {
                   type BenefitsSection = { summary?: string; items?: string[] }
                   type BenefitsJson = {
@@ -434,6 +413,27 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   )
                 })()}
 
+            {/* ===== Layer 2: 深度了解（登录可见）===== */}
+            {!isLoggedIn ? (
+              <Card className="border-primary/20 bg-orange-50/50">
+                <CardContent className="pt-6 pb-6 text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-ink mb-2">登录后查看入驻指南和联系方式</h3>
+                  <p className="text-sm text-mute mb-5">免费注册即可查看完整的入驻流程、真实提醒和联系方式</p>
+                  <div className="flex gap-3 justify-center">
+                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
+                      登录查看
+                    </Link>
+                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
+                      免费注册
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
                 {/* 入驻指南（entryInfo） */}
                 {(() => {
                   type EntryInfoJson = {
@@ -617,9 +617,14 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
                     <div>
                       <div className="text-sm text-mute">详细地址</div>
-                      <LoginGate isLoggedIn={isLoggedIn} message="免费注册，查看精确地址" registerUrl={registerUrl}>
-                        <div className="text-charcoal">{community.address}</div>
-                      </LoginGate>
+                      {isLoggedIn ? (
+                        <div className="text-charcoal text-sm">{community.address}</div>
+                      ) : (
+                        <>
+                          <p className="text-xs text-ash mt-1">登录后查看精确地址</p>
+                          <Link href={registerUrl} className="inline-flex items-center mt-1 text-xs text-primary font-medium hover:underline">免费注册查看 →</Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -636,12 +641,17 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <div className="flex items-start">
                       <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
                       <div>
-                        <div className="text-sm text-mute">联系信息</div>
-                        <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系方式" registerUrl={registerUrl}>
-                          {community.contactName && (
-                            <div className="text-charcoal">{community.contactName}</div>
-                          )}
-                        </LoginGate>
+                        <div className="text-sm text-mute mb-1">联系信息</div>
+                        {community.contactName && (
+                          <div className="text-charcoal text-sm">{community.contactName}</div>
+                        )}
+                        <p className="text-xs text-ash mt-1">电话/微信等联系方式需登录后查看</p>
+                        <Link
+                          href={registerUrl}
+                          className="inline-flex items-center mt-2 text-xs text-primary font-medium hover:underline"
+                        >
+                          免费注册查看 →
+                        </Link>
                       </div>
                     </div>
                   )

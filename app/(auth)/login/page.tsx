@@ -53,37 +53,34 @@ function LoginForm() {
     <div className="min-h-screen flex">
       {/* 左侧品牌 Panel（桌面端显示）*/}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
-        <div className="max-w-sm text-center">
-          <img src="/logo-transparent.png" alt="OPC圈" className="h-16 mb-8" />
-          <p className="text-lg font-medium mb-8 leading-relaxed opacity-95">
-            让 AI 创业者<br />不再孤独前行
+        <div className="max-w-sm flex flex-col items-center">
+          <img src="/logo-wordmark-white.png" alt="OPC圈" className="h-10 mb-10" />
+          <h2 className="text-2xl font-bold mb-3 text-center leading-snug">
+            OPC创业者，在这里连接、让世界看见
+          </h2>
+          <p className="text-base opacity-90 mb-10 text-center leading-relaxed">
+            全国 180+ 个 OPC 社区，真实信息人工核实，一键对接入驻
           </p>
-          <ul className="space-y-3 text-left text-sm opacity-90">
-            <li className="flex items-center gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          <div className="space-y-4 w-full">
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
               </span>
-              全国 180+ 个 OPC 社区攻略
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <span className="text-sm font-medium">找社区入驻，精确到联系方式</span>
+            </div>
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </span>
-              精确到联系方式和入驻条件
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <span className="text-sm font-medium">展示产品，找到合作伙伴</span>
+            </div>
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
               </span>
-              创业者广场，找人找合作
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </span>
-              最新 OPC 政策解读
-            </li>
-          </ul>
+              <span className="text-sm font-medium">认证创业者，被行业看见</span>
+            </div>
+          </div>
         </div>
       </div>
       {/* 右侧表单 */}
@@ -92,7 +89,7 @@ function LoginForm() {
       <Card>
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
-            <img src="/logo-transparent.png" alt="OPC圈" className="h-8" />
+            <img src="/logo-transparent.png" alt="OPC圈" className="h-10" />
           </Link>
           <CardTitle className="text-2xl">登录</CardTitle>
           <CardDescription>
