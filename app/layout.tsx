@@ -9,10 +9,10 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.opcquan.com'),
   title: {
-    default: 'OPC圈 - 一人公司创业社区',
+    default: 'OPC圈 - OPC创业者，在这里连接、让世界看见',
     template: '%s | OPC圈',
   },
-  description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
+  description: 'OPC圈是全国最全的一人公司社区信息平台。人工核实收录全国OPC社区，提供入驻对接、创业者广场、政策解读，帮你找到社区、被行业看见。',
   keywords: ['OPC', '一人公司', '创业', 'AI创业', '独立开发者', '数字游民', '创业社区', '创业政策'],
   authors: [{ name: 'OPC圈' }],
   verification: {
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     locale: 'zh_CN',
     url: 'https://www.opcquan.com',
     siteName: 'OPC圈',
-    title: 'OPC圈 - 一人公司创业社区',
-    description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
+    title: 'OPC圈 - OPC创业者，在这里连接、让世界看见',
+    description: 'OPC圈是全国最全的一人公司社区信息平台。人工核实收录全国OPC社区，提供入驻对接、创业者广场、政策解读，帮你找到社区、被行业看见。',
     images: ['https://www.opcquan.com/logo.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OPC圈 - 一人公司创业社区',
-    description: '连接全国OPC社区与AI创业者，提供政策信息、资源对接、创业交流的一站式平台',
+    title: 'OPC圈 - OPC创业者，在这里连接、让世界看见',
+    description: 'OPC圈是全国最全的一人公司社区信息平台。人工核实收录全国OPC社区，提供入驻对接、创业者广场、政策解读，帮你找到社区、被行业看见。',
   },
   robots: {
     index: true,

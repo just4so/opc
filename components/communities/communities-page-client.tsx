@@ -324,13 +324,11 @@ function ProvinceGroupedList({
                 <Star className="h-5 w-5 text-primary fill-primary" />
                 推荐社区
               </h2>
-              <ScrollReveal stagger>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {group.communities.map((community) => (
                     <CommunityCardInline key={community.id} community={community} recommended />
                   ))}
                 </div>
-              </ScrollReveal>
             </div>
           )
         }
@@ -361,13 +359,11 @@ function ProvinceGroupedList({
             <div className={`expand-container ${isExpanded ? 'expanded' : ''}`}>
               <div>
                 <div className="px-5 pb-5 pt-1">
-                  <ScrollReveal stagger>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {group.communities.map((community) => (
                         <CommunityCardInline key={community.id} community={community} />
                       ))}
                     </div>
-                  </ScrollReveal>
                 </div>
               </div>
             </div>
@@ -379,7 +375,6 @@ function ProvinceGroupedList({
 }
 
 import { CommunityCard } from '@/components/communities/community-card'
-import { ScrollReveal } from '@/components/ui/scroll-reveal'
 
 function CommunityCardInline({ community, recommended }: { community: Community; recommended?: boolean }) {
   return (

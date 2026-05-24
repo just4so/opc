@@ -25,13 +25,13 @@ export const revalidate = 300 // 5分钟缓存，降低云函数触发频率
 
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',
-  description: '覆盖全国39城159个OPC（一人公司）社区的完整信息，包含真实入驻评价、政策补贴、工位价格、入驻难度，帮你找到最适合的一人公司创业社区。',
+  description: '覆盖全国主要城市的OPC（一人公司）社区完整信息，包含真实入驻评价、政策补贴、工位价格、入驻难度，帮你找到最适合的一人公司创业社区。',
   alternates: {
     canonical: 'https://www.opcquan.com/communities',
   },
   openGraph: {
     title: '全国OPC社区地图 | OPC圈',
-    description: '覆盖全国39城159个OPC社区完整信息，真实入驻评价，一键找到适合你的一人公司社区。',
+    description: '覆盖全国主要城市OPC社区完整信息，真实入驻评价，一键找到适合你的一人公司社区。',
     url: 'https://www.opcquan.com/communities',
     siteName: 'OPC圈',
     locale: 'zh_CN',

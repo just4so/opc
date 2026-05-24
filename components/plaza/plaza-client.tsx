@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
-import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -583,7 +582,6 @@ export function PlazaClient({
         {mainTab === 'people' && (
           <div key="people" className="tab-content-enter">
             {paginatedUsers.length > 0 ? (
-              <ScrollReveal stagger>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {paginatedUsers.map(user => (
                   <div key={user.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
@@ -673,7 +671,6 @@ export function PlazaClient({
                   </div>
                 ))}
               </div>
-              </ScrollReveal>
             ) : (
               <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
                 <Users className="h-12 w-12 text-stone mx-auto mb-4" />
@@ -718,7 +715,6 @@ export function PlazaClient({
                 ))}
               </div>
             ) : projects.length > 0 ? (
-              <ScrollReveal stagger>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {projects.map(proj => (
                   <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
@@ -785,7 +781,6 @@ export function PlazaClient({
                   </div>
                 ))}
               </div>
-              </ScrollReveal>
             ) : (
               <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
                 <Package className="h-12 w-12 text-stone mx-auto mb-4" />
