@@ -195,8 +195,8 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   async function handleBpUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      setBpError('文件大小不能超过 10MB')
+    if (file.size > 20 * 1024 * 1024) {
+      setBpError('文件大小不能超过 20MB')
       return
     }
     setBpError('')
