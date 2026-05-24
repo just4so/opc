@@ -461,7 +461,7 @@ export function PlazaClient({
               }`}
             >
               <Users className="h-4 w-4" />
-              人
+              伙伴
               <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
             </button>
             <button
@@ -629,7 +629,7 @@ export function PlazaClient({
                     {user.projects.length > 0 && (
                       <div className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-2 mb-3">
                         <Package className="h-3.5 w-3.5 text-primary shrink-0" />
-                        <span className="text-charcoal">{user.projects[0].name}{user.projects[0].tagline ? ` · ${user.projects[0].tagline}` : ''}</span>
+                        <span className="text-charcoal">{user.projects[0].name}</span>
                       </div>
                     )}
 
@@ -728,12 +728,24 @@ export function PlazaClient({
                     </div>
 
                     <div className="flex items-center gap-2 pt-2 border-t">
-                      <Link
-                        href={`/profile/${proj.owner.username}`}
-                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
-                      >
-                        了解更多
-                      </Link>
+                      {proj.website ? (
+                        <a
+                          href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          访问网站
+                        </a>
+                      ) : (
+                        <Link
+                          href={`/profile/${proj.owner.username}`}
+                          className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
+                        >
+                          了解更多
+                        </Link>
+                      )}
                       <button
                         onClick={() => handleContact(proj.owner.id, proj.owner.username)}
                         className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
