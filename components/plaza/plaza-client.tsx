@@ -622,34 +622,14 @@ export function PlazaClient({
                     </div>
 
                     {user.bio && (
-                      <p className="text-sm text-mute line-clamp-2 mb-3">{user.bio}</p>
+                      <p className="text-sm text-body mb-3">{user.bio}</p>
                     )}
 
-                    {/* Associated products */}
+                    {/* First product only — keep card clean */}
                     {user.projects.length > 0 && (
-                      <div className="space-y-1.5 mb-3">
-                        {user.projects.map(proj => (
-                          <div key={proj.id} className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-1.5">
-                            <Package className="h-3 w-3 text-ash shrink-0" />
-                            <span className="font-medium text-charcoal truncate">{proj.name}</span>
-                            <span className="text-ash truncate hidden sm:inline">·</span>
-                            <span className="text-mute truncate hidden sm:inline">{proj.tagline}</span>
-                            {proj.website && (
-                              <a
-                                href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary hover:text-primary/80 shrink-0"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                            <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
-                              {STAGE_LABELS[proj.stage] || proj.stage}
-                            </span>
-                          </div>
-                        ))}
+                      <div className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-2 mb-3">
+                        <Package className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="text-charcoal">{user.projects[0].name}{user.projects[0].tagline ? ` · ${user.projects[0].tagline}` : ''}</span>
                       </div>
                     )}
 
@@ -719,29 +699,13 @@ export function PlazaClient({
                 {projects.map(proj => (
                   <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-ink truncate">{proj.name}</h3>
-                        {proj.contentType && CONTENT_TYPE_LABELS[proj.contentType] && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-surface-card text-mute shrink-0">
-                            {CONTENT_TYPE_LABELS[proj.contentType]}
-                          </span>
-                        )}
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-semibold text-ink leading-snug">{proj.name}</h3>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0 mt-0.5">
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </span>
                       </div>
-                      <p className="text-sm text-mute line-clamp-2">{proj.tagline}</p>
-                      {proj.website && (
-                        <a
-                          href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          访问网站
-                        </a>
-                      )}
+                      <p className="text-sm text-body leading-relaxed">{proj.tagline}</p>
                     </div>
 
                     {/* Owner info */}
