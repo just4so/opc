@@ -132,7 +132,7 @@ export function MobileMenu() {
                     onClick={close}
                     className="block text-center px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary hover:bg-primary/90 transition-colors"
                   >
-                    创建卡片
+                    注册
                   </Link>
                 </div>
               )}

@@ -274,38 +274,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ===== 第五屏：Footer 引导 ===== */}
-      <section className="py-16 md:py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-surface-card rounded-2xl p-8 md:p-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold text-ink mb-4">探索更多</h3>
-                <div className="space-y-3">
-                  <Link
-                    href="/news"
-                    className="block text-mute hover:text-primary transition-colors"
-                  >
-                    创业资讯 →
-                  </Link>
-                  <Link
-                    href="/tools"
-                    className="block text-mute hover:text-primary transition-colors"
-                  >
-                    工具导航 →
-                  </Link>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-ink mb-4">
-                  你是社区运营方？联系我们
-                </h3>
-                <p className="text-sm text-mute">邮箱：cooperation@opcquan.com</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

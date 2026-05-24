@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city') || ''
     const stage = searchParams.get('stage') || ''
     const search = searchParams.get('search') || ''
+    const contentType = searchParams.get('contentType') || ''
 
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
@@ -27,6 +28,9 @@ export async function GET(request: NextRequest) {
     }
     if (stage) {
       where.stage = stage
+    }
+    if (contentType) {
+      where.contentType = contentType
     }
     if (search) {
       where.OR = [

@@ -86,7 +86,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
 
   useEffect(() => {
     if (step === 'success') {
-      fetch('/api/settings/qrcode')
+      fetch('/api/settings/qrcode?key=connect_qrcode_url')
         .then((res) => res.json())
         .then((data) => { if (data.url) setQrcodeUrl(data.url) })
         .catch(() => {})

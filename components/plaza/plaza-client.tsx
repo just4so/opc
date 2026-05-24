@@ -132,6 +132,10 @@ const STAGE_LABELS: Record<string, string> = {
   IDEA: '想法', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
 }
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  PROJECT: '项目', DEMAND: '需求', COOPERATION: '合作',
+}
+
 const STAGE_OPTIONS = [
   { value: 'IDEA', label: '想法' },
   { value: 'BUILDING', label: '开发中' },
@@ -173,6 +177,7 @@ export function PlazaClient({
   const [filterDirection, setFilterDirection] = useState(searchParams.get('direction') || '')
   const [filterCity, setFilterCity] = useState(searchParams.get('city') || '')
   const [filterStage, setFilterStage] = useState(searchParams.get('stage') || '')
+  const [filterContentType, setFilterContentType] = useState(searchParams.get('contentType') || '')
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '')
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
 
@@ -298,6 +303,7 @@ export function PlazaClient({
     if (filterCity) params.set('city', filterCity)
     if (filterStage) params.set('stage', filterStage)
     if (searchQuery) params.set('search', searchQuery)
+    if (filterContentType) params.set('contentType', filterContentType)
 
     try {
       const res = await fetch(`/api/plaza/projects?${params}`)
@@ -309,7 +315,7 @@ export function PlazaClient({
     } finally {
       setProjectLoading(false)
     }
-  }, [filterDirection, filterCity, filterStage, searchQuery])
+  }, [filterDirection, filterCity, filterStage, searchQuery, filterContentType])
 
   // Refetch products when filters change or tab switches to products
   const [productsFetched, setProductsFetched] = useState(false)
@@ -378,11 +384,12 @@ export function PlazaClient({
       .catch(() => {})
   }
 
-  const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery
+  const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery || filterContentType
   const clearAllFilters = () => {
     setFilterDirection('')
     setFilterCity('')
     setFilterStage('')
+    setFilterContentType('')
     setSearchInput('')
     setSearchQuery('')
   }
@@ -537,6 +544,18 @@ export function PlazaClient({
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
+            {mainTab === 'products' && (
+              <select
+                value={filterContentType}
+                onChange={e => setFilterContentType(e.target.value)}
+                className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">类型</option>
+                <option value="PROJECT">项目</option>
+                <option value="DEMAND">需求</option>
+                <option value="COOPERATION">合作</option>
+              </select>
+            )}
             <div className="relative flex-1 min-w-[200px] max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
@@ -595,6 +614,9 @@ export function PlazaClient({
                               {user.location}
                             </span>
                           )}
+                          {user.startupStage && (
+                            <span className="text-xs text-gray-400">{STAGE_LABELS[user.startupStage] || user.startupStage}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -612,6 +634,17 @@ export function PlazaClient({
                             <span className="font-medium text-gray-700 truncate">{proj.name}</span>
                             <span className="text-gray-400 truncate hidden sm:inline">·</span>
                             <span className="text-gray-500 truncate hidden sm:inline">{proj.tagline}</span>
+                            {proj.website && (
+                              <a
+                                href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:text-primary/80 shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
                             <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
                               {STAGE_LABELS[proj.stage] || proj.stage}
                             </span>
@@ -688,6 +721,11 @@ export function PlazaClient({
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-secondary truncate">{proj.name}</h3>
+                        {proj.contentType && CONTENT_TYPE_LABELS[proj.contentType] && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 shrink-0">
+                            {CONTENT_TYPE_LABELS[proj.contentType]}
+                          </span>
+                        )}
                         <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0">
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </span>

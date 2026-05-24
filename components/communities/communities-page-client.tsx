@@ -95,22 +95,37 @@ export function CommunitiesPageClient({
     return result
   }, [allCommunities, selectedCity, searchQuery, isSearching])
 
+  const featuredCommunities = useMemo(() => {
+    return allCommunities.filter(c => c.featured)
+  }, [allCommunities])
+
+  const featuredIds = useMemo(() => new Set(featuredCommunities.map(c => c.id)), [featuredCommunities])
+
   const provinceGroups = useMemo((): ProvinceGroup[] => {
     if (isSearching || selectedCity) return []
+    const nonFeatured = filtered.filter(c => !featuredIds.has(c.id))
     const groups: Record<string, Community[]> = {}
-    for (const c of filtered) {
+    for (const c of nonFeatured) {
       const province = cityToProvince[c.city] || c.city
       if (!groups[province]) groups[province] = []
       groups[province].push(c)
     }
-    return Object.entries(groups)
+    const result = Object.entries(groups)
       .map(([province, communities]) => ({ province, communities }))
       .sort((a, b) => b.communities.length - a.communities.length)
-  }, [filtered, isSearching, selectedCity])
+
+    const featuredInFiltered = filtered.filter(c => featuredIds.has(c.id))
+    if (featuredInFiltered.length > 0) {
+      result.unshift({ province: '推荐社区', communities: featuredInFiltered })
+    }
+    return result
+  }, [filtered, isSearching, selectedCity, featuredIds])
 
   useEffect(() => {
     if (provinceGroups.length > 0 && expandedProvinces.size === 0) {
-      setExpandedProvinces(new Set(provinceGroups.slice(0, 3).map((g) => g.province)))
+      const initial = new Set(provinceGroups.slice(0, 3).map((g) => g.province))
+      initial.add('推荐社区')
+      setExpandedProvinces(initial)
     }
   }, [provinceGroups])
 
