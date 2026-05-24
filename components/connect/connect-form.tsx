@@ -72,6 +72,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   const [bpUploading, setBpUploading] = useState(false)
   const [bpError, setBpError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [qrcodeUrl, setQrcodeUrl] = useState<string | null>(null)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -82,6 +83,15 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (step === 'success') {
+      fetch('/api/settings/qrcode')
+        .then((res) => res.json())
+        .then((data) => { if (data.url) setQrcodeUrl(data.url) })
+        .catch(() => {})
+    }
+  }, [step])
 
   const filteredCommunities = communities.filter(c => {
     const q = communitySearch.toLowerCase()
@@ -231,9 +241,13 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
         <div className="bg-surface-soft rounded-xl p-5 mb-6">
           <p className="text-sm font-semibold text-secondary mb-3">关注 OPC圈 公众号，第一时间获取审核结果</p>
           <div className="flex items-center justify-center">
-            <div className="w-[200px] h-[200px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-mute">
-              请在后台上传二维码
-            </div>
+            {qrcodeUrl ? (
+              <img src={qrcodeUrl} alt="OPC圈公众号二维码" className="w-[200px] h-[200px] rounded-xl object-contain" />
+            ) : (
+              <div className="w-[200px] h-[200px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-mute">
+                请在后台上传二维码
+              </div>
+            )}
           </div>
         </div>
 

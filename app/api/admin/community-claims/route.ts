@@ -41,3 +41,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: '获取失败' }, { status: 500 })
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id || !(await isStaff(session.user.id))) {
+      return NextResponse.json({ error: '无权限' }, { status: 403 })
+    }
+
+    const { id, status } = await request.json()
+    if (!id || !['PENDING', 'CONTACTED', 'COMPLETED'].includes(status)) {
+      return NextResponse.json({ error: '参数错误' }, { status: 400 })
+    }
+
+    const updated = await prisma.communityClaim.update({
+      where: { id },
+      data: { status },
+    })
+
+    return NextResponse.json({
+      ...updated,
+      createdAt: updated.createdAt.toISOString(),
+    })
+  } catch (error) {
+    console.error('更新认领状态失败:', error)
+    return NextResponse.json({ error: '更新失败' }, { status: 500 })
+  }
+}

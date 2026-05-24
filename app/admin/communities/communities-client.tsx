@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Star, StarOff, Plus, Eye, Pencil, Trash2, Search, Download } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 interface Community {
   id: string
@@ -33,6 +34,44 @@ const STATUS_OPTIONS = [
 ]
 
 export default function CommunitiesClient() {
+  const [activeTab, setActiveTab] = useState<'list' | 'claims'>('list')
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-secondary">社区管理</h1>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex gap-1 mb-6 border-b">
+        <button
+          onClick={() => setActiveTab('list')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'list'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          社区列表
+        </button>
+        <button
+          onClick={() => setActiveTab('claims')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'claims'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          认领与收录
+        </button>
+      </div>
+
+      {activeTab === 'list' ? <CommunityListTab /> : <ClaimsTab />}
+    </div>
+  )
+}
+
+function CommunityListTab() {
   const [communities, setCommunities] = useState<Community[]>([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -145,8 +184,7 @@ export default function CommunitiesClient() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-secondary">社区管理</h1>
+      <div className="flex items-center justify-end mb-4">
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
@@ -374,6 +412,165 @@ export default function CommunitiesClient() {
           )}
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+interface CommunityClaim {
+  id: string
+  type: string
+  communityName: string
+  contactName: string
+  contactInfo: string
+  city: string | null
+  description: string | null
+  status: string
+  createdAt: string
+  community: { name: string; slug: string } | null
+}
+
+const CLAIM_STATUS_TABS = [
+  { label: '全部', value: '' },
+  { label: '待处理', value: 'PENDING' },
+  { label: '已联系', value: 'CONTACTED' },
+  { label: '已完成', value: 'COMPLETED' },
+]
+
+const CLAIM_STATUS_OPTIONS: { value: string; label: string; className: string }[] = [
+  { value: 'PENDING', label: '待处理', className: 'bg-yellow-100 text-yellow-800' },
+  { value: 'CONTACTED', label: '已联系', className: 'bg-blue-100 text-blue-800' },
+  { value: 'COMPLETED', label: '已完成', className: 'bg-green-100 text-green-800' },
+]
+
+function ClaimsTab() {
+  const [claims, setClaims] = useState<CommunityClaim[]>([])
+  const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState('')
+  const [updating, setUpdating] = useState<string | null>(null)
+
+  const fetchClaims = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (statusFilter) params.set('status', statusFilter)
+      const res = await fetch(`/api/admin/community-claims?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        setClaims(data.claims || [])
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false)
+    }
+  }, [statusFilter])
+
+  useEffect(() => {
+    fetchClaims()
+  }, [fetchClaims])
+
+  async function handleStatusChange(id: string, status: string) {
+    setUpdating(id)
+    try {
+      const res = await fetch('/api/admin/community-claims', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      })
+      if (res.ok) {
+        await fetchClaims()
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  function formatDate(iso: string) {
+    const d = new Date(iso)
+    return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
+  }
+
+  return (
+    <div>
+      {/* Sub-filter tabs */}
+      <div className="flex gap-1 mb-4 border-b">
+        {CLAIM_STATUS_TABS.map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setStatusFilter(t.value)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              statusFilter === t.value
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="text-center py-12 text-gray-400">加载中...</div>
+      ) : claims.length === 0 ? (
+        <div className="text-center py-12 text-gray-400">暂无数据</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-gray-500">
+                <th className="pb-3 pr-4 font-medium">类型</th>
+                <th className="pb-3 pr-4 font-medium">社区名称</th>
+                <th className="pb-3 pr-4 font-medium">联系人</th>
+                <th className="pb-3 pr-4 font-medium">联系方式</th>
+                <th className="pb-3 pr-4 font-medium">城市</th>
+                <th className="pb-3 pr-4 font-medium">说明</th>
+                <th className="pb-3 pr-4 font-medium">状态</th>
+                <th className="pb-3 font-medium">提交时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              {claims.map((claim) => {
+                const statusOpt = CLAIM_STATUS_OPTIONS.find((s) => s.value === claim.status)
+                return (
+                  <tr key={claim.id} className="border-b last:border-0 hover:bg-gray-50">
+                    <td className="py-3 pr-4">
+                      <Badge className={claim.type === 'CLAIM' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}>
+                        {claim.type === 'CLAIM' ? '认领' : '收录'}
+                      </Badge>
+                    </td>
+                    <td className="py-3 pr-4 font-medium">
+                      {claim.community?.name || claim.communityName}
+                    </td>
+                    <td className="py-3 pr-4 text-gray-600">{claim.contactName}</td>
+                    <td className="py-3 pr-4 text-gray-600">{claim.contactInfo}</td>
+                    <td className="py-3 pr-4 text-gray-600">{claim.city || '-'}</td>
+                    <td className="py-3 pr-4 text-gray-600 max-w-[160px] truncate">
+                      {claim.description || '-'}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <select
+                        value={claim.status}
+                        disabled={updating === claim.id}
+                        onChange={(e) => handleStatusChange(claim.id, e.target.value)}
+                        className={`text-xs px-2 py-1 rounded border-0 cursor-pointer ${statusOpt?.className || 'bg-gray-100'}`}
+                      >
+                        {CLAIM_STATUS_OPTIONS.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="py-3 text-gray-400 whitespace-nowrap">
+                      {formatDate(claim.createdAt)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

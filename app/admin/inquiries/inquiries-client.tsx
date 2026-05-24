@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Download } from 'lucide-react'
 
 type InquiryStatus = 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED'
 
@@ -48,10 +49,7 @@ const STATUS_BADGE: Record<InquiryStatus, { label: string; className: string }> 
   CANCELLED: { label: '已取消', className: 'bg-gray-100 text-gray-600' },
 }
 
-const NEXT_STATUS: Partial<Record<InquiryStatus, InquiryStatus>> = {
-  PENDING: 'CONTACTED',
-  CONTACTED: 'DONE',
-}
+const ALL_STATUSES: InquiryStatus[] = ['PENDING', 'CONTACTED', 'DONE', 'CANCELLED']
 
 export function InquiriesClient() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
@@ -154,21 +152,35 @@ export function InquiriesClient() {
           </div>
         </div>
       )}
-      {/* Tabs */}
-      <div className="flex gap-1 mb-4 border-b">
-        {STATUS_TABS.map((t) => (
-          <button
-            key={t.value}
-            onClick={() => handleTabChange(t.value)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.value
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Tabs + Export */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-1 border-b">
+          {STATUS_TABS.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => handleTabChange(t.value)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                tab === t.value
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const params = new URLSearchParams()
+            if (tab !== 'ALL') params.set('status', tab)
+            window.open(`/api/admin/export/inquiries?${params}`, '_blank')
+          }}
+        >
+          <Download className="h-4 w-4 mr-1.5" />
+          导出 CSV
+        </Button>
       </div>
 
       {/* Table */}
@@ -188,14 +200,12 @@ export function InquiriesClient() {
                 <th className="pb-3 pr-4 font-medium">方向</th>
                 <th className="pb-3 pr-4 font-medium">阶段</th>
                 <th className="pb-3 pr-4 font-medium">状态</th>
-                <th className="pb-3 pr-4 font-medium">时间</th>
-                <th className="pb-3 font-medium">操作</th>
+                <th className="pb-3 font-medium">时间</th>
               </tr>
             </thead>
             <tbody>
               {inquiries.map((inq) => {
                 const badge = STATUS_BADGE[inq.status]
-                const nextStatus = NEXT_STATUS[inq.status]
                 return (
                   <tr key={inq.id} className="border-b last:border-0 hover:bg-gray-50">
                     <td className="py-3 pr-4">{inq.name}</td>
@@ -209,24 +219,19 @@ export function InquiriesClient() {
                     </td>
                     <td className="py-3 pr-4 text-gray-600">{inq.stage || '-'}</td>
                     <td className="py-3 pr-4">
-                      <Badge className={badge.className}>{badge.label}</Badge>
+                      <select
+                        value={inq.status}
+                        disabled={updating === inq.id}
+                        onChange={(e) => handleStatusChange(inq.id, e.target.value as InquiryStatus)}
+                        className={`text-xs px-2 py-1 rounded border-0 cursor-pointer ${badge.className}`}
+                      >
+                        {ALL_STATUSES.map((s) => (
+                          <option key={s} value={s}>{STATUS_BADGE[s].label}</option>
+                        ))}
+                      </select>
                     </td>
-                    <td className="py-3 pr-4 text-gray-400 whitespace-nowrap">
+                    <td className="py-3 text-gray-400 whitespace-nowrap">
                       {formatDate(inq.createdAt)}
-                    </td>
-                    <td className="py-3">
-                      {nextStatus && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={updating === inq.id}
-                          onClick={() => handleStatusChange(inq.id, nextStatus)}
-                        >
-                          {updating === inq.id
-                            ? '...'
-                            : STATUS_BADGE[nextStatus].label}
-                        </Button>
-                      )}
                     </td>
                   </tr>
                 )
