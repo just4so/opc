@@ -617,14 +617,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
                     <div>
                       <div className="text-sm text-mute">详细地址</div>
-                      {isLoggedIn ? (
-                        <div className="text-charcoal text-sm">{community.address}</div>
-                      ) : (
-                        <>
-                          <p className="text-xs text-ash mt-1">登录后查看精确地址</p>
-                          <Link href={registerUrl} className="inline-flex items-center mt-1 text-xs text-primary font-medium hover:underline">免费注册查看 →</Link>
-                        </>
-                      )}
+                      <div className="text-charcoal text-sm">{community.address}</div>
                     </div>
                   </div>
                 )}
