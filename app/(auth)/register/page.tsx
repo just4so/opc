@@ -126,7 +126,7 @@ function RegisterForm() {
         </div>
       </div>
       {/* 右侧表单 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
         <div className="w-full max-w-md">
       <Card>
         <CardHeader className="text-center">
@@ -147,7 +147,7 @@ function RegisterForm() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="text-sm font-medium text-charcoal">
                 昵称 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -163,7 +163,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+              <label htmlFor="phone" className="text-sm font-medium text-charcoal">
                 手机号 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -179,8 +179,8 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                邮箱 <span className="text-gray-400 font-normal">（选填）</span>
+              <label htmlFor="email" className="text-sm font-medium text-charcoal">
+                邮箱 <span className="text-ash font-normal">（选填）</span>
               </label>
               <Input
                 id="email"
@@ -190,11 +190,11 @@ function RegisterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
-              <p className="text-xs text-gray-400">📮 填写邮箱后可通过邮件找回密码</p>
+              <p className="text-xs text-ash">📮 填写邮箱后可通过邮件找回密码</p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="text-sm font-medium text-charcoal">
                 密码
               </label>
               <Input
@@ -210,7 +210,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="text-sm font-medium text-charcoal">
                 确认密码
               </label>
               <Input
@@ -226,12 +226,12 @@ function RegisterForm() {
 
             {/* 分隔线 */}
             <div className="border-t pt-4">
-              <p className="text-xs text-gray-500 mb-3">
+              <p className="text-xs text-mute mb-3">
                 以下信息帮助我们为你匹配最合适的社区和资源（选填，30秒）
               </p>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-charcoal">
                   你目前的入驻状态
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -243,7 +243,7 @@ function RegisterForm() {
                       className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
                         startupStage === s.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          : 'border-hairline-soft text-mute hover:border-hairline'
                       }`}
                     >
                       {s.label}
@@ -253,7 +253,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2 mt-3">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-charcoal">
                   你的主要业务方向
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -265,7 +265,7 @@ function RegisterForm() {
                       className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
                         mainTrack === t.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          : 'border-hairline-soft text-mute hover:border-hairline'
                       }`}
                     >
                       {t.label}
@@ -280,7 +280,7 @@ function RegisterForm() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-mute">
             已有账户？{' '}
             <Link href="/login" className="text-primary hover:underline">
               立即登录

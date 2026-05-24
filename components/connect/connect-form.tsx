@@ -234,17 +234,17 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <h2 className="text-xl font-bold text-secondary mb-2">资料已提交</h2>
+          <h2 className="text-xl font-bold text-ink mb-2">资料已提交</h2>
           <p className="text-sm text-mute">OPC圈将在 1 个工作日内审核，审核通过后将直接推荐给社区</p>
         </div>
 
         <div className="bg-surface-soft rounded-xl p-5 mb-6">
-          <p className="text-sm font-semibold text-secondary mb-3">关注 OPC圈 公众号，第一时间获取审核结果</p>
+          <p className="text-sm font-semibold text-ink mb-3">关注 OPC圈 公众号，第一时间获取审核结果</p>
           <div className="flex items-center justify-center">
             {qrcodeUrl ? (
               <img src={qrcodeUrl} alt="OPC圈公众号二维码" className="w-[200px] h-[200px] rounded-xl object-contain" />
             ) : (
-              <div className="w-[200px] h-[200px] bg-gray-100 rounded-xl flex items-center justify-center text-sm text-mute">
+              <div className="w-[200px] h-[200px] bg-surface-card rounded-xl flex items-center justify-center text-sm text-mute">
                 请在后台上传二维码
               </div>
             )}
@@ -254,14 +254,14 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
         <div className="space-y-3">
           <Link
             href="/plaza"
-            className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-secondary hover:bg-surface-card transition-colors"
+            className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-ink hover:bg-surface-card transition-colors"
           >
             <span>去广场看看其他创业者</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/settings#card"
-            className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-secondary hover:bg-surface-card transition-colors"
+            className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-ink hover:bg-surface-card transition-colors"
           >
             <span>完善你的创业者卡片</span>
             <ArrowRight className="h-4 w-4" />
@@ -274,7 +274,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   return (
     <div className="w-full max-w-lg mx-auto bg-canvas rounded-2xl shadow-soft p-8">
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-secondary mb-1">社区直通车</h2>
+        <h2 className="text-xl font-bold text-ink mb-1">社区直通车</h2>
         <p className="text-sm text-mute">
           {community
             ? `提交意向，专人帮你对接 ${community.name}`
@@ -284,7 +284,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
 
       <div className="flex items-center gap-2 mb-6">
         <div className={`flex-1 h-1 rounded-full ${step === 'step1' ? 'bg-primary' : 'bg-primary'}`} />
-        <div className={`flex-1 h-1 rounded-full ${step === 'step2' ? 'bg-primary' : 'bg-gray-200'}`} />
+        <div className={`flex-1 h-1 rounded-full ${step === 'step2' ? 'bg-primary' : 'bg-secondary-bg'}`} />
       </div>
 
       {error && (
@@ -349,7 +349,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
               <Input
                 value={`${community.name} · ${community.city}`}
                 disabled
-                className="mt-1.5 bg-gray-50"
+                className="mt-1.5 bg-surface-soft"
               />
             </div>
           ) : (

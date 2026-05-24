@@ -421,7 +421,7 @@ export function PlazaClient({
           {text}
           <ArrowRight className="h-4 w-4" />
         </Link>
-        <button onClick={dismissBanner} className="text-gray-400 hover:text-gray-600">
+        <button onClick={dismissBanner} className="text-ash hover:text-mute">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -429,14 +429,14 @@ export function PlazaClient({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-surface-soft">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-10">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-secondary mb-1">创业者广场</h1>
-              <p className="text-slate-500 text-sm">发现创业伙伴，交流创业经验</p>
+              <h1 className="text-3xl font-bold text-ink mb-1">创业者广场</h1>
+              <p className="text-mute text-sm">发现创业伙伴，交流创业经验</p>
             </div>
             <Link href="/plaza/new">
               <Button size="lg" className="gap-2 shadow-sm">
@@ -449,7 +449,7 @@ export function PlazaClient({
       </div>
 
       {/* Three main tabs */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4">
           <div className="flex">
             <button
@@ -457,36 +457,36 @@ export function PlazaClient({
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
                 mainTab === 'people'
                   ? 'text-primary border-primary'
-                  : 'text-gray-500 border-transparent hover:text-gray-900'
+                  : 'text-mute border-transparent hover:text-ink'
               }`}
             >
               <Users className="h-4 w-4" />
               人
-              <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
             </button>
             <button
               onClick={() => handleTabChange('products')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
                 mainTab === 'products'
                   ? 'text-primary border-primary'
-                  : 'text-gray-500 border-transparent hover:text-gray-900'
+                  : 'text-mute border-transparent hover:text-ink'
               }`}
             >
               <Package className="h-4 w-4" />
               产品
-              <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{initialProjectTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialProjectTotal}</span>
             </button>
             <button
               onClick={() => handleTabChange('posts')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
                 mainTab === 'posts'
                   ? 'text-primary border-primary'
-                  : 'text-gray-500 border-transparent hover:text-gray-900'
+                  : 'text-mute border-transparent hover:text-ink'
               }`}
             >
               <MessageCircle className="h-4 w-4" />
               动态
-              <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">{initialTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialTotal}</span>
             </button>
           </div>
         </div>
@@ -494,10 +494,10 @@ export function PlazaClient({
 
       {/* Stats bar (posts tab only) */}
       {mainTab === 'posts' && (stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
-        <div className="bg-white border-b">
-          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-gray-500">
-            <TrendingUp className="h-4 w-4 text-slate-400" />
-            <span>今日 <strong className="text-gray-700">{stats.todayStats.postCount}</strong> 条新内容 · <strong className="text-gray-700">{stats.todayStats.participantCount}</strong> 人参与讨论</span>
+        <div className="bg-canvas border-b">
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-mute">
+            <TrendingUp className="h-4 w-4 text-ash" />
+            <span>今日 <strong className="text-charcoal">{stats.todayStats.postCount}</strong> 条新内容 · <strong className="text-charcoal">{stats.todayStats.participantCount}</strong> 人参与讨论</span>
           </div>
         </div>
       )}
@@ -509,12 +509,12 @@ export function PlazaClient({
         {/* Filter bar (people & products tabs) */}
         {(mainTab === 'people' || mainTab === 'products') && (
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <Filter className="h-4 w-4 text-gray-400 hidden sm:block" />
+            <Filter className="h-4 w-4 text-ash hidden sm:block" />
             {uniqueTracks.length > 0 && (
               <select
                 value={filterDirection}
                 onChange={e => setFilterDirection(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">方向</option>
                 {uniqueTracks.map(t => (
@@ -526,7 +526,7 @@ export function PlazaClient({
               <select
                 value={filterCity}
                 onChange={e => setFilterCity(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">城市</option>
                 {uniqueCities.map(c => (
@@ -537,7 +537,7 @@ export function PlazaClient({
             <select
               value={filterStage}
               onChange={e => setFilterStage(e.target.value)}
-              className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">阶段</option>
               {STAGE_OPTIONS.map(o => (
@@ -548,7 +548,7 @@ export function PlazaClient({
               <select
                 value={filterContentType}
                 onChange={e => setFilterContentType(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">类型</option>
                 <option value="PROJECT">项目</option>
@@ -557,19 +557,19 @@ export function PlazaClient({
               </select>
             )}
             <div className="relative flex-1 min-w-[200px] max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
                 placeholder="搜索人名、产品、关键词..."
-                className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="text-xs text-gray-500 hover:text-primary flex items-center gap-1"
+                className="text-xs text-mute hover:text-primary flex items-center gap-1"
               >
                 <X className="h-3 w-3" />
                 清除筛选
@@ -584,7 +584,7 @@ export function PlazaClient({
             {paginatedUsers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {paginatedUsers.map(user => (
-                  <div key={user.id} className="bg-white rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
+                  <div key={user.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="flex items-start gap-3 mb-3">
                       {user.avatar ? (
                         <img
@@ -599,14 +599,14 @@ export function PlazaClient({
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-secondary truncate">
+                          <span className="font-semibold text-ink truncate">
                             {user.name || user.username}
                           </span>
                           {user.verified && (
                             <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 mt-0.5 text-xs text-mute">
                           {user.mainTrack && <span className="bg-primary/5 text-primary px-1.5 py-0.5 rounded">{user.mainTrack}</span>}
                           {user.location && (
                             <span className="flex items-center gap-0.5">
@@ -615,25 +615,25 @@ export function PlazaClient({
                             </span>
                           )}
                           {user.startupStage && (
-                            <span className="text-xs text-gray-400">{STAGE_LABELS[user.startupStage] || user.startupStage}</span>
+                            <span className="text-xs text-ash">{STAGE_LABELS[user.startupStage] || user.startupStage}</span>
                           )}
                         </div>
                       </div>
                     </div>
 
                     {user.bio && (
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">{user.bio}</p>
+                      <p className="text-sm text-mute line-clamp-2 mb-3">{user.bio}</p>
                     )}
 
                     {/* Associated products */}
                     {user.projects.length > 0 && (
                       <div className="space-y-1.5 mb-3">
                         {user.projects.map(proj => (
-                          <div key={proj.id} className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg px-2.5 py-1.5">
-                            <Package className="h-3 w-3 text-gray-400 shrink-0" />
-                            <span className="font-medium text-gray-700 truncate">{proj.name}</span>
-                            <span className="text-gray-400 truncate hidden sm:inline">·</span>
-                            <span className="text-gray-500 truncate hidden sm:inline">{proj.tagline}</span>
+                          <div key={proj.id} className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-1.5">
+                            <Package className="h-3 w-3 text-ash shrink-0" />
+                            <span className="font-medium text-charcoal truncate">{proj.name}</span>
+                            <span className="text-ash truncate hidden sm:inline">·</span>
+                            <span className="text-mute truncate hidden sm:inline">{proj.tagline}</span>
                             {proj.website && (
                               <a
                                 href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
@@ -656,7 +656,7 @@ export function PlazaClient({
                     <div className="flex items-center gap-2 mt-auto pt-2 border-t">
                       <Link
                         href={`/profile/${user.username}`}
-                        className="flex-1 text-center text-sm py-2 rounded-lg border text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
                       >
                         查看主页
                       </Link>
@@ -672,10 +672,10 @@ export function PlazaClient({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl">
-                <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 mb-2">没有找到匹配的结果</p>
-                <p className="text-gray-400 text-sm">试试调整筛选条件</p>
+              <div className="text-center py-16 bg-canvas rounded-2xl">
+                <Users className="h-12 w-12 text-stone mx-auto mb-4" />
+                <p className="text-mute mb-2">没有找到匹配的结果</p>
+                <p className="text-ash text-sm">试试调整筛选条件</p>
               </div>
             )}
 
@@ -687,7 +687,7 @@ export function PlazaClient({
                     key={p}
                     onClick={() => setPeoplePage(p)}
                     className={`px-4 py-2 rounded-md text-sm ${
-                      p === peoplePage ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                      p === peoplePage ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
                     }`}
                   >
                     {p}
@@ -704,12 +704,12 @@ export function PlazaClient({
             {projectLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className="bg-white rounded-2xl border p-5">
-                    <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse mb-2" />
-                    <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-4" />
+                  <div key={i} className="bg-canvas rounded-2xl border p-5">
+                    <div className="h-5 w-3/4 bg-secondary-bg rounded animate-pulse mb-2" />
+                    <div className="h-4 w-full bg-secondary-bg rounded animate-pulse mb-4" />
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                      <div className="w-8 h-8 bg-secondary-bg rounded-full animate-pulse" />
+                      <div className="h-4 w-24 bg-secondary-bg rounded animate-pulse" />
                     </div>
                   </div>
                 ))}
@@ -717,12 +717,12 @@ export function PlazaClient({
             ) : projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {projects.map(proj => (
-                  <div key={proj.id} className="bg-white rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
+                  <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-secondary truncate">{proj.name}</h3>
+                        <h3 className="font-semibold text-ink truncate">{proj.name}</h3>
                         {proj.contentType && CONTENT_TYPE_LABELS[proj.contentType] && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 shrink-0">
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-surface-card text-mute shrink-0">
                             {CONTENT_TYPE_LABELS[proj.contentType]}
                           </span>
                         )}
@@ -730,7 +730,7 @@ export function PlazaClient({
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 line-clamp-2">{proj.tagline}</p>
+                      <p className="text-sm text-mute line-clamp-2">{proj.tagline}</p>
                       {proj.website && (
                         <a
                           href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
@@ -753,10 +753,10 @@ export function PlazaClient({
                           {proj.owner.name?.[0] || proj.owner.username[0]}
                         </div>
                       )}
-                      <span className="text-sm text-gray-700 truncate">{proj.owner.name || proj.owner.username}</span>
+                      <span className="text-sm text-charcoal truncate">{proj.owner.name || proj.owner.username}</span>
                       {proj.owner.verified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
                       {proj.owner.location && (
-                        <span className="text-xs text-gray-400 flex items-center gap-0.5 ml-auto">
+                        <span className="text-xs text-ash flex items-center gap-0.5 ml-auto">
                           <MapPin className="h-3 w-3" />
                           {proj.owner.location}
                         </span>
@@ -766,7 +766,7 @@ export function PlazaClient({
                     <div className="flex items-center gap-2 pt-2 border-t">
                       <Link
                         href={`/profile/${proj.owner.username}`}
-                        className="flex-1 text-center text-sm py-2 rounded-lg border text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
                       >
                         了解更多
                       </Link>
@@ -782,10 +782,10 @@ export function PlazaClient({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl">
-                <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 mb-2">没有找到匹配的结果</p>
-                <p className="text-gray-400 text-sm">试试调整筛选条件</p>
+              <div className="text-center py-16 bg-canvas rounded-2xl">
+                <Package className="h-12 w-12 text-stone mx-auto mb-4" />
+                <p className="text-mute mb-2">没有找到匹配的结果</p>
+                <p className="text-ash text-sm">试试调整筛选条件</p>
               </div>
             )}
 
@@ -797,7 +797,7 @@ export function PlazaClient({
                     key={p}
                     onClick={() => handleProductPageChange(p)}
                     className={`px-4 py-2 rounded-md text-sm ${
-                      p === projectPagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                      p === projectPagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
                     }`}
                   >
                     {p}
@@ -815,8 +815,8 @@ export function PlazaClient({
             <aside className="hidden lg:block lg:col-span-1">
               <div className="sticky top-24 space-y-6">
                 {stats.hotTopics.length > 0 && (
-                  <div className="bg-white rounded-lg p-5 shadow-sm border-l-2 border-primary/30">
-                    <h3 className="font-semibold text-secondary mb-3 text-sm">热议话题</h3>
+                  <div className="bg-canvas rounded-2xl p-5 shadow-soft border-l-2 border-primary/30">
+                    <h3 className="font-semibold text-ink mb-3 text-sm">热议话题</h3>
                     <div className="space-y-2">
                       {stats.hotTopics.map((t, i) => (
                         <div
@@ -824,11 +824,11 @@ export function PlazaClient({
                           className="flex items-center justify-between text-sm cursor-pointer hover:text-primary"
                           onClick={() => handleTypeChange('')}
                         >
-                          <span className="text-gray-600">
-                            <span className="text-gray-400 mr-1">#{i + 1}</span>
+                          <span className="text-mute">
+                            <span className="text-ash mr-1">#{i + 1}</span>
                             {t.topic}
                           </span>
-                          <span className="text-xs text-gray-400">{t.count}</span>
+                          <span className="text-xs text-ash">{t.count}</span>
                         </div>
                       ))}
                     </div>
@@ -836,8 +836,8 @@ export function PlazaClient({
                 )}
 
                 {stats.activeUsers.length >= 5 && (
-                  <div className="bg-white rounded-lg p-5 shadow-sm">
-                    <h3 className="font-semibold text-secondary mb-3 text-sm">本周活跃</h3>
+                  <div className="bg-canvas rounded-2xl p-5 shadow-soft">
+                    <h3 className="font-semibold text-ink mb-3 text-sm">本周活跃</h3>
                     <div className="space-y-2">
                       {stats.activeUsers.map((u) => (
                         <Link
@@ -852,25 +852,25 @@ export function PlazaClient({
                               <span>{u.name?.[0] || u.username[0]}</span>
                             )}
                           </div>
-                          <span className="text-sm text-gray-700 truncate">{u.name || u.username}</span>
-                          <span className="ml-auto text-xs text-gray-400">{u.postCount}篇</span>
+                          <span className="text-sm text-charcoal truncate">{u.name || u.username}</span>
+                          <span className="ml-auto text-xs text-ash">{u.postCount}篇</span>
                         </Link>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="bg-white rounded-lg p-5 shadow-sm">
-                  <h3 className="font-semibold text-secondary mb-3 text-sm">发布统计</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="bg-canvas rounded-2xl p-5 shadow-soft">
+                  <h3 className="font-semibold text-ink mb-3 text-sm">发布统计</h3>
+                  <div className="flex items-center gap-4 text-sm text-mute">
                     <div className="flex items-center gap-1">
-                      <span className="text-gray-400">本周</span>
-                      <span className="font-semibold text-gray-800">{stats.weekCount}</span>
+                      <span className="text-ash">本周</span>
+                      <span className="font-semibold text-ink">{stats.weekCount}</span>
                     </div>
-                    <div className="w-px h-3 bg-gray-200" />
+                    <div className="w-px h-3 bg-secondary-bg" />
                     <div className="flex items-center gap-1">
-                      <span className="text-gray-400">本月</span>
-                      <span className="font-semibold text-gray-800">{stats.monthCount}</span>
+                      <span className="text-ash">本月</span>
+                      <span className="font-semibold text-ink">{stats.monthCount}</span>
                     </div>
                   </div>
                 </div>
@@ -880,7 +880,7 @@ export function PlazaClient({
             {/* Post content */}
             <main className="lg:col-span-3 space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="hidden md:flex border-b border-gray-200">
+                <div className="hidden md:flex border-b border-hairline-soft">
                   {TYPE_TABS.map(tab => (
                     <button
                       key={tab.value}
@@ -888,7 +888,7 @@ export function PlazaClient({
                       className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
                         type === tab.value
                           ? 'text-primary border-primary'
-                          : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300'
+                          : 'text-mute border-transparent hover:text-ink hover:border-hairline'
                       }`}
                     >
                       {tab.label}
@@ -899,7 +899,7 @@ export function PlazaClient({
                 <select
                   value={type}
                   onChange={(e) => handleTypeChange(e.target.value)}
-                  className="md:hidden px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="md:hidden px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   {TYPE_TABS.map(tab => (
                     <option key={tab.value} value={tab.value}>{tab.label}</option>
@@ -910,18 +910,18 @@ export function PlazaClient({
                   <select
                     value={sort}
                     onChange={(e) => handleSortChange(e.target.value)}
-                    className="px-3 py-2 text-sm border rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="latest">最新发布</option>
                     <option value="hot">最多点赞</option>
                     <option value="comments">最多评论</option>
                   </select>
 
-                  <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+                  <div className="flex rounded-lg border border-hairline-soft overflow-hidden text-sm">
                     <button
                       onClick={() => setViewMode('card')}
                       className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
-                        viewMode === 'card' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                        viewMode === 'card' ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-soft'
                       }`}
                     >
                       <LayoutGrid className="h-3.5 w-3.5" />
@@ -929,7 +929,7 @@ export function PlazaClient({
                     <button
                       onClick={() => setViewMode('list')}
                       className={`px-3 py-1.5 flex items-center gap-1.5 transition-colors ${
-                        viewMode === 'list' ? 'bg-primary text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                        viewMode === 'list' ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-soft'
                       }`}
                     >
                       <List className="h-3.5 w-3.5" />
@@ -941,13 +941,13 @@ export function PlazaClient({
               {loading ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
+                    <div key={i} className="bg-canvas rounded-xl p-6 shadow-sm">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                        <div className="w-10 h-10 bg-secondary-bg rounded-full animate-pulse" />
                         <div className="flex-1">
-                          <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-2" />
-                          <div className="h-5 w-full bg-gray-200 rounded animate-pulse mb-2" />
-                          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-4" />
+                          <div className="h-4 w-24 bg-secondary-bg rounded animate-pulse mb-2" />
+                          <div className="h-5 w-full bg-secondary-bg rounded animate-pulse mb-2" />
+                          <div className="h-4 w-3/4 bg-secondary-bg rounded animate-pulse mb-4" />
                         </div>
                       </div>
                     </div>
@@ -961,15 +961,15 @@ export function PlazaClient({
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-white rounded-xl border overflow-hidden">
+                  <div className="bg-canvas rounded-xl border overflow-hidden">
                     {posts.map((post) => (
                       <PostListItem key={post.id} post={post} />
                     ))}
                   </div>
                 )
               ) : (
-                <div className="text-center py-16 bg-white rounded-lg">
-                  <p className="text-gray-500 mb-4">暂无动态</p>
+                <div className="text-center py-16 bg-canvas rounded-2xl">
+                  <p className="text-mute mb-4">暂无动态</p>
                   <Link href="/plaza/new">
                     <Button>发布第一条动态</Button>
                   </Link>
@@ -983,7 +983,7 @@ export function PlazaClient({
                       key={p}
                       onClick={() => setPostPage(p)}
                       className={`px-4 py-2 rounded-md text-sm ${
-                        p === postPagination.page ? 'bg-primary text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                        p === postPagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
                       }`}
                     >
                       {p}

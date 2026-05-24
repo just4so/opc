@@ -285,7 +285,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
                         href={ensureUrl(proj.website)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0 ml-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="shrink-0 ml-3 p-2 rounded-lg hover:bg-surface-soft transition-colors"
                         style={{ color: '#F97316' }}
                       >
                         <ExternalLink className="h-4 w-4" />

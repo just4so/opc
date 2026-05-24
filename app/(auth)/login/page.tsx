@@ -67,7 +67,7 @@ function LoginForm() {
         </div>
       </div>
       {/* 右侧表单 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
         <div className="w-full max-w-md">
       <Card>
         <CardHeader className="text-center">
@@ -88,7 +88,7 @@ function LoginForm() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="identifier" className="text-sm font-medium text-gray-700">
+              <label htmlFor="identifier" className="text-sm font-medium text-charcoal">
                 手机号或邮箱
               </label>
               <Input
@@ -106,10 +106,10 @@ function LoginForm() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="text-sm font-medium text-charcoal">
                   密码
                 </label>
-                <Link href="/forgot-password" className="text-sm text-gray-500 hover:text-primary">
+                <Link href="/forgot-password" className="text-sm text-mute hover:text-primary">
                   忘记密码？
                 </Link>
               </div>
@@ -131,7 +131,7 @@ function LoginForm() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-mute">
             还没有账户？{' '}
             <Link href={`/register${callbackUrl && callbackUrl !== '/' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`} className="text-primary hover:underline">
               立即注册

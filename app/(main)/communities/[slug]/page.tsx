@@ -213,11 +213,11 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         }}
       />
       {/* 返回导航 */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-3">
           <Link
             href="/communities"
-            className="inline-flex items-center text-gray-600 hover:text-primary transition-colors"
+            className="inline-flex items-center text-mute hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回社区列表
@@ -226,7 +226,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
       </div>
 
       {/* ===== Layer 1: 快速判断（始终可见）===== */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         {/* 封面图（仅当有时才渲染） */}
         {community.coverImage && (
           <div className="relative w-full h-48 md:h-64 overflow-hidden">
@@ -244,7 +244,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         <div className="container mx-auto px-4 py-6">
           {/* 名称 + 徽章 */}
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            <h1 className="text-3xl font-bold text-secondary">{community.name}</h1>
+            <h1 className="text-3xl font-bold text-ink">{community.name}</h1>
             {community.featured && (
               <Badge variant="default">推荐</Badge>
             )}
@@ -254,7 +254,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           </div>
 
           {/* 城市 + 运营主体 */}
-          <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-4">
+          <div className="flex flex-wrap items-center gap-4 text-mute mb-4">
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-1" />
               <span>{community.city}{community.district ? ` · ${community.district}` : ''}</span>
@@ -270,13 +270,13 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           {/* 3 stat chips（仅有值时渲染） */}
           <div className="flex flex-wrap gap-3 mb-4">
             {community.totalWorkstations != null && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-card rounded-full text-sm text-charcoal">
                 <Users className="h-4 w-4 text-primary" />
                 <span>{community.totalWorkstations} 个工位</span>
               </div>
             )}
             {community.totalArea && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-card rounded-full text-sm text-charcoal">
                 <Building2 className="h-4 w-4 text-primary" />
                 <span>{community.totalArea}{/^\d+$/.test(community.totalArea) ? '㎡' : ''}</span>
               </div>
@@ -311,7 +311,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
           {/* 一句话 tagline */}
           {tagline && (
-            <p className="text-gray-500 text-sm">{tagline}</p>
+            <p className="text-mute text-sm">{tagline}</p>
           )}
         </div>
       </div>
@@ -331,7 +331,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="prose prose-sm max-w-none text-gray-700"
+                  <div className="prose prose-sm max-w-none text-charcoal"
                     dangerouslySetInnerHTML={{
                       __html: sanitizeHtml(renderDescription(community.description ?? ''), {
                         allowedTags: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
@@ -359,13 +359,13 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
                     <Building2 className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-secondary mb-2">登录后查看入驻指南和联系方式</h3>
-                  <p className="text-sm text-gray-500 mb-5">免费注册即可查看完整的入驻权益、入驻流程和联系方式</p>
+                  <h3 className="text-lg font-semibold text-ink mb-2">登录后查看入驻指南和联系方式</h3>
+                  <p className="text-sm text-mute mb-5">免费注册即可查看完整的入驻权益、入驻流程和联系方式</p>
                   <div className="flex gap-3 justify-center">
                     <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
                       登录查看
                     </Link>
-                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-6 py-2.5 text-sm font-medium text-secondary shadow-sm transition-colors hover:bg-gray-50">
+                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
                       免费注册
                     </Link>
                   </div>
@@ -405,20 +405,20 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                           const hasItems = section.items && section.items.length > 0
                           return (
                             <div key={key}>
-                              {idx > 0 && <div className="border-t border-gray-100 mb-4" />}
+                              {idx > 0 && <div className="border-t border-hairline-soft mb-4" />}
                               <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <h4 className="text-sm font-semibold text-gray-800">{label}</h4>
+                                <h4 className="text-sm font-semibold text-ink">{label}</h4>
                                 {section.summary && !hasItems && (
-                                  <span className="text-xs text-gray-400 font-normal">{section.summary}</span>
+                                  <span className="text-xs text-ash font-normal">{section.summary}</span>
                                 )}
                               </div>
                               {section.summary && hasItems && (
-                                <p className="text-xs text-gray-500 mb-2 leading-relaxed">{section.summary}</p>
+                                <p className="text-xs text-mute mb-2 leading-relaxed">{section.summary}</p>
                               )}
                               {hasItems && (
                                 <ul className="space-y-1.5">
                                   {section.items!.map((item, i) => (
-                                    <li key={i} className="text-sm text-gray-600 leading-relaxed flex items-start gap-2">
+                                    <li key={i} className="text-sm text-mute leading-relaxed flex items-start gap-2">
                                       <span className="text-orange-400 mt-0.5 flex-shrink-0 text-xs">▸</span>
                                       <span>{item}</span>
                                     </li>
@@ -455,10 +455,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       <CardContent className="space-y-4">
                         {hasRequirements && (
                           <div>
-                            <h4 className="text-sm font-semibold text-secondary mb-2">入驻条件</h4>
+                            <h4 className="text-sm font-semibold text-ink mb-2">入驻条件</h4>
                             <ul className="space-y-2">
                               {entryInfo.requirements!.map((req, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                                <li key={i} className="flex items-start gap-2 text-sm text-charcoal">
                                   <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                                   <span>{req}</span>
                                 </li>
@@ -468,14 +468,14 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                         )}
                         {hasSteps && (
                           <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">申请流程</h4>
+                            <h4 className="text-sm font-medium text-charcoal mb-3">申请流程</h4>
                             <ol className="space-y-3">
                               {entryInfo.steps!.map((step, index) => (
                                 <li key={index} className="flex items-start gap-3">
                                   <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center flex-shrink-0 mt-0.5">
                                     {index + 1}
                                   </span>
-                                  <span className="text-sm text-gray-600 leading-relaxed">{step}</span>
+                                  <span className="text-sm text-mute leading-relaxed">{step}</span>
                                 </li>
                               ))}
                             </ol>
@@ -483,7 +483,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                         )}
                         {hasDuration && (
                           <div>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-600">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-card text-sm text-mute">
                               ⏱ {entryInfo.duration}
                             </span>
                           </div>
@@ -500,7 +500,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                       <span className="text-base font-semibold text-orange-800">🔍 真实提醒</span>
                     </div>
                     {(community.entryFriendly || community.processTime) && (
-                      <div className="flex items-center gap-4 text-sm text-gray-700 mb-3">
+                      <div className="flex items-center gap-4 text-sm text-charcoal mb-3">
                         {community.entryFriendly && (
                           <span><span className="font-medium">入驻友好度：</span>{renderStars(community.entryFriendly)}</span>
                         )}
@@ -518,7 +518,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                           return true
                         })
                         .map((tip, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                        <li key={index} className="flex items-start gap-2 text-sm text-charcoal">
                           <span className="text-orange-400 mt-0.5 flex-shrink-0">•</span>
                           <span>{tip}</span>
                         </li>
@@ -526,7 +526,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </ul>
                     {community.lastVerifiedAt && (
                       <div className="text-right mt-3">
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-ash">
                           最后核实：{new Date(community.lastVerifiedAt).getFullYear()}年{new Date(community.lastVerifiedAt).getMonth() + 1}月
                         </span>
                       </div>
@@ -546,7 +546,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {community.amenities.map((item, index) => (
-                          <span key={index} className="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full">
+                          <span key={index} className="inline-flex items-center px-3 py-1.5 bg-surface-card text-charcoal text-sm rounded-full">
                             {item}
                           </span>
                         ))}
@@ -600,7 +600,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   longitude={community.longitude}
                 />
                 {community.transit && (
-                  <p className="text-sm text-gray-500 mt-2">🚇 {community.transit}</p>
+                  <p className="text-sm text-mute mt-2">🚇 {community.transit}</p>
                 )}
 
               </CardContent>
@@ -614,11 +614,11 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               <CardContent className="space-y-4">
                 {community.address && (
                   <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
                     <div>
-                      <div className="text-sm text-gray-500">详细地址</div>
+                      <div className="text-sm text-mute">详细地址</div>
                       <LoginGate isLoggedIn={isLoggedIn} message="免费注册，查看精确地址" registerUrl={registerUrl}>
-                        <div className="text-gray-700">{community.address}</div>
+                        <div className="text-charcoal">{community.address}</div>
                       </LoginGate>
                     </div>
                   </div>
@@ -634,12 +634,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     />
                   ) : (
                     <div className="flex items-start">
-                      <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
                       <div>
-                        <div className="text-sm text-gray-500">联系信息</div>
+                        <div className="text-sm text-mute">联系信息</div>
                         <LoginGate isLoggedIn={isLoggedIn} message="注册后查看联系方式" registerUrl={registerUrl}>
                           {community.contactName && (
-                            <div className="text-gray-700">{community.contactName}</div>
+                            <div className="text-charcoal">{community.contactName}</div>
                           )}
                         </LoginGate>
                       </div>
@@ -647,7 +647,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   )
                 ) : (
                   <div className="flex items-start">
-                    <Phone className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
                     <div>
                       <Link
                         href={`/connect/${community.slug}`}
@@ -660,9 +660,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 )}
                 {community.website && (
                   <div className="flex items-start">
-                    <Globe className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <Globe className="h-5 w-5 text-ash mr-3 mt-0.5" />
                     <div>
-                      <div className="text-sm text-gray-500">官网</div>
+                      <div className="text-sm text-mute">官网</div>
                       <a
                         href={community.website}
                         target="_blank"
@@ -681,8 +681,8 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             {localPolicies.length > 0 && (
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center text-sm font-semibold text-gray-700">
-                    <ScrollText className="h-4 w-4 mr-2 text-gray-400" />
+                  <CardTitle className="flex items-center text-sm font-semibold text-charcoal">
+                    <ScrollText className="h-4 w-4 mr-2 text-ash" />
                     本地政策支持
                   </CardTitle>
                 </CardHeader>
@@ -697,7 +697,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                         : 'bg-violet-50 text-violet-700 border border-violet-200'
 
                     return (
-                      <div key={policy.id} className="py-2 border-b border-gray-50 last:border-0">
+                      <div key={policy.id} className="py-2 border-b border-hairline-soft last:border-0">
                         <div className="flex items-start gap-2">
                           <span
                             className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 mt-0.5 ${levelColor}`}
@@ -705,11 +705,11 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                             {level}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <div className="text-xs font-medium text-gray-800 leading-snug mb-0.5">
+                            <div className="text-xs font-medium text-ink leading-snug mb-0.5">
                               {policy.title.length > 26 ? policy.title.slice(0, 26) + '…' : policy.title}
                             </div>
                             <div className="flex items-center justify-between gap-2">
-                              <p className="text-xs text-gray-400 truncate">
+                              <p className="text-xs text-ash truncate">
                                 {policy.summary.length > 18 ? policy.summary.slice(0, 18) + '…' : policy.summary}
                               </p>
                               {policy.sourceUrl ? (
@@ -731,7 +731,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   <div className="pt-1">
                     <Link
                       href="/news#policies"
-                      className="text-xs text-gray-400 hover:text-primary flex items-center gap-1 transition-colors"
+                      className="text-xs text-ash hover:text-primary flex items-center gap-1 transition-colors"
                     >
                       查看全部政策 →
                     </Link>
@@ -742,8 +742,8 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
             <Card className="overflow-hidden border-primary/10 shadow-sm">
               <CardContent className="py-6 text-center bg-gradient-to-b from-primary/5 to-white">
-                <p className="text-sm font-semibold text-gray-800 mb-4 tracking-wide">加入 OPC 圈，遇见同路人</p>
-                <div className="inline-flex rounded-2xl bg-white p-3 shadow-sm ring-1 ring-gray-100">
+                <p className="text-sm font-semibold text-ink mb-4 tracking-wide">加入 OPC 圈，遇见同路人</p>
+                <div className="inline-flex rounded-2xl bg-canvas p-3 shadow-sm ring-1 ring-hairline-soft">
                   <Image
                     src={qrCodeUrl}
                     alt="OPC社群二维码"

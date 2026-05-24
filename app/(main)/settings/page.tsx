@@ -481,7 +481,7 @@ export default function SettingsPage() {
                           onChange={(e) => setName(e.target.value)}
                           placeholder="你的昵称"
                           disabled={nameIsSet}
-                          className={nameIsSet ? 'bg-gray-50 text-gray-500' : ''}
+                          className={nameIsSet ? 'bg-surface-soft text-mute' : ''}
                         />
                         {!nameIsSet && (
                           <Button
