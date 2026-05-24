@@ -296,7 +296,7 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 > **讨论结论：** `docs/V2-DISCUSSION.md`
 > **开发流程：** 每个 Phase 走 OpenSpec（propose → tasks.md → 确认 → apply → archive）
 
-**当前阶段：Phase 5 ✅ → 待开始 Phase 6**
+**当前阶段：Phase 6 ✅ → 待开始 Phase 7**
 
 Phase 1 完成（commit 58bf276）：11项基础修复+文案更新
 Phase 2 完成（commit a756e68）：直通车重构+社区三层权限+R2上传
@@ -351,3 +351,4 @@ Phase 5 完成（commit b21aa18）：通知跳转统一+社区列表省份分组
 6. contactWechat 实际存的是公众号，不是个人微信，展示文案用「公众号」
 7. 社区详情页是最高风险页面——改之前截图存档，改完逐项对比
 8. **V2 改版开发流程必须走 OpenSpec：** 先 `openspec propose` 生成 spec → 确认 → ACP `openspec apply` 执行 → 完成后 `openspec archive` 归档。纯配置/文档修改可跳过（`--skip-specs`）。读 openspec-dev SKILL.md 获取完整命令。
+Phase 6 完成（commit ce883ba）：后台优化(侧边栏分组/Dashboard/意向导出/认领合并/二维码上传)
