@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { PageHeader } from '@/components/ui/page-header'
 import {
   PenSquare,
   TrendingUp,
@@ -431,22 +432,14 @@ export function PlazaClient({
   return (
     <div className="min-h-screen bg-surface-soft">
       {/* Header */}
-      <div className="bg-canvas border-b">
-        <div className="container mx-auto px-4 py-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-ink mb-1">创业者广场</h1>
-              <p className="text-mute text-sm">发现创业伙伴，交流创业经验</p>
-            </div>
-            <Link href="/plaza/new">
-              <Button size="lg" className="gap-2 shadow-sm">
-                <PenSquare className="h-4 w-4" />
-                发帖
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="创业者广场" subtitle="发现创业伙伴，交流创业经验">
+        <Link href="/plaza/new">
+          <Button size="lg" className="gap-2 shadow-sm">
+            <PenSquare className="h-4 w-4" />
+            发帖
+          </Button>
+        </Link>
+      </PageHeader>
 
       {/* Three main tabs */}
       <div className="bg-canvas border-b">

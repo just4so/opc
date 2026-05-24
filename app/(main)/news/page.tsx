@@ -164,8 +164,13 @@ async function NewsPageInner({
 
   return (
     <>
+      <NewsClient
+        initialNews={serializeNews(news)}
+        initialOriginals={serializeNews(originals)}
+        initialTotal={total}
+      />
       {showPolicies && policies.length > 0 && (
-        <div className="container mx-auto px-4 pt-8">
+        <div className="container mx-auto px-4 py-8">
           <PoliciesBlock
             policies={policies}
             provinces={policyProvinces.map((p) => p.province)}
@@ -175,11 +180,6 @@ async function NewsPageInner({
           />
         </div>
       )}
-      <NewsClient
-        initialNews={serializeNews(news)}
-        initialOriginals={serializeNews(originals)}
-        initialTotal={total}
-      />
     </>
   )
 }

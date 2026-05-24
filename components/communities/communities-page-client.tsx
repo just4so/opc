@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X, Star } from 'lucide-react'
+import { PageHeader } from '@/components/ui/page-header'
 import { CITIES } from '@/constants/cities'
 
 const PAGE_SIZE = 12
@@ -162,19 +163,11 @@ export function CommunitiesPageClient({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-canvas border-b">
-        <div className="container mx-auto px-4 pt-8 pb-5">
-          {/* 标题行 */}
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">
-                全国 OPC 社区地图
-              </h1>
-              <p className="text-sm text-ash mt-1">
-                {allCommunities.length} 个社区 · {cityCounts.length || '—'} 座城市 · 真实入驻友好度参考
-              </p>
-            </div>
-            <div className="flex items-center gap-1 bg-surface-card rounded-2xl p-1 shrink-0">
+<PageHeader
+        title="全国 OPC 社区地图"
+        subtitle={`${allCommunities.length} 个社区 · ${cityCounts.length || '—'} 座城市 · 真实入驻友好度参考`}
+      >
+        <div className="flex items-center gap-1 bg-surface-card rounded-2xl p-1 shrink-0">
               <button
                 onClick={() => setViewMode('list')}
                 className={cn(
@@ -196,8 +189,9 @@ export function CommunitiesPageClient({
                 地图
               </button>
             </div>
-          </div>
+          </PageHeader>
 
+          <div className="container mx-auto px-4 pt-5">
           {/* 搜索框 */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
@@ -260,7 +254,6 @@ export function CommunitiesPageClient({
             </p>
           )}
         </div>
-      </div>
 
       {/* 省份分组列表 */}
       {showProvinceView && (

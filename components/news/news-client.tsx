@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { NewsCard } from '@/components/news/news-card'
+import { PageHeader } from '@/components/ui/page-header'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
@@ -168,13 +169,9 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
   }, [category, page, initialCategory, initialPage])
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-secondary mb-4">创业资讯</h1>
-        <p className="text-mute">
-          OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势
-        </p>
-      </div>
+    <div>
+      <PageHeader title="创业资讯" subtitle="OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势" />
+      <div className="container mx-auto px-4 py-8">
 
       {/* 分类筛选 */}
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -252,6 +249,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }
