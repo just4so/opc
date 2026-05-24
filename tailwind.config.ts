@@ -10,7 +10,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 主色 - 温暖橙（低饱和度）
+        // ============================================
+        // 旧色阶（向后兼容，现有页面依赖这些 class）
+        // ============================================
         primary: {
           DEFAULT: '#F97316',
           50: '#FFF7ED',
@@ -24,7 +26,6 @@ const config: Config = {
           800: '#9A3412',
           900: '#7C2D12',
         },
-        // 辅助色1 - 深蓝灰（专业沉稳）
         secondary: {
           DEFAULT: '#334155',
           50: '#F8FAFC',
@@ -38,7 +39,6 @@ const config: Config = {
           800: '#1E293B',
           900: '#0F172A',
         },
-        // 辅助色2 - 薄荷绿（清新点缀）
         accent: {
           DEFAULT: '#10B981',
           50: '#ECFDF5',
@@ -49,8 +49,68 @@ const config: Config = {
           500: '#10B981',
           600: '#059669',
         },
-        // 背景色
-        background: '#F9FAFB',
+
+        // ============================================
+        // DESIGN.md 语义 token（V2 新页面使用这些）
+        // ============================================
+
+        // 品牌色
+        'primary-soft': '#FFF7ED',        // 极淡橙底
+
+        // 文字层级
+        ink: '#000000',
+        'ink-soft': '#211922',
+        body: '#33332e',
+        charcoal: '#262622',
+        mute: '#62625b',
+        ash: '#91918c',
+        stone: '#c8c8c1',
+
+        // 表面层级
+        canvas: '#ffffff',
+        'surface-soft': '#fbfbf9',
+        'surface-card': '#f6f6f3',
+        'surface-elevated': '#ffffff',
+        'surface-dark': '#262622',
+
+        // shadcn 组件兼容
+        popover: '#ffffff',
+        'popover-foreground': '#262622',
+
+        // 分割线
+        hairline: '#dadad3',
+        'hairline-soft': '#e5e5e0',
+
+        // 交互色
+        'secondary-bg': '#e5e5e0',
+        'secondary-pressed': '#c8c8c1',
+        'on-primary': '#ffffff',
+        'on-secondary': '#000000',
+        'on-dark': '#ffffff',
+        'on-dark-mute': 'rgba(255,255,255,0.7)',
+
+        // 功能色
+        'focus-outer': '#435ee5',
+        'focus-inner': '#ffffff',
+        'ds-success': '#103c25',
+        'ds-success-bg': '#c7f0da',
+        'ds-error': '#9e0a0a',
+        'ds-error-bg': '#FEE2E2',
+        'ds-warning': '#EA580C',
+        'ds-info': '#435ee5',
+
+        // 状态徽章色
+        'badge-pending': '#FEF3C7',
+        'badge-pending-text': '#92400E',
+        'badge-contacted': '#DBEAFE',
+        'badge-contacted-text': '#1E40AF',
+        'badge-done': '#D1FAE5',
+        'badge-done-text': '#065F46',
+        'badge-cancelled': '#F3F4F6',
+        'badge-cancelled-text': '#6B7280',
+
+        // 背景色（统一到 DESIGN.md）
+        background: '#fbfbf9',
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
@@ -58,10 +118,16 @@ const config: Config = {
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         'soft-lg': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+        'floating-cta': '0 4px 12px rgba(249,115,22,0.3)',
       },
       borderRadius: {
+        // 旧值（向后兼容）
         'xl': '0.875rem',
         '2xl': '1rem',
+        // DESIGN.md 语义值
+        'ds-sm': '8px',
+        'ds-md': '16px',
+        'ds-lg': '32px',
       },
     },
   },

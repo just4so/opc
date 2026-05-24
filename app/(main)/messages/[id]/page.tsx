@@ -111,7 +111,7 @@ export default function ConversationPage() {
   if (status === 'loading' || loading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="bg-white rounded-lg border min-h-[600px] flex flex-col animate-pulse">
+        <div className="bg-canvas rounded-2xl border min-h-[600px] flex flex-col animate-pulse">
           <div className="p-4 border-b">
             <div className="h-6 bg-gray-200 rounded w-32" />
           </div>
@@ -119,7 +119,7 @@ export default function ConversationPage() {
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : ''}`}>
-                  <div className="h-10 bg-gray-200 rounded-lg w-48" />
+                  <div className="h-10 bg-gray-200 rounded-2xl w-48" />
                 </div>
               ))}
             </div>
@@ -135,12 +135,12 @@ export default function ConversationPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="bg-white rounded-lg border min-h-[600px] flex flex-col">
+      <div className="bg-canvas rounded-2xl border min-h-[600px] flex flex-col">
         {/* 头部 */}
         <div className="p-4 border-b flex items-center gap-4">
           <Link
             href="/messages"
-            className="p-2 -ml-2 text-gray-600 hover:text-primary transition-colors"
+            className="p-2 -ml-2 text-mute hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -168,7 +168,7 @@ export default function ConversationPage() {
         {/* 消息列表 */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {conversation.messages.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">
+            <div className="text-center text-ash py-8">
               开始对话吧
             </div>
           ) : (
@@ -180,16 +180,16 @@ export default function ConversationPage() {
                   className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${
                       isMe
                         ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-surface-card text-ink'
                     }`}
                   >
                     <p className="break-words whitespace-pre-wrap">{msg.content}</p>
                     <p
                       className={`text-xs mt-1 ${
-                        isMe ? 'text-white/70' : 'text-gray-400'
+                        isMe ? 'text-white/70' : 'text-ash'
                       }`}
                     >
                       {msg.createdAt
@@ -215,7 +215,7 @@ export default function ConversationPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="输入消息..."
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+              className="flex-1 px-4 py-2 border border-hairline-soft rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
               disabled={sending}
             />
             <Button type="submit" disabled={!message.trim() || sending}>

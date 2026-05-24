@@ -112,28 +112,43 @@ function RegisterForm() {
     <div className="min-h-screen flex">
       {/* 左侧品牌 Panel（桌面端显示）*/}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
-        <div className="max-w-sm text-center">
-          <div className="text-5xl font-bold mb-2">OPC</div>
-          <div className="text-2xl font-semibold mb-8 opacity-90">圈</div>
-          <p className="text-lg font-medium mb-8 leading-relaxed opacity-95">
-            让 AI 创业者<br />不再孤独前行
+        <div className="max-w-sm flex flex-col items-center auth-fade-in-up">
+          <img src="/logo-wordmark-white.png" alt="OPC圈" className="h-10 mb-10" />
+          <h2 className="text-2xl font-bold mb-3 text-center leading-snug">
+            OPC创业者，在这里连接、让世界看见
+          </h2>
+          <p className="text-base opacity-90 mb-10 text-center leading-relaxed">
+            全国 180+ 个 OPC 社区，真实信息人工核实，一键对接入驻
           </p>
-          <ul className="space-y-3 text-left text-sm opacity-80">
-            <li className="flex items-center gap-2">✅ 全国 110+ 个 OPC 社区攻略</li>
-            <li className="flex items-center gap-2">✅ 精确到联系方式和入驻条件</li>
-            <li className="flex items-center gap-2">✅ AI 创业者聚集的广场社区</li>
-            <li className="flex items-center gap-2">✅ 最新 OPC 政策解读</li>
-          </ul>
+          <div className="space-y-4 w-full">
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
+              </span>
+              <span className="text-sm font-medium">找社区入驻，精确到联系方式</span>
+            </div>
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
+              <span className="text-sm font-medium">展示产品，找到合作伙伴</span>
+            </div>
+            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+              </span>
+              <span className="text-sm font-medium">认证创业者，被行业看见</span>
+            </div>
+          </div>
         </div>
       </div>
       {/* 右侧表单 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
+        <div className="w-full max-w-md auth-fade-in">
       <Card>
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
-            <span className="text-2xl font-bold text-primary">OPC</span>
-            <span className="text-xl font-semibold text-secondary">圈</span>
+            <img src="/logo-transparent.png" alt="OPC圈" className="h-10" />
           </Link>
           <CardTitle className="text-2xl">注册</CardTitle>
           <CardDescription>
@@ -143,13 +158,13 @@ function RegisterForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm error-shake" key={error}>
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="text-sm font-medium text-charcoal">
                 昵称 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -165,7 +180,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+              <label htmlFor="phone" className="text-sm font-medium text-charcoal">
                 手机号 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -181,8 +196,8 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                邮箱 <span className="text-gray-400 font-normal">（选填）</span>
+              <label htmlFor="email" className="text-sm font-medium text-charcoal">
+                邮箱 <span className="text-ash font-normal">（选填）</span>
               </label>
               <Input
                 id="email"
@@ -192,11 +207,11 @@ function RegisterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
-              <p className="text-xs text-gray-400">📮 填写邮箱后可通过邮件找回密码</p>
+              <p className="text-xs text-ash">📮 填写邮箱后可通过邮件找回密码</p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="text-sm font-medium text-charcoal">
                 密码
               </label>
               <Input
@@ -212,7 +227,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="text-sm font-medium text-charcoal">
                 确认密码
               </label>
               <Input
@@ -228,12 +243,12 @@ function RegisterForm() {
 
             {/* 分隔线 */}
             <div className="border-t pt-4">
-              <p className="text-xs text-gray-500 mb-3">
+              <p className="text-xs text-mute mb-3">
                 以下信息帮助我们为你匹配最合适的社区和资源（选填，30秒）
               </p>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-charcoal">
                   你目前的入驻状态
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -245,7 +260,7 @@ function RegisterForm() {
                       className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
                         startupStage === s.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          : 'border-hairline-soft text-mute hover:border-hairline'
                       }`}
                     >
                       {s.label}
@@ -255,7 +270,7 @@ function RegisterForm() {
               </div>
 
               <div className="space-y-2 mt-3">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-charcoal">
                   你的主要业务方向
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -267,7 +282,7 @@ function RegisterForm() {
                       className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
                         mainTrack === t.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                          : 'border-hairline-soft text-mute hover:border-hairline'
                       }`}
                     >
                       {t.label}
@@ -282,7 +297,7 @@ function RegisterForm() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-mute">
             已有账户？{' '}
             <Link href="/login" className="text-primary hover:underline">
               立即登录

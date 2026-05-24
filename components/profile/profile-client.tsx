@@ -5,18 +5,21 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  User,
   MapPin,
-  Globe,
-  Calendar,
-  Briefcase,
-  Award,
-  MessageSquare,
   Send,
+  BadgeCheck,
+  ExternalLink,
+  Settings,
+  AlertCircle,
+  Share2,
+  Rocket,
+  Clock,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AnimatedProgress } from '@/components/ui/animated-progress'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
   id: string
@@ -29,10 +32,11 @@ interface UserProfile {
   level: number
   verified: boolean
   verifyType: string | null
-  skills: string[]
-  canOffer: string[]
-  lookingFor: string[]
+  mainTrack: string | null
+  startupStage: string | null
+  showInPlaza: boolean
   createdAt: string
+  lastActiveAt: string | null
   _count: {
     posts: number
   }
@@ -48,23 +52,62 @@ interface RecentPost {
   createdAt: string
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  CHAT: '💬 聊聊', HELP: '❓ 求助', SHARE: '📣 分享', COLLAB: '🤝 找人',
+interface ProjectItem {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  stage: string
+  website: string | null
+  contentType: string
+}
+
+const VERIFY_TYPE_LABELS: Record<string, string> = {
+  IDENTITY: '身份认证', ENTREPRENEUR: '创业者认证', EXPERT: '专家认证', COMMUNITY: '社区认证',
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  IDEA: '想法阶段', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
 }
 
 interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
+  projects?: ProjectItem[]
 }
 
-export default function ProfileClient({ user, recentPosts = [] }: ProfileClientProps) {
+function formatRelativeTime(dateStr: string): string {
+  const now = Date.now()
+  const then = new Date(dateStr).getTime()
+  const diffMs = now - then
+
+  const minutes = Math.floor(diffMs / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}小时前`
+
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}天前`
+  if (days < 30) return `${Math.floor(days / 7)}周前`
+  if (days < 365) return `${Math.floor(days / 30)}个月前`
+
+  return `${Math.floor(days / 365)}年前`
+}
+
+export default function ProfileClient({ user, recentPosts = [], projects = [] }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
   const [startingChat, setStartingChat] = useState(false)
   const [chatError, setChatError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const isRecentlyActive = user.lastActiveAt && (Date.now() - new Date(user.lastActiveAt).getTime()) < 24 * 60 * 60 * 1000
 
   const isOwnProfile = (session?.user as any)?.id === user.id
+  const displayPosts = recentPosts.slice(0, 3)
 
   const handleStartChat = async () => {
     if (!session?.user) {
@@ -87,251 +130,244 @@ export default function ProfileClient({ user, recentPosts = [] }: ProfileClientP
         router.push(`/messages/${data.conversation.id}`)
       } else {
         setChatError(data.error || '创建对话失败，请重试')
-        console.error('创建对话失败:', data.error)
       }
-    } catch (error) {
+    } catch {
       setChatError('网络错误，请重试')
-      console.error('创建对话失败:', error)
     } finally {
       setStartingChat(false)
     }
   }
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/profile/${user.username}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // fallback: do nothing
+    }
+  }
+
+  const completenessFields = [
+    { label: '个人简介', filled: !!user.bio },
+    { label: '创业方向', filled: !!user.mainTrack },
+    { label: '创业阶段', filled: !!user.startupStage },
+    { label: '所在城市', filled: !!user.location },
+    { label: '产品/项目', filled: projects.length > 0 },
+  ]
+  const completedCount = completenessFields.filter(f => f.filled).length
+  const completenessPercent = Math.round((completedCount / completenessFields.length) * 100)
+  const missingFields = completenessFields.filter(f => !f.filled)
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* 页面标题 */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-secondary">用户主页</h1>
-        </div>
-      </div>
+    <div className="min-h-screen" style={{ backgroundColor: '#fbfbf9' }}>
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 左侧：用户信息卡片 */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* 基本信息 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center text-center">
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name || user.username}
-                      className="w-24 h-24 rounded-full object-cover mb-4"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold mb-4">
-                      {user.name?.[0] || user.username[0]}
-                    </div>
-                  )}
-                  <h2 className="text-xl font-semibold text-secondary">
-                    {user.name || user.username}
-                  </h2>
-                  <p className="text-gray-500">@{user.username}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="secondary">Lv.{user.level}</Badge>
-                    {user.verified && (
-                      <Badge variant="default">
-                        <Award className="h-3 w-3 mr-1" />
-                        已认证
-                      </Badge>
-                    )}
-                  </div>
+        {/* === Section 1: Header === */}
+        <ScrollReveal>
+        <div className="bg-white rounded-2xl p-6 md:p-8" style={{ border: '1px solid #dadad3' }}>
+          <div className="flex items-start gap-5">
+            {/* Avatar */}
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name || user.username}
+                className="w-20 h-20 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full shrink-0 flex items-center justify-center text-3xl font-bold" style={{ backgroundColor: '#FFF7ED', color: '#F97316' }}>
+                {user.name?.[0] || user.username[0]}
+              </div>
+            )}
+
+            {/* Name + meta */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl font-bold" style={{ color: '#000' }}>
+                  {user.name || user.username}
+                </h1>
+                {isRecentlyActive && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shrink-0" />
+                )}
+                {user.verified && (
+                  <Badge variant="default" className="gap-1 bg-blue-500 text-white text-xs">
+                    <BadgeCheck className="h-3 w-3" />
+                    {user.verifyType ? VERIFY_TYPE_LABELS[user.verifyType] : '已认证'}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Tags row: city + direction + stage */}
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                {user.location && (
+                  <span className="inline-flex items-center gap-1 text-sm" style={{ color: '#62625b' }}>
+                    <MapPin className="h-3.5 w-3.5" />
+                    {user.location}
+                  </span>
+                )}
+                {user.mainTrack && (
+                  <Badge variant="secondary" className="text-xs">{user.mainTrack}</Badge>
+                )}
+                {user.startupStage && (
+                  <Badge variant="outline" className="text-xs">{STAGE_LABELS[user.startupStage] || user.startupStage}</Badge>
+                )}
+              </div>
+
+              {/* Last active */}
+              {user.lastActiveAt && (
+                <div className="flex items-center gap-1 mt-2 text-xs" style={{ color: '#91918c' }}>
+                  <Clock className="h-3 w-3" />
+                  最近活跃 {formatRelativeTime(user.lastActiveAt)}
                 </div>
+              )}
+            </div>
+          </div>
 
-                {user.bio && (
-                  <p className="text-gray-600 text-center mt-4 text-sm">
-                    {user.bio}
-                  </p>
-                )}
+          {/* Bio */}
+          {user.bio && (
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: '#33332e' }}>
+              {user.bio}
+            </p>
+          )}
 
-                {/* 发送私信按钮 */}
-                {!isOwnProfile && (
-                  <div className="mt-6">
-                    <Button
-                      className="w-full"
-                      onClick={handleStartChat}
-                      disabled={startingChat}
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {startingChat ? '正在创建...' : '发送私信'}
-                    </Button>
-                    {chatError && (
-                      <p className="text-red-500 text-sm mt-2 text-center">{chatError}</p>
-                    )}
-                  </div>
-                )}
+          {/* Action buttons */}
+          <div className="mt-5 flex items-center gap-3">
+            {!isOwnProfile ? (
+              <>
+                <Button onClick={handleStartChat} disabled={startingChat} className="gap-2 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-shadow">
+                  <Send className="h-4 w-4" />
+                  {startingChat ? '正在创建...' : '联系TA'}
+                </Button>
+                <Button variant="outline" onClick={handleShare} className="gap-2">
+                  <Share2 className="h-4 w-4" />
+                  {copied ? '已复制链接' : '分享'}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/settings">
+                  <Button variant="outline" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    编辑资料
+                  </Button>
+                </Link>
+                <Button variant="outline" onClick={handleShare} className="gap-2">
+                  <Share2 className="h-4 w-4" />
+                  {copied ? '已复制链接' : '分享'}
+                </Button>
+              </>
+            )}
+          </div>
+          {chatError && (
+            <p className="text-sm mt-2" style={{ color: '#9e0a0a' }}>{chatError}</p>
+          )}
+        </div>
+        </ScrollReveal>
 
-                {isOwnProfile && (
-                  <div className="mt-6">
-                    <Link href="/profile">
-                      <Button variant="outline" className="w-full">
-                        查看我的主页
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-
-                <div className="mt-6 space-y-3">
-                  {user.location && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                      {user.location}
+        {/* === Section 2: Products === */}
+        {projects.length > 0 && (
+          <ScrollReveal delay={100}>
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2" style={{ color: '#000' }}>
+              <Rocket className="h-5 w-5" style={{ color: '#F97316' }} />
+              产品与项目
+            </h2>
+            <div className="space-y-3">
+              {projects.map(proj => (
+                <div
+                  key={proj.id}
+                  className="bg-white rounded-2xl p-5 transition-colors hover:shadow-sm"
+                  style={{ border: '1px solid #dadad3' }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-base" style={{ color: '#000' }}>{proj.name}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {STAGE_LABELS[proj.stage] || proj.stage}
+                        </Badge>
+                      </div>
+                      <p className="text-sm mt-1" style={{ color: '#62625b' }}>{proj.tagline}</p>
                     </div>
-                  )}
-                  {user.website && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Globe className="h-4 w-4 mr-2 text-gray-400" />
+                    {proj.website && (
                       <a
-                        href={user.website}
+                        href={ensureUrl(proj.website)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary hover:underline"
+                        className="shrink-0 ml-3 p-2 rounded-lg hover:bg-surface-soft transition-colors"
+                        style={{ color: '#F97316' }}
                       >
-                        {user.website}
+                        <ExternalLink className="h-4 w-4" />
                       </a>
-                    </div>
-                  )}
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                    {new Date(user.createdAt).toLocaleDateString('zh-CN')} 加入
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* 统计数据 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {user._count.posts}
-                  </div>
-                  <div className="text-sm text-gray-500">动态</div>
-                </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </div>
+          </ScrollReveal>
+        )}
 
-          {/* 右侧：技能和内容 */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* 技能标签 */}
-            {user.skills.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2 text-primary" />
-                    技能专长
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary">
-                        {skill}
-                      </Badge>
-                    ))}
+        {/* === Section 3: Recent posts (de-emphasized) === */}
+        {displayPosts.length > 0 && (
+          <ScrollReveal delay={200}>
+          <div className="mt-6">
+            <h2 className="text-sm font-medium mb-2" style={{ color: '#91918c' }}>
+              最近动态
+            </h2>
+            <div className="space-y-1">
+              {displayPosts.map(post => (
+                <Link
+                  key={post.id}
+                  href={`/plaza/${post.id}`}
+                  className="block py-2 px-3 rounded-lg hover:bg-white transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm truncate" style={{ color: '#62625b' }}>
+                      {post.title || post.content.slice(0, 60)}
+                    </span>
+                    <span className="text-xs shrink-0 ml-3" style={{ color: '#c8c8c1' }}>
+                      {new Date(post.createdAt).toLocaleDateString('zh-CN')}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 可以提供 */}
-            {user.canOffer.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2 text-green-500" />
-                    可以提供
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.canOffer.map((item, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="border-green-200 text-green-700"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 正在寻找 */}
-            {user.lookingFor.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <User className="h-5 w-5 mr-2 text-blue-500" />
-                    正在寻找
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {user.lookingFor.map((item, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="border-blue-200 text-blue-700"
-                      >
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* 无内容提示 */}
-            {user.skills.length === 0 &&
-              user.canOffer.length === 0 &&
-              user.lookingFor.length === 0 && (
-                <Card>
-                  <CardContent className="py-12 text-center text-gray-500">
-                    该用户还没有填写详细信息
-                  </CardContent>
-                </Card>
-              )}
-
-            {/* TA的帖子 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">TA的帖子</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {recentPosts.length === 0 ? (
-                  <p className="text-gray-400 text-sm text-center py-4">暂无帖子</p>
-                ) : (
-                  <div className="space-y-3">
-                    {recentPosts.map(post => (
-                      <Link key={post.id} href={`/plaza/${post.id}`} className="block border rounded-lg p-3 hover:bg-gray-50 transition-colors">
-                        {post.title && (
-                          <p className="font-medium text-sm text-gray-900 truncate">{post.title}</p>
-                        )}
-                        <p className="text-sm text-gray-600 line-clamp-2 mt-0.5">
-                          {post.content.slice(0, 100)}
-                        </p>
-                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                          <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                            {TYPE_LABELS[post.type] || post.type}
-                          </span>
-                          <span>❤️ {post.likeCount}</span>
-                          <span>💬 {post.commentCount}</span>
-                          <span>{new Date(post.createdAt).toLocaleDateString('zh-CN')}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+          </ScrollReveal>
+        )}
+
+        {/* === Section 4: Completeness (own profile only) === */}
+        {isOwnProfile && completenessPercent < 100 && (
+          <div className="mt-6 rounded-2xl p-5" style={{ backgroundColor: '#FFF7ED', border: '1px solid #FDDCB5' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" style={{ color: '#F97316' }} />
+                <span className="text-sm font-medium" style={{ color: '#000' }}>卡片完善度</span>
+              </div>
+              <span className="text-sm font-semibold" style={{ color: '#F97316' }}>{completenessPercent}%</span>
+            </div>
+            <AnimatedProgress value={completenessPercent} className="mb-3" />
+            <div className="flex flex-wrap gap-2 mb-3">
+              {missingFields.map(f => (
+                <span
+                  key={f.label}
+                  className="text-xs px-2.5 py-1 rounded-full"
+                  style={{ backgroundColor: '#fff', border: '1px solid #FDDCB5', color: '#62625b' }}
+                >
+                  缺少{f.label}
+                </span>
+              ))}
+            </div>
+            <Link href="/settings">
+              <Button size="sm" variant="outline" className="gap-1">
+                <Settings className="h-3.5 w-3.5" />
+                去完善
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )

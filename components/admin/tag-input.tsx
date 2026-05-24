@@ -66,7 +66,7 @@ export function TagInput({
 
   return (
     <div
-      className={`flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary min-h-[42px] ${className}`}
+      className={`flex flex-wrap gap-2 p-2 border border-hairline-soft rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary min-h-[42px] ${className}`}
       onClick={() => inputRef.current?.focus()}
     >
       {value.map((tag, index) => (
@@ -107,7 +107,7 @@ export function TagInput({
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={value.length === 0 ? placeholder : '+ 添加'}
-        className="flex-1 min-w-[80px] outline-none text-sm text-gray-500"
+        className="flex-1 min-w-[80px] outline-none text-sm text-mute"
       />
     </div>
   )

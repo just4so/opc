@@ -34,7 +34,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
           </p>
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
         <div className="w-full max-w-md">
           {!valid ? (
             <Card>
@@ -46,7 +46,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
                 <CardTitle className="text-2xl">链接已失效</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-gray-600">此重置链接已过期或已使用，请重新申请。</p>
+                <p className="text-mute">此重置链接已过期或已使用，请重新申请。</p>
                 <Link href="/forgot-password">
                   <Button className="w-full">重新申请重置密码</Button>
                 </Link>

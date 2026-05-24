@@ -3,11 +3,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const links = [
-  { href: "/communities", label: "社区地图" },
-  { href: "/plaza", label: "交流广场" },
-  { href: "/news", label: "创业资讯" },
-  { href: "/tools", label: "工具导航" },
-  { href: "/radar", label: "OPC雷达" },
+  { href: "/communities", label: "找社区" },
+  { href: "/plaza", label: "广场" },
+  { href: "/news", label: "资讯" },
+  { href: "/radar", label: "雷达" },
 ]
 
 export function NavLinks() {
@@ -22,8 +21,8 @@ export function NavLinks() {
             href={link.href}
             className={
               isActive
-                ? "px-4 py-2 text-sm font-medium text-primary bg-primary-50 rounded-lg"
-                : "px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-all"
+                ? "px-4 py-2 text-sm font-semibold text-ink border-b-2 border-primary"
+                : "px-4 py-2 text-sm font-medium text-mute hover:text-ink border-b-2 border-transparent transition-all"
             }
           >
             {link.label}

@@ -87,7 +87,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
     <div className="bg-white rounded-lg border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-secondary">选择头像</h3>
-        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600">
+        <button type="button" onClick={onClose} className="text-ash hover:text-mute">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -108,7 +108,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
 
       {/* Preset avatars - bottts */}
       <div>
-        <p className="text-sm text-gray-500 mb-2">机器人风格</p>
+        <p className="text-sm text-mute mb-2">机器人风格</p>
         <div className="grid grid-cols-6 gap-3">
           {PRESET_AVATARS.slice(0, 6).map((avatar) => (
             <button
@@ -118,7 +118,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
               className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
                 selected === avatar.url
                   ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-gray-200 hover:border-gray-400'
+                  : 'border-hairline-soft hover:border-gray-400'
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -139,7 +139,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
 
       {/* Preset avatars - lorelei */}
       <div>
-        <p className="text-sm text-gray-500 mb-2">人像风格</p>
+        <p className="text-sm text-mute mb-2">人像风格</p>
         <div className="grid grid-cols-6 gap-3">
           {PRESET_AVATARS.slice(6, 12).map((avatar) => (
             <button
@@ -149,7 +149,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
               className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
                 selected === avatar.url
                   ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-gray-200 hover:border-gray-400'
+                  : 'border-hairline-soft hover:border-gray-400'
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -170,7 +170,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
 
       {/* Upload */}
       <div>
-        <p className="text-sm text-gray-500 mb-2">自定义上传</p>
+        <p className="text-sm text-mute mb-2">自定义上传</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -188,7 +188,7 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
           <Upload className="h-4 w-4 mr-2" />
           {uploading ? '上传中...' : '上传图片'}
         </Button>
-        <p className="text-xs text-gray-400 mt-1">支持 JPG/PNG/WebP/GIF，最大 10MB</p>
+        <p className="text-xs text-ash mt-1">支持 JPG/PNG/WebP/GIF，最大 10MB</p>
         {uploadError && (
           <p className="text-xs text-red-500 mt-1">{uploadError}</p>
         )}

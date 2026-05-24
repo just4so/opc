@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { TOPICS } from '@/constants/topics'
 
 const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
-  CHAT:  { label: '💬 聊聊',  className: 'bg-gray-100 text-gray-600' },
+  CHAT:  { label: '💬 聊聊',  className: 'bg-surface-card text-mute' },
   HELP:  { label: '❓ 求助',  className: 'bg-orange-100 text-orange-600' },
   SHARE: { label: '📣 分享',  className: 'bg-green-100 text-green-700' },
   COLLAB:{ label: '🤝 找人',  className: 'bg-blue-100 text-blue-700' },
@@ -144,7 +144,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
         {/* 标题（可选） */}
         {post.title && (
           <Link href={`/plaza/${post.id}`}>
-            <p className="font-semibold text-gray-900 text-sm mb-1 hover:text-primary transition-colors">
+            <p className="font-semibold text-ink text-sm mb-1 hover:text-primary transition-colors">
               {post.title}
             </p>
           </Link>
@@ -152,7 +152,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
 
         {/* 内容预览 */}
         <Link href={`/plaza/${post.id}`}>
-          <p className="text-gray-700 text-[15px] leading-relaxed line-clamp-3 mb-3 hover:text-gray-900 transition-colors">
+          <p className="text-charcoal text-[15px] leading-relaxed line-clamp-3 mb-3 hover:text-ink transition-colors">
             {preview}
           </p>
         </Link>
@@ -166,7 +166,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
               </span>
             )}
             {post.deadline && (
-              <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-medium">
+              <span className="bg-slate-100 text-mute text-xs px-2 py-0.5 rounded-full font-medium">
                 截止：{format(new Date(post.deadline), 'yyyy-MM-dd')}
               </span>
             )}
@@ -175,7 +175,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
 
         {/* 图片 */}
         {post.images.length > 0 && (
-          <div className="mb-3 relative rounded-lg overflow-hidden h-36 bg-gray-100">
+          <div className="mb-3 relative rounded-lg overflow-hidden h-36 bg-surface-card">
             <img src={post.images[0]} className="w-full h-full object-cover" alt="" />
             {post.images.length > 1 && (
               <span className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
@@ -193,12 +193,12 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
               return topic ? (
                 <span
                   key={topicId}
-                  className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full"
+                  className="bg-slate-100 text-mute text-xs px-2 py-0.5 rounded-full"
                 >
                   #{topic.name}
                 </span>
               ) : (
-                <span key={topicId} className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full">
+                <span key={topicId} className="bg-slate-100 text-mute text-xs px-2 py-0.5 rounded-full">
                   #{topicId}
                 </span>
               )
@@ -209,7 +209,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
 
       <CardFooter className="pt-0 pb-3 px-4 border-t">
         <div className="flex items-center justify-between w-full pt-3">
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-4 text-xs text-mute">
             <button
               onClick={handleLike}
               className={`flex items-center gap-1 transition-colors ${liked ? 'text-red-500' : 'hover:text-red-500'}`}
@@ -224,12 +224,12 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
               <MessageCircle className="h-4 w-4" />
               <span>{post.commentCount}</span>
             </Link>
-            <span className="flex items-center gap-1 text-gray-400">
+            <span className="flex items-center gap-1 text-ash">
               <Eye className="h-4 w-4" />
               <span>{viewCount}</span>
             </span>
           </div>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-ash">
             {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
           </span>
         </div>

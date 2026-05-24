@@ -1,0 +1,58 @@
+import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
+import { auth } from '@/lib/auth'
+import prisma from '@/lib/db'
+import { ConnectForm } from '@/components/connect/connect-form'
+import { CITIES } from '@/constants/cities'
+
+export const metadata: Metadata = {
+  title: '社区直通车 - OPC圈',
+  robots: { index: false },
+}
+
+export default async function GenericConnectPage() {
+  const session = await auth()
+  if (!session?.user?.id) {
+    redirect('/login?callbackUrl=/connect')
+  }
+
+  const [communities, user] = await Promise.all([
+    prisma.community.findMany({
+      where: { status: 'ACTIVE' },
+      select: { name: true, slug: true, city: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        name: true,
+        phone: true,
+        wechat: true,
+        location: true,
+        mainTrack: true,
+        startupStage: true,
+      },
+    }),
+  ])
+
+  const cityNames = CITIES.map((c) => c.name)
+
+  return (
+    <div className="min-h-screen bg-surface-soft">
+      <div className="container mx-auto px-4 py-8 flex justify-center">
+        <ConnectForm
+          community={null}
+          user={{
+            name: user?.name ?? '',
+            contact: user?.wechat || user?.phone || '',
+            location: user?.location ?? '',
+            mainTrack: user?.mainTrack ?? '',
+            startupStage: user?.startupStage ?? '',
+          }}
+          cities={cityNames}
+          communities={communities}
+        />
+      </div>
+    </div>
+  )
+}

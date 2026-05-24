@@ -99,6 +99,7 @@ main (生产，始终可部署)
 3. **不能跨阶段改文件：** 后端阶段不碰前端，前端阶段不改 API
 4. **社区详情页是最高风险页面：** 改之前截图存档，改完逐项对比
 5. **每个阶段完成后 commit 一次：** 格式 `feat(xxx): 描述`，不要整个阶段打成多个小 commit
+6. **开发流程必须走 OpenSpec：** 先 `openspec propose` 生成 spec → 确认 → ACP `openspec apply` 执行 → 完成后 `openspec archive` 归档。纯配置/文档修改可 `--skip-specs`。
 
 ## 相关文件
 
@@ -113,8 +114,58 @@ main (生产，始终可部署)
 
 | 阶段 | 状态 | 开始时间 | 完成时间 | 备注 |
 |------|------|---------|---------|------|
-| 一：基础设施 | 🔲 待开始 | | | |
-| 二：后端 API | 🔲 待开始 | | | |
-| 三：前端改造 | 🔲 待开始 | | | |
-| 四：直通车 | 🔲 待开始 | | | |
-| 五：后台看板 | 🔲 待开始 | | | |
+| 一：基础设施 | ✅ 完成 | 2026-05-23 00:20 | 2026-05-23 00:28 | commit 098d107, 主 Agent 手动执行 |
+| 二：后端 API | ✅ 完成 | 2026-05-23 00:50 | 2026-05-23 01:34 | commit a4b19e9, ACP 7m46s |
+| 三：前端改造 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（ContactUnlock + FloatingCTA） |
+| 四：直通车 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（ConnectForm 369行） |
+| 五：后台看板 | ✅ 完成 | 同上 | 同上 | 与阶段二合并执行（InquiriesClient 219行） |
+| P1 Batch 1 | ✅ 完成 | 2026-05-23 01:53 | 2026-05-23 10:09 | commit fdab6f8, 通用 /connect + 首页重写 + 资讯 CTA |
+| P1 Batch 2 | ✅ 完成 | 2026-05-23 | 2026-05-23 | commit 7530437, 广场重构 + 卡片体系 + 清理 |
+| P1 Bug fixes | ✅ 完成 | 2026-05-23 | 2026-05-23 | commits 10a9340 + bf1840a, Project CRUD API + news日期序列化 + 首页链接 + popover背景 |
+| P2 Batch 1 | ✅ 完成 | 2026-05-23 15:15 | 2026-05-23 15:30 | commit e76a3b4, 认证体系 + 导航重组 + 后台统计 |
+
+### P0 总结
+- **代码量：** +1,210 行（11 文件）
+- **新建文件：** 9 个（3 API + 3 组件 + 2 后台 + 1 页面）
+- **build 状态：** ✅ 零报错
+- **待验证：** 需要 `npm run dev` 本地跑一遍完整流程 + 手机端截图
+
+### P1 Batch 1 总结
+- **完成时间：** 2026-05-23 01:53（ACP），commit fdab6f8（主 Agent 手动提交 10:09）
+- **完成内容：** 通用直通车 `/connect`、首页 `/` 重写、资讯详情页底部 CTA
+- **build 状态：** ✅ 零报错
+- **待做（Batch 2）：** 创业者广场 `/plaza` 重构、用户主页 `/profile/[username]` 改造、我的卡片 `/settings/card`
+
+### P1 Batch 2 总结
+- **完成时间：** 2026-05-23，commit 7530437
+- **完成内容：**
+  - 创业者广场 `/plaza` 重构：双 Tab 布局（创业者卡片 + 动态），卡片网格 + 筛选栏（需求/方向/城市），联系TA 触发私信
+  - 用户主页 `/profile/[username]` 改造：卡片信息展示、关联项目列表、OG Meta、本人可见完善度提示
+  - 个人设置 `/settings` 新增「创业者卡片」Section：多选标签 UI、showInPlaza toggle、项目 CRUD、完善度进度条
+  - 新增 API `/api/user/card`（GET/PUT）
+  - 清理：删除 `/start` 页面、前端去掉 skills 展示、sitemap 去掉 /start
+- **代码量：** +1,247 行 / -787 行（12 文件）
+- **build 状态：** ✅ 零报错
+
+### P1 Bug Fixes 总结
+- **commits:** 10a9340 + bf1840a
+- **修复内容：**
+  - 新增 Project CRUD API（`/api/user/projects` POST + `/api/user/projects/[id]` DELETE）
+  - Settings 前端从废弃的 `/api/market` 改为 `/api/user/projects`
+  - `/news` 页面 `unstable_cache` 日期序列化报错修复
+  - 首页「展示我的项目」链接从 `/connect` 改为 `/settings`
+  - 补充 tailwind `popover`/`popover-foreground` 颜色（shadcn Select 透明背景修复）
+
+### P2 Batch 1 总结
+- **完成时间：** 2026-05-23 15:30，commit e76a3b4
+- **完成内容：**
+  - 认证审核后台 `/admin/verify`（列表 + 筛选 + Dialog 认证/取消）
+  - 认证 API（PUT `/api/admin/verify/[userId]` + GET `/api/admin/verify`）
+  - Badge 展示：广场卡片 + 用户主页显示蓝色 BadgeCheck
+  - 认证用户卡片置顶（verified DESC 排序）
+  - 导航精简为 3 项：找社区 / 创业者广场 / OPC雷达
+  - 未登录右上角：登录 + 创建卡片
+  - 后台意向统计条（今日新增/状态分布/热门社区 Top5）
+- **代码量：** +497 行 / -16 行（14 文件，其中 5 个新建）
+- **build 状态：** ✅ 零报错
+- **待做（Batch 2）：** 通知机制 + 社区运营方入口 + 收录申请

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { createCardContactedNotification } from '@/lib/notifications'
 
 // 获取当前用户的所有对话
 export async function GET() {
@@ -134,6 +135,9 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    const contactorName = session.user.name || ''
+    createCardContactedNotification(targetUserId, contactorName).catch(() => {})
 
     return NextResponse.json({
       conversation: {

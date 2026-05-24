@@ -11,8 +11,8 @@ export function MobileRegisterBar({ registerUrl = "/register", isLoggedIn }: Mob
   if (isLoggedIn) return null
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      <div className="bg-white/90 backdrop-blur-md border-t border-gray-100 px-4 py-3 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-white/90 backdrop-blur-md border-t border-hairline-soft px-4 py-3 flex items-center justify-between shadow-lg">
+        <div className="flex items-center gap-2 text-sm text-mute">
           <Lock className="h-4 w-4 text-primary" />
           <span>注册后查看完整社区攻略</span>
         </div>

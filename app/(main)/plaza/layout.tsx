@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '交流广场',
-  description: 'OPC创业者社区：真实的创业故事、问题求助、经验分享。非成功学，是真实的一人公司创业者日记，来看看别人怎么做的。',
+  title: '创业者广场',
+  description: '发现OPC一人公司创业者卡片，交流创业经验、问题求助、资源对接。真实的创业者社区，来找到你的创业伙伴。',
   openGraph: {
-    title: '交流广场 | OPC圈',
-    description: 'OPC创业者社区：真实的创业故事、问题求助、经验分享。非成功学，是真实的一人公司创业者日记，来看看别人怎么做的。',
+    title: '创业者广场 | OPC圈',
+    description: '发现OPC一人公司创业者卡片，交流创业经验、问题求助、资源对接。真实的创业者社区，来找到你的创业伙伴。',
     url: 'https://www.opcquan.com/plaza',
     siteName: 'OPC圈',
     locale: 'zh_CN',

@@ -52,19 +52,19 @@ export function KeyValueInput({
             value={k}
             onChange={(e) => updateRow(k, e.target.value, v)}
             placeholder={keyPlaceholder}
-            className="w-1/3 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+            className="w-1/3 px-3 py-2 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
           />
           <input
             type="text"
             value={v}
             onChange={(e) => updateRow(k, k, e.target.value)}
             placeholder={valuePlaceholder}
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+            className="flex-1 px-3 py-2 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
           />
           <button
             type="button"
             onClick={() => removeRow(k)}
-            className="text-gray-400 hover:text-red-500"
+            className="text-ash hover:text-red-500"
           >
             <Trash2 className="h-4 w-4" />
           </button>

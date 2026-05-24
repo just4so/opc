@@ -76,7 +76,7 @@ export function PlazaTagInput({
   return (
     <div className="relative">
       <div
-        className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary min-h-[42px] cursor-text"
+        className="flex flex-wrap gap-2 p-2 border border-hairline-soft rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary min-h-[42px] cursor-text"
         onClick={() => inputRef.current?.focus()}
       >
         {value.map((tag, i) => (
@@ -103,24 +103,24 @@ export function PlazaTagInput({
             onKeyDown={handleKeyDown}
             onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
             placeholder={value.length === 0 ? placeholder : '+ 添加'}
-            className="flex-1 min-w-[80px] outline-none text-sm text-gray-500"
+            className="flex-1 min-w-[80px] outline-none text-sm text-mute"
           />
         )}
         {atMax && (
-          <span className="text-xs text-gray-400 self-center">最多{maxTags}个标签</span>
+          <span className="text-xs text-ash self-center">最多{maxTags}个标签</span>
         )}
       </div>
 
       {showDropdown && (
-        <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-md max-h-48 overflow-y-auto">
+        <ul className="absolute z-10 mt-1 w-full bg-white border border-hairline-soft rounded-lg shadow-md max-h-48 overflow-y-auto">
           {suggestions.map((s) => (
             <li
               key={s.tag}
-              className="flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"
+              className="flex items-center justify-between px-3 py-2 text-sm hover:bg-surface-soft cursor-pointer"
               onMouseDown={() => addTag(s.tag)}
             >
               <span>{s.tag}</span>
-              <span className="text-xs text-gray-400">{s.count} 篇</span>
+              <span className="text-xs text-ash">{s.count} 篇</span>
             </li>
           ))}
         </ul>

@@ -74,11 +74,11 @@ export function NewsCard({ news }: NewsCardProps) {
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100"
+      className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-hairline-soft"
     >
       <div className="flex gap-4">
         {news.coverImage && (
-          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
+          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-surface-card">
             <img
               src={news.coverImage}
               alt={news.title}
@@ -93,20 +93,20 @@ export function NewsCard({ news }: NewsCardProps) {
                 原创
               </span>
             )}
-            <Badge className={categoryColors[news.category] || 'bg-gray-100 text-gray-700'}>
+            <Badge className={categoryColors[news.category] || 'bg-surface-card text-charcoal'}>
               {categoryLabels[news.category] || news.category}
             </Badge>
-            <span className="text-xs text-gray-500">{news.isOriginal && news.author ? news.author : news.source}</span>
+            <span className="text-xs text-mute">{news.isOriginal && news.author ? news.author : news.source}</span>
           </div>
-          <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">
+          <h3 className="font-medium text-ink line-clamp-2 mb-2">
             {news.title}
           </h3>
           {news.summary && (
-            <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+            <p className="text-sm text-mute line-clamp-2 mb-2">
               {news.summary}
             </p>
           )}
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <div className="flex items-center gap-2 text-xs text-ash">
             <span>{formatDistanceToNow(publishedAt, { addSuffix: true, locale: zhCN })}</span>
             <span>·</span>
             <span>约 {readingMinutes} 分钟阅读</span>
@@ -129,7 +129,7 @@ export function NewsCardCompact({ news }: NewsCardProps) {
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="block hover:bg-gray-50 p-3 rounded-lg transition-colors"
+      className="block hover:bg-surface-soft p-3 rounded-lg transition-colors"
     >
       <div className={`h-0.5 w-full rounded-full mb-2 ${getCategoryBarColor(news.category)}`} />
       <div className="flex items-start gap-3">
@@ -138,14 +138,14 @@ export function NewsCardCompact({ news }: NewsCardProps) {
             原创
           </span>
         )}
-        <Badge className={`${categoryColors[news.category] || 'bg-gray-100 text-gray-700'} text-xs`}>
+        <Badge className={`${categoryColors[news.category] || 'bg-surface-card text-charcoal'} text-xs`}>
           {categoryLabels[news.category] || news.category}
         </Badge>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-medium text-gray-900 line-clamp-1">
+          <h4 className="text-sm font-medium text-ink line-clamp-1">
             {news.title}
           </h4>
-          <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+          <div className="flex items-center gap-2 mt-1 text-xs text-ash">
             <span>{news.source}</span>
             <span>·</span>
             <span>{formatDistanceToNow(publishedAt, { addSuffix: true, locale: zhCN })}</span>

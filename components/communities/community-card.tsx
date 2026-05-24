@@ -25,9 +25,10 @@ interface CommunityCardProps {
     entryFriendly?: number | null
     coverImage?: string | null
   }
+  recommended?: boolean
 }
 
-export function CommunityCard({ community }: CommunityCardProps) {
+export function CommunityCard({ community, recommended }: CommunityCardProps) {
   const benefits = community.benefits as Record<string, { summary?: string; items?: string[] }> | null
 
   // 判断某项政策是否存在（有 summary 或 items 才算有）
@@ -55,11 +56,11 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   return (
     <Link href={`/communities/${community.slug}`} className="group block">
-      <div className="bg-white rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.10),0_0_0_1px_rgba(0,0,0,0.06)] transition-shadow duration-200">
+      <div className={`card-interactive overflow-hidden ${recommended ? 'border-primary/20 hover:border-primary/40' : ''}`}>
 
         {/* 封面图 */}
         {community.coverImage ? (
-          <div className="h-[110px] w-full overflow-hidden bg-gray-100">
+          <div className="h-[110px] w-full overflow-hidden bg-surface-card">
             <img
               src={community.coverImage}
               alt={community.name}
@@ -82,7 +83,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
           {/* 城市/区域 + 推荐 Badge */}
           <div className="flex items-center justify-between mb-1">
-            <div className="text-[11px] text-gray-400 tracking-wide">
+            <div className="text-[11px] text-ash tracking-wide">
               {community.city}{community.district ? ` · ${community.district}` : ''}
             </div>
             {community.featured && (
@@ -93,12 +94,12 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
 
           {/* 社区名称 */}
-          <div className="text-[14px] font-semibold text-gray-900 leading-snug mb-2 line-clamp-1 group-hover:text-orange-500 transition-colors">
+          <div className="text-[14px] font-semibold text-ink leading-snug mb-2 line-clamp-1 group-hover:text-orange-500 transition-colors">
             {community.name}
           </div>
 
           {/* 描述钩子 */}
-          <p className="text-[12px] text-gray-400 leading-relaxed mb-3 line-clamp-2">
+          <p className="text-[12px] text-ash leading-relaxed mb-3 line-clamp-2">
             {getDesc()}
           </p>
 
@@ -117,12 +118,12 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   />
                 ))}
               </div>
-              <span className="text-[11px] text-gray-400">入驻友好度</span>
+              <span className="text-[11px] text-ash">入驻友好度</span>
             </div>
           )}
 
           {/* 分隔线 */}
-          <div className="h-px bg-gray-100 mb-3" />
+          <div className="h-px bg-hairline-soft mb-3" />
 
           {/* 五项政策标签 — 方案 D：有边框有背景，无边框只灰字 */}
           <div className="flex flex-wrap gap-[6px]">
@@ -134,7 +135,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
                   className={`text-[11px] px-[8px] py-[3px] rounded-[5px] ${
                     active
                       ? 'border border-orange-200 bg-orange-50 text-orange-500 font-medium'
-                      : 'text-gray-300'
+                      : 'text-stone'
                   }`}
                 >
                   {label}

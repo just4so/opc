@@ -65,10 +65,10 @@ function OriginalSection({ items }: { items: NewsItem[] }) {
             href={item.isOriginal ? `/news/${item.id}` : item.url}
             target={item.isOriginal ? undefined : '_blank'}
             rel={item.isOriginal ? undefined : 'noopener noreferrer'}
-            className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 group"
+            className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-hairline-soft group"
           >
             {item.coverImage && (
-              <div className="w-full h-40 overflow-hidden bg-gray-100">
+              <div className="w-full h-40 overflow-hidden bg-surface-card">
                 <img
                   src={item.coverImage}
                   alt={item.title}
@@ -82,18 +82,18 @@ function OriginalSection({ items }: { items: NewsItem[] }) {
                   原创
                 </span>
                 {item.author && (
-                  <span className="text-xs text-gray-500">{item.author}</span>
+                  <span className="text-xs text-mute">{item.author}</span>
                 )}
               </div>
-              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-ink line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                 {item.title}
               </h3>
               {item.summary && (
-                <p className="text-sm text-gray-500 line-clamp-3 mb-3">
+                <p className="text-sm text-mute line-clamp-3 mb-3">
                   {item.summary.length > 100 ? item.summary.slice(0, 100) + '...' : item.summary}
                 </p>
               )}
-              <div className="flex items-center gap-2 text-xs text-gray-400">
+              <div className="flex items-center gap-2 text-xs text-ash">
                 <span>{formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true, locale: zhCN })}</span>
                 <span>·</span>
                 <span>约 {estimateReadingMinutes(item.content, item.summary)} 分钟阅读</span>
@@ -171,7 +171,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-secondary mb-4">创业资讯</h1>
-        <p className="text-gray-600">
+        <p className="text-mute">
           OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势
         </p>
       </div>
@@ -185,7 +185,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               category === cat.value
                 ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-surface-card text-charcoal hover:bg-gray-200'
             }`}
           >
             {cat.label}
@@ -222,7 +222,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 text-gray-500">
+        <div className="text-center py-16 text-mute">
           <p>暂无相关资讯</p>
           <p className="text-sm mt-2">请稍后再来查看，或尝试其他分类</p>
         </div>
@@ -234,18 +234,18 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
           {page > 1 && (
             <Link
               href={`/news?${category ? `category=${category}&` : ''}page=${page - 1}`}
-              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 rounded-lg bg-surface-card hover:bg-gray-200 transition-colors"
             >
               上一页
             </Link>
           )}
-          <span className="px-4 py-2 text-gray-600">
+          <span className="px-4 py-2 text-mute">
             {page} / {pagination.totalPages}
           </span>
           {page < pagination.totalPages && (
             <Link
               href={`/news?${category ? `category=${category}&` : ''}page=${page + 1}`}
-              className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 rounded-lg bg-surface-card hover:bg-gray-200 transition-colors"
             >
               下一页
             </Link>

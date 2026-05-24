@@ -10,21 +10,41 @@ import {
   ArrowLeft,
   Radio,
   ScrollText,
+  PhoneForwarded,
+  ShieldCheck,
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
-import { AdminSidebarLink } from './admin-sidebar'
+import { AdminSidebarLink, AdminSidebarGroup } from './admin-sidebar'
 
-const NAV_ITEMS = [
-  { href: '/admin', label: '仪表盘', icon: <LayoutDashboard className="h-5 w-5" /> },
-  { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
-  { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
-  { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
-  { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
-  { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
-  { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
-  { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
-  { href: '/admin/settings', label: '系统设置', icon: <Settings className="h-5 w-5" /> },
+const DASHBOARD_ITEM = { href: '/admin', label: '仪表盘', icon: <LayoutDashboard className="h-5 w-5" /> }
+
+const NAV_GROUPS = [
+  {
+    label: '运营中心',
+    items: [
+      { href: '/admin/inquiries', label: '意向管理', icon: <PhoneForwarded className="h-5 w-5" /> },
+      { href: '/admin/verify', label: '认证管理', icon: <ShieldCheck className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: '内容管理',
+    items: [
+      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
+      { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
+      { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
+      { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
+      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: '系统',
+    items: [
+      { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
+      { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
+      { href: '/admin/settings', label: '系统设置', icon: <Settings className="h-5 w-5" /> },
+    ],
+  },
 ]
 
 export default async function AdminLayout({
@@ -62,11 +82,18 @@ export default async function AdminLayout({
       <div className="flex pt-16">
         {/* 侧边栏 — icon 在 Server Component 渲染，只传 href/label 给 Client */}
         <aside className="w-64 bg-white border-r min-h-[calc(100vh-4rem)] fixed left-0 top-16">
-          <nav className="p-4 space-y-1">
-            {NAV_ITEMS.map((item) => (
-              <AdminSidebarLink key={item.href} href={item.href} label={item.label}>
-                {item.icon}
-              </AdminSidebarLink>
+          <nav className="p-4">
+            <AdminSidebarLink href={DASHBOARD_ITEM.href} label={DASHBOARD_ITEM.label}>
+              {DASHBOARD_ITEM.icon}
+            </AdminSidebarLink>
+            {NAV_GROUPS.map((group) => (
+              <AdminSidebarGroup key={group.label} label={group.label}>
+                {group.items.map((item) => (
+                  <AdminSidebarLink key={item.href} href={item.href} label={item.label}>
+                    {item.icon}
+                  </AdminSidebarLink>
+                ))}
+              </AdminSidebarGroup>
             ))}
           </nav>
         </aside>

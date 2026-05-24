@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
+import { CommunitySubmissionTrigger } from '@/components/communities/community-submission-trigger'
 import prisma from '@/lib/db'
 
 const getCommunityList = unstable_cache(
@@ -51,7 +52,7 @@ async function CommunitiesPageInner() {
       {/* GEO FAQ — 页面底部，不影响主体内容 */}
       <div className="bg-white border-t mt-8">
         <div className="container mx-auto px-4 py-10 max-w-5xl">
-          <h2 className="text-lg font-semibold text-gray-800 mb-5">OPC社区常见问题</h2>
+          <h2 className="text-lg font-semibold text-ink mb-5">OPC社区常见问题</h2>
           <div className="grid gap-4 md:grid-cols-2">
             {[
               {
@@ -71,13 +72,13 @@ async function CommunitiesPageInner() {
                 a: '一般需要已注册或计划注册一人公司／个体工商户，经营方向符合社区定位。具体条件因社区而异，建议查看各社区详情页或直接联系社区和询。',
               },
             ].map((item) => (
-              <div key={item.q} className="bg-gray-50 rounded-xl p-5">
-                <h3 className="font-medium text-gray-900 mb-2 text-sm">{item.q}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.a}</p>
+              <div key={item.q} className="bg-surface-soft rounded-xl p-5">
+                <h3 className="font-medium text-ink mb-2 text-sm">{item.q}</h3>
+                <p className="text-mute text-sm leading-relaxed">{item.a}</p>
               </div>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-4 text-center">
+          <p className="text-xs text-ash mt-4 text-center">
             查看完整问答： 
             <Link href="/faq" className="text-orange-500 hover:underline">常见问题</Link>
              · 
@@ -85,6 +86,7 @@ async function CommunitiesPageInner() {
           </p>
         </div>
       </div>
+      <CommunitySubmissionTrigger />
     </>
   )
 }

@@ -10,7 +10,7 @@ export default function CommunitiesLoading() {
       </div>
 
       {/* 城市Tab + 难度条骨架 */}
-      <div className="bg-gray-50 border-b">
+      <div className="bg-surface-soft border-b">
         <div className="container mx-auto px-4 py-4 space-y-3">
           <div className="flex items-center gap-2 overflow-x-auto">
             {['全部', '深圳', '杭州', '北京', '上海', '苏州', '常州', '无锡'].map((_, i) => (
@@ -44,8 +44,8 @@ export default function CommunitiesLoading() {
               <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
               <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse mb-3" />
               <div className="flex gap-2">
-                <div className="h-6 w-16 bg-gray-100 rounded-full animate-pulse" />
-                <div className="h-6 w-16 bg-gray-100 rounded-full animate-pulse" />
+                <div className="h-6 w-16 bg-surface-card rounded-full animate-pulse" />
+                <div className="h-6 w-16 bg-surface-card rounded-full animate-pulse" />
               </div>
             </div>
           ))}

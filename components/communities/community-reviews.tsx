@@ -53,7 +53,7 @@ function DifficultyStars({
             className={`h-4 w-4 ${
               star <= (hover || value)
                 ? 'fill-amber-400 text-amber-400'
-                : 'text-gray-300'
+                : 'text-stone'
             }`}
           />
         </button>
@@ -161,13 +161,13 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
             <MessageSquare className="h-5 w-5 mr-2 text-primary" />
             创业者评价
             {reviews.length > 0 && (
-              <span className="ml-2 text-sm font-normal text-gray-500">
+              <span className="ml-2 text-sm font-normal text-mute">
                 ({reviews.length}条)
               </span>
             )}
           </CardTitle>
           {avgDifficulty != null && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-mute">
               <span>平均难度</span>
               <DifficultyStars value={Math.round(avgDifficulty)} />
               <span className="font-medium">{avgDifficulty.toFixed(1)}</span>
@@ -178,16 +178,16 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
       <CardContent className="space-y-4">
         {/* 评价列表 */}
         {loading ? (
-          <div className="text-center text-gray-400 py-4">加载中...</div>
+          <div className="text-center text-ash py-4">加载中...</div>
         ) : reviews.length === 0 ? (
-          <div className="text-center text-gray-400 py-4">
+          <div className="text-center text-ash py-4">
             暂无评价，来做第一个评价的人吧
           </div>
         ) : (
           <>
             <div className="space-y-3">
               {displayReviews.map((review) => (
-                <div key={review.id} className="flex gap-3 p-3 bg-gray-50 rounded-lg">
+                <div key={review.id} className="flex gap-3 p-3 bg-surface-soft rounded-lg">
                   <div className="flex-shrink-0">
                     {review.user.avatar ? (
                       <img
@@ -203,17 +203,17 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-800">
+                      <span className="text-sm font-medium text-ink">
                         {review.user.name || review.user.username}
                       </span>
                       {review.difficulty != null && (
                         <DifficultyStars value={review.difficulty} />
                       )}
-                      <span className="text-xs text-gray-400 ml-auto">
+                      <span className="text-xs text-ash ml-auto">
                         {formatDate(review.createdAt)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-mute leading-relaxed">
                       {review.content}
                     </p>
                   </div>
@@ -248,7 +248,7 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
               </Link>
             </div>
           ) : hasReviewed ? (
-            <div className="text-center text-sm text-gray-400 py-3">
+            <div className="text-center text-sm text-ash py-3">
               你已评价过该社区
             </div>
           ) : (
@@ -262,12 +262,12 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
                   rows={3}
                   className="w-full px-3 py-2 border rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
-                <div className="text-right text-xs text-gray-400">
+                <div className="text-right text-xs text-ash">
                   {content.length}/200
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-mute">
                   <span>申请难度：</span>
                   <DifficultyStars
                     value={difficulty}
@@ -278,7 +278,7 @@ export default function CommunityReviews({ slug }: CommunityReviewsProps) {
                     <button
                       type="button"
                       onClick={() => setDifficulty(0)}
-                      className="text-xs text-gray-400 hover:text-gray-600"
+                      className="text-xs text-ash hover:text-mute"
                     >
                       清除
                     </button>

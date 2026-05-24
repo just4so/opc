@@ -262,13 +262,70 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 
 > **每次接到 OPC 项目开发任务时，先读本章节确认当前阶段和约束。**
 
-### 当前状态：待启动
+### 当前状态：P2 Batch 1 已完成，等待 Batch 2
 
-改版尚未开始。第一个 ACP 任务将创建 `feat/v2-redesign` 分支并开始阶段一。
+**P0 已完成（commits: 098d107, a4b19e9）。** Inquiry 全链路：直通车表单 → API → 联系方式解锁 → 后台看板。
+
+**P1 全部完成：**
+1. ✅ 通用直通车 `/connect`（含社区 combobox + 帮我推荐）
+2. ✅ 首页 `/` 重写（Hero + 价值卡片 + 卡片预览 + 雷达预览）
+3. ✅ 资讯详情页底部通用 CTA
+4. ✅ 创业者广场 `/plaza` 重构（双 Tab + 筛选 + 卡片墙）
+5. ✅ 用户主页 `/profile/[username]` 改造
+6. ✅ 个人设置 `/settings` 创业者卡片 Section
+7. ✅ Project CRUD API + Bug fixes（commits 10a9340, bf1840a）
+
+**P2 Batch 1 已完成（commit e76a3b4，2026-05-23 15:30）：**
+8. ✅ 认证体系：后台审核页 `/admin/verify` + API + badge展示 + 卡片置顶
+9. ✅ 导航重组：精简为 3 项（找社区/创业者广场/OPC雷达）+ 未登录右上角「登录 + 创建卡片」
+10. ✅ 后台意向统计条（今日新增/状态分布/热门社区 Top5）
+
+**P2 Batch 2 已完成（commit c42bd8d，2026-05-23 16:30）：**
+11. ✅ 通知机制：Notification 模型 + 3 个 API + 铃铛 UI + 触发器（卡片查看/联系/意向状态）
+12. ✅ 社区认领：CommunityClaim 模型 + Dialog + API（无需登录）
+13. ✅ 社区收录申请：复用 CommunityClaim（type=SUBMISSION）+ Dialog
+14. ✅ 后台社区列表加认领申请数量列
+
+**P2 全部完成。V2 初版功能开发完毕。**
+
+---
+
+### 🚧 V2.1 优化改造（当前活跃）
+
+> **详细计划：** `docs/V2.1-PLAN.md`
+> **讨论结论：** `docs/V2-DISCUSSION.md`
+> **开发流程：** 每个 Phase 走 OpenSpec（propose → tasks.md → 确认 → apply → archive）
+
+**当前阶段：Phase 6 ✅ → 待开始 Phase 7**
+
+Phase 1 完成（commit 58bf276）：11项基础修复+文案更新
+Phase 2 完成（commit a756e68）：直通车重构+社区三层权限+R2上传
+Phase 3 完成（commit 3ce05ab）：广场三视图重构
+Phase 4 完成（commit 005b069）：用户主页+设置页改造
+Phase 5 完成（commit b21aa18）：通知跳转统一+社区列表省份分组+搜索
+
+**7 个 Phase：**
+1. 基础修复（11项文案/bug）— 直接 ACP，不用 openspec
+2. 直通车重构（三层权限 + 表单重设计 + BP上传 + 广场联动）
+3. 广场三视图重构（人/产品/动态）
+4. Profile + Settings 改造
+5. 通知→私信联动 + 社区列表省份分组
+6. 后台优化（分组+Dashboard+意向补全+认领合并）
+7. 视觉改造（设计方案→确认→开发，不赶时间）
+
+**关键设计决策（V2.1 新增，必须遵守）：**
+- 导航四项：找社区 · 广场 · 资讯 · 雷达
+- 主标题：“OPC创业者，在这里连接、让世界看见”
+- CTA：“找到我的社区” / “让世界看见我”
+- 社区详情三层权限：未登录（基本信息+政策，无入驻指南/联系方式）→ 已登录未解锁（+入驻指南）→ 已解锁（+联系方式）
+- 直通车提交自动创建广场卡片（写 User profile + 创建 Project + showInPlaza=true）
+- 广场三视图：人/产品/动态，砂掉 lookingFor/canOffer 前端展示
+- 通知点击统一跳私信，触发时同时写系统消息
+- 后台侧边栏三组：运营中心/内容管理/系统
 
 ### 完整计划
 
-详见 `docs/V2-PLAN.md`（5 个阶段、Git 策略、验收标准）。
+详见 `docs/V2-PLAN.md`（V2 初版）和 `docs/V2.1-PLAN.md`（V2.1 优化）。
 
 ### PRD
 
@@ -293,3 +350,5 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 5. 注册流程保持现状不改（name+phone+password+email选填+stage/track选填）
 6. contactWechat 实际存的是公众号，不是个人微信，展示文案用「公众号」
 7. 社区详情页是最高风险页面——改之前截图存档，改完逐项对比
+8. **V2 改版开发流程必须走 OpenSpec：** 先 `openspec propose` 生成 spec → 确认 → ACP `openspec apply` 执行 → 完成后 `openspec archive` 归档。纯配置/文档修改可跳过（`--skip-specs`）。读 openspec-dev SKILL.md 获取完整命令。
+Phase 6 完成（commit ce883ba）：后台优化(侧边栏分组/Dashboard/意向导出/认领合并/二维码上传)

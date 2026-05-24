@@ -147,12 +147,19 @@ async function NewsPageInner({
   }
 
   // Serialize dates to strings for client component
+  // Note: unstable_cache may return dates as strings already
+  const toISO = (d: any) => {
+    if (!d) return ''
+    if (typeof d === 'string') return d
+    if (d instanceof Date) return d.toISOString()
+    return String(d)
+  }
   const serializeNews = (items: any[]) =>
     items.map((item) => ({
       ...item,
-      publishedAt: item.publishedAt?.toISOString() ?? '',
-      createdAt: item.createdAt?.toISOString() ?? '',
-      updatedAt: item.updatedAt?.toISOString() ?? '',
+      publishedAt: toISO(item.publishedAt),
+      createdAt: toISO(item.createdAt),
+      updatedAt: toISO(item.updatedAt),
     }))
 
   return (
@@ -186,15 +193,15 @@ export default function NewsPage({
     <Suspense fallback={
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-4" />
-          <div className="h-5 w-96 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 w-48 bg-hairline-soft rounded animate-pulse mb-4" />
+          <div className="h-5 w-96 bg-hairline-soft rounded animate-pulse" />
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse mb-3" />
-              <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
-              <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+            <div key={i} className="bg-canvas rounded-xl p-6 shadow-sm">
+              <div className="h-5 w-3/4 bg-hairline-soft rounded animate-pulse mb-3" />
+              <div className="h-4 w-full bg-hairline-soft rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 bg-hairline-soft rounded animate-pulse" />
             </div>
           ))}
         </div>

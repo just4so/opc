@@ -6,9 +6,9 @@ const SLUG_MAPPING = slugMapping as Record<string, string>
 
 const PROTECTED_PATHS = [
   '/plaza/new',
-  '/market/new',
   '/messages',
   '/settings',
+  '/connect',
 ]
 
 // 精确需要登录的路径（不含子路径）
@@ -59,7 +59,7 @@ export const config = {
   matcher: [
     '/communities/:path*',
     '/plaza/new',
-    '/market/new',
+    '/connect/:path*',
     '/profile/:path*',
     '/messages/:path*',
     '/settings/:path*',

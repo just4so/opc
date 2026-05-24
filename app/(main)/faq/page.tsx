@@ -82,28 +82,28 @@ const faqs = [
 
 export default function FaqPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
+    <div className="min-h-screen bg-surface-soft">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-10 max-w-3xl">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+          <div className="flex items-center gap-2 text-sm text-mute mb-4">
             <Link href="/" className="hover:text-primary">首页</Link>
             <span>/</span>
             <span>常见问题</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">常见问题</h1>
-          <p className="text-gray-600">关于OPC社区入驻、费用、政策支持的常见问题解答。</p>
+          <h1 className="text-3xl font-bold text-ink mb-3">常见问题</h1>
+          <p className="text-mute">关于OPC社区入驻、费用、政策支持的常见问题解答。</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-10 max-w-3xl space-y-10">
         {faqs.map((section) => (
           <section key={section.category}>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b">{section.category}</h2>
+            <h2 className="text-lg font-semibold text-ink mb-4 pb-2 border-b">{section.category}</h2>
             <div className="space-y-4">
               {section.items.map((item) => (
-                <div key={item.q} className="bg-white rounded-xl border p-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">{item.q}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.a}</p>
+                <div key={item.q} className="bg-canvas rounded-xl border p-6">
+                  <h3 className="font-semibold text-ink mb-3">{item.q}</h3>
+                  <p className="text-mute text-sm leading-relaxed">{item.a}</p>
                 </div>
               ))}
             </div>
@@ -111,17 +111,17 @@ export default function FaqPage() {
         ))}
 
         <div className="bg-orange-50 border border-orange-100 rounded-xl p-6 text-center">
-          <p className="text-gray-700 mb-4">没找到你想要的答案？</p>
+          <p className="text-charcoal mb-4">没找到你想要的答案？</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/communities"
-              className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+              className="inline-flex items-center justify-center gap-2 bg-orange-500 text-white px-5 py-2.5 rounded-2xl hover:bg-orange-600 transition-colors text-sm font-medium"
             >
               浏览全部社区
             </Link>
             <Link
               href="/plaza"
-              className="inline-flex items-center justify-center gap-2 border border-orange-300 text-orange-600 px-5 py-2.5 rounded-lg hover:bg-orange-50 transition-colors text-sm font-medium"
+              className="inline-flex items-center justify-center gap-2 border border-orange-300 text-orange-600 px-5 py-2.5 rounded-2xl hover:bg-orange-50 transition-colors text-sm font-medium"
             >
               去交流广场提问
             </Link>

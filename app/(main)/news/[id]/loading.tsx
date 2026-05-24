@@ -35,7 +35,7 @@ export default function NewsDetailLoading() {
       </div>
 
       {/* 页脚返回链接骨架 */}
-      <div className="mt-10 pt-6 border-t border-gray-200">
+      <div className="mt-10 pt-6 border-t border-hairline-soft">
         <div className="h-5 w-24 bg-gray-200 rounded" />
       </div>
     </div>

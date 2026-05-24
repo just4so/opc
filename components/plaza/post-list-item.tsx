@@ -45,7 +45,7 @@ export function PostListItem({ post }: PostListItemProps) {
   return (
     <Link
       href={`/plaza/${post.id}`}
-      className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+      className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 hover:bg-surface-soft transition-colors"
     >
       <div
         className={`w-1 h-10 rounded-full flex-shrink-0 ${typeColors[post.type] ?? 'bg-gray-400'}`}
@@ -57,19 +57,19 @@ export function PostListItem({ post }: PostListItemProps) {
               精华
             </span>
           )}
-          <p className="text-sm text-gray-900 truncate">{preview}</p>
+          <p className="text-sm text-ink truncate">{preview}</p>
         </div>
         {post.topics.length > 0 && (
           <div className="flex items-center gap-2 mt-0.5">
             {post.topics.slice(0, 2).map((t) => (
-              <span key={t} className="text-xs text-gray-400">
+              <span key={t} className="text-xs text-ash">
                 #{t}
               </span>
             ))}
           </div>
         )}
       </div>
-      <div className="flex items-center gap-3 text-xs text-gray-400 flex-shrink-0">
+      <div className="flex items-center gap-3 text-xs text-ash flex-shrink-0">
         <span className="hidden sm:inline">
           {post.author.name || post.author.username}
         </span>

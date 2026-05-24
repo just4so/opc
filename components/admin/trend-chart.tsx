@@ -18,8 +18,8 @@ export function TrendChart() {
       .catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="h-40 bg-gray-50 rounded animate-pulse" />
-  if (!data.length) return <div className="h-40 flex items-center justify-center text-gray-400 text-sm">暂无数据</div>
+  if (loading) return <div className="h-40 bg-surface-soft rounded animate-pulse" />
+  if (!data.length) return <div className="h-40 flex items-center justify-center text-ash text-sm">暂无数据</div>
 
   const maxVal = Math.max(...data.flatMap(d => [d.users, d.posts]), 1)
 
@@ -32,7 +32,7 @@ export function TrendChart() {
 
   return (
     <div>
-      <div className="flex gap-4 mb-3 text-xs text-gray-500">
+      <div className="flex gap-4 mb-3 text-xs text-mute">
         <span className="flex items-center gap-1.5">
           <span className="w-4 h-0.5 bg-blue-500 inline-block rounded" /> 新增用户
         </span>
@@ -41,7 +41,7 @@ export function TrendChart() {
         </span>
       </div>
       <div className="relative">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-36 border-l border-b border-gray-100">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-36 border-l border-b border-hairline-soft">
           {/* 网格线 */}
           {[25, 50, 75].map(y => (
             <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="#f3f4f6" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
@@ -64,7 +64,7 @@ export function TrendChart() {
           })}
         </svg>
       </div>
-      <div className="flex justify-between text-xs text-gray-400 mt-1 px-0.5">
+      <div className="flex justify-between text-xs text-ash mt-1 px-0.5">
         {data.map(d => <span key={d.date}>{d.date}</span>)}
       </div>
     </div>

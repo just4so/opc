@@ -29,6 +29,21 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * LIMIT
 
+    // 多关键词拆分："北京 朝阳" → ['北京', '朝阳']，每个词 AND 匹配
+    const keywords = q.split(/\s+/).filter(Boolean)
+
+    // 构建多关键词 AND 条件的辅助函数
+    const multiContains = (field: string) =>
+      keywords.length <= 1
+        ? { [field]: { contains: q, mode: 'insensitive' as const } }
+        : { AND: keywords.map(k => ({ [field]: { contains: k, mode: 'insensitive' as const } })) }
+
+    // 多字段 OR + 多关键词 AND
+    const multiFieldSearch = (fields: string[]) =>
+      keywords.length <= 1
+        ? { OR: fields.map(f => ({ [f]: { contains: q, mode: 'insensitive' as const } })) }
+        : { AND: keywords.map(k => ({ OR: fields.map(f => ({ [f]: { contains: k, mode: 'insensitive' as const } })) })) }
+
     // 并行搜索所有类型
     const [posts, orders, communities, users, counts] = await Promise.all([
       // 搜索动态
@@ -36,7 +51,7 @@ export async function GET(request: NextRequest) {
         ? prisma.post.findMany({
             where: {
               status: 'PUBLISHED',
-              content: { contains: q, mode: 'insensitive' },
+              ...multiContains('content'),
             },
             take: LIMIT,
             skip: type === 'post' ? skip : 0,
@@ -60,11 +75,7 @@ export async function GET(request: NextRequest) {
             where: {
               status: 'PUBLISHED',
               contentType: { in: ['DEMAND', 'COOPERATION'] },
-              OR: [
-                { name: { contains: q, mode: 'insensitive' } },
-                { tagline: { contains: q, mode: 'insensitive' } },
-                { description: { contains: q, mode: 'insensitive' } },
-              ],
+              ...multiFieldSearch(['name', 'tagline', 'description']),
             },
             take: LIMIT,
             skip: type === 'order' ? skip : 0,
@@ -87,11 +98,7 @@ export async function GET(request: NextRequest) {
         ? prisma.community.findMany({
             where: {
               status: 'ACTIVE',
-              OR: [
-                { name: { contains: q, mode: 'insensitive' } },
-                { city: { contains: q, mode: 'insensitive' } },
-                { address: { contains: q, mode: 'insensitive' } },
-              ],
+              ...multiFieldSearch(['name', 'city', 'address']),
             },
             take: LIMIT,
             skip: type === 'community' ? skip : 0,
@@ -102,13 +109,8 @@ export async function GET(request: NextRequest) {
       // 搜索用户
       type === 'all' || type === 'user'
         ? prisma.user.findMany({
-            where: {
-              OR: [
-                { username: { contains: q, mode: 'insensitive' } },
-                { name: { contains: q, mode: 'insensitive' } },
-                { bio: { contains: q, mode: 'insensitive' } },
-              ],
-            },
+            where: multiFieldSearch(['username', 'name', 'bio']),
+            
             take: LIMIT,
             skip: type === 'user' ? skip : 0,
             select: {
@@ -129,38 +131,24 @@ export async function GET(request: NextRequest) {
         prisma.post.count({
           where: {
             status: 'PUBLISHED',
-            content: { contains: q, mode: 'insensitive' },
+            ...multiContains('content'),
           },
         }),
         prisma.project.count({
           where: {
             status: 'PUBLISHED',
             contentType: { in: ['DEMAND', 'COOPERATION'] },
-            OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { tagline: { contains: q, mode: 'insensitive' } },
-              { description: { contains: q, mode: 'insensitive' } },
-            ],
+            ...multiFieldSearch(['name', 'tagline', 'description']),
           },
         }),
         prisma.community.count({
           where: {
             status: 'ACTIVE',
-            OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { city: { contains: q, mode: 'insensitive' } },
-              { address: { contains: q, mode: 'insensitive' } },
-            ],
+            ...multiFieldSearch(['name', 'city', 'address']),
           },
         }),
         prisma.user.count({
-          where: {
-            OR: [
-              { username: { contains: q, mode: 'insensitive' } },
-              { name: { contains: q, mode: 'insensitive' } },
-              { bio: { contains: q, mode: 'insensitive' } },
-            ],
-          },
+          where: multiFieldSearch(['username', 'name', 'bio']),
         }),
       ]),
     ])

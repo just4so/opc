@@ -32,7 +32,7 @@ export function PostRichTextEditor({
     editorProps: {
       attributes: {
         class:
-          'min-h-[160px] px-4 py-3 text-sm text-gray-700 focus:outline-none prose prose-sm max-w-none',
+          'min-h-[160px] px-4 py-3 text-sm text-charcoal focus:outline-none prose prose-sm max-w-none',
       },
     },
     onUpdate({ editor }) {
@@ -72,13 +72,13 @@ export function PostRichTextEditor({
 
   const btn = (active: boolean) =>
     `p-1.5 rounded transition-colors ${
-      active ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
+      active ? 'bg-primary text-white' : 'text-mute hover:bg-surface-card'
     }`
 
   return (
     <div className="border rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-gray-50">
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-surface-soft">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}

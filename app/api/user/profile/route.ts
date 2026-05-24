@@ -31,9 +31,11 @@ export async function GET() {
         verified: true,
         verifyType: true,
         emailVerified: true,
-        skills: true,
         canOffer: true,
         lookingFor: true,
+        mainTrack: true,
+        startupStage: true,
+        showInPlaza: true,
         createdAt: true,
         _count: {
           select: {
@@ -72,12 +74,14 @@ export async function PUT(request: NextRequest) {
       'location',
       'website',
       'wechat',
-      'skills',
       'canOffer',
       'lookingFor',
+      'mainTrack',
+      'startupStage',
+      'showInPlaza',
     ]
 
-    const updateData: Record<string, any> = {}
+    const updateData: Record<string, unknown> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updateData[field] = body[field]
@@ -96,7 +100,6 @@ export async function PUT(request: NextRequest) {
         location: true,
         website: true,
         wechat: true,
-        skills: true,
         canOffer: true,
         lookingFor: true,
       },

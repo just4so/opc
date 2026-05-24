@@ -111,7 +111,7 @@ export function RichTextEditor({ value, onChange, placeholder = '在这里输入
       title={title}
       onClick={onClick}
       className={`p-1.5 rounded text-sm transition-colors ${
-        active ? 'bg-primary/15 text-primary' : 'text-gray-600 hover:bg-gray-100'
+        active ? 'bg-primary/15 text-primary' : 'text-mute hover:bg-surface-card'
       }`}
     >
       {children}
@@ -119,9 +119,9 @@ export function RichTextEditor({ value, onChange, placeholder = '在这里输入
   )
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary">
+    <div className="border border-hairline-soft rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary">
       {/* 工具栏 */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-gray-100 bg-gray-50">
+      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-hairline-soft bg-surface-soft">
         <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="标题1">
           <Heading1 className="h-4 w-4" />
         </ToolbarButton>
@@ -175,7 +175,7 @@ export function RichTextEditor({ value, onChange, placeholder = '在这里输入
       {/* 编辑区 */}
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none px-4 py-3 min-h-[300px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[280px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-400 [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"
+        className="prose prose-sm max-w-none px-4 py-3 min-h-[300px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[280px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-ash [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"
       />
     </div>
   )

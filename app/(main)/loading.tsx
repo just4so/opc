@@ -14,14 +14,14 @@ export default function HomeLoading() {
       </section>
 
       {/* 动态条骨架 */}
-      <div className="h-10 bg-white border-y border-gray-100" />
+      <div className="h-10 bg-white border-y border-hairline-soft" />
 
       {/* 统计数据骨架 */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="text-center p-6 rounded-xl bg-gray-50">
+              <div key={i} className="text-center p-6 rounded-xl bg-surface-soft">
                 <div className="h-10 w-16 bg-gray-200 rounded animate-pulse mx-auto mb-2" />
                 <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mx-auto" />
               </div>
@@ -31,7 +31,7 @@ export default function HomeLoading() {
       </section>
 
       {/* 真实案例骨架 */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-surface-soft">
         <div className="container mx-auto px-4">
           <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mx-auto mb-12" />
           <div className="grid md:grid-cols-3 gap-6">
@@ -74,7 +74,7 @@ export default function HomeLoading() {
           <div className="h-5 w-56 bg-gray-200 rounded animate-pulse mx-auto mb-12" />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="p-5 rounded-xl bg-gray-50 text-center">
+              <div key={i} className="p-5 rounded-xl bg-surface-soft text-center">
                 <div className="h-6 w-12 bg-gray-200 rounded animate-pulse mx-auto mb-1" />
                 <div className="h-3 w-16 bg-gray-200 rounded animate-pulse mx-auto" />
               </div>
@@ -90,7 +90,7 @@ export default function HomeLoading() {
             <div className="h-7 w-28 bg-gray-200 rounded animate-pulse" />
             <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
           </div>
-          <div className="bg-white rounded-xl shadow-soft divide-y divide-gray-100">
+          <div className="bg-white rounded-xl shadow-soft divide-y divide-hairline-soft">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="p-4 flex items-center gap-4">
                 <div className="flex-1">

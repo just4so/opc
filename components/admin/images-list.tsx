@@ -62,7 +62,7 @@ export function ImagesList({ value: rawValue, onChange }: ImagesListProps) {
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {value.map((url, index) => (
-            <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 group">
+            <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden border border-hairline-soft group">
               <Image src={url} alt={`图片 ${index + 1}`} fill className="object-cover" unoptimized />
               <button
                 type="button"
@@ -104,7 +104,7 @@ export function ImagesList({ value: rawValue, onChange }: ImagesListProps) {
         </Button>
         <button
           type="button"
-          className="text-xs text-gray-400 hover:text-primary flex items-center gap-1"
+          className="text-xs text-ash hover:text-primary flex items-center gap-1"
           onClick={() => setShowUrlInput(!showUrlInput)}
         >
           <LinkIcon className="h-3 w-3" />通过 URL 添加
@@ -119,7 +119,7 @@ export function ImagesList({ value: rawValue, onChange }: ImagesListProps) {
             onChange={(e) => setUrlInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addUrl() } }}
             placeholder="https://..."
-            className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+            className="flex-1 px-2 py-1 text-sm border border-hairline-soft rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
           />
           <Button type="button" size="sm" variant="outline" onClick={addUrl}>添加</Button>
         </div>

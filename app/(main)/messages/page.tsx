@@ -68,7 +68,7 @@ export default function MessagesPage() {
         <h1 className="text-2xl font-bold mb-6">私信</h1>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-lg p-4 border animate-pulse">
+            <div key={i} className="bg-canvas rounded-2xl p-4 border animate-pulse">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-gray-200" />
                 <div className="flex-1">
@@ -92,20 +92,20 @@ export default function MessagesPage() {
       <h1 className="text-2xl font-bold mb-6">私信</h1>
 
       {conversations.length === 0 ? (
-        <div className="bg-white rounded-lg p-12 border text-center">
-          <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">暂无私信</p>
-          <p className="text-sm text-gray-400">
+        <div className="bg-canvas rounded-2xl p-12 border text-center">
+          <MessageSquare className="h-12 w-12 text-stone mx-auto mb-4" />
+          <p className="text-mute mb-2">暂无私信</p>
+          <p className="text-sm text-ash">
             在用户主页点击"发送私信"开始对话
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border divide-y">
+        <div className="bg-canvas rounded-2xl border divide-y">
           {conversations.map((conv) => (
             <Link
               key={conv.id}
               href={`/messages/${conv.id}`}
-              className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-4 p-4 hover:bg-surface-soft transition-colors"
             >
               {/* 头像 */}
               <div className="relative">
@@ -121,7 +121,7 @@ export default function MessagesPage() {
                   </div>
                 )}
                 {conv.unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                     {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
                   </span>
                 )}
@@ -130,10 +130,10 @@ export default function MessagesPage() {
               {/* 内容 */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`font-medium truncate ${conv.unreadCount > 0 ? 'text-gray-900' : 'text-gray-700'}`}>
+                  <span className={`font-medium truncate ${conv.unreadCount > 0 ? 'text-ink' : 'text-charcoal'}`}>
                     {conv.otherUser?.name || conv.otherUser?.username || '未知用户'}
                   </span>
-                  <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                  <span className="text-xs text-ash flex-shrink-0 ml-2">
                     {conv.updatedAt
                       ? formatDistanceToNow(new Date(conv.updatedAt), {
                           addSuffix: true,
@@ -142,7 +142,7 @@ export default function MessagesPage() {
                       : ''}
                   </span>
                 </div>
-                <p className={`text-sm truncate ${conv.unreadCount > 0 ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
+                <p className={`text-sm truncate ${conv.unreadCount > 0 ? 'text-charcoal font-medium' : 'text-mute'}`}>
                   {conv.lastMessage?.content || '暂无消息'}
                 </p>
               </div>

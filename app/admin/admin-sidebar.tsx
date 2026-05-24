@@ -3,15 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-interface NavItem {
-  href: string
-  label: string
-  iconName: string  // 用字符串传递，避免把函数传给 Client Component
-}
-
-// icon 在这里渲染，不从 Server Component 传入
-const ICON_MAP: Record<string, React.ReactNode> = {}
-
 export function AdminSidebarLink({ href, label, children }: { href: string; label: string; children?: React.ReactNode }) {
   const pathname = usePathname()
   const isActive = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
@@ -19,7 +10,7 @@ export function AdminSidebarLink({ href, label, children }: { href: string; labe
   return (
     <Link
       href={href}
-      className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+      className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors ${
         isActive
           ? 'bg-primary/10 text-primary font-medium'
           : 'text-gray-600 hover:bg-gray-100 hover:text-primary'
@@ -28,5 +19,16 @@ export function AdminSidebarLink({ href, label, children }: { href: string; labe
       {children}
       <span>{label}</span>
     </Link>
+  )
+}
+
+export function AdminSidebarGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-5">
+      <div className="px-4 mb-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+        {label}
+      </div>
+      <div className="space-y-0.5">{children}</div>
+    </div>
   )
 }

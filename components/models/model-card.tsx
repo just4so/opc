@@ -49,23 +49,23 @@ export function ModelCard({ model }: ModelCardProps) {
           </div>
 
           {/* 提供商 */}
-          <p className="text-sm text-gray-500 mb-3">{model.provider}</p>
+          <p className="text-sm text-mute mb-3">{model.provider}</p>
 
           {/* 描述 */}
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p className="text-sm text-mute mb-4 line-clamp-2">
             {model.description}
           </p>
 
           {/* 价格 */}
           <div className="flex items-center gap-4 mb-4 text-sm">
             <div>
-              <span className="text-gray-500">输入:</span>{' '}
+              <span className="text-mute">输入:</span>{' '}
               <span className="font-medium text-primary">
                 {formatPrice(model.inputPrice)}
               </span>
             </div>
             <div>
-              <span className="text-gray-500">输出:</span>{' '}
+              <span className="text-mute">输出:</span>{' '}
               <span className="font-medium text-primary">
                 {formatPrice(model.outputPrice)}
               </span>
@@ -100,11 +100,11 @@ export function ModelCard({ model }: ModelCardProps) {
                   <h2 className="text-xl font-semibold">{model.name}</h2>
                   {model.isHot && <Flame className="h-5 w-5 text-orange-500" />}
                 </div>
-                <p className="text-gray-500">{model.provider}</p>
+                <p className="text-mute">{model.provider}</p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                className="p-1 text-ash hover:text-mute transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -112,23 +112,23 @@ export function ModelCard({ model }: ModelCardProps) {
 
             {/* 模型信息 */}
             <div className="space-y-4 mb-6">
-              <p className="text-gray-600">{model.description}</p>
+              <p className="text-mute">{model.description}</p>
 
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-surface-soft rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-500">输入价格</p>
+                  <p className="text-sm text-mute">输入价格</p>
                   <p className="text-lg font-semibold text-primary">
                     {formatPrice(model.inputPrice)}
-                    <span className="text-xs text-gray-500 font-normal ml-1">
+                    <span className="text-xs text-mute font-normal ml-1">
                       /百万tokens
                     </span>
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">输出价格</p>
+                  <p className="text-sm text-mute">输出价格</p>
                   <p className="text-lg font-semibold text-primary">
                     {formatPrice(model.outputPrice)}
-                    <span className="text-xs text-gray-500 font-normal ml-1">
+                    <span className="text-xs text-mute font-normal ml-1">
                       /百万tokens
                     </span>
                   </p>
@@ -136,7 +136,7 @@ export function ModelCard({ model }: ModelCardProps) {
               </div>
 
               {model.contextLength && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-mute">
                   <Zap className="h-4 w-4" />
                   <span>上下文长度: {model.contextLength.toLocaleString()} tokens</span>
                 </div>
@@ -153,7 +153,7 @@ export function ModelCard({ model }: ModelCardProps) {
 
             {/* 联系信息 */}
             <div className="border-t pt-4">
-              <p className="text-center text-gray-600 mb-4">
+              <p className="text-center text-mute mb-4">
                 如需使用此模型，请发送邮件联系
               </p>
               <a href="mailto:luweiliangai@gmail.com?subject=模型广场咨询 - {model.name}">

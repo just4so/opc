@@ -80,7 +80,7 @@ export function ResetPasswordForm({ token }: Props) {
             </div>
           )}
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="text-sm font-medium text-charcoal">
               新密码
             </label>
             <Input
@@ -94,7 +94,7 @@ export function ResetPasswordForm({ token }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="confirm" className="text-sm font-medium text-gray-700">
+            <label htmlFor="confirm" className="text-sm font-medium text-charcoal">
               确认密码
             </label>
             <Input
@@ -111,7 +111,7 @@ export function ResetPasswordForm({ token }: Props) {
             {loading ? '重置中...' : '确认重置'}
           </Button>
         </form>
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-mute">
           <Link href="/login" className="text-primary hover:underline">
             返回登录
           </Link>

@@ -37,11 +37,11 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
 
   return (
     <div className="space-y-2">
-      {label && <label className="block text-sm font-medium text-gray-700">{label}</label>}
+      {label && <label className="block text-sm font-medium text-charcoal">{label}</label>}
       <div className="flex items-start gap-3">
         {/* 缩略图预览 */}
         {value ? (
-          <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+          <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-hairline-soft flex-shrink-0">
             <Image src={value} alt="预览" fill className="object-cover" unoptimized />
             <button
               type="button"
@@ -52,8 +52,8 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
             </button>
           </div>
         ) : (
-          <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center flex-shrink-0 bg-gray-50">
-            <Upload className="h-6 w-6 text-gray-300" />
+          <div className="w-20 h-20 rounded-lg border-2 border-dashed border-hairline-soft flex items-center justify-center flex-shrink-0 bg-surface-soft">
+            <Upload className="h-6 w-6 text-stone" />
           </div>
         )}
 
@@ -86,7 +86,7 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
           {/* URL fallback */}
           <button
             type="button"
-            className="text-xs text-gray-400 hover:text-primary flex items-center gap-1"
+            className="text-xs text-ash hover:text-primary flex items-center gap-1"
             onClick={() => setShowUrlInput(!showUrlInput)}
           >
             <LinkIcon className="h-3 w-3" />通过 URL 设置
@@ -98,7 +98,7 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 placeholder="https://..."
-                className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="flex-1 px-2 py-1 text-sm border border-hairline-soft rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
               />
               <Button
                 type="button"

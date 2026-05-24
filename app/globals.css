@@ -5,6 +5,9 @@
 :root {
   --foreground-rgb: 51, 65, 85;
   --background-rgb: 249, 250, 251;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-subtle: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 body {
@@ -89,4 +92,227 @@ body {
 ::selection {
   background: rgba(249, 115, 22, 0.2);
   color: inherit;
+}
+
+/* ===== V2 Visual System ===== */
+
+/* ScrollReveal */
+.sr-init {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-init { opacity: 1; transform: none; transition: none; }
+}
+
+/* Glass nav */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gradient glow (used as decoration) */
+.glow-orange {
+  background: radial-gradient(circle, rgba(249,115,22,0.10) 0%, rgba(249,115,22,0) 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+.glow-amber {
+  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0) 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+.glow-orange-subtle {
+  background: radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Grid pattern */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 100px 100px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+  pointer-events: none;
+}
+.grid-pattern-dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Gradient text */
+.gradient-text-orange {
+  background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover pattern */
+.card-interactive {
+  border: 1px solid #e5e5e0;
+  background: #ffffff;
+  border-radius: 16px;
+  transition:
+    border-color 0.25s var(--ease-subtle),
+    box-shadow 0.25s var(--ease-subtle),
+    transform 0.25s var(--ease-out-expo);
+}
+.card-interactive:hover {
+  border-color: #dadad3;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+/* ===== Hero entrance sequence ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-animate {
+  opacity: 0;
+  animation: fadeInUp 0.6s var(--ease-out-expo) forwards;
+}
+.hero-delay-1 { animation-delay: 0.2s; }
+.hero-delay-2 { animation-delay: 0.4s; }
+.hero-delay-3 { animation-delay: 0.6s; }
+.hero-delay-4 { animation-delay: 0.8s; }
+
+/* ===== Button press feedback ===== */
+.btn-press {
+  transition:
+    background-color 0.15s var(--ease-subtle),
+    box-shadow 0.2s var(--ease-subtle),
+    transform 0.1s var(--ease-spring);
+}
+.btn-press:hover {
+  filter: brightness(1.05);
+}
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* ===== ScrollReveal stagger ===== */
+.sr-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+.sr-stagger.sr-visible > :nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(2) { transition-delay: 100ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(3) { transition-delay: 200ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(4) { transition-delay: 300ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(5) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+.sr-stagger.sr-visible > :nth-child(6) { transition-delay: 500ms; opacity: 1; transform: translateY(0); }
+
+/* ===== Toast slide-in ===== */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-slide-in {
+  animation: toastSlideIn 300ms var(--ease-out-expo);
+}
+
+/* ===== Tab content transition ===== */
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tab-content-enter {
+  animation: tabFadeIn 200ms ease-out;
+}
+
+/* ===== Expand/collapse via CSS grid ===== */
+.expand-container {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease;
+  overflow: hidden;
+}
+.expand-container.expanded {
+  grid-template-rows: 1fr;
+}
+.expand-container > div {
+  min-height: 0;
+}
+
+/* ===== Success check bounce ===== */
+@keyframes checkBounce {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-check-animate {
+  animation: checkBounce 500ms ease-out;
+}
+
+/* ===== Arrow pulse (plaza guide) ===== */
+@keyframes pulseArrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+.animate-pulse-arrow {
+  animation: pulseArrow 2s ease-in-out infinite;
+}
+
+/* ===== Float (empty state) ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ===== Auth page entrance ===== */
+@keyframes authFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.auth-fade-in-up {
+  animation: authFadeInUp 400ms ease-out both;
+}
+.auth-fade-in {
+  animation: authFadeInUp 300ms ease-out 200ms both;
+}
+
+/* ===== Error shake ===== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.error-shake {
+  animation: shake 300ms;
+}
+
+/* ===== Reduced motion — disable ALL interaction animations ===== */
+@media (prefers-reduced-motion: reduce) {
+  .hero-animate { opacity: 1; animation: none; }
+  .btn-press:active { transform: none; }
+  .card-interactive { transition: none; }
+  .sr-stagger > * { opacity: 1; transform: none; transition: none; }
+  .sticky[class*="transition-"] { transition: none; }
+  .toast-slide-in { animation: none; }
+  .tab-content-enter { animation: none; }
+  .expand-container { transition: none; }
+  .success-check-animate { animation: none; opacity: 1; }
+  .animate-pulse-arrow { animation: none; }
+  .animate-float { animation: none; }
+  .auth-fade-in-up { animation: none; opacity: 1; }
+  .auth-fade-in { animation: none; opacity: 1; }
+  .error-shake { animation: none; }
 }

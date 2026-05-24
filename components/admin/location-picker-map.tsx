@@ -117,22 +117,22 @@ export function LocationPickerMap({
 
   return (
     <div className="space-y-2">
-      <div className="relative w-full h-[300px] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+      <div className="relative w-full h-[300px] rounded-lg overflow-hidden bg-surface-card border border-hairline-soft">
         <div ref={mapRef} className="w-full h-full" />
         {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <div className="text-gray-500 text-sm">地图加载中...</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-card">
+            <div className="text-mute text-sm">地图加载中...</div>
           </div>
         )}
       </div>
-      <div className="flex items-center gap-4 text-sm text-gray-600">
+      <div className="flex items-center gap-4 text-sm text-mute">
         <MapPin className="h-4 w-4 text-primary" />
         {latitude && longitude ? (
           <span>
             经度: {longitude.toFixed(6)}, 纬度: {latitude.toFixed(6)}
           </span>
         ) : (
-          <span className="text-gray-400">点击地图选择位置</span>
+          <span className="text-ash">点击地图选择位置</span>
         )}
       </div>
     </div>

@@ -1,15 +1,18 @@
 'use client'
 
-// 架构说明：全量数据在 SSR 时一次性传入，城市筛选和分页全部前端完成。
-// 统计数据（cityCounts / cityDifficulty）由客户端异步加载，不阻塞 SSR。
-
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
-import { MapPin, LayoutGrid } from 'lucide-react'
+import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X, Star } from 'lucide-react'
+import { CITIES } from '@/constants/cities'
 
 const PAGE_SIZE = 12
+
+const cityToProvince: Record<string, string> = {}
+for (const c of CITIES) {
+  cityToProvince[c.name] = c.province
+}
 
 interface Community {
   id: string
@@ -30,6 +33,11 @@ interface Community {
   entryFriendly?: number | null
 }
 
+interface ProvinceGroup {
+  province: string
+  communities: Community[]
+}
+
 interface CommunitiesPageClientProps {
   allCommunities: Community[]
 }
@@ -43,8 +51,9 @@ export function CommunitiesPageClient({
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   const [page, setPage] = useState(1)
   const [cityCounts, setCityCounts] = useState<{ city: string; count: number }[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [expandedProvinces, setExpandedProvinces] = useState<Set<string>>(new Set())
 
-  // 异步加载统计数据
   useEffect(() => {
     fetch('/api/community-stats')
       .then((res) => res.json())
@@ -52,7 +61,6 @@ export function CommunitiesPageClient({
         setCityCounts(data.cityCounts || [])
       })
       .catch(() => {
-        // 降级：从全量数据中本地计算城市统计
         const counts: Record<string, number> = {}
         allCommunities.forEach((c) => {
           counts[c.city] = (counts[c.city] || 0) + 1
@@ -64,26 +72,73 @@ export function CommunitiesPageClient({
       })
   }, [allCommunities])
 
-  // 浏览器前进/后退时同步 URL 参数
   useEffect(() => {
     const city = searchParams.get('city') ?? ''
     setSelectedCity(city)
     setPage(1)
   }, [searchParams])
 
-  // 城市筛选：纯前端 filter，零延迟
-  const filtered = useMemo(() => {
-    if (!selectedCity) return allCommunities
-    return allCommunities.filter((c) => c.city === selectedCity)
-  }, [allCommunities, selectedCity])
+  const isSearching = searchQuery.trim().length > 0
 
-  // 分页：前端 slice
+  const filtered = useMemo(() => {
+    let result = allCommunities
+    if (selectedCity) {
+      result = result.filter((c) => c.city === selectedCity)
+    }
+    if (isSearching) {
+      const keywords = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
+      result = result.filter((c) => {
+        const haystack = `${c.name} ${c.city}`.toLowerCase()
+        return keywords.every((kw) => haystack.includes(kw))
+      })
+    }
+    return result
+  }, [allCommunities, selectedCity, searchQuery, isSearching])
+
+  const featuredCommunities = useMemo(() => {
+    return allCommunities.filter(c => c.featured)
+  }, [allCommunities])
+
+  const featuredIds = useMemo(() => new Set(featuredCommunities.map(c => c.id)), [featuredCommunities])
+
+  const provinceGroups = useMemo((): ProvinceGroup[] => {
+    if (isSearching || selectedCity) return []
+    const nonFeatured = filtered.filter(c => !featuredIds.has(c.id))
+    const groups: Record<string, Community[]> = {}
+    for (const c of nonFeatured) {
+      const province = cityToProvince[c.city] || c.city
+      if (!groups[province]) groups[province] = []
+      groups[province].push(c)
+    }
+    const result = Object.entries(groups)
+      .map(([province, communities]) => ({ province, communities }))
+      .sort((a, b) => b.communities.length - a.communities.length)
+
+    const featuredInFiltered = filtered.filter(c => featuredIds.has(c.id))
+    if (featuredInFiltered.length > 0) {
+      result.unshift({ province: '推荐社区', communities: featuredInFiltered })
+    }
+    return result
+  }, [filtered, isSearching, selectedCity, featuredIds])
+
+  useEffect(() => {
+    if (provinceGroups.length > 0 && expandedProvinces.size === 0) {
+      const initial = new Set(provinceGroups.slice(0, 3).map((g) => g.province))
+      initial.add('推荐社区')
+      setExpandedProvinces(initial)
+    }
+  }, [provinceGroups])
+
+  const showProvinceView = viewMode === 'list' && !isSearching && !selectedCity
+  const showFlatList = viewMode === 'list' && (isSearching || !!selectedCity)
+
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city)
     setPage(1)
+    setSearchQuery('')
     const params = new URLSearchParams(searchParams.toString())
     if (city) {
       params.set('city', city)
@@ -93,28 +148,38 @@ export function CommunitiesPageClient({
     router.replace(`/communities?${params.toString()}`, { scroll: false })
   }
 
+  const toggleProvince = useCallback((province: string) => {
+    setExpandedProvinces((prev) => {
+      const next = new Set(prev)
+      if (next.has(province)) {
+        next.delete(province)
+      } else {
+        next.add(province)
+      }
+      return next
+    })
+  }, [])
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header：标题 + 统计 + 视图切换 + 城市筛选 */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 pt-8 pb-5">
           {/* 标题行 */}
           <div className="flex items-end justify-between mb-5">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">
                 全国 OPC 社区地图
               </h1>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-ash mt-1">
                 {allCommunities.length} 个社区 · {cityCounts.length || '—'} 座城市 · 真实入驻友好度参考
               </p>
             </div>
-            {/* 视图切换 */}
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 shrink-0">
+            <div className="flex items-center gap-1 bg-surface-card rounded-2xl p-1 shrink-0">
               <button
                 onClick={() => setViewMode('list')}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                  viewMode === 'list' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                  viewMode === 'list' ? 'bg-canvas text-ink shadow-sm' : 'text-ash hover:text-mute'
                 )}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
@@ -124,7 +189,7 @@ export function CommunitiesPageClient({
                 onClick={() => setViewMode('map')}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                  viewMode === 'map' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                  viewMode === 'map' ? 'bg-canvas text-ink shadow-sm' : 'text-ash hover:text-mute'
                 )}
               >
                 <MapPin className="h-3.5 w-3.5" />
@@ -133,48 +198,199 @@ export function CommunitiesPageClient({
             </div>
           </div>
 
-          {/* 城市筛选 Pill */}
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => handleCityChange('')}
-              className={cn(
-                'px-3.5 py-1 rounded-full text-sm font-medium transition-all',
-                !selectedCity
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
-              )}
-            >
-              全部
-            </button>
-            {cityCounts.map((c) => (
+          {/* 搜索框 */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setPage(1)
+              }}
+              placeholder="搜索社区名称或城市..."
+              className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-hairline-soft text-sm placeholder:text-ash focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary focus:scale-[1.01] transition-all"
+            />
+            {searchQuery && (
               <button
-                key={c.city}
-                onClick={() => handleCityChange(c.city)}
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ash hover:text-mute"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* 城市筛选 Pill */}
+          {!isSearching && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleCityChange('')}
                 className={cn(
                   'px-3.5 py-1 rounded-full text-sm font-medium transition-all',
-                  selectedCity === c.city
+                  !selectedCity
                     ? 'bg-primary text-white shadow-sm'
-                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+                    : 'text-mute hover:text-ink hover:bg-surface-soft'
                 )}
               >
-                {c.city}
+                全部
               </button>
-            ))}
-          </div>
+              {cityCounts.map((c) => (
+                <button
+                  key={c.city}
+                  onClick={() => handleCityChange(c.city)}
+                  className={cn(
+                    'px-3.5 py-1 rounded-full text-sm font-medium transition-all',
+                    selectedCity === c.city
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-mute hover:text-ink hover:bg-surface-soft'
+                  )}
+                >
+                  {c.city}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 搜索结果提示 */}
+          {isSearching && (
+            <p className="text-sm text-mute">
+              找到 <span className="font-medium text-ink">{filtered.length}</span> 个社区
+              {filtered.length === 0 && '，试试其他关键词'}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* 内容区 */}
-      <CommunitiesClient
-        communities={paginated}
-        allCommunities={filtered}
-        selectedCity={selectedCity || undefined}
-        pagination={{ page, total: filtered.length, totalPages }}
-        cityCounts={cityCounts}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        onPageChange={setPage}
-      />
+      {/* 省份分组列表 */}
+      {showProvinceView && (
+        <ProvinceGroupedList
+          groups={provinceGroups}
+          expandedProvinces={expandedProvinces}
+          onToggle={toggleProvince}
+        />
+      )}
+
+      {/* 平铺列表（搜索或选中城市时） */}
+      {showFlatList && (
+        <CommunitiesClient
+          communities={paginated}
+          allCommunities={filtered}
+          selectedCity={selectedCity || undefined}
+          pagination={{ page, total: filtered.length, totalPages }}
+          cityCounts={cityCounts}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onPageChange={setPage}
+        />
+      )}
+
+      {/* 地图视图 */}
+      {viewMode === 'map' && (
+        <CommunitiesClient
+          communities={paginated}
+          allCommunities={filtered}
+          selectedCity={selectedCity || undefined}
+          pagination={{ page, total: filtered.length, totalPages }}
+          cityCounts={cityCounts}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onPageChange={setPage}
+        />
+      )}
     </div>
+  )
+}
+
+function ProvinceGroupedList({
+  groups,
+  expandedProvinces,
+  onToggle,
+}: {
+  groups: ProvinceGroup[]
+  expandedProvinces: Set<string>
+  onToggle: (province: string) => void
+}) {
+  return (
+    <div className="container mx-auto px-4 py-6 space-y-3">
+      {groups.map((group) => {
+        const isRecommended = group.province === '推荐社区'
+        const isExpanded = isRecommended || expandedProvinces.has(group.province)
+
+        if (isRecommended) {
+          return (
+            <div key={group.province} className="mb-6">
+              <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
+                <Star className="h-5 w-5 text-primary fill-primary" />
+                推荐社区
+              </h2>
+              <ScrollReveal stagger>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {group.communities.map((community) => (
+                    <CommunityCardInline key={community.id} community={community} recommended />
+                  ))}
+                </div>
+              </ScrollReveal>
+            </div>
+          )
+        }
+
+        return (
+          <div key={group.province} className="bg-canvas rounded-xl overflow-hidden border border-hairline-soft">
+            <button
+              onClick={() => onToggle(group.province)}
+              className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-surface-soft transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4 text-ash transition-transform" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-ash transition-transform" />
+                )}
+                <span className="font-semibold text-ink">{group.province}</span>
+                <span className="text-sm text-ash">{group.communities.length} 个社区</span>
+              </div>
+              <div className="flex gap-1.5">
+                {Array.from(new Set(group.communities.map((c) => c.city))).slice(0, 5).map((city) => (
+                  <span key={city} className="text-xs text-ash bg-surface-soft px-2 py-0.5 rounded-full">
+                    {city}
+                  </span>
+                ))}
+              </div>
+            </button>
+            <div className={`expand-container ${isExpanded ? 'expanded' : ''}`}>
+              <div>
+                <div className="px-5 pb-5 pt-1">
+                  <ScrollReveal stagger>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {group.communities.map((community) => (
+                        <CommunityCardInline key={community.id} community={community} />
+                      ))}
+                    </div>
+                  </ScrollReveal>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+import { CommunityCard } from '@/components/communities/community-card'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
+
+function CommunityCardInline({ community, recommended }: { community: Community; recommended?: boolean }) {
+  return (
+    <CommunityCard
+      community={{
+        ...community,
+        district: community.district ?? undefined,
+        operator: community.operator ?? undefined,
+        totalWorkstations: community.totalWorkstations ?? undefined,
+      }}
+      recommended={recommended}
+    />
   )
 }

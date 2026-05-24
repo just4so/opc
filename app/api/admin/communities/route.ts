@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * LIMIT,
         take: LIMIT,
         orderBy: { createdAt: 'desc' },
+        include: { _count: { select: { claims: true } } },
       }),
       prisma.community.count({ where }),
     ])

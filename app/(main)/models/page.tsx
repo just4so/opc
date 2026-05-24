@@ -24,13 +24,13 @@ export default function ModelsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* 页面标题 */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center gap-3 mb-2">
             <Cpu className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-secondary">模型广场</h1>
+            <h1 className="text-2xl font-bold text-ink">模型广场</h1>
           </div>
-          <p className="text-gray-600 flex items-center gap-2">
+          <p className="text-mute flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             稳定、低价的国内外 AI 模型中转服务
           </p>
@@ -48,7 +48,7 @@ export default function ModelsPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 selectedType === type.id
                   ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border'
+                  : 'bg-canvas text-mute hover:bg-surface-card border'
               }`}
             >
               {type.name}
@@ -69,12 +69,12 @@ export default function ModelsPage() {
         </div>
 
         {/* 底部说明 */}
-        <div className="mt-12 p-6 bg-white rounded-lg border text-center">
+        <div className="mt-12 p-6 bg-canvas rounded-2xl border text-center">
           <h3 className="text-lg font-semibold mb-2">如何使用？</h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-mute mb-4">
             点击任意模型卡片，发送邮件咨询即可获取 API 接入方式和详细价格
           </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-mute">
             <div className="flex items-center gap-1.5">
               <Badge variant="secondary">稳定</Badge>
               <span>99.9% 可用性保障</span>

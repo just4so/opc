@@ -22,7 +22,7 @@ export default function NewsLoading() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden border border-hairline-soft">
               <div className="w-full h-40 bg-gray-200 animate-pulse" />
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">

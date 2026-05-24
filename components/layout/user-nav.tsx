@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 export function UserNav() {
   const { data: session, status } = useSession()
@@ -46,13 +47,13 @@ export function UserNav() {
       <div className="flex items-center space-x-4">
         <Link
           href="/login"
-          className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+          className="text-sm font-medium text-mute hover:text-ink transition-colors"
         >
           登录
         </Link>
         <Link
           href="/register"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center justify-center rounded-[10px] bg-ink px-5 py-2 text-sm font-semibold text-on-dark hover:opacity-85 transition-all"
         >
           注册
         </Link>
@@ -61,10 +62,12 @@ export function UserNav() {
   }
 
   return (
-    <div className="relative">
+    <div className="flex items-center gap-1">
+      <NotificationBell />
+      <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+        className="flex items-center space-x-2 text-sm font-medium text-charcoal hover:text-primary transition-colors"
       >
         <div className="relative">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold overflow-hidden">
@@ -94,16 +97,16 @@ export function UserNav() {
           />
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50 py-1">
             <div className="px-4 py-2 border-b">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-ink truncate">
                 {session.user.name || '用户'}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-mute truncate">
                 {session.user.email}
               </p>
             </div>
             <Link
               href="/profile"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center px-4 py-2 text-sm text-charcoal hover:bg-surface-card"
               onClick={() => setIsOpen(false)}
             >
               <User className="h-4 w-4 mr-2" />
@@ -111,7 +114,7 @@ export function UserNav() {
             </Link>
             <Link
               href="/messages"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center px-4 py-2 text-sm text-charcoal hover:bg-surface-card"
               onClick={() => setIsOpen(false)}
             >
               <MessageSquare className="h-4 w-4 mr-2" />
@@ -124,7 +127,7 @@ export function UserNav() {
             </Link>
             <Link
               href="/settings"
-              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="flex items-center px-4 py-2 text-sm text-charcoal hover:bg-surface-card"
               onClick={() => setIsOpen(false)}
             >
               <Settings className="h-4 w-4 mr-2" />
@@ -153,6 +156,7 @@ export function UserNav() {
           </div>
         </>
       )}
+    </div>
     </div>
   )
 }
