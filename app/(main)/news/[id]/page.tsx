@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 
 const categoryLabels: Record<string, string> = {
   POLICY: '政策',
@@ -160,6 +161,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       )}
 
       {/* CTA */}
+      <ScrollReveal delay={200}>
       <div className="mt-12 py-8 border-t border-hairline text-center">
         <p className="text-lg font-semibold text-ink mb-2">想入驻 OPC 社区？一键对接</p>
         <p className="text-sm text-mute mb-4">提交意向后，专人帮你对接最合适的社区</p>
@@ -167,6 +169,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           社区直通车 →
         </Link>
       </div>
+      </ScrollReveal>
 
       {/* Footer */}
       <div className="mt-10 pt-6 border-t border-hairline-soft">

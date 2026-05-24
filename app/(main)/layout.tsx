@@ -5,6 +5,7 @@ import { UserNav } from '@/components/layout/user-nav'
 import { NavLinks } from '@/components/layout/nav-links'
 import { MobileMenu } from '@/components/layout/mobile-menu'
 import { ScrollHeader } from '@/components/layout/scroll-header'
+import { ToastProvider } from '@/components/ui/toast-notification'
 
 export default function MainLayout({
   children,
@@ -52,7 +53,9 @@ export default function MainLayout({
 
       {/* 主内容区 */}
       <main className="flex-1">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </main>
 
       {/* 底部 */}

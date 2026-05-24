@@ -31,6 +31,7 @@ import { ImageGallery } from '@/components/image-gallery'
 import { ContactUnlock } from '@/components/connect/contact-unlock'
 import { FloatingConnectButton } from '@/components/connect/floating-connect-button'
 import { CommunityClaimTrigger } from '@/components/communities/community-claim-trigger'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -323,6 +324,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
             {/* 社区详情 (Markdown) - 始终可见，SEO 友好 */}
             {community.description && (
+              <ScrollReveal>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -350,9 +352,9 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   />
                 </CardContent>
               </Card>
+              </ScrollReveal>
             )}
-
-            {/* ===== 入驻政策/福利（始终可见）===== */}
+                <ScrollReveal>
                 {(() => {
                   type BenefitsSection = { summary?: string; items?: string[] }
                   type BenefitsJson = {
@@ -412,6 +414,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </Card>
                   )
                 })()}
+                </ScrollReveal>
 
             {/* ===== Layer 2: 深度了解（登录可见）===== */}
             {!isLoggedIn ? (
@@ -582,7 +585,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           </div>
 
           {/* ===== 侧边栏 ===== */}
-          <div className="space-y-6">
+          <ScrollReveal delay={200} className="space-y-6">
             {/* 社区位置地图 */}
             <Card>
               <CardHeader>
@@ -759,7 +762,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
             <CommunityClaimTrigger communityId={community.id} communityName={community.name} />
-          </div>
+          </ScrollReveal>
         </div>
       </div>
       <CommunityFaq

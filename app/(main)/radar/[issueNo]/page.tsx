@@ -1,6 +1,7 @@
 import prisma from '@/lib/db'
 import { IssueView } from '@/components/radar/IssueView'
 import { serializeIssue } from '@/lib/radar/serializeIssue'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -54,7 +55,9 @@ export default async function IssueDetailPage({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <IssueView issue={serializeIssue(issue)} />
+      <ScrollReveal>
+        <IssueView issue={serializeIssue(issue)} />
+      </ScrollReveal>
 
       <div className="mt-12 pt-6 border-t border-[#E7E5E4] flex justify-between text-sm">
         {prev ? (

@@ -167,7 +167,7 @@ function SearchContent() {
         )}
 
         {results && totalResults > 0 && (
-          <div className="space-y-8">
+          <div className="space-y-8 tab-content-enter" key={`${query}-${activeType}`}>
             {/* 动态结果 */}
             {(activeType === 'all' || activeType === 'post') && results.posts.length > 0 && (
               <section>

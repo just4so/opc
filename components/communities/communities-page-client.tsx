@@ -209,7 +209,7 @@ export function CommunitiesPageClient({
                 setPage(1)
               }}
               placeholder="搜索社区名称或城市..."
-              className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-hairline-soft text-sm placeholder:text-ash focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+              className="w-full pl-9 pr-9 py-2.5 rounded-lg border border-hairline-soft text-sm placeholder:text-ash focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary focus:scale-[1.01] transition-all"
             />
             {searchQuery && (
               <button
@@ -324,11 +324,13 @@ function ProvinceGroupedList({
                 <Star className="h-5 w-5 text-primary fill-primary" />
                 推荐社区
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {group.communities.map((community) => (
-                  <CommunityCardInline key={community.id} community={community} />
-                ))}
-              </div>
+              <ScrollReveal stagger>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {group.communities.map((community) => (
+                    <CommunityCardInline key={community.id} community={community} recommended />
+                  ))}
+                </div>
+              </ScrollReveal>
             </div>
           )
         }
@@ -341,9 +343,9 @@ function ProvinceGroupedList({
             >
               <div className="flex items-center gap-3">
                 {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 text-ash" />
+                  <ChevronDown className="h-4 w-4 text-ash transition-transform" />
                 ) : (
-                  <ChevronRight className="h-4 w-4 text-ash" />
+                  <ChevronRight className="h-4 w-4 text-ash transition-transform" />
                 )}
                 <span className="font-semibold text-ink">{group.province}</span>
                 <span className="text-sm text-ash">{group.communities.length} 个社区</span>
@@ -356,15 +358,19 @@ function ProvinceGroupedList({
                 ))}
               </div>
             </button>
-            {isExpanded && (
-              <div className="px-5 pb-5 pt-1">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {group.communities.map((community) => (
-                    <CommunityCardInline key={community.id} community={community} />
-                  ))}
+            <div className={`expand-container ${isExpanded ? 'expanded' : ''}`}>
+              <div>
+                <div className="px-5 pb-5 pt-1">
+                  <ScrollReveal stagger>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {group.communities.map((community) => (
+                        <CommunityCardInline key={community.id} community={community} />
+                      ))}
+                    </div>
+                  </ScrollReveal>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         )
       })}
@@ -373,8 +379,9 @@ function ProvinceGroupedList({
 }
 
 import { CommunityCard } from '@/components/communities/community-card'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 
-function CommunityCardInline({ community }: { community: Community }) {
+function CommunityCardInline({ community, recommended }: { community: Community; recommended?: boolean }) {
   return (
     <CommunityCard
       community={{
@@ -383,6 +390,7 @@ function CommunityCardInline({ community }: { community: Community }) {
         operator: community.operator ?? undefined,
         totalWorkstations: community.totalWorkstations ?? undefined,
       }}
+      recommended={recommended}
     />
   )
 }

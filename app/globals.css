@@ -217,6 +217,88 @@ body {
 .sr-stagger.sr-visible > :nth-child(5) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
 .sr-stagger.sr-visible > :nth-child(6) { transition-delay: 500ms; opacity: 1; transform: translateY(0); }
 
+/* ===== Toast slide-in ===== */
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-slide-in {
+  animation: toastSlideIn 300ms var(--ease-out-expo);
+}
+
+/* ===== Tab content transition ===== */
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tab-content-enter {
+  animation: tabFadeIn 200ms ease-out;
+}
+
+/* ===== Expand/collapse via CSS grid ===== */
+.expand-container {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease;
+  overflow: hidden;
+}
+.expand-container.expanded {
+  grid-template-rows: 1fr;
+}
+.expand-container > div {
+  min-height: 0;
+}
+
+/* ===== Success check bounce ===== */
+@keyframes checkBounce {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-check-animate {
+  animation: checkBounce 500ms ease-out;
+}
+
+/* ===== Arrow pulse (plaza guide) ===== */
+@keyframes pulseArrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+.animate-pulse-arrow {
+  animation: pulseArrow 2s ease-in-out infinite;
+}
+
+/* ===== Float (empty state) ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ===== Auth page entrance ===== */
+@keyframes authFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.auth-fade-in-up {
+  animation: authFadeInUp 400ms ease-out both;
+}
+.auth-fade-in {
+  animation: authFadeInUp 300ms ease-out 200ms both;
+}
+
+/* ===== Error shake ===== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.error-shake {
+  animation: shake 300ms;
+}
+
 /* ===== Reduced motion — disable ALL interaction animations ===== */
 @media (prefers-reduced-motion: reduce) {
   .hero-animate { opacity: 1; animation: none; }
@@ -224,4 +306,13 @@ body {
   .card-interactive { transition: none; }
   .sr-stagger > * { opacity: 1; transform: none; transition: none; }
   .sticky[class*="transition-"] { transition: none; }
+  .toast-slide-in { animation: none; }
+  .tab-content-enter { animation: none; }
+  .expand-container { transition: none; }
+  .success-check-animate { animation: none; opacity: 1; }
+  .animate-pulse-arrow { animation: none; }
+  .animate-float { animation: none; }
+  .auth-fade-in-up { animation: none; opacity: 1; }
+  .auth-fade-in { animation: none; opacity: 1; }
+  .error-shake { animation: none; }
 }

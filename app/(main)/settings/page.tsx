@@ -25,6 +25,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AvatarPicker } from '@/components/ui/avatar-picker'
+import { AnimatedProgress } from '@/components/ui/animated-progress'
+import { useToast } from '@/components/ui/toast-notification'
 import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
@@ -77,6 +79,7 @@ const NAV_ITEMS: { key: SettingsSection; label: string; icon: React.ReactNode }[
 export default function SettingsPage() {
   const { status, update } = useSession()
   const router = useRouter()
+  const { toast } = useToast()
 
   const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<SettingsSection>('basic')
@@ -194,7 +197,7 @@ export default function SettingsPage() {
 
       if (res.ok) {
         await update({ image: avatar || null })
-        setMessage({ type: 'success', text: '保存成功' })
+        toast('保存成功', 'success')
       } else {
         const data = await res.json()
         setMessage({ type: 'error', text: data.error || '保存失败' })
@@ -225,7 +228,7 @@ export default function SettingsPage() {
       })
 
       if (res.ok) {
-        setCardMessage({ type: 'success', text: '卡片保存成功' })
+        toast('卡片保存成功', 'success')
       } else {
         const data = await res.json()
         setCardMessage({ type: 'error', text: data.error || '保存失败' })
@@ -250,7 +253,7 @@ export default function SettingsPage() {
       if (res.ok) {
         setNameIsSet(true)
         await update({ name: data.name })
-        setMessage({ type: 'success', text: '昵称设置成功' })
+        toast('昵称设置成功', 'success')
       } else {
         setMessage({ type: 'error', text: data.error || '设置失败' })
       }
@@ -370,7 +373,7 @@ export default function SettingsPage() {
 
             {/* ===== BASIC INFO SECTION ===== */}
             {activeSection === 'basic' && (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6 tab-content-enter" key="basic">
                 {message && (
                   <div
                     className="px-4 py-3 rounded-xl text-sm"
@@ -556,7 +559,7 @@ export default function SettingsPage() {
 
             {/* ===== CARD SECTION ===== */}
             {activeSection === 'card' && (
-              <div className="space-y-6">
+              <div className="space-y-6 tab-content-enter" key="card">
                 {cardMessage && (
                   <div
                     className="px-4 py-3 rounded-xl text-sm"
@@ -580,12 +583,7 @@ export default function SettingsPage() {
                     <span className="text-sm font-medium" style={{ color: '#33332e' }}>卡片完善度</span>
                     <span className="text-sm font-semibold" style={{ color: '#F97316' }}>{completenessPercent}%</span>
                   </div>
-                  <div className="w-full rounded-full h-2 mb-2" style={{ backgroundColor: '#e5e5e0' }}>
-                    <div
-                      className="rounded-full h-2 transition-all"
-                      style={{ width: `${completenessPercent}%`, backgroundColor: '#F97316' }}
-                    />
-                  </div>
+                  <AnimatedProgress value={completenessPercent} className="mb-2" />
                   <p className="text-xs" style={{ color: '#91918c' }}>
                     完善卡片信息，让其他创业者更容易找到你
                   </p>
@@ -659,7 +657,7 @@ export default function SettingsPage() {
 
             {/* ===== PROJECTS SECTION ===== */}
             {activeSection === 'projects' && (
-              <div className="space-y-6">
+              <div className="space-y-6 tab-content-enter" key="projects">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold" style={{ color: '#000' }}>我的产品</h3>
                   <Button

@@ -231,7 +231,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
     return (
       <div className="w-full max-w-lg mx-auto bg-canvas rounded-2xl shadow-soft p-8">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+          <div className="success-check-animate inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="text-xl font-bold text-ink mb-2">资料已提交</h2>
@@ -251,7 +251,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 opacity-0 animate-[fadeInUp_400ms_ease-out_600ms_forwards]">
           <Link
             href="/plaza"
             className="flex items-center justify-between w-full px-4 py-3 bg-surface-soft rounded-xl text-sm text-ink hover:bg-surface-card transition-colors"
@@ -294,7 +294,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       )}
 
       {step === 'step1' && (
-        <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-5">
+        <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-5 tab-content-enter" key="step1">
           <div>
             <Label htmlFor="name">称呼 *</Label>
             <Input
@@ -428,7 +428,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       )}
 
       {step === 'step2' && (
-        <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5">
+        <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5 tab-content-enter" key="step2">
           <div>
             <Label htmlFor="bio">一句话介绍自己（选填）</Label>
             <textarea

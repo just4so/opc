@@ -112,7 +112,7 @@ function RegisterForm() {
     <div className="min-h-screen flex">
       {/* 左侧品牌 Panel（桌面端显示）*/}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
-        <div className="max-w-sm flex flex-col items-center">
+        <div className="max-w-sm flex flex-col items-center auth-fade-in-up">
           <img src="/logo-wordmark-white.png" alt="OPC圈" className="h-10 mb-10" />
           <h2 className="text-2xl font-bold mb-3 text-center leading-snug">
             OPC创业者，在这里连接、让世界看见
@@ -144,7 +144,7 @@ function RegisterForm() {
       </div>
       {/* 右侧表单 */}
       <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md auth-fade-in">
       <Card>
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
@@ -158,7 +158,7 @@ function RegisterForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm error-shake" key={error}>
                 {error}
               </div>
             )}

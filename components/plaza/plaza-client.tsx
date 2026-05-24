@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -419,7 +420,7 @@ export function PlazaClient({
       <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
         <Link href={href} className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
           {text}
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4 animate-pulse-arrow" />
         </Link>
         <button onClick={dismissBanner} className="text-ash hover:text-mute">
           <X className="h-4 w-4" />
@@ -580,8 +581,9 @@ export function PlazaClient({
 
         {/* ========== PEOPLE TAB ========== */}
         {mainTab === 'people' && (
-          <div>
+          <div key="people" className="tab-content-enter">
             {paginatedUsers.length > 0 ? (
+              <ScrollReveal stagger>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {paginatedUsers.map(user => (
                   <div key={user.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
@@ -671,8 +673,9 @@ export function PlazaClient({
                   </div>
                 ))}
               </div>
+              </ScrollReveal>
             ) : (
-              <div className="text-center py-16 bg-canvas rounded-2xl">
+              <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
                 <Users className="h-12 w-12 text-stone mx-auto mb-4" />
                 <p className="text-mute mb-2">没有找到匹配的结果</p>
                 <p className="text-ash text-sm">试试调整筛选条件</p>
@@ -700,7 +703,7 @@ export function PlazaClient({
 
         {/* ========== PRODUCTS TAB ========== */}
         {mainTab === 'products' && (
-          <div>
+          <div key="products" className="tab-content-enter">
             {projectLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {[1, 2, 3, 4, 5, 6].map(i => (
@@ -715,6 +718,7 @@ export function PlazaClient({
                 ))}
               </div>
             ) : projects.length > 0 ? (
+              <ScrollReveal stagger>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {projects.map(proj => (
                   <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
@@ -781,8 +785,9 @@ export function PlazaClient({
                   </div>
                 ))}
               </div>
+              </ScrollReveal>
             ) : (
-              <div className="text-center py-16 bg-canvas rounded-2xl">
+              <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
                 <Package className="h-12 w-12 text-stone mx-auto mb-4" />
                 <p className="text-mute mb-2">没有找到匹配的结果</p>
                 <p className="text-ash text-sm">试试调整筛选条件</p>
@@ -810,7 +815,7 @@ export function PlazaClient({
 
         {/* ========== POSTS TAB ========== */}
         {mainTab === 'posts' && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div key="posts" className="grid grid-cols-1 lg:grid-cols-4 gap-8 tab-content-enter">
             {/* Sidebar (desktop) */}
             <aside className="hidden lg:block lg:col-span-1">
               <div className="sticky top-24 space-y-6">

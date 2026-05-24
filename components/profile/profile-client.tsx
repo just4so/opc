@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AnimatedProgress } from '@/components/ui/animated-progress'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
@@ -102,6 +104,8 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
   const [chatError, setChatError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
+  const isRecentlyActive = user.lastActiveAt && (Date.now() - new Date(user.lastActiveAt).getTime()) < 24 * 60 * 60 * 1000
+
   const isOwnProfile = (session?.user as any)?.id === user.id
   const displayPosts = recentPosts.slice(0, 3)
 
@@ -161,6 +165,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
       <div className="container mx-auto px-4 py-8 max-w-2xl">
 
         {/* === Section 1: Header === */}
+        <ScrollReveal>
         <div className="bg-white rounded-2xl p-6 md:p-8" style={{ border: '1px solid #dadad3' }}>
           <div className="flex items-start gap-5">
             {/* Avatar */}
@@ -182,6 +187,9 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
                 <h1 className="text-xl font-bold" style={{ color: '#000' }}>
                   {user.name || user.username}
                 </h1>
+                {isRecentlyActive && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shrink-0" />
+                )}
                 {user.verified && (
                   <Badge variant="default" className="gap-1 bg-blue-500 text-white text-xs">
                     <BadgeCheck className="h-3 w-3" />
@@ -227,7 +235,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
           <div className="mt-5 flex items-center gap-3">
             {!isOwnProfile ? (
               <>
-                <Button onClick={handleStartChat} disabled={startingChat} className="gap-2">
+                <Button onClick={handleStartChat} disabled={startingChat} className="gap-2 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-shadow">
                   <Send className="h-4 w-4" />
                   {startingChat ? '正在创建...' : '联系TA'}
                 </Button>
@@ -255,9 +263,11 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
             <p className="text-sm mt-2" style={{ color: '#9e0a0a' }}>{chatError}</p>
           )}
         </div>
+        </ScrollReveal>
 
         {/* === Section 2: Products === */}
         {projects.length > 0 && (
+          <ScrollReveal delay={100}>
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2" style={{ color: '#000' }}>
               <Rocket className="h-5 w-5" style={{ color: '#F97316' }} />
@@ -296,10 +306,12 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
               ))}
             </div>
           </div>
+          </ScrollReveal>
         )}
 
         {/* === Section 3: Recent posts (de-emphasized) === */}
         {displayPosts.length > 0 && (
+          <ScrollReveal delay={200}>
           <div className="mt-6">
             <h2 className="text-sm font-medium mb-2" style={{ color: '#91918c' }}>
               最近动态
@@ -323,6 +335,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
               ))}
             </div>
           </div>
+          </ScrollReveal>
         )}
 
         {/* === Section 4: Completeness (own profile only) === */}
@@ -335,12 +348,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
               </div>
               <span className="text-sm font-semibold" style={{ color: '#F97316' }}>{completenessPercent}%</span>
             </div>
-            <div className="w-full rounded-full h-2 mb-3" style={{ backgroundColor: '#FDDCB5' }}>
-              <div
-                className="rounded-full h-2 transition-all"
-                style={{ width: `${completenessPercent}%`, backgroundColor: '#F97316' }}
-              />
-            </div>
+            <AnimatedProgress value={completenessPercent} className="mb-3" />
             <div className="flex flex-wrap gap-2 mb-3">
               {missingFields.map(f => (
                 <span

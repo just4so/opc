@@ -25,9 +25,10 @@ interface CommunityCardProps {
     entryFriendly?: number | null
     coverImage?: string | null
   }
+  recommended?: boolean
 }
 
-export function CommunityCard({ community }: CommunityCardProps) {
+export function CommunityCard({ community, recommended }: CommunityCardProps) {
   const benefits = community.benefits as Record<string, { summary?: string; items?: string[] }> | null
 
   // 判断某项政策是否存在（有 summary 或 items 才算有）
@@ -55,7 +56,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
   return (
     <Link href={`/communities/${community.slug}`} className="group block">
-      <div className="bg-canvas rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.10),0_0_0_1px_rgba(0,0,0,0.06)] transition-shadow duration-200">
+      <div className={`card-interactive overflow-hidden ${recommended ? 'border-primary/20 hover:border-primary/40' : ''}`}>
 
         {/* 封面图 */}
         {community.coverImage ? (
