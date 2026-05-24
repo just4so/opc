@@ -39,6 +39,11 @@ function isLoggedIn(request: NextRequest): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // /start 已删除，301 到首页（保护 SEO）
+  if (pathname === '/start') {
+    return NextResponse.redirect(new URL('/', request.url), { status: 301 })
+  }
+
   const communityRedirect = maybeRedirectCommunitySlug(request, pathname)
   if (communityRedirect) return communityRedirect
 

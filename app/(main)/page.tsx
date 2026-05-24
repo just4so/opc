@@ -88,16 +88,10 @@ export default async function HomePage() {
         <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-[720px] mx-auto text-center">
-          <div className="hero-animate">
-            <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
-              OPC创业者，在这里
-            </h1>
-          </div>
-          <div className="hero-animate hero-delay-1">
-            <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
-              <span className="gradient-text-orange">连接、让世界看见</span>
-            </h1>
-          </div>
+          <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
+            <span className="hero-animate block">OPC创业者，在这里</span>
+            <span className="hero-animate hero-delay-1 block gradient-text-orange">连接、让世界看见</span>
+          </h1>
           <p className="hero-animate hero-delay-2 text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
             全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市 · 真实信息人工核实，一键对接入驻
           </p>
