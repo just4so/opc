@@ -21,8 +21,8 @@ export function NavLinks() {
             href={link.href}
             className={
               isActive
-                ? "px-4 py-2 text-sm font-medium text-primary bg-primary-50 rounded-2xl"
-                : "px-4 py-2 text-sm font-medium text-mute hover:text-primary hover:bg-primary-50 rounded-2xl transition-all"
+                ? "px-4 py-2 text-sm font-semibold text-ink border-b-2 border-primary"
+                : "px-4 py-2 text-sm font-medium text-mute hover:text-ink border-b-2 border-transparent transition-all"
             }
           >
             {link.label}

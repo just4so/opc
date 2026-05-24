@@ -113,15 +113,35 @@ function RegisterForm() {
       {/* 左侧品牌 Panel（桌面端显示）*/}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-orange-600 flex-col items-center justify-center p-12 text-white">
         <div className="max-w-sm text-center">
-          <img src="/logo.png" alt="OPC圈" className="h-16 mb-8" />
+          <img src="/logo-transparent.png" alt="OPC圈" className="h-16 mb-8" />
           <p className="text-lg font-medium mb-8 leading-relaxed opacity-95">
             让 AI 创业者<br />不再孤独前行
           </p>
-          <ul className="space-y-3 text-left text-sm opacity-80">
-            <li className="flex items-center gap-2">✅ 全国 110+ 个 OPC 社区攻略</li>
-            <li className="flex items-center gap-2">✅ 精确到联系方式和入驻条件</li>
-            <li className="flex items-center gap-2">✅ AI 创业者聚集的广场社区</li>
-            <li className="flex items-center gap-2">✅ 最新 OPC 政策解读</li>
+          <ul className="space-y-3 text-left text-sm opacity-90">
+            <li className="flex items-center gap-3">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              全国 180+ 个 OPC 社区攻略
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              精确到联系方式和入驻条件
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              创业者广场，找人找合作
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              最新 OPC 政策解读
+            </li>
           </ul>
         </div>
       </div>
@@ -131,7 +151,7 @@ function RegisterForm() {
       <Card>
         <CardHeader className="text-center">
           <Link href="/" className="inline-block mb-4">
-            <img src="/logo.png" alt="OPC圈" className="h-8" />
+            <img src="/logo-transparent.png" alt="OPC圈" className="h-8" />
           </Link>
           <CardTitle className="text-2xl">注册</CardTitle>
           <CardDescription>

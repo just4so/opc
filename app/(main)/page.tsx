@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
+import { Building2, BadgeCheck, Handshake } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
@@ -87,13 +88,12 @@ export default async function HomePage() {
         <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-[720px] mx-auto text-center">
-          <h1 className="text-[52px] md:text-[56px] font-extrabold tracking-[-2px] leading-[1.1] text-ink mb-5">
+          <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
             OPC创业者，在这里<br />
             <span className="gradient-text-orange">连接、让世界看见</span>
           </h1>
-          <p className="text-[17px] text-mute leading-relaxed mb-11">
-            全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市<br />
-            真实信息人工核实，一键对接入驻
+          <p className="text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
+            全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市 · 真实信息人工核实，一键对接入驻
           </p>
           <div className="flex gap-3 justify-center mb-7">
             <Link
@@ -104,7 +104,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href={session?.user ? '/settings#card' : '/register'}
-              className="bg-transparent border-[1.5px] border-hairline-soft text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
+              className="bg-transparent border-[1.5px] border-hairline text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
             >
               让世界看见我
             </Link>
@@ -127,34 +127,39 @@ export default async function HomePage() {
           <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-12">
             三个动作，开启创业新阶段
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline-soft rounded-3xl overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                num: String(stats.total),
-                title: '社区收录，帮你对接入驻',
-                desc: `全国 OPC 社区真实信息，覆盖 ${stats.cityCount} 个城市，一键对接入驻对接人`,
+                icon: Building2,
+                title: `${stats.total} 个社区，帮你对接入驻`,
+                desc: `覆盖 ${stats.cityCount} 个城市，真实信息人工核实`,
+                href: '/communities',
               },
               {
-                num: '✓',
+                icon: BadgeCheck,
                 title: '认证创业者，被行业看见',
-                desc: '展示你的项目和履历，获得认证标识，进入行业推荐视野',
+                desc: '展示你的项目，获得认证标识，进入行业推荐视野',
+                href: '/plaza',
               },
               {
-                num: '∞',
+                icon: Handshake,
                 title: '创业者广场，找到合作',
-                desc: '和真实创业者连接，发布需求，找到志同道合的伙伴',
+                desc: '和真实创业者连接，发布需求，找到伙伴',
+                href: '/plaza?tab=products',
               },
             ].map((card) => (
-              <div
+              <Link
                 key={card.title}
-                className="bg-canvas p-12 hover:bg-surface-soft transition-colors duration-300 cursor-pointer"
+                href={card.href}
+                className="bg-canvas rounded-2xl p-10 border border-hairline-soft hover:border-transparent hover:shadow-soft hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="text-5xl font-extrabold tracking-[-2px] gradient-text-orange mb-4 leading-none">
-                  {card.num}
-                </div>
-                <h3 className="text-lg font-semibold text-ink mb-2.5">{card.title}</h3>
-                <p className="text-sm text-mute leading-relaxed">{card.desc}</p>
-              </div>
+                <card.icon className="h-8 w-8 text-primary mb-5" strokeWidth={1.5} />
+                <h3 className="text-xl font-bold text-ink mb-2">{card.title}</h3>
+                <p className="text-sm text-mute leading-relaxed mb-4">{card.desc}</p>
+                <span className="text-sm text-primary font-medium group-hover:underline">
+                  了解更多 →
+                </span>
+              </Link>
             ))}
           </div>
         </section>
@@ -162,7 +167,8 @@ export default async function HomePage() {
 
       {/* ===== 深色数据区 ===== */}
       <ScrollReveal>
-        <section className="bg-surface-dark py-[100px] px-6 relative overflow-hidden">
+        <div className="h-20 bg-gradient-to-b from-canvas to-surface-dark" />
+        <section className="bg-surface-dark py-[80px] px-6 relative overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full glow-orange-subtle" />
           <div className="absolute inset-0 grid-pattern-dark" />
           <div className="relative z-10 max-w-[800px] mx-auto">
@@ -170,14 +176,14 @@ export default async function HomePage() {
               <div>
                 <AnimatedCounter
                   target={stats.total}
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
                 />
                 <div className="text-sm text-on-dark-mute mt-2">OPC 社区</div>
               </div>
               <div>
                 <AnimatedCounter
                   target={stats.cityCount}
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
                 />
                 <div className="text-sm text-on-dark-mute mt-2">覆盖城市</div>
               </div>
@@ -185,7 +191,7 @@ export default async function HomePage() {
                 <AnimatedCounter
                   target={1000}
                   suffix="+"
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
                 />
                 <div className="text-sm text-on-dark-mute mt-2">创业者</div>
               </div>
@@ -195,6 +201,7 @@ export default async function HomePage() {
             </p>
           </div>
         </section>
+        <div className="h-20 bg-gradient-to-b from-surface-dark to-canvas" />
       </ScrollReveal>
 
       {/* ===== 创业者区 ===== */}

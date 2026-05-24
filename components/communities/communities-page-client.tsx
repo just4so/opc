@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
-import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X } from 'lucide-react'
+import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X, Star } from 'lucide-react'
 import { CITIES } from '@/constants/cities'
 
 const PAGE_SIZE = 12
@@ -167,7 +167,7 @@ export function CommunitiesPageClient({
           {/* 标题行 */}
           <div className="flex items-end justify-between mb-5">
             <div>
-              <h1 className="text-2xl font-bold text-ink tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">
                 全国 OPC 社区地图
               </h1>
               <p className="text-sm text-ash mt-1">
@@ -314,7 +314,25 @@ function ProvinceGroupedList({
   return (
     <div className="container mx-auto px-4 py-6 space-y-3">
       {groups.map((group) => {
-        const isExpanded = expandedProvinces.has(group.province)
+        const isRecommended = group.province === '推荐社区'
+        const isExpanded = isRecommended || expandedProvinces.has(group.province)
+
+        if (isRecommended) {
+          return (
+            <div key={group.province} className="mb-6">
+              <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
+                <Star className="h-5 w-5 text-primary fill-primary" />
+                推荐社区
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {group.communities.map((community) => (
+                  <CommunityCardInline key={community.id} community={community} />
+                ))}
+              </div>
+            </div>
+          )
+        }
+
         return (
           <div key={group.province} className="bg-canvas rounded-xl overflow-hidden border border-hairline-soft">
             <button

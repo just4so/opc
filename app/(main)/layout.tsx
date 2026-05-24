@@ -28,7 +28,7 @@ export default function MainLayout({
           </Link>
 
           {/* 导航链接 */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-2">
             <NavLinks />
           </nav>
 
@@ -60,7 +60,7 @@ export default function MainLayout({
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div className="flex items-center">
               <Image
-                src="/logo-wordmark.png"
+                src="/logo-wordmark-white.png"
                 alt="OPC圈"
                 width={120}
                 height={24}
