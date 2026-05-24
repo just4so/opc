@@ -13,7 +13,7 @@ export default function MainLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* 顶部导航 - 玻璃态效果 */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-100 glass-strong">
+      <header className="sticky top-0 z-50 w-full border-b border-hairline-soft glass-nav">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
@@ -36,7 +36,7 @@ export default function MainLayout({
           <div className="flex items-center space-x-2">
             <Link
               href="/search"
-              className="p-2.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded-lg transition-all"
+              className="p-2.5 text-ash hover:text-primary hover:bg-surface-soft rounded-lg transition-all"
               title="搜索"
             >
               <Search className="h-5 w-5" />
@@ -55,7 +55,7 @@ export default function MainLayout({
       </main>
 
       {/* 底部 */}
-      <footer className="border-t border-gray-100 bg-white py-12">
+      <footer className="border-t border-hairline-soft bg-surface-dark py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div className="flex items-center">
@@ -69,19 +69,16 @@ export default function MainLayout({
             </div>
             <div className="flex flex-col items-center gap-2 md:flex-1">
               <div className="flex items-center space-x-8">
-                <Link href="/about" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                <Link href="/about" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   关于我们
                 </Link>
-                <Link href="/data" className="text-sm text-gray-500 hover:text-primary transition-colors">
-                  数据统计
-                </Link>
-                <Link href="/faq" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                <Link href="/faq" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   常见问题
                 </Link>
-                <Link href="/contact" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                <Link href="/contact" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   联系方式
                 </Link>
-                <Link href="/privacy" className="text-sm text-gray-500 hover:text-primary transition-colors">
+                <Link href="/privacy" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   隐私政策
                 </Link>
               </div>
@@ -90,7 +87,7 @@ export default function MainLayout({
                   href="https://beian.miit.gov.cn"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-gray-400 hover:text-primary transition-colors"
+                  className="text-sm text-on-dark-mute hover:text-on-dark transition-colors"
                 >
                   京ICP备2025122039号-2
                 </a>
@@ -98,14 +95,14 @@ export default function MainLayout({
                   href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011502039750"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 text-sm text-gray-400 hover:text-primary transition-colors"
+                  className="flex items-center gap-1 text-sm text-on-dark-mute hover:text-on-dark transition-colors"
                 >
                   <img src="/beian-icon.png" alt="公安备案" width={14} height={14} />
                   京公网安备11011502039750号
                 </a>
               </div>
             </div>
-            <div className="text-sm text-gray-400 md:text-right">
+            <div className="text-sm text-on-dark-mute md:text-right">
               © 2026 OPC圈
             </div>
           </div>

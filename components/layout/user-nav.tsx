@@ -47,13 +47,13 @@ export function UserNav() {
       <div className="flex items-center space-x-4">
         <Link
           href="/login"
-          className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
+          className="text-sm font-medium text-mute hover:text-ink transition-colors"
         >
           登录
         </Link>
         <Link
           href="/register"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center justify-center rounded-[10px] bg-ink px-5 py-2 text-sm font-semibold text-on-dark hover:opacity-85 transition-all"
         >
           注册
         </Link>

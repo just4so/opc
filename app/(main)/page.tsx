@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
+import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { AnimatedCounter } from '@/components/ui/animated-counter'
 
 export const revalidate = 600
 
@@ -79,110 +81,154 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* ===== 第一屏：Hero ===== */}
-      <section className="bg-surface-soft py-20 md:py-28 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-[28px] md:text-[44px] font-bold leading-[1.15] tracking-tight text-ink mb-4">
-            OPC创业者，在这里连接、让世界看见
+      {/* ===== Hero ===== */}
+      <section className="relative overflow-hidden bg-canvas py-[120px] px-6">
+        <div className="absolute top-[-120px] right-[15%] w-[500px] h-[500px] rounded-full glow-orange" />
+        <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
+        <div className="absolute inset-0 grid-pattern" />
+        <div className="relative z-10 max-w-[720px] mx-auto text-center">
+          <h1 className="text-[52px] md:text-[56px] font-extrabold tracking-[-2px] leading-[1.1] text-ink mb-5">
+            OPC创业者，在这里<br />
+            <span className="gradient-text-orange">连接、让世界看见</span>
           </h1>
-          <p className="text-base text-mute mb-8">
-            全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市
+          <p className="text-[17px] text-mute leading-relaxed mb-11">
+            全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市<br />
+            真实信息人工核实，一键对接入驻
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+          <div className="flex gap-3 justify-center mb-7">
             <Link
               href="/communities"
-              className="bg-primary text-on-primary rounded-xl px-8 py-4 font-semibold text-center hover:bg-primary-600 transition-colors"
+              className="bg-primary text-on-primary rounded-xl px-9 py-3.5 font-semibold shadow-[0_4px_16px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.35)] hover:-translate-y-px transition-all"
             >
               找到我的社区
             </Link>
             <Link
-              href={session?.user ? "/settings#card" : "/register"}
-              className="border border-hairline bg-canvas rounded-xl px-8 py-4 font-semibold text-center text-ink hover:bg-surface-soft transition-colors"
+              href={session?.user ? '/settings#card' : '/register'}
+              className="bg-transparent border-[1.5px] border-hairline-soft text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
             >
               让世界看见我
             </Link>
           </div>
-          <p className="text-sm text-ash">
-            不确定？先看看
-            <Link href="/communities" className="underline hover:text-mute transition-colors">
-              全国 OPC 社区的分布 →
+          <p className="text-[13px] text-ash">
+            不确定？先看看{' '}
+            <Link href="/communities" className="text-mute hover:text-ink border-b border-hairline-soft hover:border-ink transition-colors">
+              全国 OPC 社区的分布
             </Link>
           </p>
         </div>
       </section>
 
-      {/* ===== 第二屏：平台价值 ===== */}
-      <section className="py-16 md:py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* ===== 价值区 ===== */}
+      <ScrollReveal>
+        <section className="py-20 px-6 max-w-[1100px] mx-auto">
+          <div className="text-xs font-semibold text-primary uppercase tracking-[1.5px] text-center mb-3">
+            为什么选择 OPC圈
+          </div>
+          <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-12">
+            三个动作，开启创业新阶段
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-hairline-soft rounded-3xl overflow-hidden">
             {[
               {
-                emoji: '\u{1F3E2}',
-                title: `${stats.total}个社区，帮你对接入驻`,
-                desc: '全国OPC社区收录，真实信息人工核实，一键对接入驻',
-                href: '/communities',
+                num: String(stats.total),
+                title: '社区收录，帮你对接入驻',
+                desc: `全国 OPC 社区真实信息，覆盖 ${stats.cityCount} 个城市，一键对接入驻对接人`,
               },
               {
-                emoji: '\u{1F4E3}',
-                title: '认证创业者，进入媒体推荐池',
-                desc: '展示你的项目，获得认证标识，进入行业推荐视野',
-                href: '/plaza',
+                num: '✓',
+                title: '认证创业者，被行业看见',
+                desc: '展示你的项目和履历，获得认证标识，进入行业推荐视野',
               },
               {
-                emoji: '\u{1F91D}',
-                title: '创业者广场，找到合作伙伴',
-                desc: '和真实创业者连接，找到志同道合的伙伴',
-                href: '/plaza',
+                num: '∞',
+                title: '创业者广场，找到合作',
+                desc: '和真实创业者连接，发布需求，找到志同道合的伙伴',
               },
-            ].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="bg-surface-card rounded-2xl p-8 hover:shadow-soft transition group"
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="bg-canvas p-12 hover:bg-surface-soft transition-colors duration-300 cursor-pointer"
               >
-                <span className="text-3xl mb-4 block">{item.emoji}</span>
-                <h3 className="text-[22px] font-semibold leading-[1.25] text-ink mb-2 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-mute mb-4">{item.desc}</p>
-                <span className="text-sm text-mute group-hover:text-primary transition-colors">
-                  了解更多 →
-                </span>
-              </Link>
+                <div className="text-5xl font-extrabold tracking-[-2px] gradient-text-orange mb-4 leading-none">
+                  {card.num}
+                </div>
+                <h3 className="text-lg font-semibold text-ink mb-2.5">{card.title}</h3>
+                <p className="text-sm text-mute leading-relaxed">{card.desc}</p>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
-      {/* ===== 第三屏：最新创业者 ===== */}
-      <section className="py-16 md:py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-[28px] font-bold leading-[1.2] tracking-tight text-ink mb-8">
-            最新入驻的创业者
-          </h2>
+      {/* ===== 深色数据区 ===== */}
+      <ScrollReveal>
+        <section className="bg-surface-dark py-[100px] px-6 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full glow-orange-subtle" />
+          <div className="absolute inset-0 grid-pattern-dark" />
+          <div className="relative z-10 max-w-[800px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div>
+                <AnimatedCounter
+                  target={stats.total}
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                />
+                <div className="text-sm text-on-dark-mute mt-2">OPC 社区</div>
+              </div>
+              <div>
+                <AnimatedCounter
+                  target={stats.cityCount}
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                />
+                <div className="text-sm text-on-dark-mute mt-2">覆盖城市</div>
+              </div>
+              <div>
+                <AnimatedCounter
+                  target={1000}
+                  suffix="+"
+                  className="text-[64px] font-extrabold text-on-dark tracking-[-3px] leading-none block"
+                />
+                <div className="text-sm text-on-dark-mute mt-2">创业者</div>
+              </div>
+            </div>
+            <p className="mt-12 text-[15px] text-on-dark-mute text-center">
+              每一条社区信息都经过人工核实，不是爬虫，不是复制粘贴
+            </p>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* ===== 创业者区 ===== */}
+      <ScrollReveal>
+        <section className="py-20 px-6 max-w-[1100px] mx-auto">
+          <div className="flex justify-between items-baseline mb-8">
+            <h2 className="text-2xl font-bold text-ink">最新入驻的创业者</h2>
+            <Link href="/plaza" className="text-sm text-mute hover:text-primary transition-colors">
+              查看全部 →
+            </Link>
+          </div>
           {creators.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {creators.map((creator) => (
-                <div key={creator.id} className="bg-surface-card rounded-2xl p-6">
+                <div key={creator.id} className="card-interactive p-6">
                   <div className="flex items-center gap-3 mb-3">
                     {creator.avatar ? (
                       <img
                         src={creator.avatar}
                         alt=""
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-11 h-11 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-hairline-soft flex items-center justify-center text-mute text-lg">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary-soft to-primary-200 flex items-center justify-center text-primary font-bold">
                         {(creator.name || creator.username)?.[0] || '?'}
                       </div>
                     )}
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-ink truncate">
+                        <span className="text-sm font-semibold text-ink truncate">
                           {creator.name || creator.username}
                         </span>
                         {creator.verified && (
-                          <span className="shrink-0 bg-primary text-on-primary text-xs px-1.5 py-0.5 rounded-full">
+                          <span className="shrink-0 bg-primary text-on-primary text-[10px] px-1.5 rounded font-semibold">
                             认证
                           </span>
                         )}
@@ -196,7 +242,7 @@ export default async function HomePage() {
                     <p className="text-xs text-ash mb-2">{creator.location}</p>
                   )}
                   {creator.bio && (
-                    <p className="text-sm text-body line-clamp-2">{creator.bio}</p>
+                    <p className="text-[13px] text-body leading-relaxed line-clamp-2">{creator.bio}</p>
                   )}
                 </div>
               ))}
@@ -204,31 +250,26 @@ export default async function HomePage() {
           ) : (
             <p className="text-mute">创业者卡片即将上线，敬请期待</p>
           )}
-          <div className="mt-6">
-            <Link
-              href="/plaza"
-              className="text-sm text-mute hover:text-primary transition-colors"
-            >
-              查看全部 →
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
-      {/* ===== 第四屏：OPC 雷达 ===== */}
+      {/* ===== 雷达区 ===== */}
       {radarIssue && (
-        <section className="py-16 md:py-20 px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-[28px] font-bold leading-[1.2] tracking-tight text-ink mb-8">
-              OPC 雷达
-            </h2>
-            <div className="bg-surface-card rounded-2xl p-6 md:p-8">
-              <div className="flex items-center justify-between mb-4">
+        <ScrollReveal>
+          <section className="pb-20 px-6 max-w-[1100px] mx-auto">
+            <div className="flex justify-between items-baseline mb-8">
+              <h2 className="text-2xl font-bold text-ink">OPC 雷达</h2>
+              <Link href="/radar" className="text-sm text-mute hover:text-primary transition-colors">
+                全部期刊 →
+              </Link>
+            </div>
+            <div className="card-interactive p-8">
+              <div className="flex justify-between mb-4">
                 <div>
-                  <span className="text-xs text-primary font-medium">
+                  <span className="text-xs text-primary font-semibold">
                     第 {radarIssue.issueNo} 期
                   </span>
-                  <h3 className="text-lg font-semibold text-ink mt-1">
+                  <h3 className="text-[17px] font-semibold text-ink mt-1">
                     {radarIssue.title || `OPC雷达 第${radarIssue.issueNo}期`}
                   </h3>
                 </div>
@@ -241,19 +282,19 @@ export default async function HomePage() {
                 </span>
               </div>
               {radarIssue.summary && (
-                <p className="text-sm text-mute mb-4 line-clamp-2">{radarIssue.summary}</p>
+                <p className="text-sm text-mute leading-relaxed mb-4">{radarIssue.summary}</p>
               )}
               {radarIssue.items.length > 0 && (
-                <div className="space-y-2 border-t border-hairline-soft pt-4">
+                <div className="space-y-3 border-t border-hairline-soft pt-4">
                   {radarIssue.items.map((item) => (
                     <div key={item.id} className="flex items-start gap-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                      <span className="w-[5px] h-[5px] rounded-full bg-primary mt-[7px] shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-sm text-body truncate">{item.title}</p>
+                        <p className="text-sm text-body">{item.title}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-ash">{item.source}</span>
                           {item.city && (
-                            <span className="text-xs text-stone">{item.city}</span>
+                            <span className="text-xs text-ash">{item.city}</span>
                           )}
                         </div>
                       </div>
@@ -262,18 +303,9 @@ export default async function HomePage() {
                 </div>
               )}
             </div>
-            <div className="mt-6">
-              <Link
-                href="/radar"
-                className="text-sm text-mute hover:text-primary transition-colors"
-              >
-                查看全部期刊 →
-              </Link>
-            </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       )}
-
     </div>
   )
 }
