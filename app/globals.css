@@ -90,3 +90,82 @@ body {
   background: rgba(249, 115, 22, 0.2);
   color: inherit;
 }
+
+/* ===== V2 Visual System ===== */
+
+/* ScrollReveal */
+.sr-init {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-init { opacity: 1; transform: none; transition: none; }
+}
+
+/* Glass nav */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Gradient glow (used as decoration) */
+.glow-orange {
+  background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, rgba(249,115,22,0) 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+.glow-amber {
+  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0) 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+.glow-orange-subtle {
+  background: radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Grid pattern */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+  pointer-events: none;
+}
+.grid-pattern-dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Gradient text */
+.gradient-text-orange {
+  background: linear-gradient(135deg, #F97316, #FB923C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover pattern */
+.card-interactive {
+  border: 1px solid #e8e8e3;
+  background: #ffffff;
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.card-interactive:hover {
+  border-color: transparent;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
