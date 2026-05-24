@@ -4,9 +4,14 @@ import prisma from '@/lib/db'
 export const revalidate = 3600
 
 export async function GET() {
-  const setting = await prisma.siteSetting.findUnique({
-    where: { key: 'community_qrcode_url' },
-  })
+  try {
+    const setting = await prisma.siteSetting.findUnique({
+      where: { key: 'community_qrcode_url' },
+    })
 
-  return NextResponse.json({ url: setting?.value || null })
+    return NextResponse.json({ url: setting?.value || null })
+  } catch (error) {
+    console.error('获取二维码设置失败:', error)
+    return NextResponse.json({ error: '服务器错误' }, { status: 500 })
+  }
 }

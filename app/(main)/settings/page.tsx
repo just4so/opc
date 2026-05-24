@@ -25,6 +25,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AvatarPicker } from '@/components/ui/avatar-picker'
+import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
   id: string
@@ -72,12 +73,6 @@ const NAV_ITEMS: { key: SettingsSection; label: string; icon: React.ReactNode }[
   { key: 'card', label: '创业者卡片', icon: <CreditCard className="h-4 w-4" /> },
   { key: 'projects', label: '我的产品', icon: <Rocket className="h-4 w-4" /> },
 ]
-
-function ensureUrl(url: string): string {
-  if (!url) return url
-  if (url.startsWith('http://') || url.startsWith('https://')) return url
-  return `https://${url}`
-}
 
 export default function SettingsPage() {
   const { status, update } = useSession()

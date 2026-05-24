@@ -26,3 +26,9 @@ export function truncate(str: string, length: number): string {
   if (str.length <= length) return str
   return str.slice(0, length) + '...'
 }
+
+export function ensureUrl(url: string): string {
+  if (!url) return url
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return `https://${url}`
+}

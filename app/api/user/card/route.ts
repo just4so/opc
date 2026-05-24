@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
 
-    const updateData: Record<string, any> = {}
+    const updateData: Record<string, unknown> = {}
 
     if (body.bio !== undefined) updateData.bio = body.bio || null
     if (body.mainTrack !== undefined) updateData.mainTrack = body.mainTrack || null

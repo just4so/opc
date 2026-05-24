@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
   id: string
@@ -71,12 +72,6 @@ interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
   projects?: ProjectItem[]
-}
-
-function ensureUrl(url: string): string {
-  if (!url) return url
-  if (url.startsWith('http://') || url.startsWith('https://')) return url
-  return `https://${url}`
 }
 
 function formatRelativeTime(dateStr: string): string {

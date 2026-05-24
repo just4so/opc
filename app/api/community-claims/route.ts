@@ -6,6 +6,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { communityId, communityName, contactName, contactInfo, description, type, city } = body
 
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+    const recentCount = await prisma.communityClaim.count({
+      where: { contactInfo, createdAt: { gte: oneHourAgo } },
+    })
+    if (recentCount >= 3) {
+      return NextResponse.json({ error: '提交过于频繁，请稍后再试' }, { status: 429 })
+    }
+
     if (type === 'CLAIM') {
       if (!communityId || !contactName || !contactInfo) {
         return NextResponse.json({ error: '缺少必填字段' }, { status: 400 })
