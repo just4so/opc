@@ -41,7 +41,7 @@ export function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-primary transition-colors rounded-full hover:bg-gray-100"
+        className="relative p-2 text-mute hover:text-primary transition-colors rounded-full hover:bg-surface-card"
         aria-label="通知"
       >
         <Bell className="h-5 w-5" />

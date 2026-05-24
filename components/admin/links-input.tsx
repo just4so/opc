@@ -41,20 +41,20 @@ export function LinksInput({ value: rawValue, onChange }: LinksInputProps) {
               value={link.title}
               onChange={(e) => updateLink(index, 'title', e.target.value)}
               placeholder="链接标题"
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+              className="px-3 py-2 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
             />
             <input
               type="url"
               value={link.url}
               onChange={(e) => updateLink(index, 'url', e.target.value)}
               placeholder="https://"
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+              className="px-3 py-2 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
             />
           </div>
           <button
             type="button"
             onClick={() => removeLink(index)}
-            className="mt-2 text-gray-400 hover:text-red-500"
+            className="mt-2 text-ash hover:text-red-500"
           >
             <Trash2 className="h-4 w-4" />
           </button>

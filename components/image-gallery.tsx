@@ -51,7 +51,7 @@ export function ImageGallery({ images, communityName }: ImageGalleryProps) {
         {images.map((src, index) => (
           <div
             key={index}
-            className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 cursor-zoom-in group"
+            className="relative aspect-video rounded-lg overflow-hidden bg-surface-card cursor-zoom-in group"
             onClick={() => open(index)}
           >
             <Image

@@ -89,12 +89,12 @@ function SearchContent() {
   return (
     <div className="min-h-screen bg-background">
       {/* 搜索头部 */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-secondary mb-6">搜索</h1>
+          <h1 className="text-2xl font-bold text-ink mb-6">搜索</h1>
           <form onSubmit={handleSearch} className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ash" />
               <input
                 type="text"
                 value={query}
@@ -110,7 +110,7 @@ function SearchContent() {
                 }, 300)
               }}
                 placeholder="搜索动态、订单、社区、用户..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="w-full pl-12 pr-4 py-3 border border-hairline-soft rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
             <Button type="submit" disabled={loading}>
@@ -130,7 +130,7 @@ function SearchContent() {
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                 activeType === tab.id
                   ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
+                  : 'bg-canvas text-mute hover:bg-surface-card'
               }`}
             >
               {tab.icon}
@@ -149,19 +149,19 @@ function SearchContent() {
 
         {/* 搜索结果 */}
         {!results && !loading && (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-mute">
             输入关键词开始搜索
           </div>
         )}
 
         {loading && (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-mute">
             搜索中...
           </div>
         )}
 
         {results && totalResults === 0 && (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-mute">
             未找到相关结果
           </div>
         )}
@@ -172,7 +172,7 @@ function SearchContent() {
             {(activeType === 'all' || activeType === 'post') && results.posts.length > 0 && (
               <section>
                 {activeType === 'all' && (
-                  <h2 className="text-lg font-semibold text-secondary mb-4 flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
                     <FileText className="h-5 w-5" />
                     动态 ({results.total.posts})
                   </h2>
@@ -194,17 +194,17 @@ function SearchContent() {
                           <div>
                             <Link
                               href={`/profile/${post.author.username}`}
-                              className="font-medium text-secondary hover:text-primary transition-colors"
+                              className="font-medium text-ink hover:text-primary transition-colors"
                             >
                               {post.author.name || post.author.username}
                             </Link>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-mute">
                               {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
                             </div>
                           </div>
                         </div>
                         <Link href={`/plaza/${post.id}`}>
-                          <p className="text-gray-700 line-clamp-3 hover:text-gray-900">
+                          <p className="text-charcoal line-clamp-3 hover:text-ink">
                             {post.content}
                           </p>
                         </Link>
@@ -219,7 +219,7 @@ function SearchContent() {
             {(activeType === 'all' || activeType === 'community') && results.communities.length > 0 && (
               <section>
                 {activeType === 'all' && (
-                  <h2 className="text-lg font-semibold text-secondary mb-4 flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
                     社区 ({results.total.communities})
                   </h2>
@@ -229,12 +229,12 @@ function SearchContent() {
                     <Link key={community.id} href={`/communities/${community.slug}`}>
                       <Card className="h-full hover:shadow-md transition-shadow">
                         <CardContent className="pt-6">
-                          <h3 className="font-semibold text-secondary mb-1">{community.name}</h3>
-                          <div className="flex items-center text-sm text-gray-500 mb-2">
+                          <h3 className="font-semibold text-ink mb-1">{community.name}</h3>
+                          <div className="flex items-center text-sm text-mute mb-2">
                             <MapPin className="h-4 w-4 mr-1" />
                             {community.city}
                           </div>
-                          <p className="text-sm text-gray-600 line-clamp-2">{community.description}</p>
+                          <p className="text-sm text-mute line-clamp-2">{community.description}</p>
                         </CardContent>
                       </Card>
                     </Link>
@@ -247,7 +247,7 @@ function SearchContent() {
             {(activeType === 'all' || activeType === 'user') && results.users.length > 0 && (
               <section>
                 {activeType === 'all' && (
-                  <h2 className="text-lg font-semibold text-secondary mb-4 flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
                     <User className="h-5 w-5" />
                     用户 ({results.total.users})
                   </h2>
@@ -267,19 +267,19 @@ function SearchContent() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-secondary truncate">
+                                <span className="font-semibold text-ink truncate">
                                   {user.name || user.username}
                                 </span>
                                 {user.verified && (
                                   <Badge variant="secondary" className="text-xs">认证</Badge>
                                 )}
                               </div>
-                              <div className="text-sm text-gray-500">@{user.username}</div>
-                              <div className="text-sm text-gray-500">Lv.{user.level}</div>
+                              <div className="text-sm text-mute">@{user.username}</div>
+                              <div className="text-sm text-mute">Lv.{user.level}</div>
                             </div>
                           </div>
                           {user.bio && (
-                            <p className="text-sm text-gray-600 mt-3 line-clamp-2">{user.bio}</p>
+                            <p className="text-sm text-mute mt-3 line-clamp-2">{user.bio}</p>
                           )}
                           {user.lookingFor && user.lookingFor.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-3">
@@ -307,16 +307,16 @@ function SearchContent() {
 function SearchFallback() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-secondary mb-6">搜索</h1>
+          <h1 className="text-2xl font-bold text-ink mb-6">搜索</h1>
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ash" />
               <input
                 type="text"
                 placeholder="搜索动态、订单、社区、用户..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg"
+                className="w-full pl-12 pr-4 py-3 border border-hairline-soft rounded-2xl"
                 disabled
               />
             </div>

@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
       {/* 右侧表单 */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-soft">
         <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
@@ -86,10 +86,10 @@ export default function ForgotPasswordPage() {
                     <p className="font-medium mb-1">✅ 重置邮件已发送</p>
                     <p>请检查 <strong>{email}</strong> 的收件箱（包括垃圾邮件箱）</p>
                   </div>
-                  <p className="text-sm text-gray-500 text-center">
+                  <p className="text-sm text-mute text-center">
                     没收到？{' '}
                     {cooldown > 0 ? (
-                      <span className="text-gray-400">
+                      <span className="text-ash">
                         {Math.floor(cooldown / 60)}:{String(cooldown % 60).padStart(2, '0')} 后可重新发送
                       </span>
                     ) : (
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
                     </div>
                   )}
                   <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="email" className="text-sm font-medium text-charcoal">
                       邮箱地址
                     </label>
                     <Input
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage() {
                   </Button>
                 </form>
               )}
-              <div className="mt-6 text-center text-sm text-gray-600">
+              <div className="mt-6 text-center text-sm text-mute">
                 <Link href="/login" className="text-primary hover:underline">
                   返回登录
                 </Link>

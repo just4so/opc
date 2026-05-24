@@ -151,11 +151,11 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
   }, [mapInstance, communities, onMarkerClick, selectedCity])
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden bg-gray-100">
+    <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden bg-surface-card">
       <div ref={mapRef} className="w-full h-full" />
       {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="text-gray-500">地图加载中...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-surface-card">
+          <div className="text-mute">地图加载中...</div>
         </div>
       )}
     </div>

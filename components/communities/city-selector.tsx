@@ -46,7 +46,7 @@ export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
           'px-4 py-2 rounded-full text-sm font-medium transition-colors',
           !selectedCity
             ? 'bg-primary text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            : 'bg-surface-card text-mute hover:bg-gray-200'
         )}
       >
         全部城市
@@ -55,7 +55,7 @@ export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
       {/* 热门城市 */}
       {hotCities.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">热门城市</h3>
+          <h3 className="text-sm font-medium text-mute mb-2">热门城市</h3>
           <div className="flex flex-wrap gap-2">
             {hotCities.map((city) => (
               <button
@@ -65,7 +65,7 @@ export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
                   'px-3 py-1.5 rounded-full text-sm transition-colors',
                   selectedCity === city
                     ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-surface-card text-mute hover:bg-gray-200'
                 )}
               >
                 {city}
@@ -79,7 +79,7 @@ export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
       {/* 其他城市 */}
       {otherCities.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">其他城市</h3>
+          <h3 className="text-sm font-medium text-mute mb-2">其他城市</h3>
           <div className="flex flex-wrap gap-2">
             {otherCities.map((city) => (
               <button
@@ -89,7 +89,7 @@ export function CitySelector({ selectedCity, cityCounts }: CitySelectorProps) {
                   'px-3 py-1.5 rounded-full text-sm transition-colors',
                   selectedCity === city.city
                     ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-surface-card text-mute hover:bg-gray-200'
                 )}
               >
                 {city.city}

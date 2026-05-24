@@ -57,8 +57,8 @@ export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
 
   if (!session) {
     return (
-      <div className="bg-gray-50 rounded-lg p-4 text-center">
-        <p className="text-gray-600 mb-2">登录后即可发表评论</p>
+      <div className="bg-surface-soft rounded-lg p-4 text-center">
+        <p className="text-mute mb-2">登录后即可发表评论</p>
         <Button onClick={() => router.push('/login')} variant="outline" size="sm">
           去登录
         </Button>
@@ -72,7 +72,7 @@ export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="写下你的评论..."
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+        className="w-full px-4 py-3 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
         rows={3}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}

@@ -12,7 +12,7 @@ import { PlazaTagInput } from '@/components/plaza/tag-input'
 
 const PostRichTextEditor = dynamic(
   () => import('@/components/plaza/post-rich-text-editor').then(m => ({ default: m.PostRichTextEditor })),
-  { ssr: false, loading: () => <div className="h-40 rounded-lg border bg-gray-50 animate-pulse" /> }
+  { ssr: false, loading: () => <div className="h-40 rounded-2xl border bg-surface-soft animate-pulse" /> }
 )
 
 const POST_TYPES = [
@@ -115,10 +115,10 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-surface-soft to-canvas">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-4">
-          <Link href="/plaza" className="inline-flex items-center text-gray-600 hover:text-primary transition-colors">
+          <Link href="/plaza" className="inline-flex items-center text-mute hover:text-primary transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回交流广场
           </Link>
@@ -128,8 +128,8 @@ export default function NewPostPage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* 页面标题区 */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">发帖</h1>
-          <p className="text-slate-500 text-sm mt-1">分享你的想法、问题或寻找合作伙伴</p>
+          <h1 className="text-2xl font-bold text-ink">发帖</h1>
+          <p className="text-mute text-sm mt-1">分享你的想法、问题或寻找合作伙伴</p>
         </div>
 
         <Card className="border-0 shadow-sm rounded-2xl">
@@ -141,7 +141,7 @@ export default function NewPostPage() {
 
               {/* 意图选择 */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">选择类型</label>
+                <label className="text-sm font-medium text-charcoal mb-2 block">选择类型</label>
                 <div className="flex gap-2 flex-wrap">
                   {POST_TYPES.map((pt) => (
                     <button
@@ -152,7 +152,7 @@ export default function NewPostPage() {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all ${
                         type === pt.id
                           ? 'border-primary bg-primary text-white shadow-sm'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                          : 'border-hairline-soft bg-canvas text-mute hover:border-hairline hover:bg-surface-soft'
                       }`}
                     >
                       <span className={`w-2 h-2 rounded-full flex-shrink-0 ${pt.color}`} />
@@ -164,8 +164,8 @@ export default function NewPostPage() {
 
               {/* 标题（可选） */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  标题 <span className="text-gray-400 font-normal">（可选）</span>
+                <label className="text-sm font-medium text-charcoal mb-2 block">
+                  标题 <span className="text-ash font-normal">（可选）</span>
                 </label>
                 <Input
                   value={title}
@@ -177,34 +177,34 @@ export default function NewPostPage() {
 
               {/* 富文本内容 */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">内容 <span className="text-red-500">*</span></label>
+                <label className="text-sm font-medium text-charcoal mb-2 block">内容 <span className="text-red-500">*</span></label>
                 <PostRichTextEditor onChange={setContentHtml} placeholder="分享你的想法、问题或资源..." />
               </div>
 
               {/* 话题标签 */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  话题标签 <span className="text-gray-400 font-normal">（最多5个）</span>
+                <label className="text-sm font-medium text-charcoal mb-2 block">
+                  话题标签 <span className="text-ash font-normal">（最多5个）</span>
                 </label>
                 <PlazaTagInput value={topics} onChange={setTopics} maxTags={5} placeholder="输入或搜索话题..." />
               </div>
 
               {/* COLLAB 专属字段 */}
               {type === 'COLLAB' && (
-                <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <h3 className="text-sm font-semibold text-slate-700">找人详情</h3>
+                <div className="space-y-4 p-4 bg-surface-soft rounded-xl border border-hairline-soft">
+                  <h3 className="text-sm font-semibold text-charcoal">找人详情</h3>
 
                   {/* 预算类型 */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">预算类型</label>
+                    <label className="text-sm font-medium text-charcoal mb-2 block">预算类型</label>
                     <div className="flex gap-2">
                       {BUDGET_TYPES.map((bt) => (
                         <button
                           key={bt.id}
                           type="button"
                           onClick={() => setBudgetType(bt.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                            budgetType === bt.id ? 'bg-primary text-white' : 'bg-white border border-gray-200 hover:border-primary text-gray-600'
+                          className={`px-3 py-1.5 rounded-2xl text-sm transition-colors ${
+                            budgetType === bt.id ? 'bg-primary text-white' : 'bg-canvas border border-hairline-soft hover:border-primary text-mute'
                           }`}
                         >
                           {bt.name}
@@ -216,7 +216,7 @@ export default function NewPostPage() {
                   {/* 预算金额 */}
                   {budgetType === 'FIXED' && (
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">金额（元）</label>
+                      <label className="text-sm font-medium text-charcoal mb-2 block">金额（元）</label>
                       <Input
                         type="number"
                         min="0"
@@ -229,10 +229,10 @@ export default function NewPostPage() {
                   )}
                   {budgetType === 'RANGE' && (
                     <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">金额区间（元）</label>
+                      <label className="text-sm font-medium text-charcoal mb-2 block">金额区间（元）</label>
                       <div className="flex items-center gap-2">
                         <Input type="number" min="0" value={budgetMin} onChange={(e) => setBudgetMin(e.target.value)} placeholder="最低" className="w-32" />
-                        <span className="text-gray-400">–</span>
+                        <span className="text-ash">–</span>
                         <Input type="number" min="0" value={budgetMax} onChange={(e) => setBudgetMax(e.target.value)} placeholder="最高" className="w-32" />
                       </div>
                     </div>
@@ -240,8 +240,8 @@ export default function NewPostPage() {
 
                   {/* 截止日期 */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      截止日期 <span className="text-gray-400 font-normal">（可选）</span>
+                    <label className="text-sm font-medium text-charcoal mb-2 block">
+                      截止日期 <span className="text-ash font-normal">（可选）</span>
                     </label>
                     <Input
                       type="date"
@@ -253,23 +253,23 @@ export default function NewPostPage() {
 
                   {/* 所需技能 */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      所需技能 <span className="text-gray-400 font-normal">（最多10个）</span>
+                    <label className="text-sm font-medium text-charcoal mb-2 block">
+                      所需技能 <span className="text-ash font-normal">（最多10个）</span>
                     </label>
                     <PlazaTagInput value={skills} onChange={setSkills} maxTags={10} placeholder="如：React、设计、运营..." />
                   </div>
 
                   {/* 联系方式 */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">联系方式 <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-medium text-charcoal mb-2 block">联系方式 <span className="text-red-500">*</span></label>
                     <div className="flex gap-2 mb-2">
                       {CONTACT_TYPES.map((ct) => (
                         <button
                           key={ct.id}
                           type="button"
                           onClick={() => setContactType(ct.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                            contactType === ct.id ? 'bg-primary text-white' : 'bg-white border border-gray-200 hover:border-primary text-gray-600'
+                          className={`px-3 py-1.5 rounded-2xl text-sm transition-colors ${
+                            contactType === ct.id ? 'bg-primary text-white' : 'bg-canvas border border-hairline-soft hover:border-primary text-mute'
                           }`}
                         >
                           {ct.name}

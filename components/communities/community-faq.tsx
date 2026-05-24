@@ -51,16 +51,16 @@ export function CommunityFaq({
   return (
     <div className="container mx-auto px-4 py-10 max-w-5xl">
       <div className="border-t pt-10">
-        <h2 className="text-lg font-semibold text-gray-800 mb-5">常见问题</h2>
+        <h2 className="text-lg font-semibold text-ink mb-5">常见问题</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {faqs.map((item) => (
-            <div key={item.q} className="bg-gray-50 rounded-xl p-5">
-              <h3 className="font-medium text-gray-900 mb-2 text-sm">{item.q}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{item.a}</p>
+            <div key={item.q} className="bg-surface-soft rounded-xl p-5">
+              <h3 className="font-medium text-ink mb-2 text-sm">{item.q}</h3>
+              <p className="text-mute text-sm leading-relaxed">{item.a}</p>
             </div>
           ))}
         </div>
-        <p className="text-xs text-gray-400 mt-4 text-center">
+        <p className="text-xs text-ash mt-4 text-center">
           更多问题请查看{' '}
           <Link href="/faq" className="text-orange-500 hover:underline">OPC社区常见问题</Link>
           {' '}或{' '}

@@ -12,26 +12,26 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-ink mb-8">
           关于 OPC圈
         </h1>
 
         <div className="prose prose-lg max-w-none">
           <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-secondary mb-4">我们是谁</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="text-2xl font-semibold text-ink mb-4">我们是谁</h2>
+            <p className="text-mute leading-relaxed">
               OPC圈是中国最真最全的一人公司（One Person Company）社区信息平台。
               我们人工核实全国 OPC 社区的入驻信息，联合创业者共创内容，帮助每一位
               OPC 创业者找到适合自己的社区，同时被行业看见。
             </p>
-            <p className="text-gray-600 leading-relaxed mt-4">
+            <p className="text-mute leading-relaxed mt-4">
               OPC圈由北京数据胶囊科技有限公司运营。
             </p>
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-secondary mb-4">我们做什么</h2>
-            <ul className="space-y-4 text-gray-600">
+            <h2 className="text-2xl font-semibold text-ink mb-4">我们做什么</h2>
+            <ul className="space-y-4 text-mute">
               <li className="flex items-start">
                 <span className="text-primary mr-3 text-xl">🏢</span>
                 <div>
@@ -64,8 +64,8 @@ export default function AboutPage() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-secondary mb-4">联系我们</h2>
-            <div className="space-y-3 text-gray-600">
+            <h2 className="text-2xl font-semibold text-ink mb-4">联系我们</h2>
+            <div className="space-y-3 text-mute">
               <p>商务合作：<a href="mailto:cooperation@opcquan.com" className="text-primary hover:underline">cooperation@opcquan.com</a></p>
               <p>社区收录/纠错：在任意社区详情页底部点击「我是该社区运营方」或「提交社区收录」</p>
             </div>
@@ -81,7 +81,7 @@ export default function AboutPage() {
               </Link>
               <Link
                 href="/plaza"
-                className="inline-flex items-center justify-center rounded-xl border border-gray-300 px-6 py-3 font-medium text-secondary hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center justify-center rounded-xl border border-hairline px-6 py-3 font-medium text-ink hover:bg-surface-soft transition-colors"
               >
                 去广场看看
               </Link>

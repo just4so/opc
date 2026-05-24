@@ -79,11 +79,11 @@ export function CommunityClaimDialog({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">社区名称</label>
-              <Input value={communityName} disabled className="mt-1 bg-gray-50" />
+              <label className="text-sm font-medium text-charcoal">社区名称</label>
+              <Input value={communityName} disabled className="mt-1 bg-surface-soft" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">联系人 *</label>
+              <label className="text-sm font-medium text-charcoal">联系人 *</label>
               <Input
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
@@ -93,7 +93,7 @@ export function CommunityClaimDialog({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">联系方式 *</label>
+              <label className="text-sm font-medium text-charcoal">联系方式 *</label>
               <Input
                 value={contactInfo}
                 onChange={(e) => setContactInfo(e.target.value)}
@@ -103,12 +103,12 @@ export function CommunityClaimDialog({
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">补充说明</label>
+              <label className="text-sm font-medium text-charcoal">补充说明</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="可选，关于您与该社区的关系"
-                className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="mt-1 w-full rounded-md border border-hairline-soft px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 rows={3}
               />
             </div>

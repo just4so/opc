@@ -97,17 +97,17 @@ export function NotificationPanel({
   }
 
   return (
-    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+    <div className="absolute right-0 mt-2 w-80 bg-canvas rounded-2xl shadow-lg border z-50">
       <div className="px-4 py-3 border-b flex items-center justify-between">
-        <span className="font-medium text-sm text-gray-900">通知</span>
+        <span className="font-medium text-sm text-ink">通知</span>
       </div>
       <div className="max-h-[360px] overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-ash" />
           </div>
         ) : notifications.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-400">暂无通知</div>
+          <div className="py-8 text-center text-sm text-ash">暂无通知</div>
         ) : (
           notifications.map((n) => {
             const Icon = TYPE_ICON[n.type] || FileText
@@ -115,16 +115,16 @@ export function NotificationPanel({
               <button
                 key={n.id}
                 onClick={() => handleClick(n)}
-                className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
+                className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-surface-soft transition-colors border-b border-hairline-soft last:border-0 ${
                   !n.isRead ? 'border-l-2 border-l-primary bg-orange-50/30' : ''
                 }`}
               >
-                <Icon className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
+                <Icon className="h-4 w-4 mt-0.5 text-ash flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm leading-snug ${!n.isRead ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
+                  <p className={`text-sm leading-snug ${!n.isRead ? 'font-semibold text-ink' : 'text-mute'}`}>
                     {n.title}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">{relativeTime(n.createdAt)}</p>
+                  <p className="text-xs text-ash mt-1">{relativeTime(n.createdAt)}</p>
                 </div>
               </button>
             )
@@ -142,7 +142,7 @@ export function NotificationPanel({
         ) : <span />}
         <button
           onClick={() => { onClose(); router.push('/messages') }}
-          className="text-xs text-gray-500 hover:text-primary hover:underline"
+          className="text-xs text-mute hover:text-primary hover:underline"
         >
           查看全部私信 →
         </button>

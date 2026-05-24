@@ -77,11 +77,11 @@ export default async function PostDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* 返回导航 */}
-      <div className="bg-white border-b">
+      <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/plaza"
-            className="inline-flex items-center text-gray-600 hover:text-primary transition-colors"
+            className="inline-flex items-center text-mute hover:text-primary transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回交流广场
@@ -111,7 +111,7 @@ export default async function PostDetailPage({ params }: PageProps) {
                       <div className="flex items-center space-x-2">
                         <Link
                           href={`/profile/${post.author.username}`}
-                          className="font-semibold text-secondary hover:text-primary transition-colors"
+                          className="font-semibold text-ink hover:text-primary transition-colors"
                         >
                           {post.author.name || post.author.username}
                         </Link>
@@ -121,7 +121,7 @@ export default async function PostDetailPage({ params }: PageProps) {
                           </Badge>
                         )}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-mute">
                         {formatDistanceToNow(new Date(post.createdAt), {
                           locale: zhCN,
                           addSuffix: true,
@@ -144,7 +144,7 @@ export default async function PostDetailPage({ params }: PageProps) {
                     {post.images.map((image, index) => (
                       <div
                         key={index}
-                        className="aspect-square bg-gray-100 rounded-lg overflow-hidden"
+                        className="aspect-square bg-surface-card rounded-2xl overflow-hidden"
                       >
                         <img
                           src={image}
@@ -210,13 +210,13 @@ export default async function PostDetailPage({ params }: PageProps) {
                     >
                       {post.author.name || post.author.username}
                     </Link>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-mute">
                       Lv.{post.author.level}
                     </div>
                   </div>
                 </div>
                 {post.author.bio && (
-                  <p className="text-sm text-gray-600">{post.author.bio}</p>
+                  <p className="text-sm text-mute">{post.author.bio}</p>
                 )}
               </CardContent>
             </Card>

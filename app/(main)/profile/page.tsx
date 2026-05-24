@@ -211,7 +211,7 @@ export default function ProfilePage() {
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-gray-500">加载中...</div>
+        <div className="text-mute">加载中...</div>
       </div>
     )
   }
@@ -219,7 +219,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-gray-500">用户信息加载失败</div>
+        <div className="text-mute">用户信息加载失败</div>
       </div>
     )
   }
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <h2 className="text-xl font-semibold text-secondary">{user.name || user.username}</h2>
-                  <p className="text-gray-500">@{user.username}</p>
+                  <p className="text-mute">@{user.username}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary">Lv.{user.level}</Badge>
                     {user.verified && (
@@ -268,32 +268,32 @@ export default function ProfilePage() {
                 </div>
 
                 {user.bio && (
-                  <p className="text-gray-600 text-center mt-4 text-sm">{user.bio}</p>
+                  <p className="text-mute text-center mt-4 text-sm">{user.bio}</p>
                 )}
 
                 <div className="mt-6 space-y-3">
                   {user.location && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="flex items-center text-sm text-mute">
+                      <MapPin className="h-4 w-4 mr-2 text-ash" />
                       {user.location}
                     </div>
                   )}
                   {user.email && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="flex items-center text-sm text-mute">
+                      <Mail className="h-4 w-4 mr-2 text-ash" />
                       {user.email}
                     </div>
                   )}
                   {user.website && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Globe className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="flex items-center text-sm text-mute">
+                      <Globe className="h-4 w-4 mr-2 text-ash" />
                       <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                         {user.website}
                       </a>
                     </div>
                   )}
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                  <div className="flex items-center text-sm text-mute">
+                    <Calendar className="h-4 w-4 mr-2 text-ash" />
                     {new Date(user.createdAt).toLocaleDateString('zh-CN')} 加入
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export default function ProfilePage() {
               <CardContent className="pt-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">{user._count.posts}</div>
-                  <div className="text-sm text-gray-500">动态</div>
+                  <div className="text-sm text-mute">动态</div>
                 </div>
               </CardContent>
             </Card>
@@ -332,7 +332,7 @@ export default function ProfilePage() {
           {/* 右侧：Tab 内容管理 */}
           <div className="lg:col-span-2 space-y-4">
             {/* Tab 导航 */}
-            <div className="border-b border-gray-200">
+            <div className="border-b border-hairline-soft">
               <div className="flex">
                 {TABS.map(tab => (
                   <button
@@ -341,7 +341,7 @@ export default function ProfilePage() {
                     className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                       activeTab === tab
                         ? 'text-primary border-primary'
-                        : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300'
+                        : 'text-mute border-transparent hover:text-ink hover:border-hairline'
                     }`}
                   >
                     {tab}
@@ -354,9 +354,9 @@ export default function ProfilePage() {
             {activeTab === '我的帖子' && (
               <div className="space-y-3">
                 {postsLoading && postsData.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">加载中...</div>
+                  <div className="text-center py-8 text-ash">加载中...</div>
                 ) : postsData.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">
+                  <div className="text-center py-12 text-ash">
                     <p className="mb-3">还没有发布任何帖子</p>
                     <Link href="/plaza/new"><Button size="sm">发布第一条</Button></Link>
                   </div>
@@ -368,30 +368,30 @@ export default function ProfilePage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               {TYPE_LABELS[post.type] && (
-                                <span className="text-xs text-gray-500">{TYPE_LABELS[post.type]}</span>
+                                <span className="text-xs text-mute">{TYPE_LABELS[post.type]}</span>
                               )}
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-ash">
                                 {formatDistanceToNow(new Date(post.createdAt), { locale: zhCN, addSuffix: true })}
                               </span>
                             </div>
                             {post.title && (
                               <Link href={`/plaza/${post.id}`}>
-                                <p className="font-medium text-gray-900 text-sm hover:text-primary truncate">{post.title}</p>
+                                <p className="font-medium text-ink text-sm hover:text-primary truncate">{post.title}</p>
                               </Link>
                             )}
                             <Link href={`/plaza/${post.id}`}>
-                              <p className="text-gray-600 text-sm line-clamp-2 hover:text-gray-900">
+                              <p className="text-mute text-sm line-clamp-2 hover:text-ink">
                                 {post.content.replace(/```[\s\S]*?```/g, '').replace(/[#*`>\[\]]/g, '').slice(0, 120)}
                               </p>
                             </Link>
-                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                            <div className="flex items-center gap-3 mt-1.5 text-xs text-ash">
                               <span>❤️ {post.likeCount}</span>
                               <span>💬 {post.commentCount}</span>
                             </div>
                           </div>
                           <button
                             onClick={() => handleDeletePost(post.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors shrink-0 p-1"
+                            className="text-ash hover:text-red-500 transition-colors shrink-0 p-1"
                             title="删除"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -418,28 +418,28 @@ export default function ProfilePage() {
             {activeTab === '我的评论' && (
               <div className="space-y-3">
                 {commentsLoading && commentsData.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">加载中...</div>
+                  <div className="text-center py-8 text-ash">加载中...</div>
                 ) : commentsData.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">还没有发布过评论</div>
+                  <div className="text-center py-12 text-ash">还没有发布过评论</div>
                 ) : (
                   commentsData.map(comment => (
                     <Card key={comment.id} className="rounded-xl">
                       <CardContent className="py-4 px-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="text-gray-800 text-sm mb-1.5">{comment.content}</p>
+                            <p className="text-ink text-sm mb-1.5">{comment.content}</p>
                             {comment.post && (
-                              <Link href={`/plaza/${comment.post.id}`} className="text-xs text-gray-400 hover:text-primary">
+                              <Link href={`/plaza/${comment.post.id}`} className="text-xs text-ash hover:text-primary">
                                 ↗ {comment.post.title || comment.post.content.slice(0, 40)}...
                               </Link>
                             )}
-                            <div className="mt-1 text-xs text-gray-400">
+                            <div className="mt-1 text-xs text-ash">
                               {formatDistanceToNow(new Date(comment.createdAt), { locale: zhCN, addSuffix: true })}
                             </div>
                           </div>
                           <button
                             onClick={() => handleDeleteComment(comment.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors shrink-0 p-1"
+                            className="text-ash hover:text-red-500 transition-colors shrink-0 p-1"
                             title="删除"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -466,32 +466,32 @@ export default function ProfilePage() {
             {activeTab === '我的点赞' && (
               <div className="space-y-3">
                 {likesLoading && likesData.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">加载中...</div>
+                  <div className="text-center py-8 text-ash">加载中...</div>
                 ) : likesData.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">还没有点赞过任何帖子</div>
+                  <div className="text-center py-12 text-ash">还没有点赞过任何帖子</div>
                 ) : (
                   likesData.filter(l => l.post).map(like => (
                     <Card key={like.id} className="rounded-xl">
                       <CardContent className="py-4 px-4">
                         <div className="flex items-center gap-2 mb-1">
                           {TYPE_LABELS[like.post!.type] && (
-                            <span className="text-xs text-gray-500">{TYPE_LABELS[like.post!.type]}</span>
+                            <span className="text-xs text-mute">{TYPE_LABELS[like.post!.type]}</span>
                           )}
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-ash">
                             {formatDistanceToNow(new Date(like.post!.createdAt), { locale: zhCN, addSuffix: true })}
                           </span>
                         </div>
                         {like.post!.title && (
                           <Link href={`/plaza/${like.post!.id}`}>
-                            <p className="font-medium text-gray-900 text-sm hover:text-primary truncate">{like.post!.title}</p>
+                            <p className="font-medium text-ink text-sm hover:text-primary truncate">{like.post!.title}</p>
                           </Link>
                         )}
                         <Link href={`/plaza/${like.post!.id}`}>
-                          <p className="text-gray-600 text-sm line-clamp-2 hover:text-gray-900">
+                          <p className="text-mute text-sm line-clamp-2 hover:text-ink">
                             {like.post!.content.replace(/```[\s\S]*?```/g, '').replace(/[#*`>\[\]]/g, '').slice(0, 120)}
                           </p>
                         </Link>
-                        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                        <div className="flex items-center gap-3 mt-1.5 text-xs text-ash">
                           <span>by @{like.post!.author.username}</span>
                           <span>❤️ {like.post!.likeCount}</span>
                           <span>💬 {like.post!.commentCount}</span>
@@ -517,9 +517,9 @@ export default function ProfilePage() {
             {activeTab === '我的收藏' && (
               <div className="space-y-3">
                 {favoritesLoading && favoritesData.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">加载中...</div>
+                  <div className="text-center py-8 text-ash">加载中...</div>
                 ) : favoritesData.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">还没有收藏过任何帖子</div>
+                  <div className="text-center py-12 text-ash">还没有收藏过任何帖子</div>
                 ) : (
                   favoritesData.filter(f => f.post).map(fav => (
                     <Card key={fav.id} className="rounded-xl">
@@ -528,30 +528,30 @@ export default function ProfilePage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               {TYPE_LABELS[fav.post!.type] && (
-                                <span className="text-xs text-gray-500">{TYPE_LABELS[fav.post!.type]}</span>
+                                <span className="text-xs text-mute">{TYPE_LABELS[fav.post!.type]}</span>
                               )}
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-ash">
                                 {formatDistanceToNow(new Date(fav.post!.createdAt), { locale: zhCN, addSuffix: true })}
                               </span>
                             </div>
                             {fav.post!.title && (
                               <Link href={`/plaza/${fav.post!.id}`}>
-                                <p className="font-medium text-gray-900 text-sm hover:text-primary truncate">{fav.post!.title}</p>
+                                <p className="font-medium text-ink text-sm hover:text-primary truncate">{fav.post!.title}</p>
                               </Link>
                             )}
                             <Link href={`/plaza/${fav.post!.id}`}>
-                              <p className="text-gray-600 text-sm line-clamp-2 hover:text-gray-900">
+                              <p className="text-mute text-sm line-clamp-2 hover:text-ink">
                                 {fav.post!.content.replace(/```[\s\S]*?```/g, '').replace(/[#*`>\[\]]/g, '').slice(0, 120)}
                               </p>
                             </Link>
-                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                            <div className="flex items-center gap-3 mt-1.5 text-xs text-ash">
                               <span>by @{fav.post!.author.username}</span>
                               <span>❤️ {fav.post!.likeCount}</span>
                             </div>
                           </div>
                           <button
                             onClick={() => handleUnfavorite(fav.id, fav.post!.id)}
-                            className="text-xs text-gray-400 hover:text-red-500 transition-colors shrink-0 px-2 py-1 border rounded"
+                            className="text-xs text-ash hover:text-red-500 transition-colors shrink-0 px-2 py-1 border rounded"
                           >
                             取消收藏
                           </button>

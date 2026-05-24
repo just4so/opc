@@ -74,7 +74,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       {/* Back link */}
       <Link
         href="/news"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary mb-6 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-mute hover:text-primary mb-6 transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -85,7 +85,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <Badge className={categoryColors[news.category] || 'bg-gray-100 text-gray-700'}>
+          <Badge className={categoryColors[news.category] || 'bg-surface-card text-charcoal'}>
             {categoryLabels[news.category] || news.category}
           </Badge>
           {news.isOriginal && (
@@ -93,27 +93,27 @@ export default async function NewsDetailPage({ params }: PageProps) {
               原创
             </span>
           )}
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-mute">
             {formatDistanceToNow(publishedAt, { addSuffix: true, locale: zhCN })}
           </span>
           {news.isOriginal && news.author && (
             <>
-              <span className="text-gray-300">·</span>
-              <span className="text-sm text-gray-500">{news.author}</span>
+              <span className="text-stone">·</span>
+              <span className="text-sm text-mute">{news.author}</span>
             </>
           )}
           {!news.isOriginal && (
             <>
-              <span className="text-gray-300">·</span>
-              <span className="text-sm text-gray-500">{news.source}</span>
+              <span className="text-stone">·</span>
+              <span className="text-sm text-mute">{news.source}</span>
             </>
           )}
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">{news.title}</h1>
+        <h1 className="text-2xl font-bold text-ink mb-4">{news.title}</h1>
 
         {news.coverImage && (
-          <div className="w-full rounded-xl overflow-hidden mb-6 bg-gray-100">
+          <div className="w-full rounded-xl overflow-hidden mb-6 bg-surface-card">
             <img
               src={news.coverImage}
               alt={news.title}
@@ -131,24 +131,24 @@ export default async function NewsDetailPage({ params }: PageProps) {
               {news.content}
             </ReactMarkdown>
           ) : news.summary ? (
-            <div className="text-gray-700 leading-relaxed">
+            <div className="text-charcoal leading-relaxed">
               {news.summary}
             </div>
           ) : (
-            <p className="text-gray-500">暂无内容</p>
+            <p className="text-mute">暂无内容</p>
           )}
         </div>
       ) : (
         <div>
           {news.summary && (
-            <p className="text-gray-700 leading-relaxed mb-6">{news.summary}</p>
+            <p className="text-charcoal leading-relaxed mb-6">{news.summary}</p>
           )}
           {news.url && (
             <a
               href={news.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl hover:bg-primary/90 transition-colors font-medium"
             >
               查看原文
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,10 +169,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
       </div>
 
       {/* Footer */}
-      <div className="mt-10 pt-6 border-t border-gray-200">
+      <div className="mt-10 pt-6 border-t border-hairline-soft">
         <Link
           href="/news"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-mute hover:text-primary transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

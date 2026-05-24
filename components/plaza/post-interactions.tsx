@@ -135,7 +135,7 @@ export function PostInteractions({
   return (
     <>
       {/* 互动栏 */}
-      <div className="flex items-center space-x-6 pt-4 border-t text-gray-500">
+      <div className="flex items-center space-x-6 pt-4 border-t text-mute">
         <button
           onClick={handleLike}
           disabled={isLiking}
@@ -146,7 +146,7 @@ export function PostInteractions({
           <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
           <span>{likeCount} 赞</span>
         </button>
-        <div className="flex items-center space-x-2 text-gray-500">
+        <div className="flex items-center space-x-2 text-mute">
           <MessageCircle className="h-5 w-5" />
           <span>{commentCount} 评论</span>
         </div>
@@ -185,7 +185,7 @@ export function PostInteractions({
               {comments.map((comment) => (
                 <div key={comment.id} className="flex space-x-3">
                   <Link href={`/profile/${comment.author.username}`}>
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-mute flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
                       {comment.author.avatar ? (
                         <img src={comment.author.avatar} alt={comment.author.name || comment.author.username} className="w-full h-full object-cover" />
                       ) : (
@@ -201,20 +201,20 @@ export function PostInteractions({
                       >
                         {comment.author.name || comment.author.username}
                       </Link>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-ash">
                         {formatDistanceToNow(new Date(comment.createdAt), {
                           locale: zhCN,
                           addSuffix: true,
                         })}
                       </span>
                     </div>
-                    <p className="text-gray-700 text-sm mt-1">{comment.content}</p>
+                    <p className="text-charcoal text-sm mt-1">{comment.content}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">暂无评论，来说两句吧</p>
+            <p className="text-mute text-center py-8">暂无评论，来说两句吧</p>
           )}
         </CardContent>
       </Card>

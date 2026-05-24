@@ -57,7 +57,7 @@ export function CommunitiesClient({
             }))}
             selectedCity={selectedCity}
           />
-          <p className="text-xs text-gray-400 text-center mt-3">
+          <p className="text-xs text-ash text-center mt-3">
             点击橙色标记查看社区 · 切换「列表」浏览全部
           </p>
         </div>
@@ -82,8 +82,8 @@ export function CommunitiesClient({
             </div>
           ) : (
             <div className="text-center py-16 bg-white rounded-xl">
-              <p className="text-gray-500 mb-2">暂无社区数据</p>
-              <p className="text-sm text-gray-400">
+              <p className="text-mute mb-2">暂无社区数据</p>
+              <p className="text-sm text-ash">
                 {selectedCity ? `${selectedCity}暂时没有收录的 OPC 社区` : '请稍后再来查看'}
               </p>
             </div>
@@ -99,7 +99,7 @@ export function CommunitiesClient({
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     p === pagination.page
                       ? 'bg-primary text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                      : 'bg-white text-mute hover:bg-surface-card border border-hairline-soft'
                   }`}
                 >
                   {p}

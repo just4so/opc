@@ -57,7 +57,7 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-surface-soft p-8">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader className="text-center">
@@ -79,7 +79,7 @@ function VerifyEmailContent() {
             {state === 'success' && (
               <>
                 <div className="text-5xl mb-2">✅</div>
-                <p className="text-gray-600">你的邮箱已成功验证！</p>
+                <p className="text-mute">你的邮箱已成功验证！</p>
                 <Link href="/">
                   <Button className="w-full">去首页</Button>
                 </Link>
@@ -102,12 +102,12 @@ function VerifyEmailContent() {
                     {resending ? '发送中...' : '重新发送验证邮件'}
                   </Button>
                 ) : (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-mute">
                     <Link href="/login" className="text-primary hover:underline">登录</Link>
                     {' '}后可重新发送验证邮件
                   </p>
                 )}
-                <Link href="/" className="block text-sm text-gray-500 hover:text-primary">
+                <Link href="/" className="block text-sm text-mute hover:text-primary">
                   返回首页
                 </Link>
               </>

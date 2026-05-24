@@ -45,10 +45,10 @@ export function ActivityBar({ initialPosts }: ActivityBarProps) {
         </span>
         <Link
           href={`/plaza/${current.id}`}
-          className="ml-2 text-sm text-gray-300 hover:text-white transition-colors truncate min-w-0"
+          className="ml-2 text-sm text-stone hover:text-white transition-colors truncate min-w-0"
         >
           {truncate(current.content, 30)}
-          <span className="text-gray-500 ml-2">— {authorName}</span>
+          <span className="text-mute ml-2">— {authorName}</span>
         </Link>
       </div>
     </div>

@@ -49,23 +49,23 @@ export function ArrayInput({
               type="button"
               onClick={() => moveItem(index, index - 1)}
               disabled={index === 0}
-              className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
+              className="text-ash hover:text-mute disabled:opacity-30"
             >
               <GripVertical className="h-4 w-4" />
             </button>
           </div>
-          <span className="text-sm text-gray-500 w-6">{index + 1}.</span>
+          <span className="text-sm text-mute w-6">{index + 1}.</span>
           <input
             type="text"
             value={item}
             onChange={(e) => updateItem(index, e.target.value)}
             placeholder={placeholder}
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+            className="flex-1 px-3 py-2 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
           />
           <button
             type="button"
             onClick={() => removeItem(index)}
-            className="text-gray-400 hover:text-red-500"
+            className="text-ash hover:text-red-500"
           >
             <Trash2 className="h-4 w-4" />
           </button>

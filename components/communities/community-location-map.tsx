@@ -87,11 +87,11 @@ export function CommunityLocationMap({
   }, [isLoaded, name, city, address, latitude, longitude])
 
   return (
-    <div className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gray-100">
+    <div className="relative w-full h-[200px] rounded-lg overflow-hidden bg-surface-card">
       <div ref={mapRef} className="w-full h-full" />
       {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="text-gray-500 text-sm">地图加载中...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-surface-card">
+          <div className="text-mute text-sm">地图加载中...</div>
         </div>
       )}
     </div>

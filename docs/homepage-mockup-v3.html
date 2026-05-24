@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPC圈 首页 Mockup v3 — 抽象几何装饰版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #F97316;
+    --primary-pressed: #EA580C;
+    --primary-soft: #FFF7ED;
+    --on-primary: #ffffff;
+    --ink: #0a0a0a;
+    --body: #33332e;
+    --mute: #62625b;
+    --ash: #91918c;
+    --canvas: #ffffff;
+    --surface-soft: #fafaf8;
+    --surface-card: #f5f5f2;
+    --surface-dark: #1a1a18;
+    --hairline-soft: #e8e8e3;
+    --on-dark: #ffffff;
+    --on-dark-mute: rgba(255,255,255,0.6);
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, 'PingFang SC', sans-serif;
+    color: var(--body);
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === NAV === */
+  .nav {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--hairline-soft);
+    padding: 0 48px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .nav-logo span:first-child { color: var(--primary); }
+  .nav-logo span:last-child { color: var(--ink); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { text-decoration: none; color: var(--mute); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-right { display: flex; gap: 12px; align-items: center; }
+  .nav-right .login { text-decoration: none; color: var(--mute); font-size: 14px; font-weight: 500; padding: 8px 16px; }
+  .btn-register {
+    background: var(--ink); color: var(--on-dark); border: none;
+    padding: 8px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-register:hover { opacity: 0.85; }
+
+  /* === HERO === */
+  .hero {
+    position: relative;
+    padding: 120px 48px 100px;
+    text-align: center;
+    overflow: hidden;
+    background: var(--canvas);
+  }
+  
+  /* 抽象装饰 - 渐变光晕 */
+  .hero-glow-1 {
+    position: absolute;
+    top: -120px; right: 15%;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, rgba(249,115,22,0) 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .hero-glow-2 {
+    position: absolute;
+    bottom: -80px; left: 10%;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0) 70%);
+    filter: blur(50px);
+    pointer-events: none;
+  }
+  
+  /* 网格底纹 */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
+    pointer-events: none;
+  }
+
+  .hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+  .hero h1 {
+    font-size: 56px; font-weight: 800; color: var(--ink);
+    line-height: 1.1; letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--primary), #FB923C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .subtitle {
+    font-size: 17px; color: var(--mute); margin-bottom: 44px; line-height: 1.6;
+  }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .btn-primary-hero {
+    background: var(--primary); color: var(--on-primary); border: none;
+    padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+  }
+  .btn-primary-hero:hover { background: var(--primary-pressed); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(249,115,22,0.35); }
+  .btn-ghost {
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--hairline-soft);
+    padding: 14px 36px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { background: var(--surface-soft); border-color: #d0d0cb; }
+  .hero .explore { font-size: 13px; color: var(--ash); }
+  .hero .explore a { color: var(--mute); text-decoration: none; border-bottom: 1px solid var(--hairline-soft); }
+  .hero .explore a:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* === VALUE SECTION === */
+  .value-section { padding: 80px 48px 60px; max-width: 1100px; margin: 0 auto; }
+  .value-section .section-label {
+    font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase;
+    letter-spacing: 1.5px; margin-bottom: 12px; text-align: center;
+  }
+  .value-section .section-heading {
+    font-size: 32px; font-weight: 700; color: var(--ink); text-align: center;
+    letter-spacing: -0.8px; margin-bottom: 48px;
+  }
+  .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline-soft); border-radius: 24px; overflow: hidden; }
+  .value-card {
+    background: var(--canvas); padding: 48px 36px;
+    transition: background 0.3s; cursor: pointer;
+  }
+  .value-card:hover { background: var(--surface-soft); }
+  .value-card .num {
+    font-size: 48px; font-weight: 800; letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--primary), #FDBA74);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px; line-height: 1;
+  }
+  .value-card h3 { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.35; }
+  .value-card p { font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+  /* === SOCIAL PROOF === */
+  .proof-section {
+    padding: 60px 48px;
+    text-align: center;
+  }
+  .proof-text { font-size: 14px; color: var(--ash); margin-bottom: 24px; }
+  .proof-logos { display: flex; gap: 48px; justify-content: center; align-items: center; opacity: 0.35; }
+  .proof-logos span { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 0.5px; }
+
+  /* === DARK DATA SECTION === */
+  .data-section {
+    background: var(--surface-dark);
+    padding: 100px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* 装饰：微妙的渐变光 */
+  .data-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  /* 装饰：网格 */
+  .data-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .data-content { position: relative; z-index: 1; }
+  .data-grid {
+    max-width: 800px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  }
+  .data-item .number {
+    font-size: 64px; font-weight: 800; color: var(--on-dark);
+    letter-spacing: -3px; line-height: 1;
+  }
+  .data-item .label {
+    font-size: 14px; color: var(--on-dark-mute); margin-top: 8px;
+  }
+  .data-tagline {
+    font-size: 15px; color: var(--on-dark-mute); margin-top: 48px; line-height: 1.6;
+  }
+
+  /* === CREATORS === */
+  .creators-section { padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
+  .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px; }
+  .section-title { font-size: 24px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; }
+  .section-link { font-size: 13px; color: var(--mute); text-decoration: none; }
+  .section-link:hover { color: var(--primary); }
+  .creators-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .creator-card {
+    border: 1px solid var(--hairline-soft); border-radius: 16px; padding: 24px;
+    transition: all 0.3s; background: var(--canvas);
+  }
+  .creator-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: transparent; transform: translateY(-2px); }
+  .creator-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFF7ED, #FED7AA);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: var(--primary);
+  }
+  .creator-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .creator-badge {
+    display: inline-block; background: var(--primary); color: var(--on-primary);
+    font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 4px;
+  }
+  .creator-track { font-size: 12px; color: var(--mute); }
+  .creator-city { font-size: 12px; color: var(--ash); margin-bottom: 8px; }
+  .creator-bio { font-size: 13px; color: var(--body); line-height: 1.5; }
+
+  /* === RADAR === */
+  .radar-section { padding: 0 48px 80px; max-width: 1100px; margin: 0 auto; }
+  .radar-card {
+    border: 1px solid var(--hairline-soft); border-radius: 16px; padding: 32px;
+    background: var(--canvas);
+  }
+  .radar-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
+  .radar-issue { font-size: 12px; color: var(--primary); font-weight: 600; }
+  .radar-title { font-size: 17px; font-weight: 600; color: var(--ink); margin-top: 4px; }
+  .radar-date { font-size: 12px; color: var(--ash); }
+  .radar-summary { font-size: 14px; color: var(--mute); line-height: 1.6; margin-bottom: 16px; }
+  .radar-items { border-top: 1px solid var(--hairline-soft); padding-top: 16px; }
+  .radar-item { display: flex; gap: 12px; margin-bottom: 12px; }
+  .radar-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); margin-top: 7px; flex-shrink: 0; }
+  .radar-item-title { font-size: 14px; color: var(--body); }
+  .radar-item-meta { font-size: 12px; color: var(--ash); margin-top: 2px; }
+
+  /* === FOOTER === */
+  .footer { background: var(--surface-dark); padding: 48px; text-align: center; }
+  .footer-logo { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+  .footer-logo span:first-child { color: var(--primary); }
+  .footer-logo span:last-child { color: var(--on-dark); }
+  .footer p { font-size: 12px; color: var(--on-dark-mute); line-height: 1.8; }
+  .footer a { color: var(--on-dark-mute); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo"><span>OPC</span><span>圈</span></div>
+  <div class="nav-links">
+    <a href="#">找社区</a>
+    <a href="#">广场</a>
+    <a href="#">资讯</a>
+    <a href="#">雷达</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="login">登录</a>
+    <button class="btn-register">注册</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <h1>OPC创业者，在这里<br><span class="highlight">连接、让世界看见</span></h1>
+    <p class="subtitle">全国 183 个 OPC 社区 · 覆盖 55 个城市<br>真实信息人工核实，一键对接入驻</p>
+    <div class="hero-ctas">
+      <button class="btn-primary-hero">找到我的社区</button>
+      <button class="btn-ghost">让世界看见我</button>
+    </div>
+    <p class="explore">不确定？先看看 <a href="#">全国 OPC 社区的分布</a></p>
+  </div>
+</section>
+
+<!-- VALUE -->
+<section class="value-section">
+  <div class="section-label">为什么选择 OPC圈</div>
+  <div class="section-heading">三个动作，开启创业新阶段</div>
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="num">183</div>
+      <h3>社区收录，帮你对接入驻</h3>
+      <p>全国 OPC 社区真实信息，覆盖 55 个城市，一键对接入驻对接人</p>
+    </div>
+    <div class="value-card">
+      <div class="num">✓</div>
+      <h3>认证创业者，被行业看见</h3>
+      <p>展示你的项目和履历，获得认证标识，进入行业推荐视野</p>
+    </div>
+    <div class="value-card">
+      <div class="num">∞</div>
+      <h3>创业者广场，找到合作</h3>
+      <p>和真实创业者连接，发布需求，找到志同道合的伙伴</p>
+    </div>
+  </div>
+</section>
+
+<!-- DARK DATA -->
+<section class="data-section">
+  <div class="data-glow"></div>
+  <div class="data-grid-bg"></div>
+  <div class="data-content">
+    <div class="data-grid">
+      <div class="data-item">
+        <div class="number">183</div>
+        <div class="label">OPC 社区</div>
+      </div>
+      <div class="data-item">
+        <div class="number">55</div>
+        <div class="label">覆盖城市</div>
+      </div>
+      <div class="data-item">
+        <div class="number">1,000+</div>
+        <div class="label">创业者</div>
+      </div>
+    </div>
+    <p class="data-tagline">每一条社区信息都经过人工核实，不是爬虫，不是复制粘贴</p>
+  </div>
+</section>
+
+<!-- CREATORS -->
+<section class="creators-section">
+  <div class="section-header">
+    <h2 class="section-title">最新入驻的创业者</h2>
+    <a href="#" class="section-link">查看全部 →</a>
+  </div>
+  <div class="creators-grid">
+    <div class="creator-card">
+      <div class="creator-header">
+        <div class="avatar">张</div>
+        <div>
+          <div class="creator-name">张三 <span class="creator-badge">认证</span></div>
+          <div class="creator-track">AI 写作工具</div>
+        </div>
+      </div>
+      <div class="creator-city">北京</div>
+      <div class="creator-bio">帮自媒体创作者提效 10 倍的 AI 工具</div>
+    </div>
+    <div class="creator-card">
+      <div class="creator-header">
+        <div class="avatar">李</div>
+        <div>
+          <div class="creator-name">李小明</div>
+          <div class="creator-track">独立设计师</div>
+        </div>
+      </div>
+      <div class="creator-city">杭州</div>
+      <div class="creator-bio">专注品牌视觉设计，服务 30+ 创业公司</div>
+    </div>
+    <div class="creator-card">
+      <div class="creator-header">
+        <div class="avatar">王</div>
+        <div>
+          <div class="creator-name">王芳 <span class="creator-badge">认证</span></div>
+          <div class="creator-track">内容创业</div>
+        </div>
+      </div>
+      <div class="creator-city">深圳</div>
+      <div class="creator-bio">从 0 到 10 万粉的内容创业经验分享</div>
+    </div>
+    <div class="creator-card">
+      <div class="creator-header">
+        <div class="avatar">赵</div>
+        <div>
+          <div class="creator-name">赵刚</div>
+          <div class="creator-track">SaaS 工具</div>
+        </div>
+      </div>
+      <div class="creator-city">成都</div>
+      <div class="creator-bio">做面向小团队的项目管理工具</div>
+    </div>
+  </div>
+</section>
+
+<!-- RADAR -->
+<section class="radar-section">
+  <div class="section-header">
+    <h2 class="section-title">OPC 雷达</h2>
+    <a href="#" class="section-link">全部期刊 →</a>
+  </div>
+  <div class="radar-card">
+    <div class="radar-header">
+      <div>
+        <div class="radar-issue">第 14 期</div>
+        <div class="radar-title">OPC雷达 第14期</div>
+      </div>
+      <span class="radar-date">2026年5月24日</span>
+    </div>
+    <p class="radar-summary">本期关注：海淀区出台 OPC 专项政策、杭州新增 3 家 OPC 社区...</p>
+    <div class="radar-items">
+      <div class="radar-item">
+        <div class="radar-dot"></div>
+        <div>
+          <div class="radar-item-title">海淀区发布 OPC 月均AI消费补贴政策</div>
+          <div class="radar-item-meta">政策动态 · 北京</div>
+        </div>
+      </div>
+      <div class="radar-item">
+        <div class="radar-dot"></div>
+        <div>
+          <div class="radar-item-title">杭州未来科技城新增 3 家 OPC 社区</div>
+          <div class="radar-item-meta">社区动态 · 杭州</div>
+        </div>
+      </div>
+      <div class="radar-item">
+        <div class="radar-dot"></div>
+        <div>
+          <div class="radar-item-title">深圳前海 OPC 基地开放入驻申请</div>
+          <div class="radar-item-meta">社区动态 · 深圳</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo"><span>OPC</span><span>圈</span></div>
+  <p>连接全国 OPC 社区与创业者</p>
+  <p style="margin-top: 8px;">商务合作：<a href="mailto:cooperation@opcquan.com">cooperation@opcquan.com</a></p>
+  <p style="margin-top: 24px;">
+    <a href="#">关于我们</a> &nbsp;·&nbsp; <a href="#">隐私政策</a> &nbsp;·&nbsp; <a href="#">帮助中心</a>
+  </p>
+  <p style="margin-top: 16px; opacity: 0.4;">© 2026 OPC圈 · 北京数据胶囊科技有限公司</p>
+</footer>
+
+</body>
+</html>

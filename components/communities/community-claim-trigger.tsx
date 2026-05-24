@@ -10,7 +10,7 @@ export function CommunityClaimTrigger({
   communityName: string
 }) {
   return (
-    <div className="text-center text-sm text-gray-500 mt-2">
+    <div className="text-center text-sm text-mute mt-2">
       <span>你是该社区的运营方？</span>
       <CommunityClaimDialog communityId={communityId} communityName={communityName}>
         <button className="text-primary hover:underline ml-1">
