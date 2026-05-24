@@ -211,7 +211,7 @@ export function PlazaClient({
   // Products state (API-driven)
   const [projects, setProjects] = useState<PlazaProject[]>(initialProjects)
   const [projectPagination, setProjectPagination] = useState<Pagination>({
-    page: 1, limit: 20, total: initialProjectTotal, totalPages: Math.ceil(initialProjectTotal / 20),
+    page: 1, limit: 21, total: initialProjectTotal, totalPages: Math.ceil(initialProjectTotal / 21),
   })
   const [projectLoading, setProjectLoading] = useState(false)
 
@@ -299,7 +299,7 @@ export function PlazaClient({
     setProjectLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
-    params.set('limit', '20')
+    params.set('limit', '21')
     if (filterDirection) params.set('direction', filterDirection)
     if (filterCity) params.set('city', filterCity)
     if (filterStage) params.set('stage', filterStage)
@@ -310,7 +310,7 @@ export function PlazaClient({
       const res = await fetch(`/api/plaza/projects?${params}`)
       const data = await res.json()
       setProjects(data.projects || [])
-      setProjectPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
+      setProjectPagination(data.pagination || { page: 1, limit: 21, total: 0, totalPages: 0 })
     } catch {
       // keep current state
     } finally {
@@ -432,7 +432,7 @@ export function PlazaClient({
   return (
     <div className="min-h-screen bg-surface-soft">
       {/* Header */}
-      <PageHeader title="创业者广场" subtitle="发现创业伙伴，交流创业经验">
+      <PageHeader title={<>创业者<span className="text-primary">广场</span></>} subtitle="发现创业伙伴，交流创业经验" theme="plaza">
         <Link href="/plaza/new">
           <Button size="lg" className="gap-2 shadow-sm">
             <PenSquare className="h-4 w-4" />

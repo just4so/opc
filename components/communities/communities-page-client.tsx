@@ -164,8 +164,9 @@ export function CommunitiesPageClient({
   return (
     <div className="min-h-screen bg-background">
 <PageHeader
-        title="全国 OPC 社区地图"
+        title={<>全国 OPC <span className="text-primary">社区地图</span></>}
         subtitle={`${allCommunities.length} 个社区 · ${cityCounts.length || '—'} 座城市 · 真实入驻友好度参考`}
+        theme="communities"
       >
         <div className="flex items-center gap-1 bg-surface-card rounded-2xl p-1 shrink-0">
               <button

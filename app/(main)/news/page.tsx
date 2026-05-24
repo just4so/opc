@@ -168,18 +168,18 @@ async function NewsPageInner({
         initialNews={serializeNews(news)}
         initialOriginals={serializeNews(originals)}
         initialTotal={total}
+        policiesSlot={
+          showPolicies && policies.length > 0 ? (
+            <PoliciesBlock
+              policies={policies}
+              provinces={policyProvinces.map((p) => p.province)}
+              total={policyTotal}
+              cityCount={policyCities.length}
+              currentProvince={policyProvince}
+            />
+          ) : undefined
+        }
       />
-      {showPolicies && policies.length > 0 && (
-        <div className="container mx-auto px-4 py-8">
-          <PoliciesBlock
-            policies={policies}
-            provinces={policyProvinces.map((p) => p.province)}
-            total={policyTotal}
-            cityCount={policyCities.length}
-            currentProvince={policyProvince}
-          />
-        </div>
-      )}
     </>
   )
 }

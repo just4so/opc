@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { NewsCard } from '@/components/news/news-card'
@@ -111,9 +111,10 @@ interface NewsClientProps {
   initialNews: NewsItem[]
   initialOriginals: NewsItem[]
   initialTotal: number
+  policiesSlot?: ReactNode
 }
 
-export function NewsClient({ initialNews, initialOriginals, initialTotal }: NewsClientProps) {
+export function NewsClient({ initialNews, initialOriginals, initialTotal, policiesSlot }: NewsClientProps) {
   const searchParams = useSearchParams()
   const category = searchParams.get('category') || ''
   const page = parseInt(searchParams.get('page') || '1')
@@ -170,8 +171,11 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal }: News
 
   return (
     <div>
-      <PageHeader title="创业资讯" subtitle="OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势" />
-      <div className="container mx-auto px-4 py-8">
+      <PageHeader title={<>创业<span className="text-primary">资讯</span></>} subtitle="OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势" theme="news" />
+            <div className="container mx-auto px-4 py-8">
+
+      {/* 政策库（标题下方、资讯上方） */}
+      {policiesSlot && <div className="mb-8">{policiesSlot}</div>}
 
       {/* 分类筛选 */}
       <div className="flex gap-2 mb-6 flex-wrap">
