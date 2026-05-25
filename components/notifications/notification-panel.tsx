@@ -21,7 +21,7 @@ const TYPE_ICON: Record<string, typeof Eye> = {
 }
 
 const TYPE_NAV: Record<string, string> = {
-  CARD_VIEWED: '/messages',
+  CARD_VIEWED: '/profile',
   CARD_CONTACTED: '/messages',
   INQUIRY_STATUS: '/profile',
 }

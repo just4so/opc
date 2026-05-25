@@ -24,7 +24,7 @@ const createInquirySchema = z.object({
   name: z.string().min(1, '请填写称呼').max(50),
   contact: z.string().min(1, '请填写联系方式').max(100),
   city: z.string().max(50).optional(),
-  bio: z.string().max(200).optional(),
+  bio: z.string().min(1, '请填写你在做什么').max(200),
   productName: z.string().max(100).optional(),
   productTagline: z.string().max(300).optional(),
   productStage: z.string().max(50).optional(),

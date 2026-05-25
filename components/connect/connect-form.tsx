@@ -232,10 +232,6 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
     await submitInquiry(data)
   }
 
-  async function handleSkip() {
-    await submitInquiry()
-  }
-
   async function handleBpUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
