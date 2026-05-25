@@ -51,7 +51,7 @@ export function getAIClient(): OpenAI | null {
 // ─── Prompt ────────────────────────────────────────────────────────────────
 
 function buildPrompt(input: JudgeInput): string {
-  return `你是 OPC 行业信号分析师，负责筛选与「OPC（一人公司）/超级个体/独立创业」相关的内容信号。
+  return `你是 OPC 行业信号分析师，负责筛选与「OPC（AI创业型一人公司）/超级个体/独立创业」相关的内容信号。
 
 标题：${input.title}
 摘要：${input.content.slice(0, 500)}
@@ -59,8 +59,9 @@ function buildPrompt(input: JudgeInput): string {
 发布日期：${input.publishedAt ?? '未知'}
 
 判断规则：
-- relevant=true：主题与 OPC/一人公司/超级个体/独立创业/OPC社区 有直接关联
+- relevant=true：主题与 OPC（AI创业型一人公司）/超级个体/独立创业/OPC社区 有直接关联
 - relevant=false：纯商业地产广告、与创业完全无关的科技产品发布、娱乐内容、宏观经济数据（CPI/股市/房产）、与 OPC 无直接关联的大公司新闻
+- 重要区分：「一人公司」在法律/金融/监管语境中指《公司法》意义上的一人有限责任公司（如证券开户、股权结构、工商注册形式、新三板监管），不是 AI 创业型 OPC，此类内容 relevant=false
 - 重要：如果内容只是「泛创业」或「泛科技」，与 OPC/一人公司/超级个体没有直接关联，importance 必须 ≤ 2
 - 大公司（360/百度/阿里等）内部政策、发布会，即使提到「超级个体」，importance 必须 ≤ 2（不是 OPC 创业者的直接信号）
 
@@ -183,15 +184,16 @@ function buildBatchPrompt(items: JudgeInput[]): string {
 来源：${it.url}
 发布日期：${it.publishedAt ?? '未知'}`).join('\n')
 
-  return `你是 OPC 行业信号分析师，负责筛选与「OPC（一人公司）/超级个体/独立创业」相关的内容信号。
+  return `你是 OPC 行业信号分析师，负责筛选与「OPC（AI创业型一人公司）/超级个体/独立创业」相关的内容信号。
 
 以下是 ${items.length} 条待判断的内容。**必须对每条独立分析，不能合并，每条都要有判断理由**。
 
 ${itemsText}
 
 判断规则：
-- relevant=true：主题与 OPC/一人公司/超级个体/独立创业/OPC社区 有直接关联
+- relevant=true：主题与 OPC（AI创业型一人公司）/超级个体/独立创业/OPC社区 有直接关联
 - relevant=false：纯商业地产广告、与创业完全无关的科技产品发布、娱乐内容、宏观经济数据（CPI/股市/房产）、与 OPC 无直接关联的大公司新闻
+- 重要区分：「一人公司」在法律/金融/监管语境中指《公司法》意义上的一人有限责任公司（如证券开户、股权结构、工商注册形式、新三板监管），不是 AI 创业型 OPC，此类内容 relevant=false
 - 重要：如果内容只是「泛创业」或「泛科技」，与 OPC/一人公司/超级个体没有直接关联，importance 必须 ≤ 2
 - 大公司（360/百度/阿里等）内部政策、发布会，即使提到「超级个体」，importance 必须 ≤ 2（不是 OPC 创业者的直接信号）
 

@@ -199,10 +199,10 @@ async function main() {
   gnewsProc.stderr?.on('data', (d: Buffer) => { gnewsOutput += d.toString() })
   const gnewsDone = new Promise<void>(resolve => {
     const timer = setTimeout(() => {
-      log('  ⚠️ GNews 采集超时（240s），继续主流程')
+      log('  ⚠️ GNews 采集超时（400s），继续主流程')
       gnewsProc.kill('SIGKILL')  // SIGKILL 确保 Python 子进程也终止
       resolve()
-    }, 240000)
+    }, 400000)
     gnewsProc.on('close', () => { clearTimeout(timer); resolve() })
   })
 

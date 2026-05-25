@@ -5,12 +5,12 @@
  * 包含：AI跨期重复判断（duplicate）、候选池内同话题去重、每类上限、AI编辑审核、中经报保底。
  * 时效性权重已合并进 aiJudge.ts 入库时判断，此处不再单独处理。
  *
- * 更新时间：2026-05-13
+ * 更新时间：2026-05-25
  */
 import { getAIClient, ISSUE_WINDOW_DAYS } from './aiJudge'
 
-const MAX_ITEMS_PER_ISSUE = 20
-const MAX_ITEMS_PER_CATEGORY = 6
+const MAX_ITEMS_PER_ISSUE = 12
+const MAX_ITEMS_PER_CATEGORY = 4
 const MIN_IMPORTANCE = 3
 const MIN_ITEMS = 10
 const MIN_CATEGORIES = 3
@@ -196,6 +196,24 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
     return null
   }
 
+  // 摘要质量过滤：摘要为空或 < 30 字的条目不进入出刊候选
+  const MIN_SUMMARY_LEN = 30
+  const qualityFiltered = candidates.filter((item: any) => {
+    if (!item.summary || item.summary.trim().length < MIN_SUMMARY_LEN) {
+      return false
+    }
+    return true
+  })
+  const summaryDropped = candidates.length - qualityFiltered.length
+  if (summaryDropped > 0) {
+    console.log(`[generate] 摘要质量过滤：排除 ${summaryDropped} 条摘要过短/为空的条目（剩余 ${qualityFiltered.length}）`)
+  }
+
+  if (qualityFiltered.length < MIN_ITEMS) {
+    console.log(`[generate] 质量过滤后不足 ${MIN_ITEMS} 条（当前 ${qualityFiltered.length}），跳过`)
+    return null
+  }
+
   // 每日出刊上限：同一自然日（Asia/Shanghai）最多出一期
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
@@ -218,17 +236,17 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   }
 
   // Step 1: AI 重复判断（跨期去重 + 池内去重）
-  await clusterEventKeys(candidates, prisma, aiClient)
+  await clusterEventKeys(qualityFiltered, prisma, aiClient)
 
   // 重复判断写回 DB 后重新取最新 importance
-  const ids = candidates.map((i: any) => i.id)
+  const ids = qualityFiltered.map((i: any) => i.id)
   const refreshed = await prisma.radarItem.findMany({
     where: { id: { in: ids } },
     select: { id: true, importance: true },
   })
   const refreshMap = Object.fromEntries(refreshed.map((r: any) => [r.id, r]))
   // Step 2: 按最新 importance 重新排序，降权条目自然排到后面
-  const keyDeduped = candidates
+  const keyDeduped = qualityFiltered
     .map((item: any) => ({
       ...item,
       importance: refreshMap[item.id]?.importance ?? item.importance,
