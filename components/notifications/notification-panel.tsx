@@ -129,7 +129,7 @@ export function NotificationPanel({
           })
         )}
       </div>
-      <div className="px-4 py-2 border-t flex items-center justify-between">
+      <div className="px-4 py-2 border-t flex items-center justify-end">
         {notifications.some((n) => !n.isRead) ? (
           <button
             onClick={markAllRead}
@@ -138,12 +138,6 @@ export function NotificationPanel({
             全部标记已读
           </button>
         ) : <span />}
-        <button
-          onClick={() => { onClose(); router.push('/messages') }}
-          className="text-xs text-mute hover:text-primary hover:underline"
-        >
-          查看全部私信 →
-        </button>
       </div>
     </div>
   )

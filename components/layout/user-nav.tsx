@@ -6,7 +6,6 @@ import { useSession, signOut } from 'next-auth/react'
 import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { useUnread } from './unread-provider'
-import { MessageButton } from './message-button'
 
 export function UserNav() {
   const { data: session, status } = useSession()
@@ -43,7 +42,6 @@ export function UserNav() {
   return (
     <div className="flex items-center gap-1">
       <NotificationBell />
-      <MessageButton />
       <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}

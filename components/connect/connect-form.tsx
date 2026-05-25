@@ -47,7 +47,7 @@ const step1Schema = z.object({
 })
 
 const step2Schema = z.object({
-  bio: z.string().max(200).optional(),
+  bio: z.string().min(1, '请填写你在做什么').max(200),
   productName: z.string().max(100).optional(),
   productTagline: z.string().max(300).optional(),
   productStage: z.string().optional(),
@@ -283,10 +283,10 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
         </div>
 
         <div className="bg-surface-soft rounded-xl p-5 mb-6">
-          <p className="text-sm font-semibold text-ink mb-3">关注 OPC圈 公众号，第一时间获取审核结果</p>
+          <p className="text-sm font-semibold text-ink mb-3">添加 OPC圈 客服，第一时间获取审核结果</p>
           <div className="flex items-center justify-center">
             {qrcodeUrl ? (
-              <img src={qrcodeUrl} alt="OPC圈公众号二维码" className="w-[200px] h-[200px] rounded-xl object-contain" />
+              <img src={qrcodeUrl} alt="OPC圈客服二维码" className="w-[200px] h-[200px] rounded-xl object-contain" />
             ) : (
               <div className="w-[200px] h-[200px] bg-surface-card rounded-xl flex items-center justify-center text-sm text-mute">
                 请在后台上传二维码
@@ -479,16 +479,19 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       {step === 'step2' && (
         <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5 tab-content-enter" key="step2">
           <div>
-            <Label htmlFor="bio">一句话介绍自己</Label>
+            <Label htmlFor="bio">你在做什么 *</Label>
             <textarea
               id="bio"
-              placeholder="例：3年独立开发者，专注AI工具"
+              placeholder="例：独立开发AI写作工具，已上线3个月"
               maxLength={200}
               rows={2}
               className="mt-1.5 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               {...form2.register('bio')}
             />
             <p className="text-xs text-mute mt-1">{form2.watch('bio')?.length || 0}/200</p>
+            {form2.formState.errors.bio && (
+              <p className="text-red-500 text-xs mt-1">{form2.formState.errors.bio.message}</p>
+            )}
           </div>
 
           <div>
@@ -623,15 +626,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
               {submitting ? '提交中...' : '提交'}
             </Button>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            disabled={submitting}
-            onClick={handleSkip}
-            className="w-full text-mute"
-          >
-            跳过，先提交基本信息
-          </Button>
+
         </form>
       )}
     </div>
