@@ -49,7 +49,14 @@ export default async function PlazaPage() {
     prisma.post.count({ where: { status: 'PUBLISHED' } }),
     getPlazaStats(),
     prisma.user.findMany({
-      where: { showInPlaza: true },
+      where: {
+        showInPlaza: true,
+        OR: [
+          { bio: { not: null } },
+          { bio: { not: '' } },
+          { projects: { some: { status: 'PUBLISHED' } } },
+        ],
+      },
       orderBy: [{ verified: 'desc' }, { createdAt: 'desc' }],
       take: 50,
       select: {
@@ -77,10 +84,20 @@ export default async function PlazaPage() {
         },
       },
     }),
-    prisma.user.count({ where: { showInPlaza: true } }),
+    prisma.user.count({
+      where: {
+        showInPlaza: true,
+        OR: [
+          { bio: { not: null } },
+          { bio: { not: '' } },
+          { projects: { some: { status: 'PUBLISHED' } } },
+        ],
+      },
+    }),
     prisma.project.findMany({
       where: {
         status: 'PUBLISHED',
+        tagline: { not: '' },
         owner: { showInPlaza: true },
       },
       orderBy: [

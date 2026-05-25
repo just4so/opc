@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
+      tagline: { not: '' },
       owner: {
         showInPlaza: true,
       } as Record<string, unknown>,
