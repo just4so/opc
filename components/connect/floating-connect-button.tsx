@@ -30,7 +30,7 @@ export function FloatingConnectButton({ slug, communityName, hasContact = true }
         href={`/connect/${slug}`}
         className="flex items-center justify-center w-full px-4 py-3 bg-primary text-on-primary font-medium rounded-xl shadow-lg hover:bg-primary-600 transition-colors text-sm"
       >
-        {hasContact ? `🟢 快速对接 ${communityName}` : '🟢 提交意向，专人帮你对接'}
+        {hasContact ? `🟢 立即申请入驻 ${communityName}` : '🟢 社区直通车 - 立即申请入驻'}
       </Link>
     </div>
   )

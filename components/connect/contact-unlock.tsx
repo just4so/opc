@@ -65,13 +65,13 @@ export function ContactUnlock({
             )}
           </>
         ))}
-        <p className="text-xs text-ash mt-1.5">提交资料后由 OPC圈 审核推荐，同时解锁联系方式</p>
         <Link
           href={`/connect/${slug}`}
           className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-2xl hover:bg-primary-600 transition-colors"
         >
-          🟢 社区直通车 — 社区入驻直通车
+          🟢 社区直通车 - 立即申请入驻
         </Link>
+        <p className="text-xs text-ash mt-1.5">提交资料后由 OPC圈 审核推荐，同时解锁联系方式</p>
       </div>
     </div>
   )
