@@ -10,7 +10,7 @@ async function getStats() {
     prisma.user.count(),
     prisma.post.count({ where: { status: 'PUBLISHED' } }),
     prisma.project.count({
-      where: { status: 'PUBLISHED', contentType: { in: ['DEMAND', 'COOPERATION'] } },
+      where: { status: 'PUBLISHED' },
     }),
     prisma.community.count({ where: { status: 'ACTIVE' } }),
     prisma.news.count(),
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
       extra: `精华 ${stats.pinnedPosts} · 今日 +${stats.todayPosts}`,
     },
     {
-      title: '订单总数',
+      title: '广场产品',
       value: stats.orders,
       icon: Briefcase,
       color: 'text-orange-600',
@@ -105,7 +105,7 @@ export default async function AdminDashboard() {
 
       {/* 运营概览 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Link href="/admin/inquiries" className="block">
+        <Link href="/admin/inquiries?status=PENDING" className="block">
           <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg">
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
             </div>
           </div>
         </Link>
-        <Link href="/admin/communities" className="block">
+        <Link href="/admin/communities?tab=claims" className="block">
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 hover:shadow-sm transition-shadow">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">

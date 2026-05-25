@@ -20,20 +20,14 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const contentType = searchParams.get('contentType')
 
-    const where: any = { contentType: { in: ['DEMAND', 'COOPERATION'] } }
+    const where: any = {}
     if (status) where.status = status
     if (contentType) where.contentType = contentType
     if (search) {
-      where.AND = [
-        { contentType: { in: ['DEMAND', 'COOPERATION'] } },
-        {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { tagline: { contains: search, mode: 'insensitive' } },
-          ],
-        },
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { tagline: { contains: search, mode: 'insensitive' } },
       ]
-      delete where.contentType
     }
 
     const [orders, total] = await Promise.all([

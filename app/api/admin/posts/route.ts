@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { isAdmin } from '@/lib/admin'
+import { isStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,7 @@ const LIMIT = 20
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
+    if (!session?.user?.id || !(await isStaff(session.user.id))) {
       return NextResponse.json({ error: '无权限' }, { status: 403 })
     }
 

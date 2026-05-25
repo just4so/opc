@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-interface Order {
+interface ProjectItem {
   id: string
   name: string
   tagline: string
@@ -37,12 +37,19 @@ const STATUS_OPTIONS = [
 ]
 
 const TYPE_OPTIONS = [
-  { value: 'DEMAND', label: '需求订单' },
-  { value: 'COOPERATION', label: '合作需求' },
+  { value: 'PROJECT', label: '我在做' },
+  { value: 'DEMAND', label: '我需要' },
+  { value: 'COOPERATION', label: '我能提供' },
 ]
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  PROJECT: '我在做',
+  DEMAND: '我需要',
+  COOPERATION: '我能提供',
+}
+
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<ProjectItem[]>([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [page, setPage] = useState(1)
@@ -138,7 +145,7 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-secondary">订单管理</h1>
+        <h1 className="text-2xl font-bold text-secondary">产品管理</h1>
         <Button variant="outline" onClick={handleExport}>
           <Download className="h-4 w-4 mr-2" />
           导出数据
@@ -238,7 +245,7 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="py-3 px-4">
                         <Badge variant="outline">
-                          {order.contentType === 'DEMAND' ? '需求订单' : '合作需求'}
+                          {CONTENT_TYPE_LABELS[order.contentType] || order.contentType}
                         </Badge>
                       </td>
                       <td className="py-3 px-4 text-sm">

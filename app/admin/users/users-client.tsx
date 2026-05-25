@@ -260,11 +260,32 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
                         {format(new Date(user.createdAt), 'yyyy-MM-dd')}
                       </td>
                       <td className="py-3 px-4">
-                        <Button size="sm" variant="ghost" asChild title="查看Ta的动态">
-                          <a href={`/admin/users/${user.id}`}>
-                            <FileText className="h-4 w-4" />
-                          </a>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="ghost" asChild title="查看Ta的动态">
+                            <a href={`/admin/users/${user.id}`}>
+                              <FileText className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          {isAdmin && user.role === 'USER' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600"
+                              onClick={() => handleRoleChange(user.id, 'MODERATOR')}
+                            >
+                              设为版主
+                            </Button>
+                          )}
+                          {isAdmin && user.role === 'MODERATOR' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRoleChange(user.id, 'USER')}
+                            >
+                              撤销版主
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

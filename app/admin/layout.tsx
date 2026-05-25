@@ -32,7 +32,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
       { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
-      { href: '/admin/orders', label: '合作管理', icon: <Briefcase className="h-5 w-5" /> },
+      { href: '/admin/orders', label: '产品管理', icon: <Briefcase className="h-5 w-5" /> },
       { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
       { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
     ],

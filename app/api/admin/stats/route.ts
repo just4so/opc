@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { requireAdmin } from '@/lib/admin'
+import { requireStaff } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   // requireAdmin 内部调用 redirect()，抛出 NextJS 特殊 error，不能在 catch 里吞掉
-  await requireAdmin()
+  await requireStaff()
 
   try {
     const days = 7
