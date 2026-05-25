@@ -418,16 +418,16 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
     const sortedForSummary = [...selected].sort((a: any, b: any) => b.importance - a.importance)
     const topItems = sortedForSummary.filter((s: any) => s.importance >= 4).slice(0, 4)
     const restItems = sortedForSummary.filter((s: any) => s.importance < 4)
-    const topLines = topItems.map((s: any) => `★ [${s.category}] ${s.title}`).join('\n')
+    const topLines = topItems.map((s: any) => `★ [${s.category}] ${s.title}\n  摘要：${(s.summary || '').slice(0, 80)}`).join('\n')
     const restLines = restItems.map((s: any) => `  [${s.category}] ${s.title}`).join('\n')
     const titlesForSummary = topLines + (restLines ? '\n' + restLines : '')
     const summaryPrompt = `你是 OPC 雷达主编，写本期导读（给读者看，帮他决定值不值得读这期）。
 
-本期收录 ${selected.length} 篇，重要条目（★）优先：
+本期收录 ${selected.length} 篇，重要条目（★）附带摘要：
 ${titlesForSummary}
 
 要求：
-- 第1句：点出本期 1-2 个最有料的具体事实，必须有地名或数字（如"北京朝阳算力券上限10万元"、"杭州创业者4个月服务1.5万用户"）
+- 第1句：点出本期 2-3 个最有料的具体事实，必须从摘要中提取真实数字/金额/人物（如"南宁发放创业补贴6946万元""一人公司两三天完成AI宣传片成本三千元"）
 - 第2句：用一句话说本期整体方向，≤25字
 - 禁止：「各地政策密集出台」「显示出……趋势」「标志着……新阶段」等万能套话
 - 直接输出两句话，不加标题，不加序号`
