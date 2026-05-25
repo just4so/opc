@@ -43,6 +43,9 @@ export async function GET(request: NextRequest) {
           community: {
             select: { id: true, name: true, slug: true },
           },
+          user: {
+            select: { username: true },
+          },
         },
       }),
       prisma.inquiry.count({ where }),

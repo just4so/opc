@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Star, StarOff, Plus, Eye, Pencil, Trash2, Search, Download } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,7 +35,10 @@ const STATUS_OPTIONS = [
 ]
 
 export default function CommunitiesClient() {
-  const [activeTab, setActiveTab] = useState<'list' | 'claims'>('list')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<'list' | 'claims'>(
+    searchParams.get('tab') === 'claims' ? 'claims' : 'list'
+  )
 
   return (
     <div>

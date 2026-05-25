@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Download, FileText } from 'lucide-react'
+import { Download, FileText, ExternalLink } from 'lucide-react'
 
 type InquiryStatus = 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED'
 
@@ -23,6 +24,7 @@ interface Inquiry {
   acceptInterview: boolean
   createdAt: string
   community: { id: string; name: string; slug: string } | null
+  user?: { username: string } | null
 }
 
 interface Pagination {
@@ -58,7 +60,10 @@ export function InquiriesClient() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<InquiryStatus | 'ALL'>('ALL')
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState<InquiryStatus | 'ALL'>(
+    (searchParams.get('status') as InquiryStatus) || 'ALL'
+  )
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
   const [stats, setStats] = useState<InquiryStats | null>(null)
@@ -219,7 +224,22 @@ export function InquiriesClient() {
                 const badge = STATUS_BADGE[inq.status]
                 return (
                   <tr key={inq.id} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="py-3 pr-4">{inq.name}</td>
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-1.5">
+                        <span>{inq.name}</span>
+                        {inq.user?.username && (
+                          <a
+                            href={`/profile/${inq.user.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:text-primary/80"
+                            title="查看广场卡片"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 pr-4 text-gray-600">{inq.contact}</td>
                     <td className="py-3 pr-4 text-gray-600">
                       {inq.community?.name || inq.communityName || '-'}
