@@ -652,17 +652,28 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     </div>
                   )
                 ) : (
-                  <div className="flex items-start">
-                    <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
-                    <div>
-                      <Link
-                        href={`/connect/${community.slug}`}
-                        className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-lg hover:bg-primary-600 transition-colors"
-                      >
-                        🟢 提交意向，专人帮你对接
-                      </Link>
+                  isLoggedIn ? (
+                    <ContactUnlock
+                      slug={community.slug}
+                      contactName={null}
+                      contactPhone={null}
+                      contactWechat={null}
+                      contactNote={null}
+                    />
+                  ) : (
+                    <div className="flex items-start">
+                      <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-ash mt-1">提交入驻申请，得到社区对接</p>
+                        <Link
+                          href={registerUrl}
+                          className="inline-flex items-center mt-2 text-xs text-primary font-medium hover:underline"
+                        >
+                          免费注册 →
+                        </Link>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )}
                 {community.website && (
                   <div className="flex items-start">

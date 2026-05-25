@@ -32,14 +32,14 @@ export function ContactUnlock({
 
   const hasContact = contactName || contactPhone || contactWechat
 
-  if (!hasContact) return null
+  // hasContact 为 false 时仍渲染直通车入口，不提前 return
 
   return (
     <div className="flex items-start">
       <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
       <div>
-        <div className="text-sm text-mute">联系信息</div>
-        {loading ? (
+        {hasContact && <div className="text-sm text-mute">联系信息</div>}
+        {hasContact && (loading ? (
           <div className="text-sm text-ash mt-1">加载中...</div>
         ) : unlocked ? (
           <>
@@ -63,15 +63,15 @@ export function ContactUnlock({
             {contactPhone && (
               <div className="text-sm text-ash mt-0.5">电话：****</div>
             )}
-            <p className="text-xs text-ash mt-1.5">提交资料后由 OPC圈 审核推荐，同时解锁联系方式</p>
-            <Link
-              href={`/connect/${slug}`}
-              className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-2xl hover:bg-primary-600 transition-colors"
-            >
-              🟢 社区直通车 — 提交意向，专人帮你对接
-            </Link>
           </>
-        )}
+        ))}
+        <p className="text-xs text-ash mt-1.5">提交资料后由 OPC圈 审核推荐，同时解锁联系方式</p>
+        <Link
+          href={`/connect/${slug}`}
+          className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-primary text-on-primary text-xs font-medium rounded-2xl hover:bg-primary-600 transition-colors"
+        >
+          🟢 社区直通车 — 社区入驻直通车
+        </Link>
       </div>
     </div>
   )

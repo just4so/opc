@@ -479,7 +479,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       {step === 'step2' && (
         <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5 tab-content-enter" key="step2">
           <div>
-            <Label htmlFor="bio">一句话介绍自己（选填）</Label>
+            <Label htmlFor="bio">一句话介绍自己</Label>
             <textarea
               id="bio"
               placeholder="例：3年独立开发者，专注AI工具"
@@ -492,7 +492,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="productName">产品/服务名称（选填）</Label>
+            <Label htmlFor="productName">产品/服务名称</Label>
             <Input
               id="productName"
               placeholder="你的产品或服务名称"
@@ -502,7 +502,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="productTagline">简单描述你的产品或服务（选填）</Label>
+            <Label htmlFor="productTagline">简单描述你的产品或服务</Label>
             <Input
               id="productTagline"
               placeholder="你在做什么，解决谁的问题，现在到了哪个阶段"
@@ -513,7 +513,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label>产品阶段（选填）</Label>
+            <Label>产品阶段</Label>
             <Select
               value={form2.watch('productStage') || ''}
               onValueChange={(val) => form2.setValue('productStage', val)}
@@ -532,7 +532,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="productWebsite">产品网站（选填）</Label>
+            <Label htmlFor="productWebsite">产品网站</Label>
             <Input
               id="productWebsite"
               placeholder="https://"
