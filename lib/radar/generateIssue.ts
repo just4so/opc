@@ -176,6 +176,89 @@ ${list}
 }
 
 /**
+ * Step 0: 摘要补强——对摘要过短的条目抓正文重写摘要
+ * 只在出刊前调用，不影响采集流程
+ */
+async function enrichSummaries(
+  items: Array<{ id: string; title: string; url: string; summary: string | null }>,
+  prisma: PrismaAny
+): Promise<void> {
+  const client = getAIClient()
+  if (!client) return
+
+  // 并发抓取+重写，最多同时 5 个
+  const CONCURRENCY = 5
+  let idx = 0
+  let enriched = 0
+
+  async function worker() {
+    while (idx < items.length) {
+      const i = idx++
+      const item = items[i]
+      try {
+        // 抓正文（取前 2000 字）
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), 8000)
+        const res = await fetch(item.url, {
+          signal: controller.signal,
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OPCRadarBot/1.0)' },
+          redirect: 'follow',
+        })
+        clearTimeout(timer)
+        if (!res.ok) { console.log(`  [enrich] ${item.title.slice(0, 30)}... fetch ${res.status}, 跳过`); continue }
+        const html = await res.text()
+        // 粗涂提取正文：去 HTML 标签，取前 2000 字
+        const text = html
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&[a-zA-Z]+;/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 2000)
+
+        if (text.length < 100) { console.log(`  [enrich] ${item.title.slice(0, 30)}... 正文太短(${text.length}字), 跳过`); continue }
+
+        // AI 重写摘要
+        const prompt = `你是 OPC 雷达编辑，基于以下文章正文，写一句摘要（40-80字）。
+
+要求：
+- 提炼最具体的 1-2 个事实（金额/城市/人物/数字/措施名）
+- 禁止写「旨在推动」「提供支持」「有重要意义」等空话
+- 无具体信息时返回 null
+- 只返回摘要文本，不加引号、不加前缀
+
+标题：${item.title}
+正文：${text}`
+
+        const comp = await Promise.race([
+          client.chat.completions.create({
+            model: CLUSTER_MODEL,
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.1,
+            max_tokens: 200,
+          }),
+          new Promise<never>((_, rej) => setTimeout(() => rej(new Error('enrich AI timeout')), 15000)),
+        ])
+        const newSummary = (comp as any).choices[0]?.message?.content?.trim()
+        if (newSummary && newSummary !== 'null' && newSummary.length >= 20) {
+          await prisma.radarItem.update({ where: { id: item.id }, data: { summary: newSummary } })
+          enriched++
+          console.log(`  [enrich] ✓ ${item.title.slice(0, 30)}... → ${newSummary.slice(0, 60)}`)
+        } else {
+          console.log(`  [enrich] ${item.title.slice(0, 30)}... AI 返回无效摘要, 跳过`)
+        }
+      } catch (e: any) {
+        console.log(`  [enrich] ${item.title.slice(0, 30)}... 失败: ${e.message?.slice(0, 60)}`)
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker))
+  console.log(`[enrich] 完成：${enriched}/${items.length} 条摘要已补强`)
+}
+
+/**
  * 生成新一期雷达
  */
 export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult | null> {
@@ -196,14 +279,26 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
     return null
   }
 
-  // 摘要质量过滤：摘要为空或 < 30 字的条目不进入出刊候选
+  // Step 0: 摘要补强——对摘要过短的候选条目抓正文重写摘要
   const MIN_SUMMARY_LEN = 30
-  const qualityFiltered = candidates.filter((item: any) => {
-    if (!item.summary || item.summary.trim().length < MIN_SUMMARY_LEN) {
-      return false
-    }
-    return true
+  const weakSummaryItems = candidates.filter(
+    (item: any) => !item.summary || item.summary.trim().length < MIN_SUMMARY_LEN
+  )
+  if (weakSummaryItems.length > 0) {
+    console.log(`[generate] 发现 ${weakSummaryItems.length} 条摘要过短，尝试抓正文补强...`)
+    await enrichSummaries(weakSummaryItems, prisma)
+  }
+
+  // 摘要质量过滤：补强后仍然为空或 < 30 字的条目不进入出刊候选
+  // 重新从 DB 读取最新 summary（enrichSummaries 已写回）
+  const refreshedCandidates = await prisma.radarItem.findMany({
+    where: { id: { in: candidates.map((i: any) => i.id) } },
   })
+  const refreshedMap = Object.fromEntries(refreshedCandidates.map((r: any) => [r.id, r]))
+  const qualityFiltered = candidates
+    .map((item: any) => ({ ...item, summary: refreshedMap[item.id]?.summary ?? item.summary }))
+    .filter((item: any) => item.summary && item.summary.trim().length >= MIN_SUMMARY_LEN)
+
   const summaryDropped = candidates.length - qualityFiltered.length
   if (summaryDropped > 0) {
     console.log(`[generate] 摘要质量过滤：排除 ${summaryDropped} 条摘要过短/为空的条目（剩余 ${qualityFiltered.length}）`)
