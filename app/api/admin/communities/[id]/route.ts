@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { auth } from '@/lib/auth'
-import { isStaff } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityUpdateSchema } from '@/lib/validations/community'
 import { ensureEnglishSlug } from '@/lib/slug'
@@ -11,10 +10,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const community = await prisma.community.findUnique({
       where: { id: params.id },
@@ -36,10 +33,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
     const validation = communityUpdateSchema.safeParse(body)
@@ -154,10 +149,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     await prisma.community.delete({
       where: { id: params.id },

@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { isStaff } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const { searchParams } = new URL(request.url)
     const communityId = searchParams.get('communityId')
@@ -44,10 +41,8 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const { id, status } = await request.json()
     if (!id || !['PENDING', 'CONTACTED', 'COMPLETED'].includes(status)) {

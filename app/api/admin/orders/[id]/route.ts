@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { isStaff } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export async function PATCH(
@@ -8,10 +7,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
     const { status, featured } = body
@@ -37,10 +34,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     await prisma.project.update({
       where: { id: params.id },

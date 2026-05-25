@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { isAdmin, isStaff } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export async function PATCH(
@@ -8,16 +7,14 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
     const { role, verified, level } = body
 
     // 角色修改仅 ADMIN 可操作
-    if (role && !(await isAdmin(session.user.id))) {
+    if (role && staff.role !== 'ADMIN') {
       return NextResponse.json({ error: '仅管理员可修改角色' }, { status: 403 })
     }
 

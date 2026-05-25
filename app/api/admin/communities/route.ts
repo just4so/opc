@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { auth } from '@/lib/auth'
-import { isStaff } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityCreateSchema } from '@/lib/validations/community'
 import { ensureEnglishSlug } from '@/lib/slug'
@@ -12,10 +11,8 @@ const LIMIT = 20
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
@@ -62,10 +59,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isStaff(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
     const validation = communityCreateSchema.safeParse(body)

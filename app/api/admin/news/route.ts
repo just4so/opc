@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { isAdmin } from '@/lib/admin'
+import { requireAdminApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { NewsCategory } from '@prisma/client'
 
@@ -16,10 +15,8 @@ const CATEGORY_MAP: Record<string, NewsCategory> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const admin = await requireAdminApi()
+    if (admin instanceof NextResponse) return admin
 
     const body = await request.json()
     const { title, category, author, content, publishedAt } = body

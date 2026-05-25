@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { isAdmin } from '@/lib/admin'
+import { requireAdminApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id || !(await isAdmin(session.user.id))) {
-      return NextResponse.json({ error: '无权限' }, { status: 403 })
-    }
+    const admin = await requireAdminApi()
+    if (admin instanceof NextResponse) return admin
 
     const { searchParams } = new URL(request.url)
     const slug = searchParams.get('slug')
