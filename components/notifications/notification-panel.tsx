@@ -23,7 +23,7 @@ const TYPE_ICON: Record<string, typeof Eye> = {
 const TYPE_NAV: Record<string, string> = {
   CARD_VIEWED: '/messages',
   CARD_CONTACTED: '/messages',
-  INQUIRY_STATUS: '/messages',
+  INQUIRY_STATUS: '/profile',
 }
 
 function relativeTime(dateStr: string): string {
@@ -43,7 +43,7 @@ export function NotificationPanel({
   onUnreadChange,
 }: {
   onClose: () => void
-  onUnreadChange: (count: number) => void
+  onUnreadChange: () => void
 }) {
   const router = useRouter()
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -74,9 +74,7 @@ export function NotificationPanel({
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     )
-    onUnreadChange(
-      notifications.filter((n) => !n.isRead && n.id !== id).length
-    )
+    onUnreadChange()
   }
 
   const markAllRead = async () => {
@@ -86,7 +84,7 @@ export function NotificationPanel({
       body: JSON.stringify({ all: true }),
     })
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-    onUnreadChange(0)
+    onUnreadChange()
   }
 
   const handleClick = (n: Notification) => {

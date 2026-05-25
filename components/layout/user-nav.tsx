@@ -1,38 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { NotificationBell } from '@/components/notifications/notification-bell'
+import { useUnread } from './unread-provider'
+import { MessageButton } from './message-button'
 
 export function UserNav() {
   const { data: session, status } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
-
-  useEffect(() => {
-    if (status === 'loading') return
-    if (status !== 'authenticated' || !session?.user) return
-
-    fetchUnreadCount()
-    // Poll every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000)
-    return () => clearInterval(interval)
-  }, [session, status])
-
-  const fetchUnreadCount = async () => {
-    try {
-      const res = await fetch('/api/conversations/unread')
-      if (res.ok) {
-        const data = await res.json()
-        setUnreadCount(data.unreadCount || 0)
-      }
-    } catch (error) {
-      console.error('获取未读数失败:', error)
-    }
-  }
+  const { counts } = useUnread()
 
   if (status === 'loading') {
     return (
@@ -64,6 +43,7 @@ export function UserNav() {
   return (
     <div className="flex items-center gap-1">
       <NotificationBell />
+      <MessageButton />
       <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -77,11 +57,6 @@ export function UserNav() {
               <span>{session.user.name?.[0] || session.user.email?.[0] || 'U'}</span>
             )}
           </div>
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-              {unreadCount > 9 ? '!' : unreadCount}
-            </span>
-          )}
         </div>
         <span className="hidden md:block max-w-[100px] truncate">
           {session.user.name || session.user.email}
@@ -119,9 +94,9 @@ export function UserNav() {
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               私信
-              {unreadCount > 0 && (
+              {counts.messages > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                  {unreadCount > 99 ? '99+' : unreadCount}
+                  {counts.messages > 99 ? '99+' : counts.messages}
                 </span>
               )}
             </Link>

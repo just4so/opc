@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search } from 'lucide-react'
-import { UserNav } from '@/components/layout/user-nav'
 import { NavLinks } from '@/components/layout/nav-links'
-import { MobileMenu } from '@/components/layout/mobile-menu'
+import { NavActions } from '@/components/layout/nav-actions'
 import { ScrollHeader } from '@/components/layout/scroll-header'
 import { ToastProvider } from '@/components/ui/toast-notification'
 
@@ -43,10 +42,7 @@ export default function MainLayout({
             >
               <Search className="h-5 w-5" />
             </Link>
-            <div className="hidden md:flex">
-              <UserNav />
-            </div>
-            <MobileMenu />
+            <NavActions />
           </div>
         </div>
       </ScrollHeader>

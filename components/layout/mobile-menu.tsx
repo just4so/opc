@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Radio, Newspaper } from 'lucide-react'
+import { useUnread } from './unread-provider'
 
 const navLinks = [
   { href: '/communities', label: '找社区', icon: Map },
@@ -18,6 +19,7 @@ export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const { data: session, status } = useSession()
+  const { counts } = useUnread()
 
   const close = () => setIsOpen(false)
 
@@ -101,7 +103,18 @@ export function MobileMenu() {
                     <User className="h-4 w-4" /> 个人中心
                   </Link>
                   <Link href="/messages" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
-                    <MessageSquare className="h-4 w-4" /> 私信
+                    <div className="relative">
+                      <MessageSquare className="h-4 w-4" />
+                      {counts.messages > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                          {counts.messages > 9 ? '!' : counts.messages}
+                        </span>
+                      )}
+                    </div>
+                    私信
+                    {counts.messages > 0 && (
+                      <span className="ml-auto text-xs text-red-500 font-medium">{counts.messages}</span>
+                    )}
                   </Link>
                   <Link href="/settings" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
                     <Settings className="h-4 w-4" /> 设置

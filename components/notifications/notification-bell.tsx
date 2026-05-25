@@ -3,17 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Bell } from 'lucide-react'
 import { NotificationPanel } from './notification-panel'
+import { useUnread } from '@/components/layout/unread-provider'
 
 export function NotificationBell() {
-  const [unreadCount, setUnreadCount] = useState(0)
+  const { counts, refresh } = useUnread()
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    fetchUnread()
-    const interval = setInterval(fetchUnread, 30000)
-    return () => clearInterval(interval)
-  }, [])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -27,16 +22,6 @@ export function NotificationBell() {
     }
   }, [isOpen])
 
-  const fetchUnread = async () => {
-    try {
-      const res = await fetch('/api/notifications/unread-count')
-      if (res.ok) {
-        const data = await res.json()
-        setUnreadCount(data.unreadCount || 0)
-      }
-    } catch {}
-  }
-
   return (
     <div className="relative" ref={ref}>
       <button
@@ -45,16 +30,16 @@ export function NotificationBell() {
         aria-label="通知"
       >
         <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
+        {counts.notifications > 0 && (
           <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[10px] font-medium rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
-            {unreadCount > 9 ? '9+' : unreadCount}
+            {counts.notifications > 9 ? '9+' : counts.notifications}
           </span>
         )}
       </button>
       {isOpen && (
         <NotificationPanel
           onClose={() => setIsOpen(false)}
-          onUnreadChange={setUnreadCount}
+          onUnreadChange={refresh}
         />
       )}
     </div>
