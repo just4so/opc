@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { uploadBuffer } from '@/lib/r2'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +12,6 @@ const ALLOWED_TYPES: Record<string, string> = {
 }
 
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
-
-function getR2Client() {
-  return new S3Client({
-    region: 'auto',
-    endpoint: process.env.R2_ENDPOINT!,
-    credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-    },
-  })
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,18 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const key = `avatars/${session.user.id}/${Date.now()}.${ext}`
-
-    const client = getR2Client()
-    await client.send(
-      new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME!,
-        Key: key,
-        Body: buffer,
-        ContentType: file.type,
-      })
-    )
-
-    const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`
+    const publicUrl = await uploadBuffer(key, buffer, file.type)
 
     return NextResponse.json({ url: publicUrl })
   } catch (error) {

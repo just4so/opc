@@ -30,6 +30,10 @@ export async function GET(
       return NextResponse.json({ error: '无权访问此对话' }, { status: 403 })
     }
 
+    const { searchParams } = new URL(request.url)
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')))
+    const before = searchParams.get('before') // cursor-based: messages before this ID
+
     // 获取对话和消息
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
@@ -42,7 +46,9 @@ export async function GET(
           },
         },
         messages: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          ...(before ? { cursor: { id: before }, skip: 1 } : {}),
           include: {
             sender: {
               select: { id: true, username: true, name: true, avatar: true },
@@ -78,7 +84,8 @@ export async function GET(
       conversation: {
         id: conversation.id,
         otherUser,
-        messages: conversation.messages,
+        messages: conversation.messages.reverse(),
+        hasMore: conversation.messages.length === limit,
       },
     })
   } catch (error) {

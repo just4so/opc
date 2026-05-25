@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -67,24 +68,28 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
 
-    // 只允许更新特定字段（name 通过 /api/user/set-name 单独设置，此处不可更新）
-    const allowedFields = [
-      'avatar',
-      'bio',
-      'location',
-      'website',
-      'wechat',
-      'canOffer',
-      'lookingFor',
-      'mainTrack',
-      'startupStage',
-      'showInPlaza',
-    ]
+    const profileSchema = z.object({
+      avatar: z.string().max(500).optional(),
+      bio: z.string().max(200).optional(),
+      location: z.string().max(50).optional(),
+      website: z.string().max(200).optional(),
+      wechat: z.string().max(50).optional(),
+      canOffer: z.array(z.string().max(50)).max(10).optional(),
+      lookingFor: z.array(z.string().max(50)).max(10).optional(),
+      mainTrack: z.string().max(50).optional(),
+      startupStage: z.string().max(50).optional(),
+      showInPlaza: z.boolean().optional(),
+    }).strict()
+
+    const parsed = profileSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || '参数错误' }, { status: 400 })
+    }
 
     const updateData: Record<string, unknown> = {}
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) {
-        updateData[field] = body[field]
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (value !== undefined) {
+        updateData[key] = value
       }
     }
 

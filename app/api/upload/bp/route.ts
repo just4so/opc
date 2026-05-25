@@ -38,8 +38,9 @@ export async function POST(request: NextRequest) {
 
     const { filename, contentType } = parsed.data
     const key = `bp/${session.user.id}/${Date.now()}-${filename}`
+    const maxBytes = MAX_SIZE_MB * 1024 * 1024
 
-    const { uploadUrl, publicUrl } = await getPresignedUploadUrl(key, contentType)
+    const { uploadUrl, publicUrl } = await getPresignedUploadUrl(key, contentType, maxBytes)
 
     return NextResponse.json({
       uploadUrl,

@@ -19,7 +19,8 @@ export async function POST(req: Request) {
 
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) {
-    return NextResponse.json({ error: '该邮箱尚未注册', notRegistered: true }, { status: 404 })
+    // 不暴露用户是否存在，统一返回成功
+    return NextResponse.json({ message: '如果该邮箱已注册，重置邮件已发送，请检查收件箱' })
   }
 
   // Rate limit: max 3 requests per 10 minutes
@@ -51,5 +52,5 @@ export async function POST(req: Request) {
   // Fire and forget
   sendPasswordResetEmail(email, token).catch(console.error)
 
-  return NextResponse.json({ message: '重置邮件已发送，请检查收件箱' })
+  return NextResponse.json({ message: '如果该邮箱已注册，重置邮件已发送，请检查收件箱' })
 }

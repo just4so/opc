@@ -4,6 +4,7 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import crypto from 'crypto'
 import { sendEmailVerifyEmail } from '@/lib/mailer'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 const registerSchema = z.object({
   name: z.string().min(2, '昵称至少2个字符').max(20, '昵称最多20个字符'),
@@ -27,6 +28,13 @@ async function generateUsername(): Promise<string> {
 
 export async function POST(request: NextRequest) {
   try {
+    // IP 限流：每 IP 每小时最多 10 次注册
+    const ip = getClientIp(request)
+    const { success } = rateLimit(`register:${ip}`, 10, 60 * 60 * 1000)
+    if (!success) {
+      return NextResponse.json({ error: '操作过于频繁，请稍后再试' }, { status: 429 })
+    }
+
     const body = await request.json()
 
     const validation = registerSchema.safeParse(body)

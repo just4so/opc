@@ -42,7 +42,7 @@ export function UnreadProvider({ children }: { children: React.ReactNode }) {
       if (document.visibilityState === 'visible') {
         fetchCounts()
       }
-    }, 30000)
+    }, 60000)
 
     return () => {
       clearInterval(interval)

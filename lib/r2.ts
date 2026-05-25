@@ -17,14 +17,28 @@ function getR2Client() {
   return client
 }
 
-export async function getPresignedUploadUrl(key: string, contentType: string) {
+export async function getPresignedUploadUrl(key: string, contentType: string, maxSizeBytes?: number) {
   const r2 = getR2Client()
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME!,
     Key: key,
     ContentType: contentType,
+    ...(maxSizeBytes ? { ContentLength: maxSizeBytes } : {}),
   })
   const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 600 })
   const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`
   return { uploadUrl, publicUrl }
+}
+
+export async function uploadBuffer(key: string, body: Buffer, contentType: string) {
+  const r2 = getR2Client()
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME!,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    })
+  )
+  return `${process.env.R2_PUBLIC_URL}/${key}`
 }

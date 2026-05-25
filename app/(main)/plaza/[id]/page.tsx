@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { ArrowLeft } from 'lucide-react'
+import sanitizeHtml from 'sanitize-html'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PostInteractions } from '@/components/plaza/post-interactions'
@@ -135,7 +136,10 @@ export default async function PostDetailPage({ params }: PageProps) {
                 {/* 内容 */}
                 <div
                   className="prose prose-gray max-w-none mb-6 text-lg leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: post.contentHtml ?? post.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.contentHtml ?? post.content, {
+                    allowedTags: ['p','h1','h2','h3','strong','em','ul','ol','li','a','img','blockquote','pre','code','br'],
+                    allowedAttributes: { a: ['href','target','rel'], img: ['src','alt','width','height'] },
+                  }) }}
                 />
 
                 {/* 图片 */}

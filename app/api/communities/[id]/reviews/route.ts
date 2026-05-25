@@ -10,6 +10,9 @@ export async function GET(
 ) {
   try {
     const slug = decodeURIComponent(params.id)
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')))
 
     const community = await prisma.community.findFirst({
       where: {
@@ -22,20 +25,25 @@ export async function GET(
       return NextResponse.json({ error: '社区不存在' }, { status: 404 })
     }
 
-    const reviews = await prisma.communityReview.findMany({
-      where: { communityId: community.id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            avatar: true,
+    const [reviews, total] = await Promise.all([
+      prisma.communityReview.findMany({
+        where: { communityId: community.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              avatar: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.communityReview.count({ where: { communityId: community.id } }),
+    ])
 
     const avgDifficulty =
       reviews.filter((r) => r.difficulty != null).length > 0
@@ -47,8 +55,9 @@ export async function GET(
 
     return NextResponse.json({
       reviews,
-      total: reviews.length,
+      total,
       avgDifficulty,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     })
   } catch (error) {
     console.error('获取社区评价失败:', error)
