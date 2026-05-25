@@ -3,7 +3,6 @@ import { Metadata } from 'next'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { ConnectForm } from '@/components/connect/connect-form'
-import { CITIES } from '@/constants/cities'
 
 export const metadata: Metadata = {
   title: '社区直通车 - OPC圈',
@@ -49,7 +48,15 @@ export default async function ConnectPage({ params }: PageProps) {
     },
   })
 
-  const cityNames = CITIES.map((c) => c.name)
+  const cityGroups = await prisma.community.groupBy({
+    by: ['city'],
+    where: { status: 'ACTIVE', city: { not: '' } },
+    _count: { city: true },
+    orderBy: { _count: { city: 'desc' } },
+  })
+  const cityNames = cityGroups
+    .map((c) => c.city)
+    .filter((c): c is string => !!c)
 
   return (
     <div className="min-h-screen bg-surface-soft">

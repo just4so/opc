@@ -513,6 +513,7 @@ model Inquiry {
   stage           String?
   wantCard        Boolean       @default(false)
   wantVerify      Boolean       @default(false)
+  acceptInterview Boolean       @default(false)
   bpUrl           String?
   bpFilename      String?
   status          InquiryStatus @default(PENDING)

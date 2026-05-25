@@ -81,6 +81,7 @@ interface PlazaProject {
   id: string
   name: string
   tagline: string
+  description: string | null
   stage: string
   website: string | null
   contentType: string
@@ -154,6 +155,27 @@ const TYPE_TABS = [
 ]
 
 type MainTab = 'people' | 'products' | 'posts'
+
+function DescriptionCollapse({ description }: { description: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const isLong = description.length > 80
+
+  return (
+    <div className="mt-1.5">
+      <p className={`text-xs text-mute leading-relaxed ${!expanded && isLong ? 'line-clamp-2' : ''}`}>
+        {description}
+      </p>
+      {isLong && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-ash hover:text-mute mt-0.5 cursor-pointer"
+        >
+          {expanded ? '收起' : '展开'}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export function PlazaClient({
   initialPosts,
@@ -699,6 +721,9 @@ export function PlazaClient({
                         </span>
                       </div>
                       <p className="text-sm text-body leading-relaxed">{proj.tagline}</p>
+                      {proj.description && proj.description !== proj.tagline && (
+                        <DescriptionCollapse description={proj.description} />
+                      )}
                     </div>
 
                     {/* Owner info */}

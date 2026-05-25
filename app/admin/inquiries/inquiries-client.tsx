@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Download } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 
 type InquiryStatus = 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED'
 
@@ -18,6 +18,9 @@ interface Inquiry {
   status: InquiryStatus
   wantCard: boolean
   wantVerify: boolean
+  bpUrl: string | null
+  bpFilename: string | null
+  acceptInterview: boolean
   createdAt: string
   community: { id: string; name: string; slug: string } | null
 }
@@ -112,8 +115,14 @@ export function InquiriesClient() {
   }
 
   function formatDate(iso: string) {
-    const d = new Date(iso)
-    return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
+    return new Date(iso).toLocaleString('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
   }
 
   return (
@@ -199,6 +208,8 @@ export function InquiriesClient() {
                 <th className="pb-3 pr-4 font-medium">城市</th>
                 <th className="pb-3 pr-4 font-medium">方向</th>
                 <th className="pb-3 pr-4 font-medium">阶段</th>
+                <th className="pb-3 pr-4 font-medium">BP</th>
+                <th className="pb-3 pr-4 font-medium">采访意向</th>
                 <th className="pb-3 pr-4 font-medium">状态</th>
                 <th className="pb-3 font-medium">时间</th>
               </tr>
@@ -218,6 +229,28 @@ export function InquiriesClient() {
                       {inq.introduction || '-'}
                     </td>
                     <td className="py-3 pr-4 text-gray-600">{inq.stage || '-'}</td>
+                    <td className="py-3 pr-4">
+                      {inq.bpUrl ? (
+                        <a
+                          href={inq.bpUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          <FileText className="h-3 w-3" />
+                          {inq.bpFilename || '查看BP'}
+                        </a>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 text-gray-600">
+                      {inq.acceptInterview ? (
+                        <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded">愿意</span>
+                      ) : (
+                        <span className="text-gray-300 text-xs">-</span>
+                      )}
+                    </td>
                     <td className="py-3 pr-4">
                       <select
                         value={inq.status}

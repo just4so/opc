@@ -12,7 +12,9 @@ import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -47,14 +49,54 @@ const step1Schema = z.object({
 const step2Schema = z.object({
   bio: z.string().max(200).optional(),
   productName: z.string().max(100).optional(),
-  productTagline: z.string().max(100).optional(),
+  productTagline: z.string().max(300).optional(),
   productStage: z.string().optional(),
   productWebsite: z.string().max(200).optional(),
   showInPlaza: z.boolean().optional(),
+  acceptInterview: z.boolean().optional(),
 })
 
 type Step1Data = z.infer<typeof step1Schema>
 type Step2Data = z.infer<typeof step2Schema>
+
+const CITY_PINYIN_INITIAL: Record<string, string> = {
+  '安庆': 'A', '鞍山': 'A',
+  '北京': 'B', '保定': 'B', '宝鸡': 'B',
+  '成都': 'C', '常州': 'C', '长沙': 'C', '长春': 'C', '重庆': 'C', '常熟': 'C',
+  '大连': 'D', '大同': 'D', '东莞': 'D',
+  '佛山': 'F', '福州': 'F',
+  '广州': 'G', '贵阳': 'G', '桂林': 'G',
+  '哈尔滨': 'H', '哈密': 'H', '海口': 'H', '合肥': 'H', '杭州': 'H', '呼和浩特': 'H', '湖州': 'H', '惠州': 'H', '海宁': 'H',
+  '济南': 'J', '嘉兴': 'J', '金华': 'J',
+  '昆明': 'K', '昆山': 'K',
+  '兰州': 'L', '连云港': 'L', '柳州': 'L',
+  '马鞍山': 'M',
+  '南京': 'N', '南宁': 'N', '南通': 'N', '南昌': 'N', '宁波': 'N',
+  '青岛': 'Q', '泉州': 'Q',
+  '沈阳': 'S', '深圳': 'S', '石家庄': 'S', '苏州': 'S', '宿迁': 'S', '绍兴': 'S',
+  '太原': 'T', '天津': 'T',
+  '温州': 'W', '武汉': 'W', '无锡': 'W', '芜湖': 'W',
+  '厦门': 'X', '西安': 'X', '徐州': 'X', '襄阳': 'X',
+  '扬州': 'Y', '烟台': 'Y', '义乌': 'Y', '玉林': 'Y',
+  '郑州': 'Z', '中山': 'Z', '珠海': 'Z', '漳州': 'Z',
+}
+
+function groupCitiesByInitial(cities: string[]) {
+  const groups: Record<string, string[]> = {}
+  const other: string[] = []
+  for (const city of cities) {
+    const initial = CITY_PINYIN_INITIAL[city]
+    if (initial) {
+      if (!groups[initial]) groups[initial] = []
+      groups[initial].push(city)
+    } else {
+      other.push(city)
+    }
+  }
+  const sorted = Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
+  if (other.length > 0) sorted.push(['其他', other])
+  return sorted
+}
 
 export function ConnectForm({ community, user, cities, communities = [] }: ConnectFormProps) {
   const [step, setStep] = useState<'step1' | 'step2' | 'success'>('step1')
@@ -116,6 +158,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
       productStage: '',
       productWebsite: '',
       showInPlaza: true,
+      acceptInterview: false,
     },
   })
 
@@ -155,6 +198,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           productStage: step2Data?.productStage || undefined,
           productWebsite: step2Data?.productWebsite || undefined,
           showInPlaza: step2Data?.showInPlaza ?? true,
+          acceptInterview: step2Data?.acceptInterview || false,
           bpUrl: bpFile?.url || undefined,
           bpFilename: bpFile?.filename || undefined,
           source: window.location.href,
@@ -309,10 +353,10 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="contact">微信号（用于社区对接） *</Label>
+            <Label htmlFor="contact">手机号（用于社区对接） *</Label>
             <Input
               id="contact"
-              placeholder="你的微信号"
+              placeholder="你的手机号"
               className="mt-1.5"
               {...form1.register('contact')}
             />
@@ -331,10 +375,15 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
                 <SelectValue placeholder="选择城市" />
               </SelectTrigger>
               <SelectContent>
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
+                {groupCitiesByInitial(cities).map(([letter, citiesInGroup]) => (
+                  <SelectGroup key={letter}>
+                    <SelectLabel>{letter}</SelectLabel>
+                    {citiesInGroup.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
@@ -453,11 +502,11 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
           </div>
 
           <div>
-            <Label htmlFor="productTagline">一句话介绍产品（选填）</Label>
+            <Label htmlFor="productTagline">简单描述你的产品或服务（选填）</Label>
             <Input
               id="productTagline"
-              placeholder="例：帮助创业者快速搭建落地页"
-              maxLength={100}
+              placeholder="你在做什么，解决谁的问题，现在到了哪个阶段"
+              maxLength={300}
               className="mt-1.5"
               {...form2.register('productTagline')}
             />
@@ -543,6 +592,22 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
             <Label htmlFor="showInPlaza" className="text-sm font-normal leading-snug cursor-pointer">
               同时展示在创业者广场
             </Label>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="acceptInterview"
+              checked={form2.watch('acceptInterview')}
+              onCheckedChange={(val) => form2.setValue('acceptInterview', !!val)}
+            />
+            <div>
+              <Label htmlFor="acceptInterview" className="cursor-pointer">
+                愿意接受官方媒体采访或宣传报道
+              </Label>
+              <p className="text-xs text-mute mt-0.5">
+                OPC圈会不定期推荐优质创业者故事，勾选后有机会获得曝光
+              </p>
+            </div>
           </div>
 
           <div className="flex gap-3">

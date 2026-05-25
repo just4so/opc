@@ -232,7 +232,7 @@ async function enrichSummaries(
 正文：${text}`
 
         const comp = await Promise.race([
-          client.chat.completions.create({
+          client!.chat.completions.create({
             model: CLUSTER_MODEL,
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.1,

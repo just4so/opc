@@ -12,10 +12,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, tagline, stage, website, contentType } = body
+    const { name, tagline, description, stage, website, contentType } = body
 
     if (!name?.trim() || !tagline?.trim()) {
       return NextResponse.json({ error: '名称和简介必填' }, { status: 400 })
+    }
+
+    if (description && description.length > 500) {
+      return NextResponse.json({ error: '描述不能超过500字' }, { status: 400 })
     }
 
     const validContentTypes = ['PROJECT', 'DEMAND', 'COOPERATION'] as const
@@ -30,7 +34,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: name.trim(),
         tagline: tagline.trim(),
-        description: tagline.trim(),
+        description: description?.trim() || tagline.trim(),
         stage: st,
         website: website?.trim() || null,
         contentType: ct,
@@ -42,6 +46,7 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         tagline: true,
+        description: true,
         stage: true,
         website: true,
         contentType: true,

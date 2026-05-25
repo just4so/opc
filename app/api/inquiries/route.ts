@@ -26,13 +26,14 @@ const createInquirySchema = z.object({
   city: z.string().max(50).optional(),
   bio: z.string().max(200).optional(),
   productName: z.string().max(100).optional(),
-  productTagline: z.string().max(100).optional(),
+  productTagline: z.string().max(300).optional(),
   productStage: z.string().max(50).optional(),
   productWebsite: z.string().max(200).optional(),
   showInPlaza: z.boolean().optional().default(true),
   bpUrl: z.string().max(500).optional(),
   bpFilename: z.string().max(200).optional(),
   source: z.string().max(500).optional(),
+  acceptInterview: z.boolean().optional().default(false),
 })
 
 export async function POST(req: Request) {
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     const {
       communitySlug, name, contact, city,
       bio, productName, productTagline, productStage, productWebsite,
-      showInPlaza, bpUrl, bpFilename, source,
+      showInPlaza, bpUrl, bpFilename, source, acceptInterview,
     } = parsed.data
 
     let communityId: string | null = null
@@ -124,6 +125,7 @@ export async function POST(req: Request) {
           bpUrl,
           bpFilename,
           source,
+          acceptInterview: acceptInterview ?? false,
         },
       })
 
@@ -151,7 +153,7 @@ export async function POST(req: Request) {
             slug: projectSlug,
             name: productName,
             tagline: productTagline || '',
-            description: '',
+            description: productTagline || '',
             stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
             website: productWebsite || null,
             ownerId: userId,

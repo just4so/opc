@@ -115,7 +115,7 @@ export default function SettingsPage() {
   // Projects
   const [projects, setProjects] = useState<ProjectItem[]>([])
   const [showNewProject, setShowNewProject] = useState(false)
-  const [newProject, setNewProject] = useState({ name: '', tagline: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+  const [newProject, setNewProject] = useState({ name: '', tagline: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
 
   // Hash-based section navigation
   useEffect(() => {
@@ -293,7 +293,7 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json()
         setProjects(prev => [...prev, data])
-        setNewProject({ name: '', tagline: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+        setNewProject({ name: '', tagline: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
         setShowNewProject(false)
       }
     } catch {}
@@ -683,6 +683,14 @@ export default function SettingsPage() {
                       value={newProject.tagline}
                       onChange={e => setNewProject(prev => ({ ...prev, tagline: e.target.value }))}
                       placeholder="一句话描述"
+                    />
+                    <textarea
+                      value={newProject.description}
+                      onChange={e => setNewProject(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="你在做什么，解决谁的问题，现在到了哪个阶段"
+                      maxLength={500}
+                      rows={3}
+                      className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
                     />
                     <div className="grid grid-cols-2 gap-3">
                       <select

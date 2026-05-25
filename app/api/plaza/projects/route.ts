@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
           id: true,
           name: true,
           tagline: true,
+          description: true,
           stage: true,
           website: true,
           contentType: true,

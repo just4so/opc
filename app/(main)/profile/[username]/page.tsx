@@ -94,6 +94,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         slug: true,
         name: true,
         tagline: true,
+        description: true,
         stage: true,
         website: true,
         contentType: true,

@@ -29,11 +29,18 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    const header = '称呼,联系方式,意向社区,城市,方向,阶段,状态,提交时间'
+    const header = '称呼,联系方式,意向社区,城市,方向,阶段,状态,提交时间,BP文件,愿意接受采访'
     const rows = inquiries.map((inq) => {
       const communityName = inq.community?.name || inq.communityName || ''
-      const date = new Date(inq.createdAt)
-      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+      const dateStr = new Date(inq.createdAt).toLocaleString('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
 
       return [
         inq.name,
@@ -44,6 +51,8 @@ export async function GET(request: NextRequest) {
         inq.stage || '',
         STATUS_LABEL[inq.status] || inq.status,
         dateStr,
+        inq.bpFilename || '',
+        inq.acceptInterview ? '是' : '否',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(',')

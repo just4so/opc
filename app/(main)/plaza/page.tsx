@@ -92,6 +92,7 @@ export default async function PlazaPage() {
         id: true,
         name: true,
         tagline: true,
+        description: true,
         stage: true,
         website: true,
         contentType: true,
