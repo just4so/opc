@@ -140,6 +140,45 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
     return { collected, skipped }
   }
 
+  // Step 0: 对 content 过长（>200字）的条目抓正文——RSS description 可能是原文截取，
+  // AI 用截取片段生成的摘要质量差（如「中经记者 杭州报道...」），基于完整正文提炼才靠谱
+  const CONTENT_TOO_LONG = 200
+  const needFetch = candidates.filter(item => item.content.length > CONTENT_TOO_LONG)
+  if (needFetch.length > 0) {
+    log(`${needFetch.length} 条 content 超 ${CONTENT_TOO_LONG} 字（疑似原文截取），尝试抓正文替换...`)
+    const FETCH_CONCURRENCY = 5
+    let fi = 0
+    async function fetchWorker() {
+      while (fi < needFetch.length) {
+        const item = needFetch[fi++]
+        try {
+          const ctrl = new AbortController()
+          const timer = setTimeout(() => ctrl.abort(), 8000)
+          const res = await fetch(item.url, {
+            signal: ctrl.signal,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OPCRadarBot/1.0)' },
+            redirect: 'follow',
+          })
+          clearTimeout(timer)
+          if (!res.ok) continue
+          const html = await res.text()
+          const text = html
+            .replace(/<script[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[\s\S]*?<\/style>/gi, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&[a-zA-Z]+;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 2000)
+          if (text.length > 200) {
+            item.content = text  // 用完整正文替换 RSS description 截取
+          }
+        } catch { /* 抓不到就用原来的 content */ }
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(FETCH_CONCURRENCY, needFetch.length) }, fetchWorker))
+  }
+
   // 批量并发 AI 判断（与 GNews 一致：2条/批，10并发）
   const aiInputs = candidates.map(item => ({
     title: item.title, content: item.content, url: item.url,
