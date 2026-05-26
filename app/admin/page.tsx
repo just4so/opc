@@ -48,7 +48,9 @@ export default async function AdminDashboard() {
       count: data.pendingInquiries,
       href: '/admin/inquiries?status=PENDING',
       icon: PhoneForwarded,
-      color: 'text-orange-600',
+      iconColor: 'text-orange-600',
+      labelColor: 'text-orange-600/80',
+      countColor: 'text-orange-700',
       bg: 'bg-orange-50',
       border: 'border-orange-100',
     },
@@ -57,7 +59,9 @@ export default async function AdminDashboard() {
       count: data.pendingClaims,
       href: '/admin/communities?tab=claims',
       icon: MapPinned,
-      color: 'text-blue-600',
+      iconColor: 'text-blue-600',
+      labelColor: 'text-blue-600/80',
+      countColor: 'text-blue-700',
       bg: 'bg-blue-50',
       border: 'border-blue-100',
     },
@@ -66,7 +70,9 @@ export default async function AdminDashboard() {
       count: data.pendingVerifications,
       href: '/admin/verify',
       icon: ShieldCheck,
-      color: 'text-purple-600',
+      iconColor: 'text-purple-600',
+      labelColor: 'text-purple-600/80',
+      countColor: 'text-purple-700',
       bg: 'bg-purple-50',
       border: 'border-purple-100',
     },
@@ -94,11 +100,11 @@ export default async function AdminDashboard() {
                 <div className={`${todo.bg} border ${todo.border} rounded-xl p-4 hover:shadow-sm transition-shadow`}>
                   <div className="flex items-center gap-3">
                     <div className={`p-2 ${todo.bg} rounded-lg`}>
-                      <todo.icon className={`h-5 w-5 ${todo.color}`} />
+                      <todo.icon className={`h-5 w-5 ${todo.iconColor}`} />
                     </div>
                     <div>
-                      <p className={`text-xs ${todo.color}/80`}>{todo.label}</p>
-                      <p className={`text-2xl font-bold ${todo.color}`}>{todo.count}</p>
+                      <p className={`text-xs ${todo.labelColor}`}>{todo.label}</p>
+                      <p className={`text-2xl font-bold ${todo.countColor}`}>{todo.count}</p>
                     </div>
                   </div>
                 </div>

@@ -38,7 +38,6 @@ export async function GET() {
         take: 10,
         select: {
           id: true,
-          title: true,
           content: true,
           createdAt: true,
           author: { select: { name: true, username: true } },
@@ -75,7 +74,7 @@ export async function GET() {
       ...posts.map((p) => ({
         type: 'post' as const,
         title: `新帖子发布`,
-        subtitle: p.title || p.content.slice(0, 40),
+        subtitle: p.content.slice(0, 40),
         time: p.createdAt.toISOString(),
         link: `/admin/posts`,
       })),
@@ -90,7 +89,7 @@ export async function GET() {
 
     items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 
-    return NextResponse.json(items.slice(0, 20))
+    return NextResponse.json({ items: items.slice(0, 20) })
   } catch (error) {
     console.error('获取活动流失败:', error)
     return NextResponse.json({ error: '获取失败' }, { status: 500 })
