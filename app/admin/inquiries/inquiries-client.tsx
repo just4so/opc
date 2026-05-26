@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Download, FileText, ExternalLink } from 'lucide-react'
+import { InquiryDrawer } from '@/components/admin/inquiry-drawer'
 
 type InquiryStatus = 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED'
 
@@ -67,6 +68,7 @@ export function InquiriesClient() {
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
   const [stats, setStats] = useState<InquiryStats | null>(null)
+  const [drawerInquiryId, setDrawerInquiryId] = useState<string | null>(null)
 
   const fetchInquiries = useCallback(async () => {
     setLoading(true)
@@ -223,7 +225,7 @@ export function InquiriesClient() {
               {inquiries.map((inq) => {
                 const badge = STATUS_BADGE[inq.status]
                 return (
-                  <tr key={inq.id} className="border-b last:border-0 hover:bg-gray-50">
+                  <tr key={inq.id} className="border-b last:border-0 hover:bg-gray-50 cursor-pointer" onClick={() => setDrawerInquiryId(inq.id)}>
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-1.5">
                         <span>{inq.name}</span>
@@ -234,6 +236,7 @@ export function InquiriesClient() {
                             rel="noopener noreferrer"
                             className="text-primary hover:text-primary/80"
                             title="查看广场卡片"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <ExternalLink className="h-3 w-3" />
                           </a>
@@ -249,7 +252,7 @@ export function InquiriesClient() {
                       {inq.introduction || '-'}
                     </td>
                     <td className="py-3 pr-4 text-gray-600">{inq.stage || '-'}</td>
-                    <td className="py-3 pr-4">
+                    <td className="py-3 pr-4" onClick={(e) => e.stopPropagation()}>
                       {inq.bpUrl ? (
                         <a
                           href={inq.bpUrl}
@@ -271,7 +274,7 @@ export function InquiriesClient() {
                         <span className="text-gray-300 text-xs">-</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4">
+                    <td className="py-3 pr-4" onClick={(e) => e.stopPropagation()}>
                       <select
                         value={inq.status}
                         disabled={updating === inq.id}
@@ -320,6 +323,12 @@ export function InquiriesClient() {
           </div>
         </div>
       )}
+      {/* Inquiry Drawer */}
+      <InquiryDrawer
+        inquiryId={drawerInquiryId}
+        onClose={() => setDrawerInquiryId(null)}
+        onSaved={() => fetchInquiries()}
+      />
     </div>
   )
 }

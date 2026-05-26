@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { BadgeCheck, X } from 'lucide-react'
+import { BadgeCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { UserDrawer } from '@/components/admin/user-drawer'
 
 type VerifyType = 'IDENTITY' | 'ENTREPRENEUR' | 'EXPERT' | 'COMMUNITY'
 
@@ -13,8 +14,6 @@ const VERIFY_TYPE_LABELS: Record<VerifyType, string> = {
   EXPERT: '专家认证',
   COMMUNITY: '社区认证',
 }
-
-const VERIFY_TYPES: VerifyType[] = ['IDENTITY', 'ENTREPRENEUR', 'EXPERT', 'COMMUNITY']
 
 interface PlazaUser {
   id: string
@@ -37,9 +36,7 @@ export function VerifyClient() {
   const [tab, setTab] = useState<FilterTab>('ALL')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [updating, setUpdating] = useState<string | null>(null)
-  const [dialogUser, setDialogUser] = useState<PlazaUser | null>(null)
-  const [selectedType, setSelectedType] = useState<VerifyType>('ENTREPRENEUR')
+  const [drawerUserId, setDrawerUserId] = useState<string | null>(null)
   const limit = 20
 
   const fetchUsers = useCallback(async () => {
@@ -66,42 +63,6 @@ export function VerifyClient() {
   function handleTabChange(newTab: FilterTab) {
     setTab(newTab)
     setPage(1)
-  }
-
-  async function handleVerify(userId: string, verifyType: VerifyType) {
-    setUpdating(userId)
-    try {
-      const res = await fetch(`/api/admin/verify/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verified: true, verifyType }),
-      })
-      if (res.ok) {
-        setDialogUser(null)
-        await fetchUsers()
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setUpdating(null)
-    }
-  }
-
-  async function handleRevoke(userId: string) {
-    if (!confirm('确认取消该用户的认证？')) return
-    setUpdating(userId)
-    try {
-      const res = await fetch(`/api/admin/verify/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ verified: false }),
-      })
-      if (res.ok) await fetchUsers()
-    } catch {
-      // silently fail
-    } finally {
-      setUpdating(null)
-    }
   }
 
   const totalPages = Math.ceil(total / limit)
@@ -163,7 +124,12 @@ export function VerifyClient() {
                         </div>
                       )}
                       <div className="min-w-0">
-                        <div className="font-medium text-gray-900 truncate">{user.name || user.username}</div>
+                        <button
+                          className="font-medium text-gray-900 truncate hover:text-primary transition-colors text-left"
+                          onClick={() => setDrawerUserId(user.id)}
+                        >
+                          {user.name || user.username}
+                        </button>
                         <div className="text-xs text-gray-400">@{user.username}</div>
                       </div>
                     </div>
@@ -185,25 +151,13 @@ export function VerifyClient() {
                     )}
                   </td>
                   <td className="py-3">
-                    {user.verified ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={updating === user.id}
-                        onClick={() => handleRevoke(user.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        取消认证
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        disabled={updating === user.id}
-                        onClick={() => { setDialogUser(user); setSelectedType('ENTREPRENEUR') }}
-                      >
-                        认证
-                      </Button>
-                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDrawerUserId(user.id)}
+                    >
+                      详情
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -229,52 +183,12 @@ export function VerifyClient() {
         </div>
       )}
 
-      {/* Verify Dialog */}
-      {dialogUser && (
-        <>
-          <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setDialogUser(null)} />
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">认证用户</h3>
-              <button onClick={() => setDialogUser(null)} className="p-1 hover:bg-gray-100 rounded">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              为 <strong>{dialogUser.name || dialogUser.username}</strong> 选择认证类型：
-            </p>
-            <div className="space-y-2 mb-6">
-              {VERIFY_TYPES.map(vt => (
-                <label
-                  key={vt}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedType === vt ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="verifyType"
-                    value={vt}
-                    checked={selectedType === vt}
-                    onChange={() => setSelectedType(vt)}
-                    className="accent-primary"
-                  />
-                  <span className="text-sm font-medium">{VERIFY_TYPE_LABELS[vt]}</span>
-                </label>
-              ))}
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDialogUser(null)}>取消</Button>
-              <Button
-                disabled={updating === dialogUser.id}
-                onClick={() => handleVerify(dialogUser.id, selectedType)}
-              >
-                {updating === dialogUser.id ? '处理中...' : '确认认证'}
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
+      {/* User Drawer */}
+      <UserDrawer
+        userId={drawerUserId}
+        onClose={() => setDrawerUserId(null)}
+        onSaved={() => fetchUsers()}
+      />
     </div>
   )
 }

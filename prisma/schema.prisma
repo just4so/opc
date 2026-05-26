@@ -516,6 +516,7 @@ model Inquiry {
   acceptInterview Boolean       @default(false)
   bpUrl           String?
   bpFilename      String?
+  adminNote       String?
   status          InquiryStatus @default(PENDING)
   source          String?
   createdAt       DateTime      @default(now())
