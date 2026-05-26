@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
     {
       label: '待认证用户',
       count: data.pendingVerifications,
-      href: '/admin/verify',
+      href: '/admin/verify?filter=UNVERIFIED',
       icon: ShieldCheck,
       iconColor: 'text-purple-600',
       labelColor: 'text-purple-600/80',
@@ -81,10 +81,10 @@ export default async function AdminDashboard() {
   const hasTodos = todos.some(t => t.count > 0)
 
   const todayStats = [
-    { label: '新注册', value: data.todayUsers, icon: UserPlus },
-    { label: '新意向', value: data.todayInquiries, icon: PhoneForwarded },
-    { label: '新帖子', value: data.todayPosts, icon: FileText },
-    { label: '新认领', value: data.todayClaims, icon: MapPinned },
+    { label: '新注册', value: data.todayUsers, icon: UserPlus, href: '/admin/users' },
+    { label: '新意向', value: data.todayInquiries, icon: PhoneForwarded, href: '/admin/inquiries' },
+    { label: '新帖子', value: data.todayPosts, icon: FileText, href: '/admin/posts' },
+    { label: '新认领', value: data.todayClaims, icon: MapPinned, href: '/admin/communities?tab=claims' },
   ]
 
   return (
@@ -120,15 +120,15 @@ export default async function AdminDashboard() {
       </div>
 
       {/* 第二层：今日动态 */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {todayStats.map(stat => (
-          <div key={stat.label} className="flex items-center gap-2.5 px-4 py-3 bg-white border border-gray-100 rounded-xl">
+          <Link key={stat.label} href={stat.href} className="flex items-center gap-2.5 px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all">
             <stat.icon className="h-4 w-4 text-gray-400" />
             <div>
               <p className="text-xs text-gray-400">{stat.label}</p>
               <p className="text-lg font-semibold text-gray-700">{stat.value}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

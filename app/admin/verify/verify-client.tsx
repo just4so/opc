@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { BadgeCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,7 +34,10 @@ type FilterTab = 'ALL' | 'VERIFIED' | 'UNVERIFIED'
 export function VerifyClient() {
   const [users, setUsers] = useState<PlazaUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<FilterTab>('ALL')
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState<FilterTab>(
+    (searchParams.get('filter') as FilterTab) || 'ALL'
+  )
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [drawerUserId, setDrawerUserId] = useState<string | null>(null)

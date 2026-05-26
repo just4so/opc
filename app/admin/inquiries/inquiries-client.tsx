@@ -91,12 +91,19 @@ export function InquiriesClient() {
     fetchInquiries()
   }, [fetchInquiries])
 
-  useEffect(() => {
-    fetch('/api/admin/stats/inquiries')
-      .then(res => res.json())
-      .then(setStats)
-      .catch(() => {})
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/stats/inquiries')
+      const data = await res.json()
+      setStats(data)
+    } catch {
+      // silently fail
+    }
   }, [])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
 
   function handleTabChange(newTab: InquiryStatus | 'ALL') {
     setTab(newTab)
@@ -113,6 +120,7 @@ export function InquiriesClient() {
       })
       if (res.ok) {
         await fetchInquiries()
+        fetchStats()
       }
     } catch {
       // silently fail
@@ -327,7 +335,7 @@ export function InquiriesClient() {
       <InquiryDrawer
         inquiryId={drawerInquiryId}
         onClose={() => setDrawerInquiryId(null)}
-        onSaved={() => fetchInquiries()}
+        onSaved={() => { fetchInquiries(); fetchStats() }}
       />
     </div>
   )
