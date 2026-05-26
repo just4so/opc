@@ -22,6 +22,7 @@ interface Inquiry {
   wantVerify: boolean
   bpUrl: string | null
   bpFilename: string | null
+  adminNote: string | null
   acceptInterview: boolean
   createdAt: string
   community: { id: string; name: string; slug: string } | null
@@ -221,11 +222,11 @@ export function InquiriesClient() {
                 <th className="pb-3 pr-4 font-medium">联系方式</th>
                 <th className="pb-3 pr-4 font-medium">意向社区</th>
                 <th className="pb-3 pr-4 font-medium">城市</th>
-                <th className="pb-3 pr-4 font-medium">方向</th>
-                <th className="pb-3 pr-4 font-medium">阶段</th>
+                <th className="pb-3 pr-4 font-medium">简介</th>
                 <th className="pb-3 pr-4 font-medium">BP</th>
                 <th className="pb-3 pr-4 font-medium">采访意向</th>
                 <th className="pb-3 pr-4 font-medium">状态</th>
+                <th className="pb-3 pr-4 font-medium">内部备注</th>
                 <th className="pb-3 font-medium">时间</th>
               </tr>
             </thead>
@@ -256,10 +257,9 @@ export function InquiriesClient() {
                       {inq.community?.name || inq.communityName || '-'}
                     </td>
                     <td className="py-3 pr-4 text-gray-600">{inq.city || '-'}</td>
-                    <td className="py-3 pr-4 text-gray-600 max-w-[120px] truncate">
+                    <td className="py-3 pr-4 text-gray-600 max-w-[180px] truncate" title={inq.introduction || ''}>
                       {inq.introduction || '-'}
                     </td>
-                    <td className="py-3 pr-4 text-gray-600">{inq.stage || '-'}</td>
                     <td className="py-3 pr-4" onClick={(e) => e.stopPropagation()}>
                       {inq.bpUrl ? (
                         <a
@@ -293,6 +293,9 @@ export function InquiriesClient() {
                           <option key={s} value={s}>{STATUS_BADGE[s].label}</option>
                         ))}
                       </select>
+                    </td>
+                    <td className="py-3 pr-4 text-gray-500 max-w-[150px] truncate text-xs" title={inq.adminNote || ''}>
+                      {inq.adminNote ? inq.adminNote : <span className="text-gray-300">-</span>}
                     </td>
                     <td className="py-3 text-gray-400 whitespace-nowrap">
                       {formatDate(inq.createdAt)}

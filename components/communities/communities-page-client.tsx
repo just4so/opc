@@ -6,7 +6,7 @@ import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X, Star } from 'lucide-react'
 import { PageHeader } from '@/components/ui/page-header'
-import { CITIES } from '@/constants/cities'
+import { CITIES, HOT_CITIES } from '@/constants/cities'
 
 const PAGE_SIZE = 12
 
@@ -54,6 +54,7 @@ export function CommunitiesPageClient({
   const [cityCounts, setCityCounts] = useState<{ city: string; count: number }[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedProvinces, setExpandedProvinces] = useState<Set<string>>(new Set())
+  const [showAllCities, setShowAllCities] = useState(false)
 
   useEffect(() => {
     fetch('/api/community-stats')
@@ -217,35 +218,81 @@ export function CommunitiesPageClient({
           </div>
 
           {/* 城市筛选 Pill */}
-          {!isSearching && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => handleCityChange('')}
-                className={cn(
-                  'px-3.5 py-1 rounded-full text-sm font-medium transition-all',
-                  !selectedCity
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-mute hover:text-ink hover:bg-surface-soft'
-                )}
-              >
-                全部
-              </button>
-              {cityCounts.map((c) => (
-                <button
-                  key={c.city}
-                  onClick={() => handleCityChange(c.city)}
-                  className={cn(
-                    'px-3.5 py-1 rounded-full text-sm font-medium transition-all',
-                    selectedCity === c.city
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'text-mute hover:text-ink hover:bg-surface-soft'
+          {!isSearching && (() => {
+            const hotCities = cityCounts.filter(c => HOT_CITIES.includes(c.city))
+              .sort((a, b) => HOT_CITIES.indexOf(a.city) - HOT_CITIES.indexOf(b.city))
+            const otherCities = cityCounts.filter(c => !HOT_CITIES.includes(c.city))
+            const selectedIsOther = selectedCity && !HOT_CITIES.includes(selectedCity)
+
+            return (
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleCityChange('')}
+                    className={cn(
+                      'city-pill',
+                      !selectedCity && 'city-pill-active'
+                    )}
+                  >
+                    全部
+                  </button>
+                  {hotCities.map((c) => (
+                    <button
+                      key={c.city}
+                      onClick={() => handleCityChange(c.city)}
+                      className={cn(
+                        'city-pill',
+                        selectedCity === c.city && 'city-pill-active'
+                      )}
+                    >
+                      {c.city}
+                    </button>
+                  ))}
+                  {/* 如果当前选中的城市在“更多”里且未展开，临时显示它 */}
+                  {selectedIsOther && !showAllCities && (
+                    <button
+                      key={selectedCity}
+                      className="city-pill city-pill-active"
+                      onClick={() => handleCityChange(selectedCity)}
+                    >
+                      {selectedCity}
+                    </button>
                   )}
-                >
-                  {c.city}
-                </button>
-              ))}
-            </div>
-          )}
+                  {otherCities.length > 0 && (
+                    <button
+                      onClick={() => setShowAllCities(!showAllCities)}
+                      className="city-pill city-pill-more"
+                    >
+                      {showAllCities ? '收起' : `更多城市 (${otherCities.length})`}
+                      <ChevronDown className={cn(
+                        'h-3 w-3 ml-0.5 transition-transform duration-200',
+                        showAllCities && 'rotate-180'
+                      )} />
+                    </button>
+                  )}
+                </div>
+                {/* 展开的更多城市 */}
+                <div className={`city-expand-container ${showAllCities ? 'expanded' : ''}`}>
+                  <div>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {otherCities.map((c) => (
+                        <button
+                          key={c.city}
+                          onClick={() => handleCityChange(c.city)}
+                          className={cn(
+                            'city-pill',
+                            selectedCity === c.city && 'city-pill-active'
+                          )}
+                        >
+                          {c.city}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* 搜索结果提示 */}
           {isSearching && (

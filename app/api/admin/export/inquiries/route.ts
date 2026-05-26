@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    const header = '称呼,联系方式,意向社区,城市,方向,阶段,状态,提交时间,BP文件,愿意接受采访'
+    const header = '称呼,联系方式,意向社区,城市,简介,状态,提交时间,BP文件,愿意接受采访,内部备注'
     const rows = inquiries.map((inq) => {
       const communityName = inq.community?.name || inq.communityName || ''
       const dateStr = new Date(inq.createdAt).toLocaleString('zh-CN', {
@@ -48,11 +48,11 @@ export async function GET(request: NextRequest) {
         communityName,
         inq.city || '',
         inq.introduction || '',
-        inq.stage || '',
         STATUS_LABEL[inq.status] || inq.status,
         dateStr,
         inq.bpFilename || '',
         inq.acceptInterview ? '是' : '否',
+        inq.adminNote || '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(',')
