@@ -392,3 +392,4 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 | docs/V2-INTERACTION-SPEC.md | 交互优化规格书 |
 | docs/V2-MANUAL-TEST.md | 人工测试清单 |
 | DESIGN.md | 设计系统（token 定义） |
+| docs/community-upgrade-prd.md | 社区粘性升级 PRD（关注/通知/推荐/进展帖） |
