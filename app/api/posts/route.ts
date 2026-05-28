@@ -81,6 +81,12 @@ export async function GET(request: NextRequest) {
               startupStage: true,
             },
           },
+          project: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
           _count: {
             select: { comments: true },
           },
@@ -141,6 +147,7 @@ export async function POST(request: NextRequest) {
       contactInfo,
       contactType,
       milestone,
+      projectId,
     } = body
 
     if (!contentHtml || contentHtml.trim().length === 0) {
@@ -161,6 +168,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'COLLAB类型帖子必须填写联系方式' }, { status: 400 })
     }
 
+    let validatedProjectId: string | null = null
+    if (projectId) {
+      const project = await prisma.project.findFirst({
+        where: { id: projectId, ownerId: session.user.id },
+        select: { id: true },
+      })
+      if (!project) {
+        return NextResponse.json({ error: '关联产品不存在或不属于你' }, { status: 400 })
+      }
+      validatedProjectId = project.id
+    }
+
     const post = await prisma.post.create({
       data: {
         content: plainContent,
@@ -177,6 +196,7 @@ export async function POST(request: NextRequest) {
         contactInfo: contactInfo?.trim() || null,
         contactType: contactType || null,
         milestone: type === 'PROGRESS' && milestone ? milestone : null,
+        projectId: validatedProjectId,
         authorId: session.user.id,
       },
       include: {

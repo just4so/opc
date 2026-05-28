@@ -346,6 +346,16 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
         {/* === Tab Content === */}
         {activeTab === 'progress' ? (
           <div className="mt-6">
+            {isOwnProfile && progressPosts.length > 0 && (
+              <div className="mb-4 flex justify-end">
+                <Link href="/plaza/new?type=PROGRESS">
+                  <Button size="sm" variant="outline" className="gap-1 text-xs">
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    记录一下？
+                  </Button>
+                </Link>
+              </div>
+            )}
             <ProgressTimeline posts={progressPosts} isOwnProfile={isOwnProfile} />
           </div>
         ) : (

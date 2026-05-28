@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { ArrowLeft } from 'lucide-react'
@@ -38,12 +38,15 @@ const CONTACT_TYPES = [
 
 export default function NewPostPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [type, setType] = useState('CHAT')
+  const [type, setType] = useState(searchParams.get('type') || 'CHAT')
   const [title, setTitle] = useState('')
   const [contentHtml, setContentHtml] = useState('')
   const [topics, setTopics] = useState<string[]>([])
   const [milestone, setMilestone] = useState('')
+  const [projectId, setProjectId] = useState(searchParams.get('projectId') || '')
+  const [userProjects, setUserProjects] = useState<{ id: string; name: string; slug: string }[]>([])
   // COLLAB fields
   const [budgetType, setBudgetType] = useState('NEGOTIABLE')
   const [budgetMin, setBudgetMin] = useState('')
@@ -55,6 +58,15 @@ export default function NewPostPage() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (type === 'PROGRESS') {
+      fetch('/api/user/projects/list')
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setUserProjects(Array.isArray(data) ? data : []))
+        .catch(() => setUserProjects([]))
+    }
+  }, [type])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +92,7 @@ export default function NewPostPage() {
         images: [],
         title: title.trim() || undefined,
         milestone: type === 'PROGRESS' && milestone ? milestone : undefined,
+        projectId: type === 'PROGRESS' && projectId ? projectId : undefined,
       }
 
       if (type === 'COLLAB') {
@@ -206,6 +219,25 @@ export default function NewPostPage() {
                     <option value="">选择一个里程碑...</option>
                     {MILESTONES.map((m) => (
                       <option key={m.id} value={m.id}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* PROGRESS 关联产品 */}
+              {type === 'PROGRESS' && userProjects.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-charcoal mb-2 block">
+                    关联产品 <span className="text-ash font-normal">（可选）</span>
+                  </label>
+                  <select
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    className="w-full rounded-lg border border-hairline-soft bg-canvas px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="">不关联产品</option>
+                    {userProjects.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
                 </div>

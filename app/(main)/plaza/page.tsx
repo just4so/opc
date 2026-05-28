@@ -42,6 +42,12 @@ export default async function PlazaPage() {
             startupStage: true,
           },
         },
+        project: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
         _count: {
           select: { comments: true },
         },

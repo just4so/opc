@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow, format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
-import { Heart, MessageCircle, Eye } from 'lucide-react'
+import { Heart, MessageCircle, Eye, ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TOPICS } from '@/constants/topics'
@@ -38,6 +38,10 @@ interface PostCardProps {
     budgetType?: string | null
     deadline?: Date | string | null
     milestone?: string | null
+    project?: {
+      name: string
+      slug: string
+    } | null
     author: {
       id: string
       username: string
@@ -166,6 +170,17 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
             {preview}
           </p>
         </Link>
+
+        {/* 关联产品标签 */}
+        {post.project && (
+          <Link
+            href={`/projects/${post.project.slug}`}
+            className="inline-flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors mb-3"
+          >
+            关于：{post.project.name}
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        )}
 
         {/* COLLAB 额外信息 */}
         {post.type === 'COLLAB' && (budgetLabel || post.deadline) && (

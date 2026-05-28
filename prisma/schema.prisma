@@ -171,15 +171,18 @@ model Post {
   skills       String[]
   title        String?
   milestone    String?
+  projectId    String?
   comments     Comment[]
   favorites    Favorite[]
   likes        Like[]
   author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  project      Project?    @relation(fields: [projectId], references: [id])
 
   @@index([authorId])
   @@index([type])
   @@index([createdAt])
   @@index([status, pinned])
+  @@index([projectId, type, createdAt])
 }
 
 model Project {
@@ -220,6 +223,7 @@ model Project {
   deadline        DateTime?
   skills          String[]
   comments        Comment[]
+  posts           Post[]
   favorites       Favorite[]
   likes           Like[]
   owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
