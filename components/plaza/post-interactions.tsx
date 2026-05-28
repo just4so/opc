@@ -45,6 +45,8 @@ export function PostInteractions({
   const [favorited, setFavorited] = useState(false)
   const [isFavoriting, setIsFavoriting] = useState(false)
   const [copyTip, setCopyTip] = useState(false)
+  const [showAllComments, setShowAllComments] = useState(false)
+  const [animateLike, setAnimateLike] = useState(false)
 
   // 检查是否已点赞
   useEffect(() => {
@@ -74,6 +76,8 @@ export function PostInteractions({
 
     if (isLiking) return
     setIsLiking(true)
+    setAnimateLike(true)
+    setTimeout(() => setAnimateLike(false), 300)
 
     try {
       const res = await fetch(`/api/posts/${postId}/like`, {
@@ -140,10 +144,10 @@ export function PostInteractions({
           onClick={handleLike}
           disabled={isLiking}
           className={`flex items-center space-x-2 transition-colors ${
-            liked ? 'text-red-500' : 'hover:text-red-500'
+            liked ? 'text-primary' : 'hover:text-primary'
           }`}
         >
-          <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+          <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''} ${animateLike ? 'animate-heartbeat' : ''}`} />
           <span>{likeCount} 赞</span>
         </button>
         <div className="flex items-center space-x-2 text-mute">
@@ -176,13 +180,13 @@ export function PostInteractions({
 
           {/* 评论表单 */}
           <div className="mb-6">
-            <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
+            <CommentForm postId={postId} onCommentAdded={handleCommentAdded} placeholder="说点什么鼓励一下？" />
           </div>
 
           {/* 评论列表 */}
           {comments.length > 0 ? (
             <div className="space-y-4">
-              {comments.map((comment) => (
+              {(showAllComments ? comments : comments.slice(0, 3)).map((comment) => (
                 <div key={comment.id} className="flex space-x-3">
                   <Link href={`/profile/${comment.author.username}`}>
                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-mute flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
@@ -212,6 +216,14 @@ export function PostInteractions({
                   </div>
                 </div>
               ))}
+              {!showAllComments && comments.length > 3 && (
+                <button
+                  onClick={() => setShowAllComments(true)}
+                  className="text-sm text-primary hover:text-primary-pressed transition-colors font-medium"
+                >
+                  查看更多评论 ({comments.length - 3})
+                </button>
+              )}
             </div>
           ) : (
             <p className="text-mute text-center py-8">暂无评论，来说两句吧</p>

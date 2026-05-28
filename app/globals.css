@@ -352,6 +352,16 @@ body {
   animation: shake 300ms;
 }
 
+/* ===== Like heartbeat ===== */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.animate-heartbeat {
+  animation: heartbeat 300ms ease-in-out;
+}
+
 /* ===== Reduced motion — disable ALL interaction animations ===== */
 @media (prefers-reduced-motion: reduce) {
   .hero-animate { opacity: 1; animation: none; }
@@ -365,6 +375,7 @@ body {
   .success-check-animate { animation: none; opacity: 1; }
   .animate-pulse-arrow { animation: none; }
   .animate-float { animation: none; }
+  .animate-heartbeat { animation: none; }
   .auth-fade-in-up { animation: none; opacity: 1; }
   .auth-fade-in { animation: none; opacity: 1; }
   .error-shake { animation: none; }

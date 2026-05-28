@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
-import { Building2, BadgeCheck, Handshake } from 'lucide-react'
+import { Building2, BadgeCheck, Handshake, Heart, MessageCircle } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
@@ -31,24 +31,28 @@ const getHomeStats = unstable_cache(
   { revalidate: 600 }
 )
 
-const getLatestCreators = unstable_cache(
+const getLatestPosts = unstable_cache(
   async () =>
-    prisma.user.findMany({
-      where: { showInPlaza: true },
-      orderBy: [{ createdAt: 'desc' }],
-      take: 4,
+    prisma.post.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
       select: {
         id: true,
-        username: true,
-        name: true,
-        avatar: true,
-        bio: true,
-        mainTrack: true,
-        location: true,
-        verified: true,
+        title: true,
+        content: true,
+        likeCount: true,
+        commentCount: true,
+        createdAt: true,
+        author: {
+          select: {
+            username: true,
+            name: true,
+          },
+        },
       },
     }),
-  ['home-creators'],
+  ['home-latest-posts'],
   { revalidate: 600 }
 )
 
@@ -73,9 +77,9 @@ const getLatestRadarIssue = unstable_cache(
 )
 
 export default async function HomePage() {
-  const [stats, creators, radarIssue, session] = await Promise.all([
+  const [stats, latestPosts, radarIssue, session] = await Promise.all([
     getHomeStats(),
-    getLatestCreators(),
+    getLatestPosts(),
     getLatestRadarIssue(),
     auth(),
   ])
@@ -204,59 +208,59 @@ export default async function HomePage() {
         <div className="h-20 bg-gradient-to-b from-surface-dark to-canvas" />
       </ScrollReveal>
 
-      {/* ===== 创业者区 ===== */}
+      {/* ===== 最新动态区 ===== */}
       <section className="py-20 px-6 max-w-[1100px] mx-auto">
         <ScrollReveal>
           <div className="flex justify-between items-baseline mb-8">
-            <h2 className="text-2xl font-bold text-ink">最新入驻的创业者</h2>
+            <h2 className="text-2xl font-bold text-ink">最新动态</h2>
             <Link href="/plaza" className="text-sm text-mute hover:text-primary transition-colors">
-              查看全部 →
+              查看更多 →
             </Link>
           </div>
         </ScrollReveal>
-        {creators.length > 0 ? (
-          <ScrollReveal stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {creators.map((creator) => (
-                <div key={creator.id} className="card-interactive p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    {creator.avatar ? (
-                      <img
-                        src={creator.avatar}
-                        alt=""
-                        className="w-11 h-11 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary-soft to-primary-200 flex items-center justify-center text-primary font-bold">
-                        {(creator.name || creator.username)?.[0] || '?'}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-ink truncate">
-                          {creator.name || creator.username}
-                        </span>
-                        {creator.verified && (
-                          <span className="shrink-0 bg-primary text-on-primary text-[10px] px-1.5 rounded font-semibold">
-                            认证
-                          </span>
-                        )}
-                      </div>
-                      {creator.mainTrack && (
-                        <p className="text-xs text-mute truncate">{creator.mainTrack}</p>
-                      )}
+        {latestPosts.length > 0 ? (
+          <ScrollReveal stagger className="space-y-4">
+            {latestPosts.map((post) => {
+              const preview = post.title || post.content.replace(/[#*`>\-\n]+/g, ' ').trim().slice(0, 80)
+              return (
+                <Link
+                  key={post.id}
+                  href={`/plaza/${post.id}`}
+                  className="card-interactive p-5 flex items-start justify-between gap-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-medium text-ink line-clamp-1 mb-1.5">
+                      {preview}
+                    </p>
+                    <div className="flex items-center gap-3 text-xs text-mute">
+                      <span>{post.author.name || post.author.username}</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}</span>
                     </div>
                   </div>
-                  {creator.location && (
-                    <p className="text-xs text-ash mb-2">{creator.location}</p>
-                  )}
-                  {creator.bio && (
-                    <p className="text-[13px] text-body leading-relaxed line-clamp-2">{creator.bio}</p>
-                  )}
-                </div>
-              ))}
+                  <div className="flex items-center gap-3 text-xs shrink-0">
+                    <span className="flex items-center gap-1 text-primary/70">
+                      <Heart className="h-3.5 w-3.5" />
+                      {post.likeCount}
+                    </span>
+                    <span className="flex items-center gap-1 text-slate-500">
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {post.commentCount}
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </ScrollReveal>
         ) : (
-          <p className="text-mute">创业者卡片即将上线，敬请期待</p>
+          <div className="text-center py-12">
+            <p className="text-mute mb-4">还没有动态，去广场发第一条吧</p>
+            <Link
+              href="/plaza"
+              className="inline-block bg-primary text-on-primary rounded-xl px-6 py-2.5 text-sm font-semibold hover:bg-primary-pressed transition-colors"
+            >
+              去广场看看
+            </Link>
+          </div>
         )}
       </section>
 

@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button'
 interface CommentFormProps {
   postId: string
   onCommentAdded?: (comment: any) => void
+  placeholder?: string
 }
 
-export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
+export function CommentForm({ postId, onCommentAdded, placeholder = '写下你的评论...' }: CommentFormProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [content, setContent] = useState('')
@@ -71,7 +72,7 @@ export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="写下你的评论..."
+        placeholder={placeholder}
         className="w-full px-4 py-3 border border-hairline-soft rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
         rows={3}
       />

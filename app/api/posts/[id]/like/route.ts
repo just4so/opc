@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { createPostLikedNotification } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -61,6 +62,9 @@ export async function POST(
           data: { likeCount: { increment: 1 } },
         }),
       ])
+
+      const likerName = session.user.name || '有人'
+      createPostLikedNotification(post.authorId, likerName, postId, userId).catch(() => {})
 
       return NextResponse.json({ liked: true, message: '点赞成功' })
     }

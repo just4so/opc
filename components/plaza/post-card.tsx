@@ -117,7 +117,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
         {/* 作者信息 */}
         <div className="flex items-center gap-2 mb-3">
           <Link href={`/profile/${post.author.username}`}>
-            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary text-sm font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary text-xs font-semibold hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
               {post.author.avatar ? (
                 <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
               ) : (
@@ -209,17 +209,17 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
 
       <CardFooter className="pt-0 pb-3 px-4 border-t">
         <div className="flex items-center justify-between w-full pt-3">
-          <div className="flex items-center gap-4 text-xs text-mute">
+          <div className="flex items-center gap-4 text-xs">
             <button
               onClick={handleLike}
-              className={`flex items-center gap-1 transition-colors ${liked ? 'text-red-500' : 'hover:text-red-500'}`}
+              className={`flex items-center gap-1 transition-colors ${liked ? 'text-primary' : 'text-primary/70 hover:text-primary'}`}
             >
-              <Heart className={`h-4 w-4 ${liked ? 'fill-red-500' : ''}`} />
+              <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
               <span>{likeCount}</span>
             </button>
             <Link
               href={`/plaza/${post.id}#comments`}
-              className="flex items-center gap-1 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-slate-500 hover:text-slate-700 transition-colors"
             >
               <MessageCircle className="h-4 w-4" />
               <span>{post.commentCount}</span>

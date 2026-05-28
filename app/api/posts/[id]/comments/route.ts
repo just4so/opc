@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { createPostCommentedNotification, createCommentRepliedNotification } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -13,7 +14,7 @@ export async function POST(
     }
 
     const { id: postId } = await params
-    const { content } = await request.json()
+    const { content, parentId } = await request.json() as { content?: string; parentId?: string }
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: '评论内容不能为空' }, { status: 400 })
@@ -38,6 +39,7 @@ export async function POST(
           content: content.trim(),
           postId,
           authorId: session.user.id,
+          ...(parentId ? { parentId } : {}),
         },
         include: {
           author: {
@@ -55,6 +57,20 @@ export async function POST(
         data: { commentCount: { increment: 1 } },
       }),
     ])
+
+    const commenterName = session.user.name || '有人'
+
+    if (parentId) {
+      const parentComment = await prisma.comment.findUnique({
+        where: { id: parentId },
+        select: { authorId: true },
+      })
+      if (parentComment) {
+        createCommentRepliedNotification(parentComment.authorId, commenterName, postId, session.user.id).catch(() => {})
+      }
+    }
+
+    createPostCommentedNotification(post.authorId, commenterName, postId, session.user.id).catch(() => {})
 
     return NextResponse.json(comment, { status: 201 })
   } catch (error) {

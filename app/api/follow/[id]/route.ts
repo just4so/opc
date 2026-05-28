@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { createFollowNotification } from '@/lib/notifications'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -38,10 +39,16 @@ export async function POST(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: '不能关注自己' }, { status: 400 })
   }
 
-  const targetUser = await prisma.user.findUnique({
-    where: { id: targetId },
-    select: { id: true },
-  })
+  const [targetUser, currentUser] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: targetId },
+      select: { id: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { username: true, name: true },
+    }),
+  ])
 
   if (!targetUser) {
     return NextResponse.json({ error: '用户不存在' }, { status: 404 })
@@ -60,6 +67,10 @@ export async function POST(req: NextRequest, context: RouteContext) {
     },
     update: {},
   })
+
+  const followerName = currentUser?.name || session.user.name || '有人'
+  const followerUsername = currentUser?.username || session.user.id
+  createFollowNotification(targetId, followerName, session.user.id, followerUsername).catch(() => {})
 
   return NextResponse.json({ success: true })
 }

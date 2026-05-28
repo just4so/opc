@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, MessageSquare, FileText, Loader2 } from 'lucide-react'
+import { Eye, MessageSquare, FileText, Loader2, UserPlus, Heart, MessageCircle, Reply } from 'lucide-react'
 
 interface Notification {
   id: string
@@ -18,12 +18,29 @@ const TYPE_ICON: Record<string, typeof Eye> = {
   CARD_VIEWED: Eye,
   CARD_CONTACTED: MessageSquare,
   INQUIRY_STATUS: FileText,
+  NEW_FOLLOWER: UserPlus,
+  POST_LIKED: Heart,
+  POST_COMMENTED: MessageCircle,
+  COMMENT_REPLIED: Reply,
 }
 
-const TYPE_NAV: Record<string, string> = {
-  CARD_VIEWED: '/profile',
-  CARD_CONTACTED: '/messages',
-  INQUIRY_STATUS: '/profile',
+function getNavTarget(n: Notification): string {
+  switch (n.type) {
+    case 'NEW_FOLLOWER':
+      return n.content ? `/profile/${n.content}` : '/profile'
+    case 'CARD_VIEWED':
+      return '/profile'
+    case 'POST_LIKED':
+    case 'POST_COMMENTED':
+    case 'COMMENT_REPLIED':
+      return n.relatedId ? `/plaza/${n.relatedId}` : '/plaza'
+    case 'INQUIRY_STATUS':
+      return '/profile'
+    case 'CARD_CONTACTED':
+      return '/profile'
+    default:
+      return '/profile'
+  }
 }
 
 function relativeTime(dateStr: string): string {
@@ -89,7 +106,7 @@ export function NotificationPanel({
 
   const handleClick = (n: Notification) => {
     if (!n.isRead) markRead(n.id)
-    const target = TYPE_NAV[n.type] || '/profile'
+    const target = getNavTarget(n)
     onClose()
     router.push(target)
   }
@@ -98,6 +115,14 @@ export function NotificationPanel({
     <div className="absolute right-0 mt-2 w-80 bg-canvas rounded-2xl shadow-lg border z-50">
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <span className="font-medium text-sm text-ink">通知</span>
+        {notifications.some((n) => !n.isRead) && (
+          <button
+            onClick={markAllRead}
+            className="text-xs text-primary hover:underline"
+          >
+            全部标为已读
+          </button>
+        )}
       </div>
       <div className="max-h-[360px] overflow-y-auto">
         {loading ? (
@@ -114,30 +139,23 @@ export function NotificationPanel({
                 key={n.id}
                 onClick={() => handleClick(n)}
                 className={`w-full text-left px-4 py-3 flex gap-3 hover:bg-surface-soft transition-colors border-b border-hairline-soft last:border-0 ${
-                  !n.isRead ? 'border-l-2 border-l-primary bg-orange-50/30' : ''
+                  !n.isRead ? 'bg-orange-50/40' : ''
                 }`}
               >
-                <Icon className="h-4 w-4 mt-0.5 text-ash flex-shrink-0" />
+                <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${!n.isRead ? 'text-primary' : 'text-ash'}`} />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm leading-snug ${!n.isRead ? 'font-semibold text-ink' : 'text-mute'}`}>
+                  <p className={`text-sm leading-snug ${!n.isRead ? 'font-medium text-ink' : 'text-mute'}`}>
                     {n.title}
                   </p>
                   <p className="text-xs text-ash mt-1">{relativeTime(n.createdAt)}</p>
                 </div>
+                {!n.isRead && (
+                  <span className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                )}
               </button>
             )
           })
         )}
-      </div>
-      <div className="px-4 py-2 border-t flex items-center justify-end">
-        {notifications.some((n) => !n.isRead) ? (
-          <button
-            onClick={markAllRead}
-            className="text-xs text-primary hover:underline"
-          >
-            全部标记已读
-          </button>
-        ) : <span />}
       </div>
     </div>
   )
