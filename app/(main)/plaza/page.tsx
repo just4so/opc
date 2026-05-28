@@ -84,6 +84,7 @@ export default async function PlazaPage() {
           select: {
             id: true,
             name: true,
+            slug: true,
             tagline: true,
             stage: true,
             website: true,
@@ -114,12 +115,15 @@ export default async function PlazaPage() {
       take: 20,
       select: {
         id: true,
+        slug: true,
         name: true,
         tagline: true,
         description: true,
         stage: true,
         website: true,
         contentType: true,
+        commentCount: true,
+        likeCount: true,
         owner: {
           select: {
             id: true,

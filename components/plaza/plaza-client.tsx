@@ -21,10 +21,12 @@ import {
   Search,
   ExternalLink,
   ArrowRight,
+  Heart,
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
 import { OnboardingRecommendations } from '@/components/plaza/onboarding-recommendations'
+import { FollowButton } from '@/components/follow/follow-button'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -60,6 +62,7 @@ interface Post {
 interface UserProject {
   id: string
   name: string
+  slug: string
   tagline: string
   stage: string
   website: string | null
@@ -81,12 +84,15 @@ interface PlazaUser {
 
 interface PlazaProject {
   id: string
+  slug: string
   name: string
   tagline: string
   description: string | null
   stage: string
   website: string | null
   contentType: string
+  commentCount: number
+  likeCount: number
   owner: {
     id: string
     username: string
@@ -239,6 +245,9 @@ export function PlazaClient({
   const [isInitialPost, setIsInitialPost] = useState(true)
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({})
 
+  // Follow status for people tab
+  const [followStatusMap, setFollowStatusMap] = useState<Record<string, boolean>>({})
+
   // Products state (API-driven)
   const [projects, setProjects] = useState<PlazaProject[]>(initialProjects)
   const [projectPagination, setProjectPagination] = useState<Pagination>({
@@ -324,6 +333,17 @@ export function PlazaClient({
   useEffect(() => {
     setPeoplePage(1)
   }, [filterDirection, filterCity, filterStage, searchQuery])
+
+  // Batch fetch follow status for displayed people
+  useEffect(() => {
+    if (mainTab !== 'people' || !session?.user) return
+    const ids = paginatedUsers.map(u => u.id).join(',')
+    if (!ids) return
+    fetch(`/api/user/following-status?ids=${ids}`)
+      .then(res => res.json())
+      .then(data => setFollowStatusMap(prev => ({ ...prev, ...data.statuses })))
+      .catch(() => {})
+  }, [mainTab, paginatedUsers, session?.user])
 
   // Products fetch (API-driven)
   const fetchProjects = useCallback(async (page: number) => {
@@ -619,22 +639,24 @@ export function PlazaClient({
                 {paginatedUsers.map(user => (
                   <div key={user.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="flex items-start gap-3 mb-3">
-                      {user.avatar ? (
-                        <img
-                          src={user.avatar}
-                          alt={user.name || user.username}
-                          className="w-12 h-12 rounded-full object-cover shrink-0"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-                          {user.name?.[0] || user.username[0]}
-                        </div>
-                      )}
+                      <Link href={`/profile/${user.username}`}>
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name || user.username}
+                            className="w-12 h-12 rounded-full object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                            {user.name?.[0] || user.username[0]}
+                          </div>
+                        )}
+                      </Link>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-ink truncate">
+                          <Link href={`/profile/${user.username}`} className="font-semibold text-ink truncate hover:text-primary transition-colors">
                             {user.name || user.username}
-                          </span>
+                          </Link>
                           {user.verified && (
                             <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />
                           )}
@@ -652,18 +674,26 @@ export function PlazaClient({
                           )}
                         </div>
                       </div>
+                      <FollowButton
+                        targetUserId={user.id}
+                        initialIsFollowing={!!followStatusMap[user.id]}
+                        size="sm"
+                      />
                     </div>
 
                     {user.bio && (
                       <p className="text-sm text-body mb-3">{user.bio}</p>
                     )}
 
-                    {/* First product only — keep card clean */}
+                    {/* First project only — keep card clean */}
                     {user.projects.length > 0 && (
-                      <div className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-2 mb-3">
+                      <Link
+                        href={`/projects/${user.projects[0].slug}`}
+                        className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-2 mb-3 hover:bg-primary/5 transition-colors"
+                      >
                         <Package className="h-3.5 w-3.5 text-primary shrink-0" />
                         <span className="text-charcoal">{user.projects[0].name}</span>
-                      </div>
+                      </Link>
                     )}
 
                     <div className="flex items-center gap-2 mt-auto pt-2 border-t">
@@ -733,7 +763,9 @@ export function PlazaClient({
                   <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
                     <div className="mb-3">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-ink leading-snug">{proj.name}</h3>
+                        <Link href={`/projects/${proj.slug}`} className="font-semibold text-ink leading-snug hover:text-primary transition-colors">
+                          {proj.name}
+                        </Link>
                         <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0 mt-0.5">
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </span>
@@ -746,14 +778,18 @@ export function PlazaClient({
 
                     {/* Owner info */}
                     <div className="flex items-center gap-2 mb-3 mt-auto">
-                      {proj.owner.avatar ? (
-                        <img src={proj.owner.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                          {proj.owner.name?.[0] || proj.owner.username[0]}
-                        </div>
-                      )}
-                      <span className="text-sm text-charcoal truncate">{proj.owner.name || proj.owner.username}</span>
+                      <Link href={`/profile/${proj.owner.username}`}>
+                        {proj.owner.avatar ? (
+                          <img src={proj.owner.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                            {proj.owner.name?.[0] || proj.owner.username[0]}
+                          </div>
+                        )}
+                      </Link>
+                      <Link href={`/profile/${proj.owner.username}`} className="text-sm text-charcoal truncate hover:text-primary transition-colors">
+                        {proj.owner.name || proj.owner.username}
+                      </Link>
                       {proj.owner.verified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
                       {proj.owner.location && (
                         <span className="text-xs text-ash flex items-center gap-0.5 ml-auto">
@@ -763,25 +799,35 @@ export function PlazaClient({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 pt-2 border-t">
-                      {proj.website ? (
+                    {/* Stats + actions */}
+                    <div className="flex items-center gap-4 text-xs text-mute mb-3">
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3.5 w-3.5" />
+                        {proj.likeCount}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        {proj.commentCount}
+                      </span>
+                      {proj.website && (
                         <a
                           href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
+                          className="flex items-center gap-0.5 ml-auto hover:text-primary transition-colors"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
-                          访问网站
                         </a>
-                      ) : (
-                        <Link
-                          href={`/profile/${proj.owner.username}`}
-                          className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
-                        >
-                          了解更多
-                        </Link>
                       )}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Link
+                        href={`/projects/${proj.slug}`}
+                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
+                      >
+                        查看详情
+                      </Link>
                       <button
                         onClick={() => handleContact(proj.owner.id, proj.owner.username)}
                         className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"

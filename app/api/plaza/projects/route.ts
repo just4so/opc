@@ -51,12 +51,15 @@ export async function GET(request: NextRequest) {
         take: limit,
         select: {
           id: true,
+          slug: true,
           name: true,
           tagline: true,
           description: true,
           stage: true,
           website: true,
           contentType: true,
+          commentCount: true,
+          likeCount: true,
           owner: {
             select: {
               id: true,
