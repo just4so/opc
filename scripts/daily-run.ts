@@ -118,7 +118,13 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
   const existingUrlSet = new Set(existingByUrl.map(r => r.url))
   const existingTitleSet = new Set(existingByTitle.map(r => r.title))
 
-  const candidates = timeFiltered.filter(item => {
+  // 内容质量过滤：反爬拦截或内容过短的跳过
+  const qualityFiltered = timeFiltered.filter(item => {
+    if (item.content.length < 20) { skipped++; return false }
+    return true
+  })
+
+  const candidates = qualityFiltered.filter(item => {
     if (existingUrlSet.has(item.url) || existingTitleSet.has(item.title)) { skipped++; return false }
     return true
   })
@@ -170,7 +176,13 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
             .replace(/\s+/g, ' ')
             .trim()
             .slice(0, 2000)
-          if (text.length > 200) {
+          // 反爬拦截检测
+          const ANTI_CRAWL_SIGNALS = ['访问频率太高', '请稍候再试', '创宇盾', '安全拦截', 'rate limit', 'access denied', '您的访问受限', '人机验证']
+          const isBlocked = ANTI_CRAWL_SIGNALS.some(sig => text.toLowerCase().includes(sig.toLowerCase()))
+          if (isBlocked) {
+            log(`  ⚠️ 反爬拦截，跳过: ${item.url.slice(0, 60)}`)
+            item.content = ''  // 标记为空，后续过滤
+          } else if (text.length > 200) {
             item.content = text  // 用完整正文替换 RSS description 截取
           }
         } catch { /* 抓不到就用原来的 content */ }
@@ -194,6 +206,14 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
 
     if (!result.relevant) { skipped++; continue }
     if (isTooOld(item.publishedAt, result.estimated_date)) { skipped++; continue }
+
+    // summary 后置校验：如果 AI 坐吧失败，丢弃该条
+    const CONFESS_WORDS = ['未知', '未提供', '未提及', '未获取', '无法确认', '无法获取']
+    if (result.summary && CONFESS_WORDS.some(w => result.summary!.includes(w))) {
+      log(`  ⚠️ summary 包含坐吧词，丢弃: ${item.title.slice(0, 30)}`)
+      skipped++
+      continue
+    }
 
     let importance = Math.max(1, Math.min(5, result.importance ?? 3))
     if (!result.is_recent && importance > 2) importance = 2

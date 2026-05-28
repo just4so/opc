@@ -68,7 +68,7 @@ function buildPrompt(input: JudgeInput): string {
 请返回 JSON（不要其他内容）：
 {
   "relevant": true或false,
-  "summary": "提炼原文最具体的1-2个事实（金额/城市/人物/数字/措施名）；原文无具体信息时填null；禁止写「旨在推动」「提供支持」「有重要意义」等空话",
+  "summary": "提炼原文最具体的1-2个事实（金额/城市/人物/数字/措施名）；原文无具体信息时填null；禁止写「旨在推动」「提供支持」「有重要意义」等空话；禁止写「未知」「未提供」「未提及」「未获取」「无法确认」等坦白失败的词——拿不到信息直接填null",
   "category": "policy（政策动向）|community（社区动态）|event（活动赛事）|case（实战案例，含创业者故事/痛点分析/行业洞察深度内容）|opinion（新锐观点，观点评论类短文）",
   "city": "城市名或null（全国性内容填null）",
   "importance": 1到5的整数,
@@ -230,7 +230,7 @@ opinion（观点）：
     "index": 1,
     "reason": "一句话说明为何 relevant=true/false，以及 importance 定级依据",
     "relevant": true或false,
-    "summary": "提炼原文最具体的1-2个事实（金额/城市/人物/数字/措施名）；无具体信息填null；禁止空话套语",
+    "summary": "提炼原文最具体的1-2个事实（金额/城市/人物/数字/措施名）；无具体信息填null；禁止空话套语；禁止写「未知」「未提供」「未提及」「未获取」「无法确认」——拿不到信息直接填null",
     "category": "policy|community|event|case|opinion",
     "city": "城市名或null",
     "importance": 1到5的整数,
