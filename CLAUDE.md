@@ -392,4 +392,27 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 | docs/V2-INTERACTION-SPEC.md | 交互优化规格书 |
 | docs/V2-MANUAL-TEST.md | 人工测试清单 |
 | DESIGN.md | 设计系统（token 定义） |
-| docs/community-upgrade-prd.md | 社区粘性升级 PRD（关注/通知/推荐/进展帖） |
+| docs/community-upgrade-prd.md | 社区粘性升级 PRD（关注/通知/推荐/进展帖/产品详情页） |
+
+### Product Detail Page (Phase 2.5)
+
+**Route:** `app/(main)/projects/[slug]/page.tsx`
+- Server Component + ISR (revalidate: 300)
+- `generateStaticParams` pre-generates all PUBLISHED projects
+- Client interactions in `components/projects/project-detail-client.tsx`
+
+**Components directory:** `components/projects/`
+- `project-detail-client.tsx` — Tab switching, follow, comment interactions
+- `project-progress-timeline.tsx` — Progress posts timeline
+- `project-comment-section.tsx` — Comments (reuses CommentForm)
+
+**Data flow:**
+- Post.projectId (optional) links progress posts to projects
+- Progress posts appear in BOTH plaza feed AND project detail page
+- Comment model already supports projectId (existing schema)
+
+**Visual reference:**
+- Page layout → follow `app/(main)/communities/[slug]/page.tsx` structure
+- Tab style → follow plaza-client.tsx mainTab pattern
+- All colors from DESIGN.md tokens only
+- Reuse existing Card/Badge/Button from @/components/ui/

@@ -255,3 +255,155 @@ Task 5 (Progress Posts) ─→ independent
 **Parallel batch 1:** Task 1 + Task 3 + Task 5
 **Parallel batch 2:** Task 2 (after Task 1)
 **Parallel batch 3:** Task 4 + Task 6 (after Tasks 1+2)
+
+---
+
+## Phase 2.5 — Product Home + Interaction Upgrade
+
+> Dependencies: Task 8 → Task 7 → Task 9 (serial)
+> All tasks on branch `feature/community-upgrade`
+
+---
+
+## Task 8: Progress Posts Bind to Product (Schema + Form)
+
+**Description:** Link progress posts to products via optional `projectId`. Upgrade the post creation form to allow selecting a related product. Show product association on post cards.
+
+**Schema changes** (`prisma/schema.prisma`):
+- Add `projectId String?` to Post model
+- Add `project Project? @relation(fields: [projectId], references: [id])` to Post model
+- Add `posts Post[]` to Project model
+- Add index: `@@index([projectId, type, createdAt])` on Post model
+
+**Files to create:**
+- `app/api/user/projects/list/route.ts` — GET current user's projects (for dropdown in post form)
+
+**Files to modify:**
+- `prisma/schema.prisma` — Post model add projectId + relation + index
+- `app/(main)/plaza/new/page.tsx` — Add "关联产品" dropdown when type=PROGRESS; auto-fill from URL param `?projectId=xxx`
+- `app/api/posts/route.ts` — Accept optional `projectId` in POST body
+- `components/plaza/post-card.tsx` — If post has projectId, show small tag "关于：[产品名]" linking to `/projects/[slug]`
+- `app/(main)/profile/[username]/page.tsx` — Progress tab: add [记录一下？] button (links to `/plaza/new?type=PROGRESS`)
+
+**Acceptance criteria:**
+- [ ] Post model has optional `projectId` field, `npm run db:push` succeeds
+- [ ] POST `/api/posts` accepts `projectId`, stores it correctly
+- [ ] GET `/api/user/projects/list` returns current user's projects (id, name, slug)
+- [ ] Post creation form shows product dropdown when type=PROGRESS (populated from API)
+- [ ] URL param `?projectId=xxx` auto-selects the product in dropdown
+- [ ] PostCard shows "关于：[产品名]" tag when post has projectId, tag links to `/projects/[slug]`
+- [ ] Posts without projectId work exactly as before (backward compatible)
+- [ ] Profile progress tab has [记录一下？] button linking to `/plaza/new?type=PROGRESS`
+- [ ] `npx tsc --noEmit` passes with zero errors
+
+**Dependencies:** None (first in Phase 2.5)
+
+---
+
+## Task 7: Product Detail Page
+
+**Description:** Create a full product detail page at `/projects/[slug]` with three tabs: Introduction, Progress Timeline, Comments. This gives products a "home" inside opcquan instead of just linking to external sites.
+
+**Files to create:**
+- `app/(main)/projects/[slug]/page.tsx` — Server Component, ISR revalidate 300s, generateStaticParams for all PUBLISHED projects
+- `components/projects/project-detail-client.tsx` — Client Component: tab switching (介绍/进展记录/评论), follow product (reuse Favorite), share
+- `components/projects/project-progress-timeline.tsx` — Vertical timeline of PROGRESS posts linked to this project
+- `components/projects/project-comment-section.tsx` — Comments section (reuse CommentForm, pass projectId)
+- `app/api/projects/[slug]/comments/route.ts` — GET paginated comments, POST new comment (auth required)
+
+**Page structure:**
+```
+Header: [Logo] Name + Tagline          [收藏] [访问网站↗]
+Meta:   Stage | MRR (if public) | Tech Stack | Owner avatar+name+FollowButton
+Tabs:   [介绍] [进展记录] [评论]
+---
+介绍 tab: description (Markdown rendered) + screenshots gallery
+进展 tab: Timeline of linked PROGRESS posts (newest first). Owner sees [+ 记录进展] button → links to /plaza/new?type=PROGRESS&projectId=xxx
+评论 tab: Comment list + CommentForm (reuse existing components)
+```
+
+**Visual constraints:**
+- Page layout follows `app/(main)/communities/[slug]/page.tsx` structure
+- Tab style follows plaza-client.tsx mainTab pattern (underline active tab)
+- All colors from DESIGN.md tokens (primary/secondary/mute/ink/ash)
+- Components from @/components/ui/ (Card, Badge, Button, Tabs)
+- Mobile responsive: single column, tabs stack naturally
+- Empty states: "暂无进展记录" with CTA; "暂无评论，来说点什么？"
+
+**Performance:**
+- ISR revalidate 300s
+- generateStaticParams pre-generates all published project pages
+- Comments loaded client-side (not blocking SSR)
+- Progress posts query uses @@index([projectId, type, createdAt])
+
+**Acceptance criteria:**
+- [ ] `/projects/[slug]` renders full product info (name, tagline, description, stage, techStack)
+- [ ] Three tabs switch correctly, URL does not change on tab switch (client-side state)
+- [ ] 介绍 tab: Markdown description rendered, screenshots displayed
+- [ ] 进展 tab: Shows PROGRESS posts linked to this project, newest first, vertical timeline
+- [ ] 进展 tab: Owner sees [+ 记录进展] button, non-owner does not
+- [ ] 评论 tab: Can submit comment (auth required), displays nested replies
+- [ ] Owner name/avatar clickable → `/profile/[username]`
+- [ ] [访问网站] button opens external link in new tab
+- [ ] 收藏 button works (reuse Favorite model with projectId)
+- [ ] Mobile responsive: all content readable on <768px
+- [ ] Empty states render correctly for all three tabs
+- [ ] `npx tsc --noEmit` passes with zero errors
+- [ ] ISR works: page loads fast on repeat visits
+
+**Dependencies:** Task 8 (needs Post.projectId for progress tab query)
+
+---
+
+## Task 9: Plaza Card Interaction Upgrade + Cleanup
+
+**Description:** Upgrade plaza people cards with inline follow buttons and clickable avatars. Change product cards from external links to internal `/projects/[slug]` links. Add batch follow-status API. Clean up dead code.
+
+**Files to create:**
+- `app/api/user/following-status/route.ts` — GET `?ids=id1,id2,id3` returns `{ [userId]: boolean }` for current user
+
+**Files to modify:**
+- `components/plaza/plaza-client.tsx` — People cards: add FollowButton, make avatar/name Link to profile, make project name Link to /projects/[slug]. Product cards: change product name from external link to internal `/projects/[slug]`, add commentCount/likeCount display, add owner avatar
+- Import FollowButton from `@/components/follow/follow-button`
+
+**Files to delete:**
+- `app/api/market/route.ts` — Dead code, no references
+- `app/api/market/[slug]/route.ts` — Dead code, no references
+
+**Batch follow status logic:**
+- On people tab mount, collect all displayed user IDs
+- Single fetch to `/api/user/following-status?ids=xxx,yyy,zzz`
+- Pass `isFollowing` prop to each FollowButton
+- Unauthenticated users: skip the fetch, all buttons show "关注"
+
+**Visual constraints:**
+- FollowButton: reuse existing component (small variant if available, otherwise default)
+- People card layout: avatar (left) + info (center) + FollowButton (right-aligned)
+- Product card: keep existing card structure, just change link targets
+- No new CSS classes or colors
+
+**Acceptance criteria:**
+- [ ] People cards: avatar clickable → profile page
+- [ ] People cards: name clickable → profile page
+- [ ] People cards: FollowButton visible, toggles correctly
+- [ ] People cards: project name clickable → `/projects/[slug]`
+- [ ] Product cards: product name links to `/projects/[slug]` (NOT external URL)
+- [ ] Product cards: show commentCount and likeCount
+- [ ] Product cards: owner avatar visible and clickable → profile
+- [ ] Batch follow status: single API call, not N+1
+- [ ] Unauthenticated: follow buttons show "关注", click → /login
+- [ ] Dead code removed: `app/api/market/` directory deleted
+- [ ] `npx tsc --noEmit` passes with zero errors
+- [ ] No visual regression on existing plaza functionality
+
+**Dependencies:** Task 7 (product detail page must exist for internal links to work)
+
+---
+
+## Phase 2.5 Execution Order
+
+```
+Task 8 (Schema + Progress Bind) → Task 7 (Product Detail Page) → Task 9 (Card Upgrade + Cleanup)
+```
+
+Serial execution. Each task verified before starting next.
