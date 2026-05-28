@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnimatedProgress } from '@/components/ui/animated-progress'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { FollowButton } from '@/components/follow/follow-button'
 import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
@@ -75,6 +76,9 @@ interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
   projects?: ProjectItem[]
+  followerCount?: number
+  followingCount?: number
+  isFollowing?: boolean
 }
 
 function formatRelativeTime(dateStr: string): string {
@@ -97,7 +101,7 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(days / 365)}年前`
 }
 
-export default function ProfileClient({ user, recentPosts = [], projects = [] }: ProfileClientProps) {
+export default function ProfileClient({ user, recentPosts = [], projects = [], followerCount = 0, followingCount = 0, isFollowing = false }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -232,11 +236,35 @@ export default function ProfileClient({ user, recentPosts = [], projects = [] }:
             </p>
           )}
 
+          {/* Follower/Following counts */}
+          <div className="mt-4 flex items-center gap-4">
+            <Link
+              href={`/profile/${user.username}/followers`}
+              className="flex items-center gap-1 text-sm hover:text-primary transition-colors"
+              style={{ color: '#62625b' }}
+            >
+              <span className="font-semibold" style={{ color: '#000' }}>{followerCount}</span>
+              粉丝
+            </Link>
+            <Link
+              href={`/profile/${user.username}/following`}
+              className="flex items-center gap-1 text-sm hover:text-primary transition-colors"
+              style={{ color: '#62625b' }}
+            >
+              <span className="font-semibold" style={{ color: '#000' }}>{followingCount}</span>
+              关注
+            </Link>
+          </div>
+
           {/* Action buttons */}
           <div className="mt-5 flex items-center gap-3">
             {!isOwnProfile ? (
               <>
-                <Button onClick={handleStartChat} disabled={startingChat} className="gap-2 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-shadow">
+                <FollowButton
+                  targetUserId={user.id}
+                  initialIsFollowing={isFollowing}
+                />
+                <Button onClick={handleStartChat} disabled={startingChat} className="gap-2 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-shadow" variant="outline">
                   <Send className="h-4 w-4" />
                   {startingChat ? '正在创建...' : '联系TA'}
                 </Button>

@@ -102,14 +102,31 @@ export default async function PublicProfilePage({ params }: PageProps) {
     }),
   ])
 
+  const [followerCount, followingCount] = await Promise.all([
+    prisma.follow.count({ where: { followingId: user.id } }),
+    prisma.follow.count({ where: { followerId: user.id } }),
+  ])
+
+  const session = await auth()
+  let isFollowing = false
+  if (session?.user?.id && session.user.id !== user.id) {
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: session.user.id,
+          followingId: user.id,
+        },
+      },
+    })
+    isFollowing = !!follow
+  }
+
   const serializedUser = {
     ...user,
     createdAt: user.createdAt.toISOString(),
     lastActiveAt: user.lastActiveAt?.toISOString() ?? null,
   }
 
-  // Fire-and-forget notification when someone views a plaza profile
-  const session = await auth()
   if (session?.user?.id && session.user.id !== user.id && user.showInPlaza) {
     void createCardViewedNotification(user.id, session.user.name || '', session.user.id)
   }
@@ -124,6 +141,9 @@ export default async function PublicProfilePage({ params }: PageProps) {
       user={serializedUser}
       recentPosts={serializedPosts}
       projects={projects}
+      followerCount={followerCount}
+      followingCount={followingCount}
+      isFollowing={isFollowing}
     />
   )
 }

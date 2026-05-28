@@ -8,7 +8,9 @@ import sanitizeHtml from 'sanitize-html'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PostInteractions } from '@/components/plaza/post-interactions'
+import { PostAuthorSidebar } from '@/components/follow/post-author-sidebar'
 import prisma from '@/lib/db'
+import { auth } from '@/lib/auth'
 import { TOPICS, POST_TYPES } from '@/constants/topics'
 
 export const revalidate = 60 // 帖子详情 60 秒 ISR
@@ -71,6 +73,20 @@ export default async function PostDetailPage({ params }: PageProps) {
 
   if (!post) {
     notFound()
+  }
+
+  const session = await auth()
+  let isFollowingAuthor = false
+  if (session?.user?.id && session.user.id !== post.author.id) {
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: session.user.id,
+          followingId: post.author.id,
+        },
+      },
+    })
+    isFollowingAuthor = !!follow
   }
 
   const postType = POST_TYPES.find((t) => t.id === post.type)
@@ -194,36 +210,10 @@ export default async function PostDetailPage({ params }: PageProps) {
 
           {/* 侧边栏 - 作者信息 */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-4">关于作者</h3>
-                <div className="flex items-center space-x-3 mb-4">
-                  <Link href={`/profile/${post.author.username}`}>
-                    <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center text-primary font-bold text-xl hover:ring-2 hover:ring-primary/20 transition-all overflow-hidden">
-                      {post.author.avatar ? (
-                        <img src={post.author.avatar} alt={post.author.name || post.author.username} className="w-full h-full object-cover" />
-                      ) : (
-                        <span>{post.author.name?.[0] || post.author.username[0]}</span>
-                      )}
-                    </div>
-                  </Link>
-                  <div>
-                    <Link
-                      href={`/profile/${post.author.username}`}
-                      className="font-semibold hover:text-primary transition-colors"
-                    >
-                      {post.author.name || post.author.username}
-                    </Link>
-                    <div className="text-sm text-mute">
-                      Lv.{post.author.level}
-                    </div>
-                  </div>
-                </div>
-                {post.author.bio && (
-                  <p className="text-sm text-mute">{post.author.bio}</p>
-                )}
-              </CardContent>
-            </Card>
+            <PostAuthorSidebar
+              author={post.author}
+              isFollowing={isFollowingAuthor}
+            />
           </div>
         </div>
       </div>
