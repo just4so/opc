@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { createPostCommentedNotification, createCommentRepliedNotification } from '@/lib/notifications'
+import { sendCommentEmail } from '@/lib/notification-emails'
 
 export async function POST(
   request: NextRequest,
@@ -71,6 +72,10 @@ export async function POST(
     }
 
     createPostCommentedNotification(post.authorId, commenterName, postId, session.user.id).catch(() => {})
+
+    if (post.authorId !== session.user.id) {
+      sendCommentEmail(post.authorId, commenterName, content.trim(), postId).catch(() => {})
+    }
 
     return NextResponse.json(comment, { status: 201 })
   } catch (error) {

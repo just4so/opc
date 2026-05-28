@@ -11,6 +11,7 @@ interface FollowButtonProps {
   initialIsFollowing?: boolean
   size?: 'default' | 'sm'
   className?: string
+  onFollowChange?: (isFollowing: boolean) => void
 }
 
 export function FollowButton({
@@ -18,6 +19,7 @@ export function FollowButton({
   initialIsFollowing = false,
   size = 'default',
   className,
+  onFollowChange,
 }: FollowButtonProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -41,6 +43,8 @@ export function FollowButton({
         })
         if (!res.ok) {
           setIsFollowing(prev)
+        } else {
+          onFollowChange?.(!prev)
         }
       } catch {
         setIsFollowing(prev)

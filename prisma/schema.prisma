@@ -35,6 +35,8 @@ model User {
   mainTrack          String?
   startupStage       String?
   emailVerified      Boolean                   @default(false)
+  emailNotifications Boolean                   @default(true)
+  onboardingCompleted Boolean                  @default(false)
   accounts           Account[]
   comments           Comment[]
   communityReviews   CommunityReview[]

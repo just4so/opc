@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { createFollowNotification } from '@/lib/notifications'
+import { sendFollowEmail } from '@/lib/notification-emails'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -71,6 +72,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
   const followerName = currentUser?.name || session.user.name || '有人'
   const followerUsername = currentUser?.username || session.user.id
   createFollowNotification(targetId, followerName, session.user.id, followerUsername).catch(() => {})
+  sendFollowEmail(targetId, followerName, followerUsername).catch(() => {})
+
+  // Set onboardingCompleted on first follow
+  prisma.user.updateMany({
+    where: { id: session.user.id, onboardingCompleted: false },
+    data: { onboardingCompleted: true },
+  }).catch(() => {})
 
   return NextResponse.json({ success: true })
 }

@@ -32,6 +32,7 @@ export async function GET() {
         verified: true,
         verifyType: true,
         emailVerified: true,
+        emailNotifications: true,
         canOffer: true,
         lookingFor: true,
         mainTrack: true,
@@ -79,6 +80,7 @@ export async function PUT(request: NextRequest) {
       mainTrack: z.string().max(50).optional(),
       startupStage: z.string().max(50).optional(),
       showInPlaza: z.boolean().optional(),
+      emailNotifications: z.boolean().optional(),
     }).strict()
 
     const parsed = profileSchema.safeParse(body)

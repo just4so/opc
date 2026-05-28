@@ -21,6 +21,7 @@ import {
   Trash2,
   ExternalLink,
   Rocket,
+  Bell,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +35,7 @@ interface UserProfile {
   username: string
   email: string | null
   emailVerified: boolean
+  emailNotifications: boolean
   name: string | null
   avatar: string | null
   bio: string | null
@@ -100,6 +102,7 @@ export default function SettingsPage() {
   const [sendingVerify, setSendingVerify] = useState(false)
   const [verifySent, setVerifySent] = useState(false)
   const [verifyError, setVerifyError] = useState('')
+  const [emailNotifications, setEmailNotifications] = useState(true)
 
   // Save state
   const [saving, setSaving] = useState(false)
@@ -156,6 +159,7 @@ export default function SettingsPage() {
         setWechat(data.wechat || '')
         setUserEmail(data.email)
         setEmailVerified(data.emailVerified)
+        setEmailNotifications(data.emailNotifications ?? true)
         setMainTrack(data.mainTrack || '')
         setStartupStage(data.startupStage || '')
         setShowInPlaza(data.showInPlaza || false)
@@ -466,6 +470,47 @@ export default function SettingsPage() {
                         )}
                       </div>
                     )}
+                  </div>
+                </div>
+
+                {/* Email notifications */}
+                <div className="bg-white rounded-2xl p-6" style={{ border: '1px solid #dadad3' }}>
+                  <h3 className="text-base font-semibold mb-4 flex items-center gap-2" style={{ color: '#000' }}>
+                    <Bell className="h-4 w-4" style={{ color: '#F97316' }} />
+                    邮件通知
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: '#33332e' }}>接收邮件通知</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#91918c' }}>
+                        关注、评论等互动会通过邮件通知你
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const newVal = !emailNotifications
+                        setEmailNotifications(newVal)
+                        try {
+                          const res = await fetch('/api/user/profile', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ emailNotifications: newVal }),
+                          })
+                          if (!res.ok) setEmailNotifications(!newVal)
+                          else toast(newVal ? '邮件通知已开启' : '邮件通知已关闭', 'success')
+                        } catch {
+                          setEmailNotifications(!newVal)
+                        }
+                      }}
+                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      style={{ backgroundColor: emailNotifications ? '#F97316' : '#c8c8c1' }}
+                    >
+                      <span
+                        className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
+                        style={{ transform: emailNotifications ? 'translateX(24px)' : 'translateX(4px)' }}
+                      />
+                    </button>
                   </div>
                 </div>
 

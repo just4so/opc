@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PlazaClient } from '@/components/plaza/plaza-client'
 import prisma from '@/lib/db'
 import { getPlazaStats } from '@/lib/queries/post-stats'
+import { auth } from '@/lib/auth'
 
 export const revalidate = 60
 
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PlazaPage() {
-  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal] = await Promise.all([
+  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session] = await Promise.all([
     prisma.post.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
@@ -132,7 +133,23 @@ export default async function PlazaPage() {
         owner: { showInPlaza: true },
       },
     }),
+    auth(),
   ])
+
+  let onboardingData: { userId: string; mainTrack: string | null; location: string | null } | null = null
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { onboardingCompleted: true, mainTrack: true, location: true },
+    })
+    if (user && !user.onboardingCompleted) {
+      onboardingData = {
+        userId: session.user.id,
+        mainTrack: user.mainTrack,
+        location: user.location,
+      }
+    }
+  }
 
   const postsWithCount = posts.map(p => ({
     ...p,
@@ -151,6 +168,7 @@ export default async function PlazaPage() {
       initialPlazaUserTotal={plazaUserTotal}
       initialProjects={initialProjects}
       initialProjectTotal={initialProjectTotal}
+      onboardingData={onboardingData}
     />
   )
 }

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
+import { OnboardingRecommendations } from '@/components/plaza/onboarding-recommendations'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -129,6 +130,11 @@ export interface PlazaClientProps {
   initialPlazaUserTotal: number
   initialProjects: PlazaProject[]
   initialProjectTotal: number
+  onboardingData?: {
+    userId: string
+    mainTrack: string | null
+    location: string | null
+  } | null
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -187,6 +193,7 @@ export function PlazaClient({
   initialPlazaUserTotal,
   initialProjects,
   initialProjectTotal,
+  onboardingData,
 }: PlazaClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -522,6 +529,15 @@ export function PlazaClient({
       <div className="container mx-auto px-4 py-8">
         {/* Guide banner */}
         {renderBanner()}
+
+        {/* Onboarding recommendations for new users */}
+        {onboardingData && (
+          <OnboardingRecommendations
+            currentUserId={onboardingData.userId}
+            currentUserTrack={onboardingData.mainTrack}
+            currentUserLocation={onboardingData.location}
+          />
+        )}
 
         {/* Filter bar (people & products tabs) */}
         {(mainTab === 'people' || mainTab === 'products') && (
