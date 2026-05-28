@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PostInteractions } from '@/components/plaza/post-interactions'
 import { PostAuthorSidebar } from '@/components/follow/post-author-sidebar'
+import { PostSidebar } from '@/components/plaza/post-sidebar'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { TOPICS, POST_TYPES } from '@/constants/topics'
@@ -208,11 +209,16 @@ export default async function PostDetailPage({ params }: PageProps) {
             </Card>
           </div>
 
-          {/* 侧边栏 - 作者信息 */}
-          <div className="lg:col-span-1">
+          {/* 侧边栏 - 作者信息 + 推荐 */}
+          <div className="lg:col-span-1 space-y-6">
             <PostAuthorSidebar
               author={post.author}
               isFollowing={isFollowingAuthor}
+            />
+            <PostSidebar
+              postId={post.id}
+              authorId={post.author.id}
+              topics={post.topics}
             />
           </div>
         </div>
