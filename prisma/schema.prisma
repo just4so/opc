@@ -168,6 +168,7 @@ model Post {
   deadline     DateTime?
   skills       String[]
   title        String?
+  milestone    String?
   comments     Comment[]
   favorites    Favorite[]
   likes        Like[]
@@ -450,6 +451,7 @@ enum PostType {
   HELP
   SHARE
   COLLAB
+  PROGRESS
 }
 
 enum PostStatus {

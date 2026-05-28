@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
       skills,
       contactInfo,
       contactType,
+      milestone,
     } = body
 
     if (!contentHtml || contentHtml.trim().length === 0) {
@@ -175,6 +176,7 @@ export async function POST(request: NextRequest) {
         skills: skills || [],
         contactInfo: contactInfo?.trim() || null,
         contactType: contactType || null,
+        milestone: type === 'PROGRESS' && milestone ? milestone : null,
         authorId: session.user.id,
       },
       include: {

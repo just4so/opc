@@ -14,12 +14,14 @@ import {
   Share2,
   Rocket,
   Clock,
+  TrendingUp,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AnimatedProgress } from '@/components/ui/animated-progress'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { FollowButton } from '@/components/follow/follow-button'
+import { ProgressTimeline } from '@/components/plaza/progress-timeline'
 import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
@@ -64,6 +66,17 @@ interface ProjectItem {
   contentType: string
 }
 
+interface ProgressPost {
+  id: string
+  title: string | null
+  content: string
+  contentHtml?: string | null
+  milestone: string | null
+  likeCount: number
+  commentCount: number
+  createdAt: string
+}
+
 const VERIFY_TYPE_LABELS: Record<string, string> = {
   IDENTITY: '身份认证', ENTREPRENEUR: '创业者认证', EXPERT: '专家认证', COMMUNITY: '社区认证',
 }
@@ -76,6 +89,7 @@ interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
   projects?: ProjectItem[]
+  progressPosts?: ProgressPost[]
   followerCount?: number
   followingCount?: number
   isFollowing?: boolean
@@ -101,13 +115,14 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(days / 365)}年前`
 }
 
-export default function ProfileClient({ user, recentPosts = [], projects = [], followerCount = 0, followingCount = 0, isFollowing = false }: ProfileClientProps) {
+export default function ProfileClient({ user, recentPosts = [], projects = [], progressPosts = [], followerCount = 0, followingCount = 0, isFollowing = false }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
   const [startingChat, setStartingChat] = useState(false)
   const [chatError, setChatError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress'>('overview')
 
   const isRecentlyActive = user.lastActiveAt && (Date.now() - new Date(user.lastActiveAt).getTime()) < 24 * 60 * 60 * 1000
 
@@ -294,6 +309,47 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], f
         </div>
         </ScrollReveal>
 
+        {/* === Tab Navigation === */}
+        <div className="mt-6 flex gap-1 border-b" style={{ borderColor: '#dadad3' }}>
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+              activeTab === 'overview'
+                ? 'text-primary'
+                : 'text-mute hover:text-ink'
+            }`}
+          >
+            概览
+            {activeTab === 'overview' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('progress')}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative flex items-center gap-1.5 ${
+              activeTab === 'progress'
+                ? 'text-primary'
+                : 'text-mute hover:text-ink'
+            }`}
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            进展
+            {progressPosts.length > 0 && (
+              <span className="text-xs text-ash">({progressPosts.length})</span>
+            )}
+            {activeTab === 'progress' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+            )}
+          </button>
+        </div>
+
+        {/* === Tab Content === */}
+        {activeTab === 'progress' ? (
+          <div className="mt-6">
+            <ProgressTimeline posts={progressPosts} isOwnProfile={isOwnProfile} />
+          </div>
+        ) : (
+        <>
         {/* === Section 2: Products === */}
         {projects.length > 0 && (
           <ScrollReveal delay={100}>
@@ -399,6 +455,8 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], f
               </Button>
             </Link>
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

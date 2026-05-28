@@ -10,12 +10,14 @@ import { Heart, MessageCircle, Eye } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TOPICS } from '@/constants/topics'
+import { MilestoneBadge } from '@/components/plaza/milestone-badge'
 
 const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
-  CHAT:  { label: '💬 聊聊',  className: 'bg-surface-card text-mute' },
-  HELP:  { label: '❓ 求助',  className: 'bg-orange-100 text-orange-600' },
-  SHARE: { label: '📣 分享',  className: 'bg-green-100 text-green-700' },
-  COLLAB:{ label: '🤝 找人',  className: 'bg-blue-100 text-blue-700' },
+  CHAT:     { label: '💬 聊聊',    className: 'bg-surface-card text-mute' },
+  HELP:     { label: '❓ 求助',    className: 'bg-orange-100 text-orange-600' },
+  SHARE:    { label: '📣 分享',    className: 'bg-green-100 text-green-700' },
+  COLLAB:   { label: '🤝 找人',    className: 'bg-blue-100 text-blue-700' },
+  PROGRESS: { label: '🎯 创业进展', className: 'bg-orange-50 text-orange-600' },
 }
 
 interface PostCardProps {
@@ -35,6 +37,7 @@ interface PostCardProps {
     budgetMax?: number | null
     budgetType?: string | null
     deadline?: Date | string | null
+    milestone?: string | null
     author: {
       id: string
       username: string
@@ -107,7 +110,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
   }
 
   return (
-    <Card className="rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative">
+    <Card className={`rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative ${post.type === 'PROGRESS' ? 'border-l-4 border-l-primary' : ''}`}>
       {post.pinned && (
         <span className="absolute top-3 right-3 bg-orange-100 text-orange-600 text-xs px-1.5 py-0.5 rounded z-10">
           精华
@@ -148,6 +151,13 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
               {post.title}
             </p>
           </Link>
+        )}
+
+        {/* 里程碑标签 */}
+        {post.milestone && (
+          <div className="mb-2">
+            <MilestoneBadge milestoneId={post.milestone} />
+          </div>
         )}
 
         {/* 内容预览 */}

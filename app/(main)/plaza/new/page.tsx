@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlazaTagInput } from '@/components/plaza/tag-input'
+import { MILESTONES } from '@/constants/topics'
 
 const PostRichTextEditor = dynamic(
   () => import('@/components/plaza/post-rich-text-editor').then(m => ({ default: m.PostRichTextEditor })),
@@ -16,10 +17,11 @@ const PostRichTextEditor = dynamic(
 )
 
 const POST_TYPES = [
-  { id: 'CHAT',   color: 'bg-gray-400',   name: '聊聊',  desc: '随聊、日记、创业进度' },
-  { id: 'HELP',   color: 'bg-orange-400', name: '求助',  desc: '遇到问题寻求建议' },
-  { id: 'SHARE',  color: 'bg-green-500',  name: '分享',  desc: '经验、资源、工具推荐' },
-  { id: 'COLLAB', color: 'bg-blue-500',   name: '找人',  desc: '找合伙人、外包或合作' },
+  { id: 'CHAT',     color: 'bg-gray-400',   name: '聊聊',    desc: '随聊、日记、创业进度' },
+  { id: 'HELP',     color: 'bg-orange-400', name: '求助',    desc: '遇到问题寻求建议' },
+  { id: 'SHARE',    color: 'bg-green-500',  name: '分享',    desc: '经验、资源、工具推荐' },
+  { id: 'COLLAB',   color: 'bg-blue-500',   name: '找人',    desc: '找合伙人、外包或合作' },
+  { id: 'PROGRESS', color: 'bg-orange-500', name: '创业进展', desc: '记录你的创业里程碑' },
 ]
 
 const BUDGET_TYPES = [
@@ -41,7 +43,7 @@ export default function NewPostPage() {
   const [title, setTitle] = useState('')
   const [contentHtml, setContentHtml] = useState('')
   const [topics, setTopics] = useState<string[]>([])
-
+  const [milestone, setMilestone] = useState('')
   // COLLAB fields
   const [budgetType, setBudgetType] = useState('NEGOTIABLE')
   const [budgetMin, setBudgetMin] = useState('')
@@ -77,6 +79,7 @@ export default function NewPostPage() {
         topics,
         images: [],
         title: title.trim() || undefined,
+        milestone: type === 'PROGRESS' && milestone ? milestone : undefined,
       }
 
       if (type === 'COLLAB') {
@@ -188,6 +191,25 @@ export default function NewPostPage() {
                 </label>
                 <PlazaTagInput value={topics} onChange={setTopics} maxTags={5} placeholder="输入或搜索话题..." />
               </div>
+
+              {/* PROGRESS 里程碑选择 */}
+              {type === 'PROGRESS' && (
+                <div>
+                  <label className="text-sm font-medium text-charcoal mb-2 block">
+                    里程碑标签 <span className="text-ash font-normal">（可选）</span>
+                  </label>
+                  <select
+                    value={milestone}
+                    onChange={(e) => setMilestone(e.target.value)}
+                    className="w-full rounded-lg border border-hairline-soft bg-canvas px-3 py-2 text-sm text-ink focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="">选择一个里程碑...</option>
+                    {MILESTONES.map((m) => (
+                      <option key={m.id} value={m.id}>{m.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* COLLAB 专属字段 */}
               {type === 'COLLAB' && (

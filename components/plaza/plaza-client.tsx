@@ -42,6 +42,7 @@ interface Post {
   budgetMax?: number | null
   budgetType?: string | null
   deadline?: string | null
+  milestone?: string | null
   author: {
     id: string
     username: string
@@ -148,10 +149,11 @@ const STAGE_OPTIONS = [
 
 const TYPE_TABS = [
   { value: '', label: '全部' },
-  { value: 'CHAT',   label: '聊聊' },
-  { value: 'HELP',   label: '求助' },
-  { value: 'SHARE',  label: '分享' },
-  { value: 'COLLAB', label: '找人' },
+  { value: 'CHAT',     label: '聊聊' },
+  { value: 'HELP',     label: '求助' },
+  { value: 'SHARE',    label: '分享' },
+  { value: 'COLLAB',   label: '找人' },
+  { value: 'PROGRESS', label: '创业进展' },
 ]
 
 type MainTab = 'people' | 'products' | 'posts'

@@ -71,7 +71,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   if (!user) notFound()
 
-  const [recentPosts, projects] = await Promise.all([
+  const [recentPosts, projects, progressPosts] = await Promise.all([
     prisma.post.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       orderBy: { createdAt: 'desc' },
@@ -98,6 +98,21 @@ export default async function PublicProfilePage({ params }: PageProps) {
         stage: true,
         website: true,
         contentType: true,
+      },
+    }),
+    prisma.post.findMany({
+      where: { authorId: user.id, status: 'PUBLISHED', type: 'PROGRESS' },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        contentHtml: true,
+        milestone: true,
+        likeCount: true,
+        commentCount: true,
+        createdAt: true,
       },
     }),
   ])
@@ -136,11 +151,17 @@ export default async function PublicProfilePage({ params }: PageProps) {
     createdAt: p.createdAt.toISOString(),
   }))
 
+  const serializedProgressPosts = progressPosts.map(p => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+  }))
+
   return (
     <ProfileClient
       user={serializedUser}
       recentPosts={serializedPosts}
       projects={projects}
+      progressPosts={serializedProgressPosts}
       followerCount={followerCount}
       followingCount={followingCount}
       isFollowing={isFollowing}
