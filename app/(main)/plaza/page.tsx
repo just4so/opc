@@ -156,19 +156,19 @@ export default async function PlazaPage() {
       where: { createdAt: { gte: twentyFourHoursAgo }, status: 'PUBLISHED' },
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: { name: true, createdAt: true, owner: { select: { name: true } } },
+      select: { name: true, slug: true, createdAt: true, owner: { select: { name: true } } },
     }),
     prisma.progress.findMany({
       where: { createdAt: { gte: twentyFourHoursAgo } },
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: { createdAt: true, author: { select: { name: true } } },
+      select: { createdAt: true, author: { select: { name: true } }, project: { select: { slug: true, name: true } } },
     }),
     prisma.user.findMany({
       where: { createdAt: { gte: twentyFourHoursAgo }, showInPlaza: true },
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: { name: true, createdAt: true },
+      select: { name: true, username: true, createdAt: true },
     }),
   ])
 
@@ -202,23 +202,26 @@ export default async function PlazaPage() {
   }))
 
   // Build ticker events
-  const tickerEvents: { text: string; time: string }[] = []
+  const tickerEvents: { text: string; time: string; link: string }[] = []
   for (const p of recentProjects) {
     tickerEvents.push({
-      text: `${p.owner.name || '匿名'} 发布了新产品「${p.name}」`,
+      text: `🚀 ${p.owner.name || '匿名'} 发布了「${p.name}」`,
       time: p.createdAt.toISOString(),
+      link: `/projects/${p.slug}`,
     })
   }
   for (const p of recentProgress) {
     tickerEvents.push({
-      text: `${p.author.name || '匿名'} 记录了新进展`,
+      text: `📝 ${p.author.name || '匿名'} 更新了${p.project ? `「${p.project.name}」的` : ''}产品进展`,
       time: p.createdAt.toISOString(),
+      link: p.project ? `/projects/${p.project.slug}` : '/plaza',
     })
   }
   for (const u of recentUsers) {
     tickerEvents.push({
-      text: `${u.name || '匿名'} 加入了 OPC圈`,
+      text: `👋 欢迎 ${u.name || u.username} 加入创业者广场`,
       time: u.createdAt.toISOString(),
+      link: `/profile/${u.username}`,
     })
   }
   tickerEvents.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())

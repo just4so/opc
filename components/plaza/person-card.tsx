@@ -34,7 +34,7 @@ export function PersonCard({ user, isFollowing = false, onFollowChange }: Person
   return (
     <Link
       href={`/profile/${user.username}`}
-      className="bg-canvas rounded-2xl border border-hairline hover:shadow-md transition-shadow p-4 flex flex-col"
+      className="bg-canvas rounded-2xl border border-hairline hover:shadow-md hover:-translate-y-1 transition-all duration-200 p-4 flex flex-col"
     >
       <div className="flex items-start gap-3 mb-2">
         {user.avatar ? (
@@ -50,7 +50,7 @@ export function PersonCard({ user, isFollowing = false, onFollowChange }: Person
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-ink truncate text-sm">
+            <span className="font-semibold text-ink truncate text-base">
               {user.name || user.username}
             </span>
             {user.isVerified && (
@@ -72,7 +72,7 @@ export function PersonCard({ user, isFollowing = false, onFollowChange }: Person
       </div>
 
       {user.bio && (
-        <p className="text-sm text-body line-clamp-1 mb-2">{user.bio}</p>
+        <p className="text-xs text-body line-clamp-2 mb-2">{user.bio}</p>
       )}
 
       {user.projects && user.projects.length > 0 && (

@@ -140,7 +140,7 @@ export interface PlazaClientProps {
     mainTrack: string | null
     location: string | null
   } | null
-  tickerEvents?: { text: string; time: string }[]
+  tickerEvents?: { text: string; time: string; link: string }[]
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -165,7 +165,6 @@ const TYPE_TABS = [
   { value: 'HELP',     label: '求助' },
   { value: 'SHARE',    label: '分享' },
   { value: 'COLLAB',   label: '找人' },
-  { value: 'PROGRESS', label: '创业进展' },
 ]
 
 type MainTab = 'people' | 'products' | 'posts'
@@ -498,18 +497,6 @@ export function PlazaClient({
               <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialProjectTotal}</span>
             </button>
             <button
-              onClick={() => handleTabChange('posts')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
-                mainTab === 'posts'
-                  ? 'text-primary border-primary'
-                  : 'text-mute border-transparent hover:text-ink'
-              }`}
-            >
-              <MessageCircle className="h-4 w-4" />
-              动态
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialTotal}</span>
-            </button>
-            <button
               onClick={() => handleTabChange('people')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
                 mainTab === 'people'
@@ -520,6 +507,18 @@ export function PlazaClient({
               <Users className="h-4 w-4" />
               创业者
               <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
+            </button>
+            <button
+              onClick={() => handleTabChange('posts')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+                mainTab === 'posts'
+                  ? 'text-primary border-primary'
+                  : 'text-mute border-transparent hover:text-ink'
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              动态
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialTotal}</span>
             </button>
             <div className="ml-auto">
               <select
@@ -542,6 +541,8 @@ export function PlazaClient({
                   <>
                     <option value="latest">最新发布</option>
                     <option value="hot">最多互动</option>
+                    <option value="likes">最多点赞</option>
+                    <option value="comments">最多评论</option>
                   </>
                 )}
                 {mainTab === 'people' && (
@@ -579,7 +580,7 @@ export function PlazaClient({
           />
         )}
 
-        {/* Filter bar (people & products tabs) */}
+        {/* Filter bar */}
         {(mainTab === 'people' || mainTab === 'products') && (
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <Filter className="h-4 w-4 text-ash hidden sm:block" />
@@ -595,7 +596,7 @@ export function PlazaClient({
                 ))}
               </select>
             )}
-            {uniqueCities.length > 0 && (
+            {mainTab === 'people' && uniqueCities.length > 0 && (
               <select
                 value={filterCity}
                 onChange={e => setFilterCity(e.target.value)}
@@ -617,28 +618,18 @@ export function PlazaClient({
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
-            {mainTab === 'products' && (
-              <select
-                value={filterContentType}
-                onChange={e => setFilterContentType(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">类型</option>
-                <option value="PROJECT">项目</option>
-                <option value="DEMAND">需求</option>
-                <option value="COOPERATION">合作</option>
-              </select>
+            {mainTab === 'people' && (
+              <div className="relative flex-1 min-w-[200px] max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder="搜索人名、产品、关键词..."
+                  className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
             )}
-            <div className="relative flex-1 min-w-[200px] max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
-              <input
-                type="text"
-                value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
-                placeholder="搜索人名、产品、关键词..."
-                className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
@@ -878,16 +869,6 @@ export function PlazaClient({
                 </select>
 
                 <div className="flex items-center gap-2">
-                  <select
-                    value={sort}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  >
-                    <option value="latest">最新发布</option>
-                    <option value="hot">最多点赞</option>
-                    <option value="comments">最多评论</option>
-                  </select>
-
                   <div className="flex rounded-lg border border-hairline-soft overflow-hidden text-sm">
                     <button
                       onClick={() => setViewMode('card')}

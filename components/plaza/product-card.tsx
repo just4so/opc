@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -44,6 +44,7 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
   const hasImage = project.images.length > 0
   const stageColor = STAGE_COLORS[project.stage] || STAGE_COLORS.IDEA
   const stageLabel = STAGE_LABELS[project.stage] || project.stage
+  const [bouncing, setBouncing] = useState(false)
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -55,6 +56,10 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
     const newLiked = !liked
     setLiked(newLiked)
     setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
+    if (newLiked) {
+      setBouncing(true)
+      setTimeout(() => setBouncing(false), 300)
+    }
     onLikeChange?.(project.id, newLiked)
     try {
       const res = await fetch(`/api/projects/${project.slug}/like`, { method: 'POST' })
@@ -95,7 +100,7 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="bg-canvas rounded-2xl border border-hairline hover:shadow-md transition-shadow flex flex-col overflow-hidden"
+      className="bg-canvas rounded-2xl border border-hairline hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col overflow-hidden"
     >
       {hasImage && (
         <div className="aspect-[16/10] overflow-hidden bg-surface-card">
@@ -109,7 +114,7 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
 
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-1.5">
-          <h3 className="font-semibold text-ink text-sm leading-snug truncate">
+          <h3 className="font-semibold text-ink text-base leading-snug truncate">
             {project.name}
           </h3>
           <span className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 ${stageColor}`}>
@@ -118,7 +123,7 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
         </div>
 
         {project.description && (
-          <p className={`text-sm text-body leading-relaxed ${hasImage ? 'line-clamp-2' : 'line-clamp-3'}`}>
+          <p className="text-xs text-body leading-relaxed line-clamp-3">
             {project.description}
           </p>
         )}
@@ -155,7 +160,7 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
             onClick={handleLike}
             className={`flex items-center gap-1 transition-colors ${liked ? 'text-primary' : 'text-mute hover:text-primary'}`}
           >
-            <Heart className={`h-3.5 w-3.5 ${liked ? 'fill-current' : ''}`} />
+            <Heart className={`h-3.5 w-3.5 ${liked ? 'fill-current' : ''} ${bouncing ? 'like-bounce' : ''}`} />
             <span>{likeCount}</span>
           </button>
           <span className="flex items-center gap-1 text-mute">
