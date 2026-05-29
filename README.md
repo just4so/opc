@@ -1,6 +1,6 @@
 # OPC圈 — 一人公司创业者社区平台
 
-全国 OPC（One Person Company）政策信息聚合平台，连接创业者与各地 OPC 社区。
+连接全国 OPC（One Person Company）创业者，聚合政策信息、展示产品、促进协作。
 
 🌐 线上地址：[opcquan.com](https://opcquan.com)
 
@@ -8,40 +8,51 @@
 
 ## 功能全景
 
-### 前台
+### 核心功能
+
+| 模块 | 说明 |
+|------|------|
+| 创业者广场 | 三视图（产品·创业者·动态），筛选排序，通知横条 |
+| 产品展示 | 产品详情页（60/40 分栏），图片画廊，进展时间线 |
+| 社区直通车 | 两步表单提交意向，自动创建广场卡片 |
+| 社区地图 | 370+ 社区，70+ 城市，省份分组，搜索筛选 |
+| 关注体系 | 关注创业者，动态推送，粉丝列表 |
+| 通知系统 | 铃铛通知，卡片查看/联系/状态变更触发 |
+| OPC 雷达 | AI 驱动的 OPC 行业日报，自动采集+编辑 |
+| 资讯中心 | 政策资讯 + 专项政策区块，原创/外链 |
+| 认证体系 | 后台审核，Badge 展示，认证用户置顶 |
+
+### 前台路由
 
 | 路由 | 功能 |
 |------|------|
-| `/` | 首页，社区数量统计 + 资讯预览 + 实时动态条 |
-| `/start` | 用户引导页，5类创业者画像，帮助用户找到适合自己的社区 |
-| `/communities` | 社区地图，城市筛选 + 入驻难度排行 + 百度地图标注 |
-| `/communities/[slug]` | 社区详情，入驻政策 + 真实入驻说明 + 用户评价 |
-| `/plaza` | 创业广场，发帖/评论/点赞，双视图（列表/卡片），话题筛选，排序 |
-| `/plaza/[id]` | 帖子详情，Markdown 渲染，评论区 |
-| `/market` | 合作广场，发布需求/合作，联系方式弹窗 |
-| `/market/[slug]` | 合作详情页 |
-| `/news` | 资讯列表，原创专区置顶，分类筛选 |
-| `/news/[id]` | 资讯详情，Markdown 渲染（原创）/ 外链跳转 |
-| `/tools` | 工具导航，60+ AI工具，6分类，国内可用标注 |
-| `/search` | 全站搜索，覆盖动态/订单/社区/用户 |
-| `/profile/[username]` | 用户主页，发起私信入口 |
-| `/messages` | 私信系统 |
-| `/settings` | 用户设置 |
+| `/` | 首页：Hero + 热门产品横滑 + 最新入驻创业者 + 数据统计 |
+| `/communities` | 社区列表：省份分组 + 推荐置顶 + 搜索 |
+| `/communities/[slug]` | 社区详情：三层权限（基本/登录/解锁） |
+| `/connect` / `/connect/[slug]` | 社区直通车：两步表单 |
+| `/plaza` | 创业者广场：产品·创业者·动态三 Tab |
+| `/projects/[slug]` | 产品详情：图片画廊 + 进展时间线 + 评论 |
+| `/plaza/[id]` | 帖子详情：Markdown 渲染 + 评论 |
+| `/news` | 资讯列表 + 专项政策 |
+| `/radar/[issueNo]` | OPC 雷达日报 |
+| `/profile/[username]` | 用户主页：产品 + 关注/粉丝 |
+| `/settings` | 「我的」后台：主页·产品·账号安全 |
+| `/search` | 全站搜索 |
 
-### 管理后台（`/admin`，需 ADMIN 角色）
+### 管理后台（`/admin`）
 
 | 路由 | 功能 |
 |------|------|
-| `/admin` | 仪表盘：5项统计 + 近7日趋势折线图（注册/发帖）+ 快捷入口 |
-| `/admin/users` | 用户管理：搜索、角色筛选、改角色、导出 CSV |
-| `/admin/users/[id]` | 用户详情：基本信息 + 最近20条动态 |
-| `/admin/posts` | 动态管理：搜索、话题筛选、状态筛选、内容预览展开、设为精华、隐藏/显示、删除 |
-| `/admin/news` | 资讯管理：搜索、切换原创标记、编辑作者、删除 |
-| `/admin/news/new` | 新建原创资讯（标题/分类/作者/正文/发布时间） |
-| `/admin/orders` | 合作广场管理：搜索、状态筛选、置顶、隐藏、导出 |
-| `/admin/communities` | 社区管理：列表含难度星级列 |
-| `/admin/communities/new` | 新建社区 |
-| `/admin/communities/[id]/edit` | 编辑社区，含入驻难度星级点击器（1-5星） |
+| `/admin` | Dashboard：统计 + 趋势图 + 快捷入口 |
+| `/admin/users` | 用户管理：角色/认证/导出 |
+| `/admin/posts` | 动态管理：精华/隐藏/删除 |
+| `/admin/news` | 资讯管理 + 原创编辑器 |
+| `/admin/communities` | 社区管理 + 认领审核 |
+| `/admin/orders` | 合作广场管理 |
+| `/admin/verify` | 认证审核 |
+| `/admin/radar` | 雷达日报管理 |
+| `/admin/policies` | 政策管理 |
+| `/admin/settings` | 系统设置（二维码等） |
 
 ---
 
@@ -51,12 +62,14 @@
 |------|------|
 | 框架 | Next.js 14（App Router） |
 | 样式 | TailwindCSS + shadcn/ui + @tailwindcss/typography |
-| 数据库 | PostgreSQL（Supabase） |
+| 数据库 | PostgreSQL（Supabase，pgBouncer 6543 端口） |
 | ORM | Prisma 5 |
 | 认证 | NextAuth.js v5 beta（JWT + Credentials） |
+| 存储 | Cloudflare R2（产品图片、BP 文件） |
+| 邮件 | Nodemailer（QQ 企业邮箱 SMTP） |
 | 地图 | 百度地图 WebGL API |
 | Markdown | react-markdown + remark-gfm |
-| 部署 | Netlify（待迁移） |
+| 部署 | EdgeOne Pages |
 
 ---
 
@@ -65,62 +78,46 @@
 ### 环境要求
 
 - Node.js 18+
-- PostgreSQL 数据库（或 Supabase 连接）
+- PostgreSQL（或 Supabase 连接）
 
 ### 快速启动
 
 ```bash
-# 1. 安装依赖
+# 安装依赖
 npm install
 
-# 2. 配置环境变量
+# 配置环境变量
 cp .env.example .env.local
-# 编辑 .env.local，填入以下变量（见下方说明）
 
-# 3. 初始化数据库
-npm run db:push       # 同步 schema
-npm run db:generate   # 生成 Prisma client
+# 初始化数据库
+npm run db:push
+npm run db:generate
 
-# 4. 导入种子数据（可选）
+# 导入种子数据（可选）
 npm run db:seed           # 社区基础数据
-npm run db:seed-plaza     # 创业广场示例数据（用户/帖子/评论）
+npm run db:seed-plaza     # 广场示例数据
 
-# 5. 启动开发服务器
+# 启动
 npm run dev
 ```
 
 访问 http://localhost:3000
 
-### 环境变量
-
-```env
-# 数据库（Supabase）
-DATABASE_URL="postgresql://..."
-DIRECT_URL="postgresql://..."      # 用于 Prisma 迁移
-
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-here"
-
-# 百度地图（社区地图功能）
-NEXT_PUBLIC_BMAP_KEY="your-baidu-map-key"
-```
-
 ### 常用命令
 
 ```bash
-npm run dev           # 启动开发服务器
+npm run dev           # 开发服务器
 npm run build         # 生产构建
-npm run lint          # ESLint 检查
+npm run lint          # ESLint
 
-npm run db:push       # 推送 schema 变更到数据库
+npm run db:push       # 推送 schema 到数据库
 npm run db:generate   # 重新生成 Prisma client
-npm run db:seed       # 导入社区种子数据
-npm run db:seed-plaza # 导入广场种子数据（用户/帖子/评论）
-npm run db:cleanup    # 清理重复社区数据
-npm run db:verify     # 验证社区数据完整性
+npm run db:seed       # 社区种子数据
+npm run db:seed-plaza # 广场种子数据
+npm run db:cleanup    # 清理重复数据
+npm run db:verify     # 验证数据完整性
 
-npm run fetch:news    # 从 RSS 源抓取最新资讯
+npm run fetch:news    # RSS 资讯抓取
 ```
 
 ---
@@ -129,171 +126,98 @@ npm run fetch:news    # 从 RSS 源抓取最新资讯
 
 ```
 opc/
+├── app/
+│   ├── (auth)/            # 登录/注册
+│   ├── (main)/            # 前台页面（共享 header/footer）
+│   ├── admin/             # 管理后台
+│   └── api/               # API 路由
+├── components/
+│   ├── plaza/             # 广场组件（卡片、筛选、通知横条）
+│   ├── projects/          # 产品详情组件（画廊、进展时间线）
+│   ├── follow/            # 关注按钮
+│   ├── settings/          # 「我的」后台组件
+│   ├── connect/           # 直通车表单
+│   ├── communities/       # 社区相关
+│   ├── notifications/     # 通知铃铛/面板
+│   ├── layout/            # Header/Footer
+│   └── ui/                # shadcn/ui 基础组件
+├── lib/
+│   ├── auth.ts            # NextAuth 配置
+│   ├── db.ts              # Prisma 单例
+│   ├── admin.ts           # 权限工具
+│   ├── mailer.ts          # 邮件发送
+│   ├── r2.ts              # R2 存储
+│   ├── notifications.ts   # 通知创建
+│   ├── slug.ts            # Slug 生成（pinyin）
+│   └── radar/             # OPC 雷达逻辑
 ├── prisma/
-│   └── schema.prisma          # 数据模型
-├── scripts/
-│   ├── fetch-news.ts          # 资讯 RSS 抓取
-│   ├── seed-plaza.ts          # 广场种子数据
-│   └── seed-communities.ts    # 社区种子数据
-├── src/
-│   ├── app/
-│   │   ├── (auth)/            # 登录/注册页
-│   │   ├── (main)/            # 前台页面（含 header/footer）
-│   │   │   ├── page.tsx       # 首页（SSR + revalidate=60）
-│   │   │   ├── communities/   # 社区地图
-│   │   │   ├── plaza/         # 创业广场
-│   │   │   ├── market/        # 合作广场
-│   │   │   ├── news/          # 资讯
-│   │   │   ├── tools/         # 工具导航
-│   │   │   ├── start/         # 用户引导
-│   │   │   ├── search/        # 全站搜索
-│   │   │   ├── profile/       # 用户主页
-│   │   │   └── messages/      # 私信
-│   │   ├── admin/             # 管理后台
-│   │   │   ├── page.tsx       # 仪表盘
-│   │   │   ├── users/         # 用户管理（含 [id] 详情）
-│   │   │   ├── posts/         # 动态管理
-│   │   │   ├── news/          # 资讯管理（含 new）
-│   │   │   ├── orders/        # 合作广场管理
-│   │   │   └── communities/   # 社区管理（含 new / [id]/edit）
-│   │   └── api/               # API 路由
-│   ├── components/
-│   │   ├── admin/             # 管理后台组件（TrendChart 等）
-│   │   ├── communities/       # 社区相关组件
-│   │   ├── home/              # 首页组件（ActivityBar）
-│   │   ├── layout/            # Header / Footer
-│   │   ├── plaza/             # 广场组件（PostCard、PlazaClient）
-│   │   ├── news/              # 资讯组件（NewsClient）
-│   │   ├── providers/         # Context Providers
-│   │   └── ui/                # shadcn/ui 基础组件
-│   ├── constants/             # 话题标签、分类常量
-│   └── lib/
-│       ├── auth.ts            # NextAuth 配置
-│       ├── admin.ts           # requireStaff / requireAdmin
-│       └── db.ts              # Prisma 单例
+│   └── schema.prisma      # 数据模型
+├── scripts/               # 种子数据、迁移脚本
+├── constants/             # 常量定义
+├── types/                 # TypeScript 类型
+├── docs/                  # PRD、设计文档
+├── openspec/              # OpenSpec 变更归档
+└── DESIGN.md              # 设计系统 token 定义
 ```
+
+> ⚠️ 本项目**没有 `src/` 目录**，所有代码直接在项目根目录下。
 
 ---
 
-## 数据模型（核心）
+## 核心数据模型
 
 | 模型 | 说明 |
 |------|------|
-| `User` | 用户，含 `mainTrack`（赛道）、`startupStage`（阶段）、`role`（USER/MODERATOR/ADMIN） |
-| `Community` | OPC社区，含 `applyDifficulty`（入驻难度1-5）、`realTips`（真实说明）、`lastVerifiedAt` |
-| `CommunityReview` | 用户对社区的评价，每人限评一次，含 `difficulty` 星级投票 |
-| `Post` | 创业广场帖子，`type`：DAILY/EXPERIENCE/QUESTION/RESOURCE/DISCUSSION，含 `topics`（话题标签数组）、`pinned`（精华） |
-| `Project` | 合作广场条目，`contentType`：DEMAND/COOPERATION |
-| `News` | 资讯，`isOriginal` 区分原创/外链，含 `content`（Markdown正文） |
-| `Conversation/Message` | 私信系统 |
+| User | 创业者，含 mainTrack/startupStage/verified/showInPlaza |
+| Community | OPC 社区，含 entryFriendly(1-5)/amenities/realTips |
+| Project | 产品，含 images[]/stage/slug/likeCount/commentCount |
+| Progress | 产品进展记录，含 content/milestone/images[] |
+| Post | 广场帖子，type: DAILY/EXPERIENCE/QUESTION/RESOURCE/DISCUSSION |
+| Follow | 关注关系（followerId → followingId） |
+| Favorite | 统一点赞（userId+postId 或 userId+projectId） |
+| Comment | 评论（支持嵌套回复，关联 Post 或 Project） |
+| Notification | 通知（CARD_VIEWED/CONTACTED/INQUIRY_STATUS/NEW_FOLLOWER 等） |
+| Inquiry | 直通车意向 |
+| News | 资讯（原创/外链） |
+| Policy | 专项政策（省/市/区三级） |
+| RadarIssue/RadarItem | OPC 雷达日报 |
 
 ---
 
 ## 渲染策略
 
-| 页面 | 策略 | 说明 |
-|------|------|------|
-| 首页 | SSR + `revalidate=60` | 静态预渲染，60秒 ISR |
-| 资讯列表 | SSR + `revalidate=300` | 5分钟缓存 |
-| 社区地图 | SSR + `revalidate=300` | 初始数据 SSR，交互 CSR |
-| 创业广场 | SSR + `force-dynamic` | 初始数据 SSR，实时更新 |
-| 管理后台 | `force-dynamic` | 全部实时 |
-
-> 核心页面采用"SSR 初始数据 + Client Component 交互"模式：首屏内容由服务端直出（无白屏），筛选/分页等交互在客户端完成。
+| 页面 | 策略 | revalidate |
+|------|------|------------|
+| 首页 | ISR | 600s |
+| 社区列表 | ISR | 300s |
+| 社区详情 | ISR + generateStaticParams | 60s |
+| 广场 | ISR | 60s |
+| 产品详情 | ISR + generateStaticParams | 300s |
+| 资讯 | ISR | 300s |
+| 雷达 | ISR | 300s |
+| 管理后台 | force-dynamic | — |
 
 ---
 
 ## 权限体系
 
-- `USER`：普通用户，可发帖/评论/私信
-- `MODERATOR`：版主，可管理动态和合作广场
-- `ADMIN`：管理员，可访问全部后台功能
-
-鉴权方式：
-- 前台：`useSession()` 检查登录态
-- API：`auth()` from `@/lib/auth`
-- 管理后台 API：`requireStaff()` / `requireAdmin()` from `@/lib/admin`
+| 角色 | 权限 |
+|------|------|
+| USER | 发帖/评论/关注/点赞/提交意向 |
+| MODERATOR | + 管理动态/合作广场 |
+| ADMIN | + 全部后台功能 |
 
 ---
 
-## 开发说明
+## 设计系统
 
-### 新增管理后台功能
+定义在 `DESIGN.md` + `tailwind.config.ts`：
 
-```bash
-# 1. 新建 API 路由
-src/app/api/admin/your-feature/route.ts
-# 在路由开头调用 requireStaff() 或 requireAdmin()
-
-# 2. 新建后台页面
-src/app/admin/your-feature/page.tsx
-# layout.tsx 已做角色验证，页面本身无需重复鉴权
-```
-
-### 修改数据库 Schema
-
-```bash
-# 1. 编辑 prisma/schema.prisma
-# 2. 推送变更
-npm run db:push
-# 3. 更新 Prisma client
-npm run db:generate
-```
-
-### Markdown 渲染
-
-帖子详情页（`/plaza/[id]`）和资讯详情页（`/news/[id]`）均使用 `react-markdown + remark-gfm` 渲染 Markdown，并配合 `@tailwindcss/typography` 的 `prose` 类做样式。
-
-广场帖子卡片预览会自动剥离 Markdown 符号，显示纯文本摘要。
-
----
-
-## 主题配置
-
-定义在 `tailwind.config.ts`：
-
-| 变量 | 颜色 | 用途 |
-|------|------|------|
-| `primary` | #F97316（橙色） | 主操作按钮、强调色 |
-| `secondary` | #334155（深灰） | 标题、正文 |
-| `accent` | #10B981（翠绿） | 辅助强调 |
-
----
-
-## 测试
-
-### 单元测试（Vitest）
-
-```bash
-npm test           # 运行所有单元测试（一次性）
-npm run test:watch # 监听模式（开发时用）
-npm run test:ui    # 可视化 UI 界面
-```
-
-覆盖范围：输入校验、业务逻辑（点赞切换/评价去重/分类映射等）、API 参数验证。
-
-### E2E 测试（Playwright）
-
-```bash
-# 先确保 dev server 在运行
-npm run dev
-
-# 另开终端
-npm run e2e          # 运行所有 E2E 测试
-npm run e2e:ui       # 交互式 UI 模式
-npm run e2e:report   # 查看上次报告
-```
-
-覆盖范围：公开页面加载、导航、未登录权限跳转、管理后台访问控制。
-
-### CI（GitHub Actions）
-
-每次 push 到 `main`/`develop` 分支自动运行：
-1. TypeScript 类型检查 (`tsc --noEmit`)
-2. Prisma schema 验证
-3. 单元测试 (`npm test`)
-
-E2E 测试需要真实服务，暂不在 CI 中运行（需配置测试数据库和服务启动）。
+- **Primary:** #F97316（OPC 橙）
+- **文字层级:** ink #000 / body #33332e / mute #62625b / ash #91918c
+- **表面:** canvas #fff / surface-soft #fbfbf9 / surface-card #f6f6f3
+- **圆角:** cards rounded-2xl / buttons rounded-xl / modals rounded-[32px]
+- **交互:** hover:shadow-md + 卡片 hover:-translate-y-1 + 按钮 active:scale-95
 
 ---
 

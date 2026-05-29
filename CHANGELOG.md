@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 2026-05-29 — Phase 3: 社区粘性升级
+
+分支 `feature/community-upgrade`，17 commits，全量合并。
+
+### 核心变更
+
+- **Follow 体系:** 关注创业者，粉丝列表，广场卡片内嵌关注按钮
+- **产品详情页重构:** 60/40 分栏布局，图片画廊，Progress 时间线，评论区
+- **Progress 模型:** 独立产品进展记录（替代 Post type=PROGRESS）
+- **产品图片上传:** R2 存储，最多 5 张，第一张为封面
+- **Like → Favorite 统一:** 废弃 Like 表，所有点赞统一用 Favorite
+- **卡片重设计:** 产品卡（封面+❤️/💬）、人物卡（单 CTA 关注）、帖子卡简化
+- **「我的」后台:** /settings 重构为三区块（主页·产品·账号安全）
+- **广场升级:** 默认 Tab 改为「产品」，每 Tab 独立排序/筛选，通知横条
+- **首页改造:** 最新动态 → 热门产品横滑（Top 10 by likes）
+- **微交互:** 卡片 hover 上浮、点赞弹跳、关注按压、进展 stagger 入场
+- **Bug 修复:** 中文 slug 404、Follow 状态回滚、进展空状态链接
+
+### DB 变更
+
+- 新增: Progress 模型（content, milestone, images[], projectId, authorId）
+- 新增: Project.images String[]
+- 废弃: tagline 字段（内容合并到 description）
+- 废弃: Like 模型（关系已移除，表保留）
+
+### 新增 API
+
+- POST/GET /api/projects/[slug]/progress — 产品进展 CRUD
+- POST/DELETE /api/projects/[slug]/like — 产品点赞（Favorite）
+- GET /api/user/liked-projects — 我喜欢的产品
+- GET /api/user/favorites — 我的收藏
+- POST /api/auth/change-password — 修改密码
+- POST /api/upload/product-image — 产品图片上传（R2）
+
+---
+
 ## 2026-03-26 — Sprint 1 完整交付 + 性能优化专项
 
 ### Sprint 1：注册转化路径闭环
