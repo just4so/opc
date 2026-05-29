@@ -7,6 +7,14 @@ import { Building2, BadgeCheck, Handshake, Heart } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
+const COVER_PATTERNS = ['cover-blob', 'cover-rings', 'cover-wave']
+
+function getCoverPattern(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return COVER_PATTERNS[Math.abs(hash) % COVER_PATTERNS.length]
+}
+
 export const revalidate = 600
 
 export const metadata: Metadata = {
@@ -231,9 +239,9 @@ export default async function HomePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-surface-card to-surface-soft flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary/30">
-                        {product.name[0]}
+                    <div className={`w-full h-full cover-fallback ${getCoverPattern(product.name)} px-4`}>
+                      <span className="font-bold text-[#1e293b] text-center leading-tight relative z-[2]" style={{ fontSize: product.name.length > 8 ? '14px' : '18px' }}>
+                        {product.name}
                       </span>
                     </div>
                   )}

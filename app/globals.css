@@ -119,12 +119,12 @@ body {
 
 /* Gradient glow (used as decoration) */
 .glow-orange {
-  background: radial-gradient(circle, rgba(249,115,22,0.10) 0%, rgba(249,115,22,0) 70%);
+  background: radial-gradient(circle, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 70%);
   filter: blur(80px);
   pointer-events: none;
 }
 .glow-amber {
-  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0) 70%);
+  background: radial-gradient(circle, rgba(251,191,36,0.14) 0%, rgba(251,191,36,0) 70%);
   filter: blur(50px);
   pointer-events: none;
 }
@@ -137,8 +137,8 @@ body {
 /* Grid pattern */
 .grid-pattern {
   background-image:
-    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
   background-size: 100px 100px;
   mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 80%);
@@ -401,4 +401,70 @@ body {
   .error-shake { animation: none; }
   .city-pill-active { animation: none; }
   .city-expand-container { transition: none; }
+}
+
+/* ===== Product cover fallback patterns (no-image) ===== */
+.cover-fallback {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cover-fallback::before,
+.cover-fallback::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* Pattern 1: Blobs */
+.cover-blob {
+  background: linear-gradient(135deg, #fff7ed, #fed7aa);
+}
+.cover-blob::before {
+  width: 60%; height: 0; padding-bottom: 60%;
+  background: radial-gradient(circle, rgba(249,115,22,0.30) 0%, transparent 70%);
+  top: -15%; right: -10%;
+}
+.cover-blob::after {
+  width: 45%; height: 0; padding-bottom: 45%;
+  background: radial-gradient(circle, rgba(234,88,12,0.18) 0%, transparent 70%);
+  bottom: -12%; left: 8%;
+}
+
+/* Pattern 2: Rings */
+.cover-rings {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+}
+.cover-rings::before {
+  width: 70%; height: 0; padding-bottom: 70%;
+  border: 3px solid rgba(249,115,22,0.22);
+  background: transparent;
+  top: -25%; right: -15%;
+  box-shadow: 0 0 0 16px rgba(249,115,22,0.10), 0 0 0 32px rgba(249,115,22,0.04);
+}
+.cover-rings::after {
+  width: 30%; height: 0; padding-bottom: 30%;
+  border: 2px solid rgba(234,88,12,0.18);
+  background: transparent;
+  bottom: 8%; left: 6%;
+  box-shadow: 0 0 0 10px rgba(234,88,12,0.06);
+}
+
+/* Pattern 3: Waves */
+.cover-wave {
+  background: linear-gradient(180deg, #fff7ed, #ffedd5);
+}
+.cover-wave::before {
+  width: 120%; height: 45%; padding-bottom: 0;
+  border-radius: 50% 50% 0 0;
+  background: rgba(249,115,22,0.14);
+  bottom: -12%; left: -10%;
+}
+.cover-wave::after {
+  width: 110%; height: 38%; padding-bottom: 0;
+  border-radius: 50% 50% 0 0;
+  background: rgba(234,88,12,0.08);
+  bottom: -18%; left: 5%;
 }

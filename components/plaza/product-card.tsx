@@ -35,6 +35,14 @@ const STAGE_LABELS: Record<string, string> = {
   IDEA: '想法', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
 }
 
+const COVER_PATTERNS = ['cover-blob', 'cover-rings', 'cover-wave']
+
+function getCoverPattern(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return COVER_PATTERNS[Math.abs(hash) % COVER_PATTERNS.length]
+}
+
 export function ProductCard({ project, isLiked = false, onLikeChange }: ProductCardProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -102,13 +110,19 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
       href={`/projects/${project.slug}`}
       className="bg-canvas rounded-2xl border border-hairline hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col overflow-hidden"
     >
-      {hasImage && (
+      {hasImage ? (
         <div className="aspect-[16/10] overflow-hidden bg-surface-card">
           <img
             src={project.images[0]}
             alt={project.name}
             className="w-full h-full object-cover"
           />
+        </div>
+      ) : (
+        <div className={`aspect-[16/10] cover-fallback ${getCoverPattern(project.name)} px-4`}>
+          <span className="text-[#1e293b] font-bold text-center leading-tight relative z-[2]" style={{ fontSize: project.name.length > 8 ? '16px' : '20px' }}>
+            {project.name}
+          </span>
         </div>
       )}
 
