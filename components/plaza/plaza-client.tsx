@@ -63,7 +63,7 @@ interface UserProject {
   id: string
   name: string
   slug: string
-  tagline: string
+  description: string
   stage: string
   website: string | null
 }
@@ -86,7 +86,6 @@ interface PlazaProject {
   id: string
   slug: string
   name: string
-  tagline: string
   description: string | null
   stage: string
   website: string | null
@@ -770,10 +769,7 @@ export function PlazaClient({
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </span>
                       </div>
-                      <p className="text-sm text-body leading-relaxed">{proj.tagline}</p>
-                      {proj.description && proj.description !== proj.tagline && (
-                        <DescriptionCollapse description={proj.description} />
-                      )}
+                      <p className="text-sm text-body leading-relaxed">{proj.description}</p>
                     </div>
 
                     {/* Owner info */}

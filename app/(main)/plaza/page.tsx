@@ -85,7 +85,7 @@ export default async function PlazaPage() {
             id: true,
             name: true,
             slug: true,
-            tagline: true,
+            description: true,
             stage: true,
             website: true,
           },
@@ -105,7 +105,7 @@ export default async function PlazaPage() {
     prisma.project.findMany({
       where: {
         status: 'PUBLISHED',
-        tagline: { not: '' },
+        description: { not: '' },
         owner: { showInPlaza: true },
       },
       orderBy: [
@@ -117,7 +117,6 @@ export default async function PlazaPage() {
         id: true,
         slug: true,
         name: true,
-        tagline: true,
         description: true,
         stage: true,
         website: true,

@@ -50,7 +50,7 @@ interface UserProfile {
 interface ProjectItem {
   id: string
   name: string
-  tagline: string
+  description: string
   stage: string
   website: string | null
   contentType: string
@@ -118,7 +118,7 @@ export default function SettingsPage() {
   // Projects
   const [projects, setProjects] = useState<ProjectItem[]>([])
   const [showNewProject, setShowNewProject] = useState(false)
-  const [newProject, setNewProject] = useState({ name: '', tagline: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+  const [newProject, setNewProject] = useState({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
 
   // Hash-based section navigation
   useEffect(() => {
@@ -287,7 +287,7 @@ export default function SettingsPage() {
   }
 
   const handleCreateProject = async () => {
-    if (!newProject.name.trim() || !newProject.tagline.trim()) return
+    if (!newProject.name.trim() || !newProject.description.trim()) return
     try {
       const res = await fetch('/api/user/projects', {
         method: 'POST',
@@ -297,7 +297,7 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json()
         setProjects(prev => [...prev, data])
-        setNewProject({ name: '', tagline: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+        setNewProject({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
         setShowNewProject(false)
       }
     } catch {}
@@ -724,15 +724,10 @@ export default function SettingsPage() {
                       onChange={e => setNewProject(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="项目名称"
                     />
-                    <Input
-                      value={newProject.tagline}
-                      onChange={e => setNewProject(prev => ({ ...prev, tagline: e.target.value }))}
-                      placeholder="一句话描述"
-                    />
                     <textarea
                       value={newProject.description}
                       onChange={e => setNewProject(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="你在做什么，解决谁的问题，现在到了哪个阶段"
+                      placeholder="一句话描述：你在做什么，解决谁的问题，现在到了哪个阶段"
                       maxLength={500}
                       rows={3}
                       className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
@@ -789,7 +784,7 @@ export default function SettingsPage() {
                           {CONTENT_TYPE_OPTIONS.find(o => o.value === proj.contentType)?.label || proj.contentType}
                         </span>
                       </div>
-                      <p className="text-xs mt-1" style={{ color: '#62625b' }}>{proj.tagline}</p>
+                      <p className="text-xs mt-1" style={{ color: '#62625b' }}>{proj.description}</p>
                       {proj.website && (
                         <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center gap-1 mt-1.5 hover:underline" style={{ color: '#F97316' }}>
                           <ExternalLink className="h-3 w-3" />{proj.website}

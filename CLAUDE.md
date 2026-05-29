@@ -416,3 +416,77 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 - Tab style → follow plaza-client.tsx mainTab pattern
 - All colors from DESIGN.md tokens only
 - Reuse existing Card/Badge/Button from @/components/ui/
+
+---
+
+## Phase 3: 社区粘性升级（2026-05-29 开始）
+
+**PRD:** `docs/community-upgrade-phase3-prd.md`
+**分支:** `feature/community-upgrade-phase3`
+**管理:** OpenSpec（每个 T1-T7 对应一个 change）
+
+### 核心变更
+
+- 废弃 Like 表，统一用 Favorite 表（userId+postId 或 userId+projectId）
+- 新增 Progress 模型（独立于 Post，专门记录产品进展）
+- Project 新增 images: String[]（最多 5 张，第一张为封面）
+- tagline 字段废弃，内容合并到 description
+- 产品详情页改为左右分栏（桌面 60/40，移动端堆叠）
+- 广场默认 tab 改为「产品」
+- /profile 重定向到 /profile/[username]，/settings 改为「我的」后台
+- Daily Digest 邮件替代即时通知邮件（cron 20:00）
+
+### 样式硬约束（MANDATORY — Claude Code 必须遵守）
+
+**1. 颜色：只用 tailwind.config.ts 已定义的语义色**
+- ✅ text-ink, text-mute, text-ash, bg-surface-card, border-hairline 等
+- ❌ 禁止 hex 硬编码（如 `text-[#333]`、`bg-[#f5f5f5]`）
+- ❌ 禁止新增 Tailwind 自定义颜色
+
+**2. 圆角：三级系统，不用中间值**
+- `rounded-2xl` (16px) — 卡片、按钮、输入框
+- `rounded-[32px]` — 弹窗、大容器（对应 DESIGN.md rounded.lg）
+- `rounded-full` — 头像、徽章、搜索栏、筛选标签
+- ❌ 禁止 rounded-md / rounded-xl / rounded-sm / rounded-lg（除非是 Tailwind 的 rounded-2xl）
+
+**3. 间距：4px 倍数，用 Tailwind 标准 class**
+- ❌ 禁止 style={{}} 内联样式
+- ❌ 禁止 arbitrary values（如 `p-[13px]`）除非有明确理由并注释
+
+**4. 交互效果：**
+- 卡片 hover: `hover:shadow-sm transition-shadow duration-200`
+- 按钮按压: `active:scale-[0.98] transition-transform`
+- ❌ 不引入新动画库（framer-motion 等）
+- ✅ 现有 ScrollReveal 组件可复用
+
+**5. 组件复用：**
+- 新卡片参考 `components/plaza/` 下现有卡片的 class 模式
+- Dialog 用 shadcn/ui 的 Dialog
+- 按钮用现有 Button 组件（`@/components/ui/button`）
+- ❌ 不新建 UI 基础组件
+- ✅ 图标统一用 lucide-react
+
+**6. 响应式：**
+- 断点：sm(640) / md(768) / lg(1024) / xl(1280)
+- 卡片网格：xl:4列 / lg:3列 / md:2列 / sm:1列
+- 产品详情页：lg 以上左右分栏，lg 以下堆叠
+- 触控目标 ≥ 44×44px
+
+### 执行顺序（T1-T7）
+
+| 阶段 | 内容 | OpenSpec change name |
+|------|------|---------------------|
+| T1 | DB 迁移（tagline→description + Progress 模型 + images 字段 + 废弃 Like） | `phase3-t1-db-migration` |
+| T2 | 产品图片上传（R2 + 上传组件） | `phase3-t2-image-upload` |
+| T3 | 卡片重设计（产品卡片 + 人物卡片 + 帖子卡片调整） | `phase3-t3-card-redesign` |
+| T4 | 产品详情页重构（左右分栏 + Progress + Dialog） | `phase3-t4-product-detail` |
+| T5 | 「我的」后台重构 | `phase3-t5-settings-refactor` |
+| T6 | 直通车表单 + 广场默认 tab + 通知横条 | `phase3-t6-plaza-updates` |
+| T7 | 首页热门产品 + Bug 修复 + 废弃代码清理 | `phase3-t7-homepage-cleanup` |
+
+### 验收标准（每个 Task 完成后必须验证）
+
+1. `npm run build` 通过，无 TS 错误
+2. `npx prisma validate` 通过（涉及 schema 变更时）
+3. 新组件在 dev server 可渲染（不白屏）
+4. 对照 PRD 对应章节逐条检查功能点

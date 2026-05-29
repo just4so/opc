@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         })
         const columns = [
           { key: 'name', label: '标题' },
-          { key: 'tagline', label: '描述' },
+          { key: 'description', label: '描述' },
           { key: 'contentType', label: '类型' },
           { key: 'status', label: '状态' },
           { key: 'owner.username', label: '发布者' },

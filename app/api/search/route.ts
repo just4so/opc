@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
             where: {
               status: 'PUBLISHED',
               contentType: { in: ['DEMAND', 'COOPERATION'] },
-              ...multiFieldSearch(['name', 'tagline', 'description']),
+              ...multiFieldSearch(['name', 'description']),
             },
             take: LIMIT,
             skip: type === 'order' ? skip : 0,
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
           where: {
             status: 'PUBLISHED',
             contentType: { in: ['DEMAND', 'COOPERATION'] },
-            ...multiFieldSearch(['name', 'tagline', 'description']),
+            ...multiFieldSearch(['name', 'description']),
           },
         }),
         prisma.community.count({

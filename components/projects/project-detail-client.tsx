@@ -43,7 +43,6 @@ interface ProjectData {
   id: string
   slug: string
   name: string
-  tagline: string
   description: string
   logo: string | null
   screenshots: string[]
@@ -141,7 +140,7 @@ export function ProjectDetailClient({
               )}
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold text-ink truncate">{project.name}</h1>
-                <p className="text-mute mt-1">{project.tagline}</p>
+                <p className="text-mute mt-1">{project.description?.slice(0, 100)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">

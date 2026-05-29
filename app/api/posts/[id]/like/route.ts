@@ -16,7 +16,6 @@ export async function POST(
     const { id: postId } = await params
     const userId = session.user.id
 
-    // 检查帖子是否存在
     const post = await prisma.post.findUnique({
       where: { id: postId },
     })
@@ -25,8 +24,7 @@ export async function POST(
       return NextResponse.json({ error: '帖子不存在' }, { status: 404 })
     }
 
-    // 检查是否已点赞
-    const existingLike = await prisma.like.findUnique({
+    const existing = await prisma.favorite.findUnique({
       where: {
         userId_postId: {
           userId,
@@ -35,11 +33,10 @@ export async function POST(
       },
     })
 
-    if (existingLike) {
-      // 取消点赞
+    if (existing) {
       await prisma.$transaction([
-        prisma.like.delete({
-          where: { id: existingLike.id },
+        prisma.favorite.delete({
+          where: { id: existing.id },
         }),
         prisma.post.update({
           where: { id: postId },
@@ -49,9 +46,8 @@ export async function POST(
 
       return NextResponse.json({ liked: false, message: '已取消点赞' })
     } else {
-      // 点赞
       await prisma.$transaction([
-        prisma.like.create({
+        prisma.favorite.create({
           data: {
             userId,
             postId,
@@ -74,7 +70,6 @@ export async function POST(
   }
 }
 
-// 获取当前用户是否已点赞
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -88,7 +83,7 @@ export async function GET(
     const { id: postId } = await params
     const userId = session.user.id
 
-    const like = await prisma.like.findUnique({
+    const favorite = await prisma.favorite.findUnique({
       where: {
         userId_postId: {
           userId,
@@ -97,7 +92,7 @@ export async function GET(
       },
     })
 
-    return NextResponse.json({ liked: !!like })
+    return NextResponse.json({ liked: !!favorite })
   } catch (error) {
     return NextResponse.json({ liked: false })
   }

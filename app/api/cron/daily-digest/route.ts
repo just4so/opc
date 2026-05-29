@@ -15,10 +15,10 @@ export async function GET(req: NextRequest) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const likes = await prisma.like.findMany({
+  const likes = await prisma.favorite.findMany({
     where: {
       createdAt: { gte: yesterday, lt: today },
-      post: { isNot: null },
+      postId: { not: null },
     },
     select: {
       post: { select: { authorId: true } },

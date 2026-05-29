@@ -59,7 +59,6 @@ interface ProjectItem {
   id: string
   slug: string
   name: string
-  tagline: string
   description: string | null
   stage: string
   website: string | null
@@ -383,10 +382,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
                           {STAGE_LABELS[proj.stage] || proj.stage}
                         </Badge>
                       </div>
-                      <p className="text-sm mt-1" style={{ color: '#62625b' }}>{proj.tagline}</p>
-                      {proj.description && proj.description !== proj.tagline && (
-                        <p className="text-xs mt-1" style={{ color: '#91918c' }}>{proj.description}</p>
-                      )}
+                      <p className="text-sm mt-1" style={{ color: '#62625b' }}>{proj.description}</p>
                     </div>
                     {proj.website && (
                       <a

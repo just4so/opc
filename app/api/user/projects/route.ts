@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, tagline, description, stage, website, contentType } = body
+    const { name, description, stage, website, contentType } = body
 
-    if (!name?.trim() || !tagline?.trim()) {
-      return NextResponse.json({ error: '名称和简介必填' }, { status: 400 })
+    if (!name?.trim() || !description?.trim()) {
+      return NextResponse.json({ error: '名称和描述必填' }, { status: 400 })
     }
 
     if (description && description.length > 500) {
@@ -28,13 +28,12 @@ export async function POST(request: NextRequest) {
     const ct = (contentType && validContentTypes.includes(contentType)) ? contentType : 'PROJECT'
     const st = (stage && validStages.includes(stage)) ? stage : 'IDEA'
 
-    const slug = `${name.trim().toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-')}-${Date.now()}`
+    const slug = `${name.trim().toLowerCase().replace(/[^a-z0-9一-鿿]+/g, '-')}-${Date.now()}`
 
     const project = await prisma.project.create({
       data: {
         name: name.trim(),
-        tagline: tagline.trim(),
-        description: description?.trim() || tagline.trim(),
+        description: description.trim(),
         stage: st,
         website: website?.trim() || null,
         contentType: ct,
@@ -45,7 +44,6 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         name: true,
-        tagline: true,
         description: true,
         stage: true,
         website: true,

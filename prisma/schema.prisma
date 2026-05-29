@@ -43,7 +43,6 @@ model User {
   conversations      ConversationParticipant[]
   favorites          Favorite[]
   inquiries          Inquiry[]
-  likes              Like[]
   sentMessages       Message[]
   oneTimeTokens      OneTimeToken[]
   posts              Post[]
@@ -52,6 +51,7 @@ model User {
   notifications      Notification[]
   followers          Follow[]                  @relation("UserFollowing")
   following          Follow[]                  @relation("UserFollowers")
+  progress           Progress[]                @relation("UserProgress")
 
   @@index([username])
   @@index([location])
@@ -174,7 +174,6 @@ model Post {
   projectId    String?
   comments     Comment[]
   favorites    Favorite[]
-  likes        Like[]
   author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   project      Project?    @relation(fields: [projectId], references: [id])
 
@@ -189,11 +188,13 @@ model Project {
   id              String        @id @default(cuid())
   slug            String        @unique
   name            String
-  tagline         String
+  // @deprecated - 合并到 description
+  tagline         String?
   description     String
   logo            String?
   coverImage      String?
   screenshots     String[]
+  images          String[]
   category        String[]
   techStack       String[]
   stage           ProjectStage  @default(IDEA)
@@ -225,7 +226,7 @@ model Project {
   comments        Comment[]
   posts           Post[]
   favorites       Favorite[]
-  likes           Like[]
+  progress        Progress[]
   owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   @@index([ownerId])
@@ -256,15 +257,13 @@ model Comment {
   @@index([authorId])
 }
 
+// @deprecated - 已迁移到 Favorite，待确认后删除
 model Like {
   id        String   @id @default(cuid())
   postId    String?
   projectId String?
   userId    String
   createdAt DateTime @default(now())
-  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
   @@unique([userId, projectId])
@@ -590,4 +589,20 @@ model Follow {
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  content   String
+  milestone String?
+  images    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  projectId String
+  author    User     @relation("UserProgress", fields: [authorId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([authorId, createdAt])
 }

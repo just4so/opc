@@ -104,7 +104,6 @@ export interface Project {
   id: string
   slug: string
   name: string
-  tagline: string
   description: string
   logo?: string
   coverImage?: string

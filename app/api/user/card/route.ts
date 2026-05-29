@@ -36,7 +36,7 @@ export async function GET() {
           select: {
             id: true,
             name: true,
-            tagline: true,
+            description: true,
             stage: true,
             website: true,
             contentType: true,

@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
 
   const where = { userId: session.user.id, postId: { not: null } }
 
-  const [total, likes] = await Promise.all([
-    prisma.like.count({ where }),
-    prisma.like.findMany({
+  const [total, favorites] = await Promise.all([
+    prisma.favorite.count({ where }),
+    prisma.favorite.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       skip,
@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
   ])
 
   return NextResponse.json({
-    data: likes.map(l => ({
+    data: favorites.map(l => ({
       ...l,
       createdAt: l.createdAt.toISOString(),
       post: l.post ? { ...l.post, createdAt: l.post.createdAt.toISOString() } : null,
     })),
     total,
     page,
-    hasMore: skip + likes.length < total,
+    hasMore: skip + favorites.length < total,
   })
 }

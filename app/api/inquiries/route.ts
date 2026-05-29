@@ -152,7 +152,6 @@ export async function POST(req: Request) {
           data: {
             slug: projectSlug,
             name: productName,
-            tagline: productTagline || '',
             description: productTagline || '',
             stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
             website: productWebsite || null,

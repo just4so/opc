@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
-      tagline: { not: '' },
+      description: { not: '' },
       owner: {
         showInPlaza: true,
       } as Record<string, unknown>,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
-        { tagline: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
       ]
     }
 
@@ -53,7 +53,6 @@ export async function GET(request: NextRequest) {
           id: true,
           slug: true,
           name: true,
-          tagline: true,
           description: true,
           stage: true,
           website: true,

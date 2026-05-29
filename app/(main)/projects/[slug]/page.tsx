@@ -59,8 +59,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: '产品未找到 - OPC圈' }
   }
   return {
-    title: `${project.name} - ${project.tagline} - OPC圈`,
-    description: project.description?.slice(0, 160) || project.tagline,
+    title: `${project.name} - OPC圈`,
+    description: project.description?.slice(0, 160) || project.name,
   }
 }
 
@@ -100,7 +100,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     id: project.id,
     slug: project.slug,
     name: project.name,
-    tagline: project.tagline,
     description: project.description,
     logo: project.logo,
     screenshots: project.screenshots,

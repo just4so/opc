@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 interface ProjectItem {
   id: string
   name: string
-  tagline: string
+  description: string
   contentType: string
   status: string
   featured: boolean
@@ -241,7 +241,7 @@ export default function AdminOrdersPage() {
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <div className="font-medium line-clamp-1">{order.name}</div>
-                        <div className="text-sm text-gray-500 line-clamp-1">{order.tagline}</div>
+                        <div className="text-sm text-gray-500 line-clamp-1">{order.description}</div>
                       </td>
                       <td className="py-3 px-4">
                         <Badge variant="outline">
