@@ -49,6 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name || user.username,
           image: user.avatar,
           role: user.role,
+          username: user.username,
         }
       },
     }),
@@ -59,14 +60,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id
         token.role = (user as any).role
         token.image = (user as any).image
+        token.username = (user as any).username
         prisma.user.update({ where: { id: user.id as string }, data: { lastActiveAt: new Date() } }).catch(() => {})
       }
       if (trigger === 'signIn' || trigger === 'update') {
         const dbUser = await prisma.user.findUnique({
           where: { id: (token.sub ?? token.id) as string },
-          select: { showInPlaza: true },
+          select: { showInPlaza: true, username: true },
         })
-        if (dbUser) token.showInPlaza = dbUser.showInPlaza
+        if (dbUser) {
+          token.showInPlaza = dbUser.showInPlaza
+          token.username = dbUser.username
+        }
       }
       if (trigger === 'update' && updateData) {
         if (updateData.name !== undefined) token.name = updateData.name
@@ -78,6 +83,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string
         ;(session.user as any).role = token.role
+        ;(session.user as any).username = token.username
         session.user.image = token.image as string | null
         ;(session.user as any).showInPlaza = token.showInPlaza ?? false
       }

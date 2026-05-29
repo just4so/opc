@@ -289,7 +289,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
               </>
             ) : (
               <>
-                <Link href="/settings">
+                <Link href="/settings#profile">
                   <Button variant="outline" className="gap-2">
                     <Settings className="h-4 w-4" />
                     编辑资料

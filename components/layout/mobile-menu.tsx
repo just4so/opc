@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Settings, Shield, MessageSquare, Map, MessageCircle, Radio, Newspaper } from 'lucide-react'
+import { Menu, X, User, LogOut, Shield, MessageSquare, Map, MessageCircle, Radio, Newspaper } from 'lucide-react'
 import { useUnread } from './unread-provider'
 
 const navLinks = [
@@ -99,8 +99,8 @@ export function MobileMenu() {
                       <p className="text-xs text-mute truncate">{session.user.email}</p>
                     </div>
                   </div>
-                  <Link href="/profile" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
-                    <User className="h-4 w-4" /> 个人中心
+                  <Link href="/settings" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
+                    <User className="h-4 w-4" /> 我的
                   </Link>
                   <Link href="/messages" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
                     <div className="relative">
@@ -115,9 +115,6 @@ export function MobileMenu() {
                     {counts.messages > 0 && (
                       <span className="ml-auto text-xs text-red-500 font-medium">{counts.messages}</span>
                     )}
-                  </Link>
-                  <Link href="/settings" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-charcoal hover:bg-surface-card transition-colors">
-                    <Settings className="h-4 w-4" /> 设置
                   </Link>
                   {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR') && (
                     <Link href="/admin" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-blue-600 hover:bg-blue-50 transition-colors">

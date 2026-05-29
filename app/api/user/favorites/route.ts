@@ -14,6 +14,43 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
   const limit = Math.min(PAGE_SIZE, parseInt(searchParams.get('limit') || String(PAGE_SIZE)))
   const skip = (page - 1) * limit
+  const type = searchParams.get('type') || 'posts'
+
+  if (type === 'projects') {
+    const where = { userId: session.user.id, projectId: { not: null } }
+    const [total, favorites] = await Promise.all([
+      prisma.favorite.count({ where }),
+      prisma.favorite.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          createdAt: true,
+          project: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              description: true,
+              stage: true,
+              images: true,
+              owner: {
+                select: { id: true, username: true, name: true, avatar: true },
+              },
+            },
+          },
+        },
+      }),
+    ])
+    return NextResponse.json({
+      data: favorites.map(f => ({ ...f, createdAt: f.createdAt.toISOString() })),
+      total,
+      page,
+      hasMore: skip + favorites.length < total,
+    })
+  }
 
   const where = { userId: session.user.id, postId: { not: null } }
 

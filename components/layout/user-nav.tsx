@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { User, LogOut, Settings, ChevronDown, Shield, MessageSquare } from 'lucide-react'
+import { User, LogOut, ChevronDown, Shield, MessageSquare } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { useUnread } from './unread-provider'
 
@@ -78,12 +78,12 @@ export function UserNav() {
               </p>
             </div>
             <Link
-              href="/profile"
+              href="/settings"
               className="flex items-center px-4 py-2 text-sm text-charcoal hover:bg-surface-card"
               onClick={() => setIsOpen(false)}
             >
               <User className="h-4 w-4 mr-2" />
-              个人中心
+              我的
             </Link>
             <Link
               href="/messages"
@@ -97,14 +97,6 @@ export function UserNav() {
                   {counts.messages > 99 ? '99+' : counts.messages}
                 </span>
               )}
-            </Link>
-            <Link
-              href="/settings"
-              className="flex items-center px-4 py-2 text-sm text-charcoal hover:bg-surface-card"
-              onClick={() => setIsOpen(false)}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              设置
             </Link>
             {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR') && (
               <Link
