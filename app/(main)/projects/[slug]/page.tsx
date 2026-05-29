@@ -26,16 +26,14 @@ const getProject = cache(async (slug: string) => {
           mainTrack: true,
         },
       },
-      posts: {
-        where: { type: 'PROGRESS', status: 'PUBLISHED' },
+      progress: {
         orderBy: { createdAt: 'desc' },
+        take: 20,
         select: {
           id: true,
           content: true,
           milestone: true,
           createdAt: true,
-          likeCount: true,
-          commentCount: true,
         },
       },
       _count: {
@@ -74,12 +72,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const currentUserId = session?.user?.id || null
 
   let isFavorited = false
+  let isLiked = false
   let isFollowingOwner = false
 
   if (currentUserId) {
-    const [fav, follow] = await Promise.all([
+    const [fav, like, follow] = await Promise.all([
       prisma.favorite.findUnique({
         where: { userId_projectId: { userId: currentUserId, projectId: project.id } },
+      }),
+      prisma.favorite.findFirst({
+        where: { userId: currentUserId, projectId: project.id },
       }),
       currentUserId !== project.owner.id
         ? prisma.follow.findUnique({
@@ -93,6 +95,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         : null,
     ])
     isFavorited = !!fav
+    isLiked = !!like
     isFollowingOwner = !!follow
   }
 
@@ -102,15 +105,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     name: project.name,
     description: project.description,
     logo: project.logo,
-    screenshots: project.screenshots,
+    images: project.images,
     techStack: project.techStack,
     stage: project.stage,
     mrr: project.mrr,
     isRevenuePublic: project.isRevenuePublic,
     website: project.website,
+    likeCount: project.likeCount,
     commentCount: project._count.comments,
     owner: project.owner,
-    posts: project.posts.map((p) => ({
+    progressList: project.progress.map((p) => ({
       ...p,
       createdAt: p.createdAt.toISOString(),
     })),
@@ -120,6 +124,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <ProjectDetailClient
       project={serializedProject}
       currentUserId={currentUserId}
+      initialIsLiked={isLiked}
       initialIsFavorited={isFavorited}
       initialIsFollowingOwner={isFollowingOwner}
     />
