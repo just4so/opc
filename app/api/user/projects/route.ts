@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, description, stage, website, contentType } = body
+    const { name, description, stage, website, contentType, images } = body
 
     if (!name?.trim() || !description?.trim()) {
       return NextResponse.json({ error: '名称和描述必填' }, { status: 400 })
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
         slug,
         ownerId: session.user.id,
         status: 'PUBLISHED',
+        ...(Array.isArray(images) && { images }),
       },
       select: {
         id: true,
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
         stage: true,
         website: true,
         contentType: true,
+        images: true,
       },
     })
 

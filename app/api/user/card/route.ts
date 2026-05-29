@@ -40,6 +40,7 @@ export async function GET() {
             stage: true,
             website: true,
             contentType: true,
+            images: true,
           },
         },
       },

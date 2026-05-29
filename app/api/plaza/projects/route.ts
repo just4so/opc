@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
           contentType: true,
           commentCount: true,
           likeCount: true,
+          images: true,
           owner: {
             select: {
               id: true,

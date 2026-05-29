@@ -481,7 +481,7 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 | T3 | 卡片重设计（产品卡片 + 人物卡片 + 帖子卡片调整） | `phase3-t3-card-redesign` |
 | T4 | 产品详情页重构（左右分栏 + Progress + Dialog） | `phase3-t4-product-detail` |
 | T5 | 「我的」后台重构 | `phase3-t5-settings-refactor` |
-| T6 | 直通车表单 + 广场默认 tab + 通知横条 | `phase3-t6-plaza-updates` |
+| T6 | 直通车表单（productTagline→productDescription, maxLength 1000, 图片上传）+ 广场默认 tab + 通知横条 | `phase3-t6-plaza-updates` |
 | T7 | 首页热门产品 + Bug 修复 + 废弃代码清理 | `phase3-t7-homepage-cleanup` |
 
 ### 验收标准（每个 Task 完成后必须验证）

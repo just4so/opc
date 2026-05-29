@@ -22,11 +22,13 @@ import {
   ExternalLink,
   Rocket,
   Bell,
+  Pencil,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AvatarPicker } from '@/components/ui/avatar-picker'
 import { AnimatedProgress } from '@/components/ui/animated-progress'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { useToast } from '@/components/ui/toast-notification'
 import { ensureUrl } from '@/lib/utils'
 
@@ -54,6 +56,7 @@ interface ProjectItem {
   stage: string
   website: string | null
   contentType: string
+  images: string[]
 }
 
 const STAGE_OPTIONS = [
@@ -118,7 +121,8 @@ export default function SettingsPage() {
   // Projects
   const [projects, setProjects] = useState<ProjectItem[]>([])
   const [showNewProject, setShowNewProject] = useState(false)
-  const [newProject, setNewProject] = useState({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+  const [newProject, setNewProject] = useState({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT', images: [] as string[] })
+  const [editingProject, setEditingProject] = useState<ProjectItem | null>(null)
 
   // Hash-based section navigation
   useEffect(() => {
@@ -297,8 +301,25 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json()
         setProjects(prev => [...prev, data])
-        setNewProject({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT' })
+        setNewProject({ name: '', description: '', stage: 'IDEA', website: '', contentType: 'PROJECT', images: [] })
         setShowNewProject(false)
+      }
+    } catch {}
+  }
+
+  const handleUpdateProject = async () => {
+    if (!editingProject || !editingProject.name.trim() || !editingProject.description.trim()) return
+    try {
+      const res = await fetch(`/api/user/projects/${editingProject.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingProject),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setProjects(prev => prev.map(p => p.id === data.id ? data : p))
+        setEditingProject(null)
+        toast('产品已更新', 'success')
       }
     } catch {}
   }
@@ -757,6 +778,13 @@ export default function SettingsPage() {
                       onChange={e => setNewProject(prev => ({ ...prev, website: e.target.value }))}
                       placeholder="网站 URL（可选）"
                     />
+                    <div>
+                      <label className="text-xs font-medium text-mute mb-1.5 block">产品图片（最多 5 张，第一张为封面）</label>
+                      <ImageUpload
+                        value={newProject.images}
+                        onChange={images => setNewProject(prev => ({ ...prev, images }))}
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <Button type="button" size="sm" onClick={handleCreateProject} disabled={!newProject.name.trim()}>
                         创建
@@ -776,31 +804,115 @@ export default function SettingsPage() {
                 )}
 
                 {projects.map(proj => (
-                  <div key={proj.id} className="bg-white rounded-2xl p-5 flex items-start justify-between" style={{ border: '1px solid #dadad3' }}>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm" style={{ color: '#000' }}>{proj.name}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#f6f6f3', color: '#62625b' }}>
-                          {CONTENT_TYPE_OPTIONS.find(o => o.value === proj.contentType)?.label || proj.contentType}
-                        </span>
+                  <div key={proj.id}>
+                    {editingProject?.id === proj.id ? (
+                      <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: '#f6f6f3', border: '1px solid #dadad3' }}>
+                        <Input
+                          value={editingProject.name}
+                          onChange={e => setEditingProject(prev => prev ? { ...prev, name: e.target.value } : null)}
+                          placeholder="项目名称"
+                        />
+                        <textarea
+                          value={editingProject.description}
+                          onChange={e => setEditingProject(prev => prev ? { ...prev, description: e.target.value } : null)}
+                          placeholder="一句话描述"
+                          maxLength={500}
+                          rows={3}
+                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <select
+                            value={editingProject.stage}
+                            onChange={e => setEditingProject(prev => prev ? { ...prev, stage: e.target.value } : null)}
+                            className="px-3 py-2 text-sm border rounded-xl bg-white"
+                          >
+                            {STAGE_OPTIONS.map(o => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </select>
+                          <select
+                            value={editingProject.contentType}
+                            onChange={e => setEditingProject(prev => prev ? { ...prev, contentType: e.target.value } : null)}
+                            className="px-3 py-2 text-sm border rounded-xl bg-white"
+                          >
+                            {CONTENT_TYPE_OPTIONS.map(o => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <Input
+                          value={editingProject.website || ''}
+                          onChange={e => setEditingProject(prev => prev ? { ...prev, website: e.target.value } : null)}
+                          placeholder="网站 URL（可选）"
+                        />
+                        <div>
+                          <label className="text-xs font-medium text-mute mb-1.5 block">产品图片（最多 5 张，第一张为封面）</label>
+                          <ImageUpload
+                            value={editingProject.images}
+                            onChange={images => setEditingProject(prev => prev ? { ...prev, images } : null)}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button type="button" size="sm" onClick={handleUpdateProject} disabled={!editingProject.name.trim()}>
+                            保存
+                          </Button>
+                          <Button type="button" size="sm" variant="outline" onClick={() => setEditingProject(null)}>
+                            取消
+                          </Button>
+                        </div>
                       </div>
-                      <p className="text-xs mt-1" style={{ color: '#62625b' }}>{proj.description}</p>
-                      {proj.website && (
-                        <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center gap-1 mt-1.5 hover:underline" style={{ color: '#F97316' }}>
-                          <ExternalLink className="h-3 w-3" />{proj.website}
-                        </a>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteProject(proj.id)}
-                      className="shrink-0 ml-3 p-1.5 rounded-lg transition-colors"
-                      style={{ color: '#91918c' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9e0a0a' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#91918c' }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    ) : (
+                      <div className="bg-white rounded-2xl p-5 flex items-start justify-between" style={{ border: '1px solid #dadad3' }}>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm" style={{ color: '#000' }}>{proj.name}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#f6f6f3', color: '#62625b' }}>
+                              {CONTENT_TYPE_OPTIONS.find(o => o.value === proj.contentType)?.label || proj.contentType}
+                            </span>
+                          </div>
+                          <p className="text-xs mt-1" style={{ color: '#62625b' }}>{proj.description}</p>
+                          {proj.website && (
+                            <a href={ensureUrl(proj.website)} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center gap-1 mt-1.5 hover:underline" style={{ color: '#F97316' }}>
+                              <ExternalLink className="h-3 w-3" />{proj.website}
+                            </a>
+                          )}
+                          {proj.images.length > 0 && (
+                            <div className="flex gap-1.5 mt-2">
+                              {proj.images.slice(0, 3).map((url, i) => (
+                                <div key={url} className="w-12 h-12 rounded-lg overflow-hidden border border-hairline">
+                                  <img src={url} alt={`${proj.name} ${i + 1}`} className="w-full h-full object-cover" />
+                                </div>
+                              ))}
+                              {proj.images.length > 3 && (
+                                <div className="w-12 h-12 rounded-lg border border-hairline flex items-center justify-center text-xs text-mute">
+                                  +{proj.images.length - 3}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0 ml-3">
+                          <button
+                            type="button"
+                            onClick={() => setEditingProject({ ...proj, images: proj.images || [] })}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-gray-100"
+                            style={{ color: '#91918c' }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProject(proj.id)}
+                            className="p-1.5 rounded-lg transition-colors"
+                            style={{ color: '#91918c' }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9e0a0a' }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#91918c' }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
