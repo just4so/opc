@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { X, Upload, Loader2 } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Step2Data } from './connect-form'
 
 interface Step2FormProps {
@@ -70,14 +71,28 @@ export function Step2Form({
       </div>
 
       <div>
-        <Label htmlFor="productTagline">简单描述你的产品或服务</Label>
-        <Input
-          id="productTagline"
-          placeholder="你在做什么，解决谁的问题，现在到了哪个阶段"
-          maxLength={300}
-          className="mt-1.5"
-          {...form.register('productTagline')}
+        <Label htmlFor="productDescription">产品描述</Label>
+        <textarea
+          id="productDescription"
+          placeholder="描述你的产品或服务：做什么、解决谁的问题、现在到了哪个阶段"
+          maxLength={1000}
+          rows={4}
+          className="mt-1.5 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+          {...form.register('productDescription')}
         />
+        <p className="text-xs text-mute mt-1">{form.watch('productDescription')?.length || 0}/1000</p>
+      </div>
+
+      <div>
+        <Label>产品图片（最多 5 张，第一张为封面）</Label>
+        <div className="mt-1.5">
+          <ImageUpload
+            value={form.watch('productImages') || []}
+            onChange={(urls) => form.setValue('productImages', urls)}
+            maxImages={5}
+            uploadEndpoint="/api/upload/product-image"
+          />
+        </div>
       </div>
 
       <div>

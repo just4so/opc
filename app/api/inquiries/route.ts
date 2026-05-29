@@ -26,9 +26,10 @@ const createInquirySchema = z.object({
   city: z.string().max(50).optional(),
   bio: z.string().min(1, '请填写你在做什么').max(200),
   productName: z.string().max(100).optional(),
-  productTagline: z.string().max(300).optional(),
+  productDescription: z.string().max(1000).optional(),
   productStage: z.string().max(50).optional(),
   productWebsite: z.string().max(200).optional(),
+  productImages: z.array(z.string()).max(5).optional(),
   showInPlaza: z.boolean().optional().default(true),
   bpUrl: z.string().max(500).optional(),
   bpFilename: z.string().max(200).optional(),
@@ -54,8 +55,8 @@ export async function POST(req: Request) {
 
     const {
       communitySlug, name, contact, city,
-      bio, productName, productTagline, productStage, productWebsite,
-      showInPlaza, bpUrl, bpFilename, source, acceptInterview,
+      bio, productName, productDescription, productStage, productWebsite,
+      productImages, showInPlaza, bpUrl, bpFilename, source, acceptInterview,
     } = parsed.data
 
     let communityId: string | null = null
@@ -152,7 +153,8 @@ export async function POST(req: Request) {
           data: {
             slug: projectSlug,
             name: productName,
-            description: productTagline || '',
+            description: productDescription || '',
+            images: productImages || [],
             stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
             website: productWebsite || null,
             ownerId: userId,

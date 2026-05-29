@@ -185,7 +185,7 @@ export function PlazaClient({
   // Main tab from URL
   const tabParam = searchParams.get('tab') as MainTab | null
   const [mainTab, setMainTab] = useState<MainTab>(
-    tabParam === 'products' || tabParam === 'posts' ? tabParam : 'people'
+    tabParam === 'people' || tabParam === 'posts' ? tabParam : 'products'
   )
 
   // Shared filters
