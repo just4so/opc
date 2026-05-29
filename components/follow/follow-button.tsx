@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { UserPlus, UserCheck, Loader2 } from 'lucide-react'
@@ -25,6 +25,10 @@ export function FollowButton({
   const router = useRouter()
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
   const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing)
+  }, [initialIsFollowing])
 
   const currentUserId = (session?.user as { id?: string })?.id
 

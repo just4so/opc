@@ -10,7 +10,6 @@ import { Heart, MessageCircle, Eye, ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TOPICS } from '@/constants/topics'
-import { MilestoneBadge } from '@/components/plaza/milestone-badge'
 
 const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
   CHAT:     { label: '💬 聊聊',    className: 'bg-surface-card text-mute' },
@@ -155,13 +154,6 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
               {post.title}
             </p>
           </Link>
-        )}
-
-        {/* 里程碑标签 */}
-        {post.milestone && (
-          <div className="mb-2">
-            <MilestoneBadge milestoneId={post.milestone} />
-          </div>
         )}
 
         {/* 内容预览 */}

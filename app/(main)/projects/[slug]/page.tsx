@@ -52,7 +52,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const project = await getProject(params.slug)
+  const project = await getProject(decodeURIComponent(params.slug))
   if (!project) {
     return { title: '产品未找到 - OPC圈' }
   }
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
-  const project = await getProject(params.slug)
+  const project = await getProject(decodeURIComponent(params.slug))
   if (!project || project.status !== 'PUBLISHED') {
     notFound()
   }

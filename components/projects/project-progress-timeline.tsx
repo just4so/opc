@@ -15,12 +15,14 @@ interface ProjectProgressTimelineProps {
   progressList: ProgressItem[]
   projectSlug: string
   isOwner: boolean
+  onRecordProgress?: () => void
 }
 
 export function ProjectProgressTimeline({
   progressList,
   projectSlug,
   isOwner,
+  onRecordProgress,
 }: ProjectProgressTimelineProps) {
   if (progressList.length === 0) {
     return (
@@ -28,6 +30,14 @@ export function ProjectProgressTimeline({
         <p className="text-mute">
           {isOwner ? '记录你的第一个里程碑吧' : '暂无进展记录'}
         </p>
+        {isOwner && onRecordProgress && (
+          <button
+            onClick={onRecordProgress}
+            className="mt-3 text-sm text-primary hover:text-primary-pressed transition-colors font-medium"
+          >
+            记录进展
+          </button>
+        )}
       </div>
     )
   }

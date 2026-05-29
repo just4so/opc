@@ -325,6 +325,7 @@ export function ProjectDetailClient({
                 progressList={progressList}
                 projectSlug={project.slug}
                 isOwner={isOwner}
+                onRecordProgress={() => setShowProgressDialog(true)}
               />
             </div>
           </div>

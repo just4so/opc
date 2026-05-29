@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
-import { Building2, BadgeCheck, Handshake, Heart, MessageCircle } from 'lucide-react'
+import { Building2, BadgeCheck, Handshake, Heart } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
@@ -31,28 +31,25 @@ const getHomeStats = unstable_cache(
   { revalidate: 600 }
 )
 
-const getLatestPosts = unstable_cache(
+const getHotProducts = unstable_cache(
   async () =>
-    prisma.post.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
+    prisma.project.findMany({
+      where: { status: 'PUBLISHED', owner: { showInPlaza: true } },
+      orderBy: [{ likeCount: 'desc' }, { createdAt: 'desc' }],
+      take: 10,
       select: {
         id: true,
-        title: true,
-        content: true,
+        slug: true,
+        name: true,
+        description: true,
+        images: true,
+        logo: true,
         likeCount: true,
-        commentCount: true,
-        createdAt: true,
-        author: {
-          select: {
-            username: true,
-            name: true,
-          },
-        },
+        stage: true,
+        owner: { select: { name: true, username: true } },
       },
     }),
-  ['home-latest-posts'],
+  ['home-hot-products'],
   { revalidate: 600 }
 )
 
@@ -77,9 +74,9 @@ const getLatestRadarIssue = unstable_cache(
 )
 
 export default async function HomePage() {
-  const [stats, latestPosts, radarIssue, session] = await Promise.all([
+  const [stats, hotProducts, radarIssue, session] = await Promise.all([
     getHomeStats(),
-    getLatestPosts(),
+    getHotProducts(),
     getLatestRadarIssue(),
     auth(),
   ])
@@ -193,7 +190,7 @@ export default async function HomePage() {
               </div>
               <div>
                 <AnimatedCounter
-                  target={1000}
+                  target={5000}
                   suffix="+"
                   className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
                 />
@@ -208,57 +205,65 @@ export default async function HomePage() {
         <div className="h-20 bg-gradient-to-b from-surface-dark to-canvas" />
       </ScrollReveal>
 
-      {/* ===== 最新动态区 ===== */}
+      {/* ===== 热门产品横版滚动 ===== */}
       <section className="py-20 px-6 max-w-[1100px] mx-auto">
         <ScrollReveal>
           <div className="flex justify-between items-baseline mb-8">
-            <h2 className="text-2xl font-bold text-ink">最新动态</h2>
-            <Link href="/plaza" className="text-sm text-mute hover:text-primary transition-colors">
-              查看更多 →
+            <h2 className="text-2xl font-bold text-ink">热门产品</h2>
+            <Link href="/plaza?tab=products" className="text-sm text-mute hover:text-primary transition-colors">
+              查看全部 →
             </Link>
           </div>
         </ScrollReveal>
-        {latestPosts.length > 0 ? (
-          <ScrollReveal stagger className="space-y-4">
-            {latestPosts.map((post) => {
-              const preview = post.title || post.content.replace(/[#*`>\-\n]+/g, ' ').trim().slice(0, 80)
-              return (
-                <Link
-                  key={post.id}
-                  href={`/plaza/${post.id}`}
-                  className="card-interactive p-5 flex items-start justify-between gap-4"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-medium text-ink line-clamp-1 mb-1.5">
-                      {preview}
-                    </p>
-                    <div className="flex items-center gap-3 text-xs text-mute">
-                      <span>{post.author.name || post.author.username}</span>
-                      <span>{new Date(post.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}</span>
+        {hotProducts.length > 0 ? (
+          <div className="overflow-x-auto flex gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {hotProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={`/projects/${product.slug}`}
+                className="min-w-[280px] max-w-[280px] snap-start rounded-2xl bg-canvas border border-hairline-soft hover:shadow-sm transition-shadow flex flex-col overflow-hidden"
+              >
+                <div className="h-36 relative">
+                  {product.images[0] ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-surface-card to-surface-soft flex items-center justify-center">
+                      <span className="text-4xl font-bold text-primary/30">
+                        {product.name[0]}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs shrink-0">
+                  )}
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="text-sm font-semibold text-ink mb-1 line-clamp-1">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-mute line-clamp-2 mb-3 flex-1">
+                    {product.description || '暂无介绍'}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-ash">
                     <span className="flex items-center gap-1 text-primary/70">
                       <Heart className="h-3.5 w-3.5" />
-                      {post.likeCount}
+                      {product.likeCount}
                     </span>
-                    <span className="flex items-center gap-1 text-slate-500">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      {post.commentCount}
-                    </span>
+                    <span>{product.owner.name || product.owner.username}</span>
                   </div>
-                </Link>
-              )
-            })}
-          </ScrollReveal>
+                </div>
+              </Link>
+            ))}
+          </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-mute mb-4">还没有动态，去广场发第一条吧</p>
+            <p className="text-mute mb-4">还没有产品，去直通车发布你的第一个产品吧</p>
             <Link
-              href="/plaza"
+              href="/connect"
               className="inline-block bg-primary text-on-primary rounded-xl px-6 py-2.5 text-sm font-semibold hover:bg-primary-pressed transition-colors"
             >
-              去广场看看
+              发布产品
             </Link>
           </div>
         )}
