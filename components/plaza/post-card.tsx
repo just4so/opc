@@ -17,7 +17,7 @@ const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
   HELP:     { label: '❓ 求助',    className: 'bg-orange-100 text-orange-600' },
   SHARE:    { label: '📣 分享',    className: 'bg-green-100 text-green-700' },
   COLLAB:   { label: '🤝 找人',    className: 'bg-blue-100 text-blue-700' },
-  PROGRESS: { label: '🎯 创业进展', className: 'bg-orange-50 text-orange-600' },
+  PROGRESS: { label: '创业进展', className: 'bg-surface-card text-mute' },
 }
 
 interface PostCardProps {
@@ -114,7 +114,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
   }
 
   return (
-    <Card className={`rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative ${post.type === 'PROGRESS' ? 'border-l-4 border-l-primary' : ''}`}>
+    <Card className="rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow relative">
       {post.pinned && (
         <span className="absolute top-3 right-3 bg-orange-100 text-orange-600 text-xs px-1.5 py-0.5 rounded z-10">
           精华

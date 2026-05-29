@@ -10,23 +10,19 @@ import {
   TrendingUp,
   LayoutGrid,
   List,
-  MapPin,
-  Send,
   Filter,
   Users,
   MessageCircle,
-  BadgeCheck,
   Package,
   X,
   Search,
-  ExternalLink,
   ArrowRight,
-  Heart,
 } from 'lucide-react'
 import { PostCard } from '@/components/plaza/post-card'
 import { PostListItem } from '@/components/plaza/post-list-item'
 import { OnboardingRecommendations } from '@/components/plaza/onboarding-recommendations'
-import { FollowButton } from '@/components/follow/follow-button'
+import { ProductCard } from '@/components/plaza/product-card'
+import { PersonCard } from '@/components/plaza/person-card'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -79,6 +75,8 @@ interface PlazaUser {
   startupStage: string | null
   verified: boolean
   verifyType: string | null
+  followerCount: number
+  projectCount: number
   projects: UserProject[]
 }
 
@@ -87,6 +85,7 @@ interface PlazaProject {
   slug: string
   name: string
   description: string | null
+  images: string[]
   stage: string
   website: string | null
   contentType: string
@@ -169,27 +168,6 @@ const TYPE_TABS = [
 
 type MainTab = 'people' | 'products' | 'posts'
 
-function DescriptionCollapse({ description }: { description: string }) {
-  const [expanded, setExpanded] = useState(false)
-  const isLong = description.length > 80
-
-  return (
-    <div className="mt-1.5">
-      <p className={`text-xs text-mute leading-relaxed ${!expanded && isLong ? 'line-clamp-2' : ''}`}>
-        {description}
-      </p>
-      {isLong && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-xs text-ash hover:text-mute mt-0.5 cursor-pointer"
-        >
-          {expanded ? '收起' : '展开'}
-        </button>
-      )}
-    </div>
-  )
-}
-
 export function PlazaClient({
   initialPosts,
   initialTotal,
@@ -246,6 +224,9 @@ export function PlazaClient({
 
   // Follow status for people tab
   const [followStatusMap, setFollowStatusMap] = useState<Record<string, boolean>>({})
+
+  // Like status for products tab
+  const [projectLikedMap, setProjectLikedMap] = useState<Record<string, boolean>>({})
 
   // Products state (API-driven)
   const [projects, setProjects] = useState<PlazaProject[]>(initialProjects)
@@ -344,6 +325,17 @@ export function PlazaClient({
       .catch(() => {})
   }, [mainTab, paginatedUsers, session?.user])
 
+  // Batch fetch liked status for displayed projects
+  useEffect(() => {
+    if (mainTab !== 'products' || !session?.user) return
+    const ids = projects.map(p => p.id).join(',')
+    if (!ids) return
+    fetch(`/api/user/liked-projects?ids=${ids}`)
+      .then(res => res.json())
+      .then(data => setProjectLikedMap(prev => ({ ...prev, ...data })))
+      .catch(() => {})
+  }, [mainTab, projects, session?.user])
+
   // Products fetch (API-driven)
   const fetchProjects = useCallback(async (page: number) => {
     setProjectLoading(true)
@@ -415,25 +407,6 @@ export function PlazaClient({
 
   const handleTypeChange = (newType: string) => { setType(newType); setPostPage(1) }
   const handleSortChange = (newSort: string) => { setSort(newSort); setPostPage(1) }
-
-  const handleContact = (userId: string, username: string) => {
-    if (!session?.user) {
-      router.push(`/login?callbackUrl=/plaza`)
-      return
-    }
-    fetch('/api/conversations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetUserId: userId }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.conversation?.id) {
-          router.push(`/messages/${data.conversation.id}`)
-        }
-      })
-      .catch(() => {})
-  }
 
   const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery || filterContentType
   const clearAllFilters = () => {
@@ -634,83 +607,28 @@ export function PlazaClient({
         {mainTab === 'people' && (
           <div key="people" className="tab-content-enter">
             {paginatedUsers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {paginatedUsers.map(user => (
-                  <div key={user.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
-                    <div className="flex items-start gap-3 mb-3">
-                      <Link href={`/profile/${user.username}`}>
-                        {user.avatar ? (
-                          <img
-                            src={user.avatar}
-                            alt={user.name || user.username}
-                            className="w-12 h-12 rounded-full object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-                            {user.name?.[0] || user.username[0]}
-                          </div>
-                        )}
-                      </Link>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <Link href={`/profile/${user.username}`} className="font-semibold text-ink truncate hover:text-primary transition-colors">
-                            {user.name || user.username}
-                          </Link>
-                          {user.verified && (
-                            <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-mute">
-                          {user.mainTrack && <span className="bg-primary/5 text-primary px-1.5 py-0.5 rounded">{user.mainTrack}</span>}
-                          {user.location && (
-                            <span className="flex items-center gap-0.5">
-                              <MapPin className="h-3 w-3" />
-                              {user.location}
-                            </span>
-                          )}
-                          {user.startupStage && (
-                            <span className="text-xs text-ash">{STAGE_LABELS[user.startupStage] || user.startupStage}</span>
-                          )}
-                        </div>
-                      </div>
-                      <FollowButton
-                        targetUserId={user.id}
-                        initialIsFollowing={!!followStatusMap[user.id]}
-                        size="sm"
-                      />
-                    </div>
-
-                    {user.bio && (
-                      <p className="text-sm text-body mb-3">{user.bio}</p>
-                    )}
-
-                    {/* First project only — keep card clean */}
-                    {user.projects.length > 0 && (
-                      <Link
-                        href={`/projects/${user.projects[0].slug}`}
-                        className="flex items-center gap-2 text-xs bg-surface-soft rounded-lg px-2.5 py-2 mb-3 hover:bg-primary/5 transition-colors"
-                      >
-                        <Package className="h-3.5 w-3.5 text-primary shrink-0" />
-                        <span className="text-charcoal">{user.projects[0].name}</span>
-                      </Link>
-                    )}
-
-                    <div className="flex items-center gap-2 mt-auto pt-2 border-t">
-                      <Link
-                        href={`/profile/${user.username}`}
-                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
-                      >
-                        查看主页
-                      </Link>
-                      <button
-                        onClick={() => handleContact(user.id, user.username)}
-                        className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        联系TA
-                      </button>
-                    </div>
-                  </div>
+                  <PersonCard
+                    key={user.id}
+                    user={{
+                      id: user.id,
+                      name: user.name,
+                      username: user.username,
+                      avatar: user.avatar,
+                      city: user.location,
+                      mainTrack: user.mainTrack,
+                      bio: user.bio,
+                      followerCount: user.followerCount ?? 0,
+                      projectCount: user.projectCount ?? 0,
+                      projects: user.projects.map(p => ({ slug: p.slug, name: p.name })),
+                      isVerified: user.verified,
+                    }}
+                    isFollowing={!!followStatusMap[user.id]}
+                    onFollowChange={(userId, following) => {
+                      setFollowStatusMap(prev => ({ ...prev, [userId]: following }))
+                    }}
+                  />
                 ))}
               </div>
             ) : (
@@ -744,7 +662,7 @@ export function PlazaClient({
         {mainTab === 'products' && (
           <div key="products" className="tab-content-enter">
             {projectLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map(i => (
                   <div key={i} className="bg-canvas rounded-2xl border p-5">
                     <div className="h-5 w-3/4 bg-secondary-bg rounded animate-pulse mb-2" />
@@ -757,82 +675,33 @@ export function PlazaClient({
                 ))}
               </div>
             ) : projects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {projects.map(proj => (
-                  <div key={proj.id} className="bg-canvas rounded-2xl border hover:shadow-md transition-shadow p-5 flex flex-col">
-                    <div className="mb-3">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <Link href={`/projects/${proj.slug}`} className="font-semibold text-ink leading-snug hover:text-primary transition-colors">
-                          {proj.name}
-                        </Link>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-primary/5 text-primary shrink-0 mt-0.5">
-                          {STAGE_LABELS[proj.stage] || proj.stage}
-                        </span>
-                      </div>
-                      <p className="text-sm text-body leading-relaxed">{proj.description}</p>
-                    </div>
-
-                    {/* Owner info */}
-                    <div className="flex items-center gap-2 mb-3 mt-auto">
-                      <Link href={`/profile/${proj.owner.username}`}>
-                        {proj.owner.avatar ? (
-                          <img src={proj.owner.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                            {proj.owner.name?.[0] || proj.owner.username[0]}
-                          </div>
-                        )}
-                      </Link>
-                      <Link href={`/profile/${proj.owner.username}`} className="text-sm text-charcoal truncate hover:text-primary transition-colors">
-                        {proj.owner.name || proj.owner.username}
-                      </Link>
-                      {proj.owner.verified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
-                      {proj.owner.location && (
-                        <span className="text-xs text-ash flex items-center gap-0.5 ml-auto">
-                          <MapPin className="h-3 w-3" />
-                          {proj.owner.location}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Stats + actions */}
-                    <div className="flex items-center gap-4 text-xs text-mute mb-3">
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3.5 w-3.5" />
-                        {proj.likeCount}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        {proj.commentCount}
-                      </span>
-                      {proj.website && (
-                        <a
-                          href={proj.website.startsWith('http') ? proj.website : `https://${proj.website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-0.5 ml-auto hover:text-primary transition-colors"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-2 border-t">
-                      <Link
-                        href={`/projects/${proj.slug}`}
-                        className="flex-1 text-center text-sm py-2 rounded-lg border text-mute hover:bg-surface-soft transition-colors"
-                      >
-                        查看详情
-                      </Link>
-                      <button
-                        onClick={() => handleContact(proj.owner.id, proj.owner.username)}
-                        className="flex-1 flex items-center justify-center gap-1.5 text-sm py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        联系创始人
-                      </button>
-                    </div>
-                  </div>
+                  <ProductCard
+                    key={proj.id}
+                    project={{
+                      id: proj.id,
+                      slug: proj.slug,
+                      name: proj.name,
+                      description: proj.description,
+                      images: proj.images || [],
+                      stage: proj.stage,
+                      website: proj.website,
+                      likeCount: proj.likeCount,
+                      commentCount: proj.commentCount,
+                      owner: {
+                        id: proj.owner.id,
+                        name: proj.owner.name,
+                        username: proj.owner.username,
+                        avatar: proj.owner.avatar,
+                        city: proj.owner.location,
+                      },
+                    }}
+                    isLiked={!!projectLikedMap[proj.id]}
+                    onLikeChange={(projectId, liked) => {
+                      setProjectLikedMap(prev => ({ ...prev, [projectId]: liked }))
+                    }}
+                  />
                 ))}
               </div>
             ) : (

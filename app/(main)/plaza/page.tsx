@@ -90,6 +90,12 @@ export default async function PlazaPage() {
             website: true,
           },
         },
+        _count: {
+          select: {
+            followers: true,
+            projects: true,
+          },
+        },
       },
     }),
     prisma.user.count({
@@ -118,6 +124,7 @@ export default async function PlazaPage() {
         slug: true,
         name: true,
         description: true,
+        images: true,
         stage: true,
         website: true,
         contentType: true,
@@ -168,12 +175,18 @@ export default async function PlazaPage() {
     deadline: p.deadline ? p.deadline.toISOString() : null,
   }))
 
+  const plazaUsersWithCounts = plazaUsers.map(u => ({
+    ...u,
+    followerCount: u._count.followers,
+    projectCount: u._count.projects,
+  }))
+
   return (
     <PlazaClient
       initialPosts={postsWithCount as any}
       initialTotal={total}
       initialStats={stats}
-      initialPlazaUsers={plazaUsers}
+      initialPlazaUsers={plazaUsersWithCounts}
       initialPlazaUserTotal={plazaUserTotal}
       initialProjects={initialProjects}
       initialProjectTotal={initialProjectTotal}
