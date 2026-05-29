@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { ensureEnglishSlug } from '@/lib/slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const ct = (contentType && validContentTypes.includes(contentType)) ? contentType : 'PROJECT'
     const st = (stage && validStages.includes(stage)) ? stage : 'IDEA'
 
-    const slug = `${name.trim().toLowerCase().replace(/[^a-z0-9一-鿿]+/g, '-')}-${Date.now()}`
+    const slug = `${ensureEnglishSlug(name.trim())}-${Date.now()}`
 
     const project = await prisma.project.create({
       data: {

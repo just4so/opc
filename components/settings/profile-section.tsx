@@ -231,7 +231,7 @@ export function ProfileSection({ userId }: Props) {
                 <p className="text-sm font-medium text-charcoal">在广场展示卡片</p>
                 <p className="text-xs mt-0.5 text-ash">开启后，你的卡片将出现在创业者广场</p>
               </div>
-              <button type="button" onClick={() => setShowInPlaza(!showInPlaza)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: showInPlaza ? 'var(--color-primary)' : '#c8c8c1' }}>
+              <button type="button" onClick={() => setShowInPlaza(!showInPlaza)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: showInPlaza ? '#F97316' : '#c8c8c1' }}>
                 <span className="inline-block h-4 w-4 rounded-full bg-white transition-transform" style={{ transform: showInPlaza ? 'translateX(24px)' : 'translateX(4px)' }} />
               </button>
             </div>

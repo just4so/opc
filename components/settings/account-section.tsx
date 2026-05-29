@@ -192,7 +192,7 @@ export function AccountSection() {
             type="button"
             onClick={handleToggleNotifications}
             className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-            style={{ backgroundColor: emailNotifications ? 'var(--color-primary)' : '#c8c8c1' }}
+            style={{ backgroundColor: emailNotifications ? '#F97316' : '#c8c8c1' }}
           >
             <span
               className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
