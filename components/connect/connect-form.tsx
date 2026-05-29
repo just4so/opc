@@ -35,7 +35,7 @@ export const step1Schema = z.object({
 })
 
 export const step2Schema = z.object({
-  bio: z.string().min(1, '请填写你在做什么').max(200),
+  bio: z.string().min(1, '请填写自我简介').max(200),
   productName: z.string().max(100).optional(),
   productDescription: z.string().max(1000).optional(),
   productStage: z.string().optional(),
@@ -66,7 +66,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
 
   useEffect(() => {
     if (step === 'success') {
-      fetch('/api/settings/qrcode?key=connec…_url')
+      fetch('/api/settings/qrcode?key=connect_qrcode_url')
         .then((res) => res.json())
         .then((data) => { if (data.url) setQrcodeUrl(data.url) })
         .catch(() => {})

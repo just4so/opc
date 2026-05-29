@@ -71,7 +71,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   if (!user) notFound()
 
-  const [recentPosts, projects, progressPosts] = await Promise.all([
+  const [recentPosts, projects, progressItems] = await Promise.all([
     prisma.post.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       orderBy: { createdAt: 'desc' },
@@ -97,21 +97,22 @@ export default async function PublicProfilePage({ params }: PageProps) {
         stage: true,
         website: true,
         contentType: true,
-      },
-    }),
-    prisma.post.findMany({
-      where: { authorId: user.id, status: 'PUBLISHED', type: 'PROGRESS' },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        contentHtml: true,
-        milestone: true,
         likeCount: true,
         commentCount: true,
+        images: true,
+      },
+    }),
+    prisma.progress.findMany({
+      where: { authorId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: {
+        id: true,
+        content: true,
+        milestone: true,
         createdAt: true,
+        projectId: true,
+        project: { select: { name: true, slug: true } },
       },
     }),
   ])
@@ -150,7 +151,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     createdAt: p.createdAt.toISOString(),
   }))
 
-  const serializedProgressPosts = progressPosts.map(p => ({
+  const serializedProgress = progressItems.map(p => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
   }))
@@ -160,7 +161,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       user={serializedUser}
       recentPosts={serializedPosts}
       projects={projects}
-      progressPosts={serializedProgressPosts}
+      progressItems={serializedProgress}
       followerCount={followerCount}
       followingCount={followingCount}
       isFollowing={isFollowing}

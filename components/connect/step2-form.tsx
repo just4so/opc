@@ -45,10 +45,10 @@ export function Step2Form({
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 tab-content-enter" key="step2">
       <div>
-        <Label htmlFor="bio">你在做什么 *</Label>
+        <Label htmlFor="bio">自我简介 *</Label>
         <textarea
           id="bio"
-          placeholder="例：独立开发AI写作工具，已上线3个月"
+          placeholder="简单介绍你自己和你在做的事，例：独立开发AI写作工具，已上线3个月"
           maxLength={200}
           rows={2}
           className="mt-1.5 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
