@@ -28,3 +28,15 @@ export function CtaSessionLink() {
     </Link>
   )
 }
+
+export function HeroCardLink() {
+  const { data: session } = useSession()
+  return (
+    <Link
+      href={session?.user ? '/settings#card' : '/register'}
+      className="btn-press bg-transparent border-[1.5px] border-hairline text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
+    >
+      让世界看见我
+    </Link>
+  )
+}

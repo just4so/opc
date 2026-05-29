@@ -2,8 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
-import { auth } from '@/lib/auth'
 import { Building2, BadgeCheck, Handshake, Heart } from 'lucide-react'
+import { HeroCardLink } from '@/components/home/session-cta'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 
@@ -82,11 +82,10 @@ const getLatestRadarIssue = unstable_cache(
 )
 
 export default async function HomePage() {
-  const [stats, hotProducts, radarIssue, session] = await Promise.all([
+  const [stats, hotProducts, radarIssue] = await Promise.all([
     getHomeStats(),
     getHotProducts(),
     getLatestRadarIssue(),
-    auth(),
   ])
 
   return (
@@ -111,12 +110,7 @@ export default async function HomePage() {
             >
               找到我的社区
             </Link>
-            <Link
-              href={session?.user ? '/settings#card' : '/register'}
-              className="btn-press bg-transparent border-[1.5px] border-hairline text-ink rounded-xl px-9 py-3.5 font-semibold hover:bg-surface-soft transition-all"
-            >
-              让世界看见我
-            </Link>
+            <HeroCardLink />
           </div>
           <p className="hero-animate hero-delay-4 text-[13px] text-ash">
             不确定？先看看{' '}
