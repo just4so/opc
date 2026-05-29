@@ -23,7 +23,9 @@ export const metadata: Metadata = {
 }
 
 export default async function PlazaPage() {
-  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session] = await Promise.all([
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, recentProjects, recentProgress, recentUsers] = await Promise.all([
     prisma.post.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
@@ -150,6 +152,24 @@ export default async function PlazaPage() {
       },
     }),
     auth(),
+    prisma.project.findMany({
+      where: { createdAt: { gte: twentyFourHoursAgo }, status: 'PUBLISHED' },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: { name: true, createdAt: true, owner: { select: { name: true } } },
+    }),
+    prisma.progress.findMany({
+      where: { createdAt: { gte: twentyFourHoursAgo } },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true, author: { select: { name: true } } },
+    }),
+    prisma.user.findMany({
+      where: { createdAt: { gte: twentyFourHoursAgo }, showInPlaza: true },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: { name: true, createdAt: true },
+    }),
   ])
 
   let onboardingData: { userId: string; mainTrack: string | null; location: string | null } | null = null
@@ -181,6 +201,29 @@ export default async function PlazaPage() {
     projectCount: u._count.projects,
   }))
 
+  // Build ticker events
+  const tickerEvents: { text: string; time: string }[] = []
+  for (const p of recentProjects) {
+    tickerEvents.push({
+      text: `${p.owner.name || '匿名'} 发布了新产品「${p.name}」`,
+      time: p.createdAt.toISOString(),
+    })
+  }
+  for (const p of recentProgress) {
+    tickerEvents.push({
+      text: `${p.author.name || '匿名'} 记录了新进展`,
+      time: p.createdAt.toISOString(),
+    })
+  }
+  for (const u of recentUsers) {
+    tickerEvents.push({
+      text: `${u.name || '匿名'} 加入了 OPC圈`,
+      time: u.createdAt.toISOString(),
+    })
+  }
+  tickerEvents.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  const topEvents = tickerEvents.slice(0, 8)
+
   return (
     <PlazaClient
       initialPosts={postsWithCount as any}
@@ -191,6 +234,7 @@ export default async function PlazaPage() {
       initialProjects={initialProjects}
       initialProjectTotal={initialProjectTotal}
       onboardingData={onboardingData}
+      tickerEvents={topEvents}
     />
   )
 }

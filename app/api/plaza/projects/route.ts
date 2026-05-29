@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const stage = searchParams.get('stage') || ''
     const search = searchParams.get('search') || ''
     const contentType = searchParams.get('contentType') || ''
+    const sort = searchParams.get('sort') || 'latest'
 
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
@@ -40,13 +41,22 @@ export async function GET(request: NextRequest) {
       ]
     }
 
+    let orderBy: Record<string, unknown>[]
+    switch (sort) {
+      case 'likes':
+        orderBy = [{ likeCount: 'desc' }, { createdAt: 'desc' }]
+        break
+      case 'updated':
+        orderBy = [{ updatedAt: 'desc' }]
+        break
+      default:
+        orderBy = [{ owner: { verified: 'desc' } }, { createdAt: 'desc' }]
+    }
+
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
         where,
-        orderBy: [
-          { owner: { verified: 'desc' } },
-          { createdAt: 'desc' },
-        ],
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
         select: {

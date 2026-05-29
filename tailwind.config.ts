@@ -129,6 +129,15 @@ const config: Config = {
         'ds-md': '16px',
         'ds-lg': '32px',
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 30s linear infinite',
+      },
     },
   },
   plugins: [require('@tailwindcss/typography'), require('tailwindcss-animate')],

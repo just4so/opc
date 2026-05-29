@@ -23,6 +23,7 @@ import { PostListItem } from '@/components/plaza/post-list-item'
 import { OnboardingRecommendations } from '@/components/plaza/onboarding-recommendations'
 import { ProductCard } from '@/components/plaza/product-card'
 import { PersonCard } from '@/components/plaza/person-card'
+import { NotificationTicker } from '@/components/plaza/notification-ticker'
 import { Button } from '@/components/ui/button'
 
 interface Post {
@@ -139,6 +140,7 @@ export interface PlazaClientProps {
     mainTrack: string | null
     location: string | null
   } | null
+  tickerEvents?: { text: string; time: string }[]
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -177,6 +179,7 @@ export function PlazaClient({
   initialProjects,
   initialProjectTotal,
   onboardingData,
+  tickerEvents,
 }: PlazaClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -216,7 +219,9 @@ export function PlazaClient({
   })
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
-  const [sort, setSort] = useState('latest')
+  const [sort, setSort] = useState(searchParams.get('sort') || 'latest')
+  const [productSort, setProductSort] = useState(searchParams.get('sort') || 'latest')
+  const [peopleSort, setPeopleSort] = useState(searchParams.get('sort') || 'latest')
   const [type, setType] = useState('')
   const [postPage, setPostPage] = useState(1)
   const [isInitialPost, setIsInitialPost] = useState(true)
@@ -255,13 +260,14 @@ export function PlazaClient({
   }, [initialPlazaUsers])
 
   // URL sync
-  const updateUrl = useCallback((tab: MainTab, direction: string, city: string, stage: string, search: string) => {
+  const updateUrl = useCallback((tab: MainTab, direction: string, city: string, stage: string, search: string, sortVal?: string) => {
     const params = new URLSearchParams()
-    if (tab !== 'people') params.set('tab', tab)
+    if (tab !== 'products') params.set('tab', tab)
     if (direction) params.set('direction', direction)
     if (city) params.set('city', city)
     if (stage) params.set('stage', stage)
     if (search) params.set('search', search)
+    if (sortVal && sortVal !== 'latest') params.set('sort', sortVal)
     const qs = params.toString()
     router.replace(`/plaza${qs ? `?${qs}` : ''}`, { scroll: false })
   }, [router])
@@ -269,7 +275,8 @@ export function PlazaClient({
   const handleTabChange = (tab: MainTab) => {
     setMainTab(tab)
     setPeoplePage(1)
-    updateUrl(tab, filterDirection, filterCity, filterStage, searchQuery)
+    const sortVal = tab === 'products' ? productSort : tab === 'posts' ? sort : peopleSort
+    updateUrl(tab, filterDirection, filterCity, filterStage, searchQuery, sortVal)
   }
 
   // Search debounce
@@ -282,12 +289,13 @@ export function PlazaClient({
 
   // URL sync on filter change
   useEffect(() => {
-    updateUrl(mainTab, filterDirection, filterCity, filterStage, searchQuery)
-  }, [filterDirection, filterCity, filterStage, searchQuery, mainTab, updateUrl])
+    const sortVal = mainTab === 'products' ? productSort : mainTab === 'posts' ? sort : peopleSort
+    updateUrl(mainTab, filterDirection, filterCity, filterStage, searchQuery, sortVal)
+  }, [filterDirection, filterCity, filterStage, searchQuery, mainTab, updateUrl, productSort, sort, peopleSort])
 
   // Filter people (client-side)
   const filteredUsers = useMemo(() => {
-    return initialPlazaUsers.filter(u => {
+    const filtered = initialPlazaUsers.filter(u => {
       if (filterDirection && u.mainTrack !== filterDirection) return false
       if (filterCity && u.location !== filterCity) return false
       if (filterStage && u.startupStage !== filterStage) return false
@@ -300,7 +308,11 @@ export function PlazaClient({
       }
       return true
     })
-  }, [initialPlazaUsers, filterDirection, filterCity, filterStage, searchQuery])
+    if (peopleSort === 'followers') {
+      filtered.sort((a, b) => b.followerCount - a.followerCount)
+    }
+    return filtered
+  }, [initialPlazaUsers, filterDirection, filterCity, filterStage, searchQuery, peopleSort])
 
   const paginatedUsers = useMemo(() => {
     const start = (peoplePage - 1) * PEOPLE_PER_PAGE
@@ -347,6 +359,7 @@ export function PlazaClient({
     if (filterStage) params.set('stage', filterStage)
     if (searchQuery) params.set('search', searchQuery)
     if (filterContentType) params.set('contentType', filterContentType)
+    if (productSort !== 'latest') params.set('sort', productSort)
 
     try {
       const res = await fetch(`/api/plaza/projects?${params}`)
@@ -358,7 +371,7 @@ export function PlazaClient({
     } finally {
       setProjectLoading(false)
     }
-  }, [filterDirection, filterCity, filterStage, searchQuery, filterContentType])
+  }, [filterDirection, filterCity, filterStage, searchQuery, filterContentType, productSort])
 
   // Refetch products when filters change or tab switches to products
   const [productsFetched, setProductsFetched] = useState(false)
@@ -407,6 +420,8 @@ export function PlazaClient({
 
   const handleTypeChange = (newType: string) => { setType(newType); setPostPage(1) }
   const handleSortChange = (newSort: string) => { setSort(newSort); setPostPage(1) }
+  const handleProductSortChange = (newSort: string) => { setProductSort(newSort) }
+  const handlePeopleSortChange = (newSort: string) => { setPeopleSort(newSort); setPeoplePage(1) }
 
   const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery || filterContentType
   const clearAllFilters = () => {
@@ -464,22 +479,12 @@ export function PlazaClient({
         </Link>
       </PageHeader>
 
+      <NotificationTicker events={tickerEvents || []} />
+
       {/* Three main tabs */}
       <div className="bg-canvas border-b">
         <div className="container mx-auto px-4">
-          <div className="flex">
-            <button
-              onClick={() => handleTabChange('people')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
-                mainTab === 'people'
-                  ? 'text-primary border-primary'
-                  : 'text-mute border-transparent hover:text-ink'
-              }`}
-            >
-              <Users className="h-4 w-4" />
-              伙伴
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
-            </button>
+          <div className="flex items-center">
             <button
               onClick={() => handleTabChange('products')}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
@@ -504,6 +509,49 @@ export function PlazaClient({
               动态
               <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialTotal}</span>
             </button>
+            <button
+              onClick={() => handleTabChange('people')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+                mainTab === 'people'
+                  ? 'text-primary border-primary'
+                  : 'text-mute border-transparent hover:text-ink'
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              创业者
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
+            </button>
+            <div className="ml-auto">
+              <select
+                value={mainTab === 'products' ? productSort : mainTab === 'posts' ? sort : peopleSort}
+                onChange={(e) => {
+                  if (mainTab === 'products') handleProductSortChange(e.target.value)
+                  else if (mainTab === 'posts') handleSortChange(e.target.value)
+                  else handlePeopleSortChange(e.target.value)
+                }}
+                className="text-sm text-mute bg-transparent border-0 focus:ring-0 cursor-pointer"
+              >
+                {mainTab === 'products' && (
+                  <>
+                    <option value="latest">最新发布</option>
+                    <option value="likes">最多喜欢</option>
+                    <option value="updated">最近更新</option>
+                  </>
+                )}
+                {mainTab === 'posts' && (
+                  <>
+                    <option value="latest">最新发布</option>
+                    <option value="hot">最多互动</option>
+                  </>
+                )}
+                {mainTab === 'people' && (
+                  <>
+                    <option value="latest">最新加入</option>
+                    <option value="followers">最多粉丝</option>
+                  </>
+                )}
+              </select>
+            </div>
           </div>
         </div>
       </div>
