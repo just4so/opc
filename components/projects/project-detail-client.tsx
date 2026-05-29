@@ -79,6 +79,7 @@ export function ProjectDetailClient({
   const [isLiked, setIsLiked] = useState(initialIsLiked)
   const [likeCount, setLikeCount] = useState(project.likeCount)
   const [likeLoading, setLikeLoading] = useState(false)
+  const [likeBouncing, setLikeBouncing] = useState(false)
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited)
   const [favLoading, setFavLoading] = useState(false)
   const [progressList, setProgressList] = useState(project.progressList)
@@ -94,6 +95,10 @@ export function ProjectDetailClient({
     setLikeLoading(true)
     setIsLiked(!isLiked)
     setLikeCount((c) => (isLiked ? c - 1 : c + 1))
+    if (!isLiked) {
+      setLikeBouncing(true)
+      setTimeout(() => setLikeBouncing(false), 300)
+    }
     try {
       const res = await fetch(`/api/projects/${project.slug}/like`, {
         method: 'POST',
@@ -154,17 +159,10 @@ export function ProjectDetailClient({
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Image gallery */}
-        {project.images.length > 0 && (
-          <div className="mb-8">
-            <ImageGallery images={project.images} alt={project.name} />
-          </div>
-        )}
-
         {/* 60/40 grid */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left column */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="lg:col-span-3 space-y-6">
             {/* Product header */}
             <div>
               <div className="flex items-start gap-4">
@@ -205,7 +203,7 @@ export function ProjectDetailClient({
                       }`}
                     >
                       <Heart
-                        className={`h-4 w-4 ${isLiked ? 'fill-red-500' : ''}`}
+                        className={`h-4 w-4 ${isLiked ? 'fill-red-500' : ''} ${likeBouncing ? 'like-bounce' : ''}`}
                       />
                       {likeCount}
                     </button>
@@ -213,6 +211,13 @@ export function ProjectDetailClient({
                 </div>
               </div>
             </div>
+
+            {/* Product images */}
+            {project.images.length > 0 && (
+              <div className="rounded-2xl overflow-hidden">
+                <ImageGallery images={project.images} alt={project.name} />
+              </div>
+            )}
 
             {/* Description */}
             <div className="prose prose-gray max-w-none">

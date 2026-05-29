@@ -62,7 +62,7 @@ export function FollowButton({
       size={size}
       onClick={handleToggle}
       disabled={isPending}
-      className={className}
+      className={`active:scale-95 transition-transform ${className || ''}`}
     >
       {isPending ? (
         <Loader2 className="h-4 w-4 animate-spin" />

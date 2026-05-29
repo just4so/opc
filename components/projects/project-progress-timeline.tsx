@@ -48,8 +48,8 @@ export function ProjectProgressTimeline({
       <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-hairline-soft" />
 
       <div className="space-y-6">
-        {progressList.map((item) => (
-          <div key={item.id} className="relative">
+        {progressList.map((item, index) => (
+          <div key={item.id} className="relative progress-enter" style={{ animationDelay: `${index * 80}ms` }}>
             {/* Dot */}
             <div className="absolute -left-6 top-2 w-[18px] h-[18px] rounded-full border-2 border-primary bg-canvas" />
 
