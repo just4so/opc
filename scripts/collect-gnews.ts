@@ -177,12 +177,15 @@ async function main() {
 
   let saved = 0, skipped = 0, fallback = 0, tooOld = 0
 
+  // ── Phase A: 串行拉取所有查询的 RSS，收集全部 raw items ──
+  type RawItemWithMeta = { title: string; url: string; source: string; publishedAt: Date | null; content: string; category: string; _decodeFailure?: boolean }
+  const allItems: RawItemWithMeta[] = []
+
   for (const { q, category } of QUERIES) {
     const encoded = encodeURIComponent(`${q} after:${afterDate}`)
     const url = `https://news.google.com/rss/search?q=${encoded}&hl=zh-CN&gl=CN&ceid=CN:zh-Hans`
     console.log(`\n  查询: ${q}`)
 
-    // 单查询独立超时：失败不影响其他查询
     let xml = ''
     for (let attempt = 1; attempt <= 2; attempt++) {
       xml = fetchGNews(url)
@@ -195,54 +198,53 @@ async function main() {
     if (!xml || xml.includes('Error 400')) { console.log('    → 2次尝试均失败，跳过此查询'); continue }
     const items = parseFeed(xml, category)
     console.log(`    → ${items.length} 条原始`)
+    allItems.push(...items)
+  }
 
-    // 批量解码 Google News URL → 真实文章 URL
-    const googleUrls = items.map(it => it.url).filter(u => u.includes('news.google.com/rss/articles/'))
-    if (googleUrls.length > 0) {
-      console.log(`    → 解码 ${googleUrls.length} 个 Google News URL...`)
-      const decoded = decodeGoogleNewsUrls(googleUrls)
-      let gi = 0
-      for (const item of items) {
-        if (item.url.includes('news.google.com/rss/articles/')) {
-          item.url = decoded[gi++] || item.url
-        }
-      }
-      const successCount = decoded.filter((u, i) => u !== googleUrls[i]).length
-      console.log(`    → 解码成功 ${successCount}/${googleUrls.length}`)
-      // 解码失败的条目（仍是 Google 中间链接）降权，避免混入候选池
-      for (const item of items) {
-        if (item.url.includes('news.google.com')) {
-          item._decodeFailure = true
-        }
+  // ── Phase B: 统一解码一次所有 Google News URL（消除逐查询启 Python 进程的开销）──
+  const googleUrls = allItems.map(it => it.url).filter(u => u.includes('news.google.com/rss/articles/'))
+  if (googleUrls.length > 0) {
+    console.log(`\n  → 统一解码 ${googleUrls.length} 个 Google News URL（单次 Python 进程）...`)
+    const decoded = decodeGoogleNewsUrls(googleUrls)
+    let gi = 0
+    for (const item of allItems) {
+      if (item.url.includes('news.google.com/rss/articles/')) {
+        item.url = decoded[gi++] || item.url
       }
     }
-
-    // ── 先做 URL/标题去重 + 时间过滤，收集需要 AI 判断的候选条目 ──
-    const candidates: Array<typeof items[0] & { isDecodeFailure: boolean }> = []
-    for (const item of items) {
-      const existsByUrl = await prisma.radarItem.findFirst({ where: { url: item.url }, select: { id: true } })
-      if (existsByUrl) { skipped++; continue }
-      const existsByTitle = await prisma.radarItem.findFirst({ where: { title: item.title }, select: { id: true } })
-      if (existsByTitle) { skipped++; continue }
-      if (isTooOld(item.publishedAt, null)) { tooOld++; continue }
-      candidates.push({ ...item, isDecodeFailure: (item as any)._decodeFailure === true })
-    }
-
-    if (candidates.length === 0) { console.log(`    → 0 条新内容`); continue }
-
-    if (!ai) {
-      // 无 AI：全部降级入库
-      for (const item of candidates) {
-        await prisma.radarItem.create({
-          data: { title: item.title, url: item.url, source: item.source, publishedAt: item.publishedAt, category: item.category, importance: 2 },
-        })
-        fallback++
+    const successCount = decoded.filter((u, i) => u !== googleUrls[i]).length
+    console.log(`  → 解码成功 ${successCount}/${googleUrls.length}`)
+    for (const item of allItems) {
+      if (item.url.includes('news.google.com')) {
+        item._decodeFailure = true
       }
-      continue
     }
+  }
 
-    // ── 批量并发 AI 判断（2条/批，10并发）──
-    console.log(`    → AI 判断 ${candidates.length} 条（批量并发）...`)
+  // ── Phase C: 去重 + AI 判断 + 入库 ──
+  console.log(`\n  → 共 ${allItems.length} 条原始，开始去重...`)
+  const candidates: Array<RawItemWithMeta & { isDecodeFailure: boolean }> = []
+  for (const item of allItems) {
+    const existsByUrl = await prisma.radarItem.findFirst({ where: { url: item.url }, select: { id: true } })
+    if (existsByUrl) { skipped++; continue }
+    const existsByTitle = await prisma.radarItem.findFirst({ where: { title: item.title }, select: { id: true } })
+    if (existsByTitle) { skipped++; continue }
+    if (isTooOld(item.publishedAt, null)) { tooOld++; continue }
+    candidates.push({ ...item, isDecodeFailure: item._decodeFailure === true })
+  }
+  console.log(`  → 去重后 ${candidates.length} 条候选`)
+
+  if (candidates.length === 0) {
+    console.log('  → 0 条新内容')
+  } else if (!ai) {
+    for (const item of candidates) {
+      await prisma.radarItem.create({
+        data: { title: item.title, url: item.url, source: item.source, publishedAt: item.publishedAt, category: item.category, importance: 2 },
+      })
+      fallback++
+    }
+  } else {
+    console.log(`  → AI 判断 ${candidates.length} 条（批量并发）...`)
     const aiInputs = candidates.map(item => ({
       title: item.title,
       content: item.content,
@@ -251,7 +253,6 @@ async function main() {
     }))
     const aiResults = await judgeItemsBatch(ai, aiInputs, 2, 10)
 
-    // ── 处理 AI 结果，逐条入库 ──
     for (let i = 0; i < candidates.length; i++) {
       const item = candidates[i]
       const result = aiResults[i]
@@ -277,7 +278,7 @@ async function main() {
           category: result.category ?? item.category,
           city: result.city ?? null,
           importance,
-          eventKey: null,  // 入库时不再由 AI 生成，出刊时统一做重复判断
+          eventKey: null,
         },
       })
 
