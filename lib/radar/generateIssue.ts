@@ -399,6 +399,12 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
       })
       selected.push(newItem)
       await prisma.radarCbArticle.update({ where: { id: cbArticle.id }, data: { used: true, usedAt: new Date() } })
+
+      if (!newItem.summary || newItem.summary.trim().length > 200) {
+        await enrichSummaries([{ id: newItem.id, title: newItem.title, url: newItem.url, summary: newItem.summary }], prisma)
+        const refreshed = await prisma.radarItem.findUnique({ where: { id: newItem.id }, select: { id: true, title: true, summary: true, category: true, importance: true, url: true, publishedAt: true } })
+        if (refreshed) selected[selected.length - 1] = refreshed
+      }
     }
   }
 
