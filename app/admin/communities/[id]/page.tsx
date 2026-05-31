@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { requireStaff } from '@/lib/admin'
 import prisma from '@/lib/db'
+import { ensureUrl } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -141,7 +142,7 @@ export default async function CommunityDetailPage({ params }: Props) {
                 <dd className="font-medium">
                   {community.website ? (
                     <a
-                      href={community.website}
+                      href={ensureUrl(community.website)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"

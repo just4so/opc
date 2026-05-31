@@ -34,6 +34,7 @@ import { CommunityClaimTrigger } from '@/components/communities/community-claim-
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
+import { ensureUrl } from '@/lib/utils'
 
 export const revalidate = 60
 export const dynamicParams = true
@@ -681,7 +682,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     <div>
                       <div className="text-sm text-mute">官网</div>
                       <a
-                        href={community.website}
+                        href={ensureUrl(community.website ?? '')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline text-sm flex items-center gap-1"

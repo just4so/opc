@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ArrowLeft, ExternalLink, Heart, Star, Plus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { ensureUrl } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FollowButton } from '@/components/follow/follow-button'
 import { ImageGallery } from '@/components/projects/image-gallery'
@@ -288,7 +289,7 @@ export function ProjectDetailClient({
             <div className="flex items-center gap-3">
               {project.website && (
                 <a
-                  href={project.website}
+                  href={ensureUrl(project.website ?? '')}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
