@@ -96,7 +96,7 @@ async function navigateAndWait(tabId: string, url: string, waitMs = 2000): Promi
 // ── 正文提取（修复版） ─────────────────────────────────────────────────────
 
 async function fetchArticleContent(tabId: string, url: string): Promise<string> {
-  await navigateAndWait(tabId, url, 2000)
+  await navigateAndWait(tabId, url, 3000)
 
   const result = await cdpEval(tabId, `
     (() => {
@@ -127,7 +127,7 @@ async function aiSummarize(rawText: string, title: string, ai: any): Promise<str
   try {
     const comp = await Promise.race([
       ai.chat.completions.create({
-        model: 'deepseek-v4-flash',
+        model: 'deepseek-chat',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
         max_tokens: 200,
