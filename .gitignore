@@ -51,3 +51,4 @@ tasks/
 tsconfig.tsbuildinfo
 *.bak
 .gstack/
+.edgeone/

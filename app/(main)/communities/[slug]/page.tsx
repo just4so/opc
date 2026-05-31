@@ -283,13 +283,13 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </div>
             )}
             {community.entryFriendly != null && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-full text-sm text-orange-700">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-soft rounded-full text-sm text-primary">
                 <span className="font-medium">入驻友好度</span>
                 <span>{renderStars(community.entryFriendly)}</span>
               </div>
             )}
             {community.benefits != null && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 rounded-full text-sm text-amber-700">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-soft rounded-full text-sm text-primary">
                 <Gift className="h-4 w-4" />
                 <span>有政策支持</span>
               </div>
@@ -302,7 +302,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               {community.focusTracks.map((item, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-md font-medium"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary-soft text-primary text-xs rounded-full font-medium"
                 >
                   {item}
                 </span>
@@ -418,7 +418,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
             {/* ===== Layer 2: 深度了解（登录可见）===== */}
             {!isLoggedIn ? (
-              <Card className="border-primary/20 bg-orange-50/50">
+              <Card className="border-primary/20 bg-primary-soft/50">
                 <CardContent className="pt-6 pb-6 text-center">
                   <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
                     <Building2 className="h-6 w-6 text-primary" />
@@ -426,10 +426,10 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                   <h3 className="text-lg font-semibold text-ink mb-2">登录后查看入驻指南和联系方式</h3>
                   <p className="text-sm text-mute mb-5">免费注册即可查看完整的入驻流程、真实提醒和联系方式</p>
                   <div className="flex gap-3 justify-center">
-                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
+                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
                       登录查看
                     </Link>
-                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
+                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-2xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
                       免费注册
                     </Link>
                   </div>
@@ -498,7 +498,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
                 {/* 3. 真实入驻说明 */}
                 {community.realTips && community.realTips.length > 0 && (
-                  <div className="border-l-4 border-orange-400 bg-orange-50 rounded-r-lg p-5">
+                  <div className="border border-orange-200 bg-primary-soft rounded-2xl p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-base font-semibold text-orange-800">🔍 真实提醒</span>
                     </div>
@@ -708,16 +708,16 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                     const level = policy.district ? '区级' : policy.city ? '市级' : '省级'
                     const levelColor =
                       policy.district
-                        ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                        ? 'bg-primary-soft text-primary border border-primary/20'
                         : policy.city
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'bg-violet-50 text-violet-700 border border-violet-200'
+                        ? 'bg-surface-card text-mute border border-hairline-soft'
+                        : 'bg-surface-card text-ash border border-hairline-soft'
 
                     return (
                       <div key={policy.id} className="py-2 border-b border-hairline-soft last:border-0">
                         <div className="flex items-start gap-2">
                           <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 mt-0.5 ${levelColor}`}
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 mt-0.5 ${levelColor}`}
                           >
                             {level}
                           </span>
@@ -757,16 +757,16 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </Card>
             )}
 
-            <Card className="overflow-hidden border-primary/10 shadow-sm">
+            <Card className="overflow-hidden border-primary/10">
               <CardContent className="py-6 text-center bg-gradient-to-b from-primary/5 to-white">
                 <p className="text-sm font-semibold text-ink mb-4 tracking-wide">加入 OPC 圈，遇见同路人</p>
-                <div className="inline-flex rounded-2xl bg-canvas p-3 shadow-sm ring-1 ring-hairline-soft">
+                <div className="inline-flex rounded-2xl bg-canvas p-3 ring-1 ring-hairline-soft">
                   <Image
                     src={qrCodeUrl}
                     alt="OPC社群二维码"
                     width={180}
                     height={180}
-                    className="mx-auto rounded-xl"
+                    className="mx-auto rounded-2xl"
                     unoptimized
                   />
                 </div>

@@ -240,10 +240,63 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
   return { collected, skipped }
 }
 
+
+// ─── 代理节点健康检查 ─────────────────────────────────────────────────────
+// 每次 cron 启动时检测当前节点能否访问 Google News；
+// 不通则自动切换到可用节点，避免解码阶段全部 429。
+
+const CLASH_API = 'http://127.0.0.1:9098'
+const PROXY_GROUP = encodeURIComponent('🔰国外流量')
+const PREFERRED_NODES = ['新加坡①一优化', '新加坡②一优化', '香港②一优化', '香港③一优化', '台湾②一优化', '加拿大①一优化']
+const TEST_URL = 'https://news.google.com/rss/search?q=test&hl=zh-CN&gl=CN&ceid=CN:zh-Hans'
+
+async function ensureProxyNode(): Promise<void> {
+  // 1. 测试当前节点
+  try {
+    const r = await fetch(TEST_URL, { signal: AbortSignal.timeout(8000) })
+    if (r.ok) { log(`代理节点正常（HTTP ${r.status}）`); return }
+    log(`代理节点返回 ${r.status}，尝试切换...`)
+  } catch {
+    log('代理节点不可达，尝试切换...')
+  }
+
+  // 2. 查可用节点列表
+  try {
+    const res = await fetch(`${CLASH_API}/proxies/${PROXY_GROUP}`, { signal: AbortSignal.timeout(3000) })
+    const data = await res.json() as any
+    const allNodes: string[] = data.all ?? []
+    const candidates = PREFERRED_NODES.filter(n => allNodes.includes(n))
+    const current: string = data.now ?? ''
+
+    for (const node of candidates) {
+      if (node === current) continue  // 当前节点刚测过，跳过
+      log(`切换代理节点 → ${node}`)
+      await fetch(`${CLASH_API}/proxies/${PROXY_GROUP}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: node }),
+        signal: AbortSignal.timeout(3000),
+      })
+      await new Promise(r => setTimeout(r, 2000))  // 等待切换生效
+      // 验证新节点
+      try {
+        const r2 = await fetch(TEST_URL, { signal: AbortSignal.timeout(8000) })
+        if (r2.ok) { log(`切换成功，新节点 ${node} 可用`); return }
+      } catch { /* 继续试下一个 */ }
+    }
+    log('⚠️ 所有备选节点均不可用，继续使用当前节点（采集可能受影响）')
+  } catch (e: any) {
+    log(`⚠️ Clash API 不可达，跳过节点检查: ${e.message?.slice(0, 60)}`)
+  }
+}
+
 // ─── 主流程 ───────────────────────────────────────────────────────────────
 
 async function main() {
   log('=== OPC Radar 每日采集开始 ===')
+
+  // 检查并确保代理节点可用（防止 Google 解码 429）
+  await ensureProxyNode()
 
   // Phase 1+2: GNews（子进程，走代理）与 RSS（直连）并行采集
   log('--- Phase 1+2: GNews + RSS 并行采集 ---')

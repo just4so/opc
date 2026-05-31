@@ -31,6 +31,20 @@ interface CommunityCardProps {
 export function CommunityCard({ community, recommended }: CommunityCardProps) {
   const benefits = community.benefits as Record<string, { summary?: string; items?: string[] }> | null
 
+  // 封面图加载失败时隐藏，显示占位背景
+  function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
+    const el = e.currentTarget
+    el.style.display = 'none'
+    const parent = el.parentElement
+    if (parent) {
+      parent.style.background = 'linear-gradient(135deg, #FFF3ED 0%, #FDEBD0 100%)'
+      parent.innerHTML = `<span style="color:#F97316;font-size:0.875rem;font-weight:600;letter-spacing:0.05em;opacity:0.8;margin:auto">${community.city} OPC</span>`
+      parent.style.display = 'flex'
+      parent.style.alignItems = 'center'
+      parent.style.justifyContent = 'center'
+    }
+  }
+
   // 判断某项政策是否存在（有 summary 或 items 才算有）
   function hasPolicy(key: string): boolean {
     if (!benefits) return false
@@ -65,6 +79,7 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
               src={community.coverImage}
               alt={community.name}
               className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              onError={handleImgError}
             />
           </div>
         ) : (
@@ -99,7 +114,7 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
           </div>
 
           {/* 描述钩子 */}
-          <p className="text-[12px] text-ash leading-relaxed mb-3 line-clamp-2">
+          <p className="text-[12px] text-mute leading-relaxed mb-3 line-clamp-2">
             {getDesc()}
           </p>
 
@@ -132,7 +147,7 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
               return (
                 <span
                   key={key}
-                  className={`text-[11px] px-[8px] py-[3px] rounded-[5px] ${
+                  className={`text-[11px] px-[8px] py-[3px] rounded-full ${
                     active
                       ? 'border border-orange-200 bg-orange-50 text-orange-500 font-medium'
                       : 'text-stone'

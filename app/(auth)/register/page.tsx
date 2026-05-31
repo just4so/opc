@@ -98,7 +98,7 @@ function RegisterForm() {
         setError('注册成功！正在跳转到登录页...')
         setTimeout(() => router.push('/login'), 1500)
       } else {
-        router.push(callbackUrl)
+        router.push(callbackUrl === '/' ? '/welcome' : callbackUrl)
         router.refresh()
       }
     } catch (err) {
@@ -121,20 +121,20 @@ function RegisterForm() {
             全国 180+ 个 OPC 社区，真实信息人工核实，一键对接入驻
           </p>
           <div className="space-y-4 w-full">
-            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
-              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <div className="flex items-center gap-4 bg-white/10 rounded-2xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
               </span>
               <span className="text-sm font-medium">找社区入驻，精确到联系方式</span>
             </div>
-            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
-              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <div className="flex items-center gap-4 bg-white/10 rounded-2xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </span>
               <span className="text-sm font-medium">展示产品，找到合作伙伴</span>
             </div>
-            <div className="flex items-center gap-4 bg-white/10 rounded-xl px-5 py-3.5">
-              <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <div className="flex items-center gap-4 bg-white/10 rounded-2xl px-5 py-3.5">
+              <span className="flex-shrink-0 w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
               </span>
               <span className="text-sm font-medium">认证创业者，被行业看见</span>
@@ -158,7 +158,7 @@ function RegisterForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md text-sm error-shake" key={error}>
+              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-2xl text-sm error-shake" key={error}>
                 {error}
               </div>
             )}
@@ -176,6 +176,7 @@ function RegisterForm() {
                 required
                 minLength={2}
                 maxLength={20}
+                autoComplete="nickname"
               />
             </div>
 
@@ -212,7 +213,7 @@ function RegisterForm() {
 
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium text-charcoal">
-                密码
+                密码 <span className="text-red-500">*</span>
               </label>
               <Input
                 id="password"
@@ -228,7 +229,7 @@ function RegisterForm() {
 
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="text-sm font-medium text-charcoal">
-                确认密码
+                确认密码 <span className="text-red-500">*</span>
               </label>
               <Input
                 id="confirmPassword"
@@ -257,7 +258,7 @@ function RegisterForm() {
                       key={s.value}
                       type="button"
                       onClick={() => setStartupStage(startupStage === s.value ? '' : s.value)}
-                      className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
+                      className={`text-left text-xs px-3 py-2 rounded-2xl border transition-colors ${
                         startupStage === s.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
                           : 'border-hairline-soft text-mute hover:border-hairline'
@@ -279,7 +280,7 @@ function RegisterForm() {
                       key={t.value}
                       type="button"
                       onClick={() => setMainTrack(mainTrack === t.value ? '' : t.value)}
-                      className={`text-left text-xs px-3 py-2 rounded-md border transition-colors ${
+                      className={`text-left text-xs px-3 py-2 rounded-2xl border transition-colors ${
                         mainTrack === t.value
                           ? 'border-primary bg-primary/5 text-primary font-medium'
                           : 'border-hairline-soft text-mute hover:border-hairline'

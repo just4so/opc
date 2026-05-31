@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
@@ -96,9 +97,9 @@ export default async function HomePage() {
         <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-[720px] mx-auto text-center">
-          <h1 className="text-[56px] md:text-[68px] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
+          <h1 className="text-[clamp(2rem,5vw+1.5rem,3.5rem)] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
             <span className="hero-animate block">OPC创业者，在这里</span>
-            <span className="hero-animate hero-delay-1 block gradient-text-orange">连接、让世界看见</span>
+            <span className="hero-animate hero-delay-1 block text-primary">连接、让世界看见</span>
           </h1>
           <p className="hero-animate hero-delay-2 text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
             全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市 · 真实信息人工核实，一键对接入驻
@@ -124,10 +125,7 @@ export default async function HomePage() {
       {/* ===== 价值区 ===== */}
       <section className="py-20 px-6 max-w-[1100px] mx-auto">
         <ScrollReveal>
-          <div className="text-xs font-semibold text-primary uppercase tracking-[1.5px] text-center mb-3">
-            为什么选择 OPC圈
-          </div>
-          <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-12">
+          <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-14">
             三个动作，开启创业新阶段
           </h2>
         </ScrollReveal>
@@ -138,30 +136,33 @@ export default async function HomePage() {
                 title: `${stats.total} 个社区，帮你对接入驻`,
                 desc: `覆盖 ${stats.cityCount} 个城市，真实信息人工核实`,
                 href: '/communities',
+                cta: '浏览全国社区',
               },
               {
                 icon: BadgeCheck,
                 title: '认证创业者，被行业看见',
                 desc: '展示你的项目，获得认证标识，进入行业推荐视野',
                 href: '/plaza',
+                cta: '进入创业广场',
               },
               {
                 icon: Handshake,
                 title: '创业者广场，找到合作',
                 desc: '和真实创业者连接，发布需求，找到伙伴',
                 href: '/plaza?tab=products',
+                cta: '发现合作机会',
               },
             ].map((card) => (
               <Link
                 key={card.title}
                 href={card.href}
-                className="card-interactive bg-canvas p-10 group"
+                className="card-interactive bg-canvas p-10 group flex flex-col"
               >
                 <card.icon className="h-8 w-8 text-primary mb-5" strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-ink mb-2">{card.title}</h3>
-                <p className="text-sm text-mute leading-relaxed mb-4">{card.desc}</p>
+                <p className="text-sm text-mute leading-relaxed mb-4 flex-1">{card.desc}</p>
                 <span className="text-sm text-primary font-medium group-hover:underline">
-                  了解更多 →
+                  {card.cta} →
                 </span>
               </Link>
             ))}
@@ -227,10 +228,12 @@ export default async function HomePage() {
               >
                 <div className="h-36 relative">
                   {product.images[0] ? (
-                    <img
+                    <Image
                       src={product.images[0]}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="280px"
+                      className="object-cover"
                     />
                   ) : (
                     <div className={`w-full h-full cover-fallback ${getCoverPattern(product.name)} px-4`}>

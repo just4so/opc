@@ -671,10 +671,16 @@ export function PlazaClient({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
-                <Users className="h-12 w-12 text-stone mx-auto mb-4" />
-                <p className="text-mute mb-2">没有找到匹配的结果</p>
-                <p className="text-ash text-sm">试试调整筛选条件</p>
+              <div className="text-center py-16 bg-canvas rounded-2xl">
+                <Users className="h-12 w-12 text-ash mx-auto mb-4" />
+                <p className="text-ink font-medium mb-1">没有找到匹配的结果</p>
+                <p className="text-mute text-sm mb-4">试试调整筛选条件，或清除全部筛选重新浏览</p>
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  清除全部筛选
+                </button>
               </div>
             )}
 
@@ -744,10 +750,16 @@ export function PlazaClient({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-canvas rounded-2xl animate-float">
-                <Package className="h-12 w-12 text-stone mx-auto mb-4" />
-                <p className="text-mute mb-2">没有找到匹配的结果</p>
-                <p className="text-ash text-sm">试试调整筛选条件</p>
+              <div className="text-center py-16 bg-canvas rounded-2xl">
+                <Package className="h-12 w-12 text-ash mx-auto mb-4" />
+                <p className="text-ink font-medium mb-1">没有找到匹配的结果</p>
+                <p className="text-mute text-sm mb-4">试试调整筛选条件，或清除全部筛选重新浏览</p>
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  清除全部筛选
+                </button>
               </div>
             )}
 

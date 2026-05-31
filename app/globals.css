@@ -134,6 +134,15 @@ body {
   pointer-events: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .glow-orange,
+  .glow-amber,
+  .glow-orange-subtle {
+    opacity: 0.3;
+    filter: none;
+  }
+}
+
 /* Grid pattern */
 .grid-pattern {
   background-image:

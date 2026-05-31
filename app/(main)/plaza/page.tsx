@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import { PlazaClient } from '@/components/plaza/plaza-client'
 import prisma from '@/lib/db'
 import { getPlazaStats } from '@/lib/queries/post-stats'
@@ -22,10 +23,38 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function PlazaPage() {
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+const getTickerData = unstable_cache(
+  async () => {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const [recentProjects, recentProgress, recentUsers] = await Promise.all([
+      prisma.project.findMany({
+        where: { createdAt: { gte: twentyFourHoursAgo }, status: 'PUBLISHED' },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: { name: true, slug: true, createdAt: true, owner: { select: { name: true } } },
+      }),
+      prisma.progress.findMany({
+        where: { createdAt: { gte: twentyFourHoursAgo } },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: { createdAt: true, author: { select: { name: true } }, project: { select: { slug: true, name: true } } },
+      }),
+      prisma.user.findMany({
+        where: { createdAt: { gte: twentyFourHoursAgo }, showInPlaza: true },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: { name: true, username: true, createdAt: true },
+      }),
+    ])
+    return { recentProjects, recentProgress, recentUsers }
+  },
+  ['plaza-ticker'],
+  { revalidate: 60 }
+)
 
-  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, recentProjects, recentProgress, recentUsers] = await Promise.all([
+export default async function PlazaPage() {
+
+  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, { recentProjects, recentProgress, recentUsers }] = await Promise.all([
     prisma.post.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
@@ -152,24 +181,7 @@ export default async function PlazaPage() {
       },
     }),
     auth(),
-    prisma.project.findMany({
-      where: { createdAt: { gte: twentyFourHoursAgo }, status: 'PUBLISHED' },
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: { name: true, slug: true, createdAt: true, owner: { select: { name: true } } },
-    }),
-    prisma.progress.findMany({
-      where: { createdAt: { gte: twentyFourHoursAgo } },
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: { createdAt: true, author: { select: { name: true } }, project: { select: { slug: true, name: true } } },
-    }),
-    prisma.user.findMany({
-      where: { createdAt: { gte: twentyFourHoursAgo }, showInPlaza: true },
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: { name: true, username: true, createdAt: true },
-    }),
+    getTickerData(),
   ])
 
   let onboardingData: { userId: string; mainTrack: string | null; location: string | null } | null = null
@@ -206,21 +218,21 @@ export default async function PlazaPage() {
   for (const p of recentProjects) {
     tickerEvents.push({
       text: `🚀 ${p.owner.name || '匿名'} 发布了「${p.name}」`,
-      time: p.createdAt.toISOString(),
+      time: new Date(p.createdAt).toISOString(),
       link: `/projects/${p.slug}`,
     })
   }
   for (const p of recentProgress) {
     tickerEvents.push({
       text: `📝 ${p.author.name || '匿名'} 更新了${p.project ? `「${p.project.name}」的` : ''}产品进展`,
-      time: p.createdAt.toISOString(),
+      time: new Date(p.createdAt).toISOString(),
       link: p.project ? `/projects/${p.project.slug}` : '/plaza',
     })
   }
   for (const u of recentUsers) {
     tickerEvents.push({
       text: `👋 欢迎 ${u.name || u.username} 加入创业者广场`,
-      time: u.createdAt.toISOString(),
+      time: new Date(u.createdAt).toISOString(),
       link: `/profile/${u.username}`,
     })
   }

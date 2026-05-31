@@ -50,7 +50,7 @@ async function CommunitiesPageInner() {
         allCommunities={allCommunities}
       />
       {/* GEO FAQ — 页面底部，不影响主体内容 */}
-      <div className="bg-white border-t mt-8">
+      <div className="bg-canvas border-t mt-8">
         <div className="container mx-auto px-4 py-10 max-w-5xl">
           <h2 className="text-lg font-semibold text-ink mb-5">OPC社区常见问题</h2>
           <div className="grid gap-4 md:grid-cols-2">
@@ -80,9 +80,9 @@ async function CommunitiesPageInner() {
           </div>
           <p className="text-xs text-ash mt-4 text-center">
             查看完整问答： 
-            <Link href="/faq" className="text-orange-500 hover:underline">常见问题</Link>
+            <Link href="/faq" className="text-primary hover:underline">常见问题</Link>
              · 
-            <Link href="/data" className="text-orange-500 hover:underline">社区数据统计</Link>
+            <Link href="/data" className="text-primary hover:underline">社区数据统计</Link>
           </p>
         </div>
       </div>
@@ -95,20 +95,20 @@ export default function CommunitiesPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background">
-        <div className="bg-white border-b">
+        <div className="bg-canvas border-b">
           <div className="container mx-auto px-4 py-8">
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
-            <div className="h-4 w-72 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 w-48 bg-surface-card rounded-full animate-pulse mb-2" />
+            <div className="h-4 w-72 bg-surface-card rounded-full animate-pulse" />
           </div>
         </div>
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {[1,2,3,4,5,6,7,8].map((i) => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm">
-                <div className="h-36 bg-gray-200 animate-pulse" />
+              <div key={i} className="bg-white rounded-2xl overflow-hidden">
+                <div className="h-36 bg-surface-card animate-pulse" />
                 <div className="p-4 space-y-2">
-                  <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-5 w-3/4 bg-surface-card rounded animate-pulse" />
+                  <div className="h-4 w-1/2 bg-surface-card rounded animate-pulse" />
                 </div>
               </div>
             ))}
