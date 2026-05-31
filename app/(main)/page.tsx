@@ -92,22 +92,22 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       {/* ===== Hero ===== */}
-      <section className="relative overflow-hidden bg-canvas py-[120px] px-6">
+      <section className="relative overflow-hidden bg-canvas py-16 sm:py-[120px] px-5 sm:px-6">
         <div className="absolute top-[-120px] right-[15%] w-[500px] h-[500px] rounded-full glow-orange" />
         <div className="absolute bottom-[-80px] left-[10%] w-[400px] h-[400px] rounded-full glow-amber" />
         <div className="absolute inset-0 grid-pattern" />
         <div className="relative z-10 max-w-[720px] mx-auto text-center">
-          <h1 className="text-[clamp(2rem,5vw+1.5rem,3.5rem)] font-extrabold tracking-[-2px] leading-[1.08] text-ink mb-5">
+          <h1 className="text-[clamp(1.75rem,6vw,3.5rem)] font-extrabold tracking-[-0.03em] leading-[1.1] text-ink mb-4 sm:mb-5 text-balance">
             <span className="hero-animate block">OPC创业者，在这里</span>
             <span className="hero-animate hero-delay-1 block text-primary">连接、让世界看见</span>
           </h1>
-          <p className="hero-animate hero-delay-2 text-[17px] text-mute leading-relaxed mb-11 max-w-[480px] mx-auto">
+          <p className="hero-animate hero-delay-2 text-[15px] sm:text-[17px] text-mute leading-relaxed mb-8 sm:mb-11 max-w-[340px] sm:max-w-[480px] mx-auto">
             全国 {stats.total} 个 OPC 社区 · 覆盖 {stats.cityCount} 个城市 · 真实信息人工核实，一键对接入驻
           </p>
-          <div className="hero-animate hero-delay-3 flex gap-3 justify-center mb-7">
+          <div className="hero-animate hero-delay-3 flex flex-col sm:flex-row gap-3 justify-center mb-6 sm:mb-7 px-4 sm:px-0">
             <Link
               href="/communities"
-              className="btn-press bg-primary text-on-primary rounded-xl px-9 py-3.5 font-semibold shadow-[0_4px_16px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.35)] hover:-translate-y-px transition-all"
+              className="btn-press bg-primary text-on-primary rounded-xl px-9 py-3.5 font-semibold shadow-[0_4px_16px_rgba(249,115,22,0.3)] hover:shadow-[0_6px_24px_rgba(249,115,22,0.35)] hover:-translate-y-px transition-all w-full sm:w-auto"
             >
               找到我的社区
             </Link>
@@ -123,9 +123,9 @@ export default async function HomePage() {
       </section>
 
       {/* ===== 价值区 ===== */}
-      <section className="py-20 px-6 max-w-[1100px] mx-auto">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 max-w-[1100px] mx-auto">
         <ScrollReveal>
-          <h2 className="text-[32px] font-bold text-ink text-center tracking-[-0.8px] mb-14">
+          <h2 className="text-[22px] sm:text-[32px] font-bold text-ink text-center tracking-[-0.02em] mb-8 sm:mb-14 text-balance">
             三个动作，开启创业新阶段
           </h2>
         </ScrollReveal>
@@ -156,7 +156,7 @@ export default async function HomePage() {
               <Link
                 key={card.title}
                 href={card.href}
-                className="card-interactive bg-canvas p-10 group flex flex-col"
+                className="card-interactive bg-canvas p-6 sm:p-10 group flex flex-col"
               >
                 <card.icon className="h-8 w-8 text-primary mb-5" strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-ink mb-2">{card.title}</h3>
@@ -172,35 +172,35 @@ export default async function HomePage() {
       {/* ===== 深色数据区 ===== */}
       <ScrollReveal>
         <div className="h-20 bg-gradient-to-b from-canvas to-surface-dark" />
-        <section className="bg-surface-dark py-[80px] px-6 relative overflow-hidden">
+        <section className="bg-surface-dark py-12 sm:py-[80px] px-5 sm:px-6 relative overflow-hidden">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full glow-orange-subtle" />
           <div className="absolute inset-0 grid-pattern-dark" />
           <div className="relative z-10 max-w-[800px] mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
               <div>
                 <AnimatedCounter
                   target={stats.total}
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
+                  className="text-[clamp(2rem,8vw,4rem)] font-extrabold text-on-dark tracking-[-0.03em] leading-none block"
                 />
-                <div className="text-sm text-on-dark-mute mt-2">OPC 社区</div>
+                <div className="text-xs sm:text-sm text-on-dark-mute mt-1.5 sm:mt-2">OPC 社区</div>
               </div>
               <div>
                 <AnimatedCounter
                   target={stats.cityCount}
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
+                  className="text-[clamp(2rem,8vw,4rem)] font-extrabold text-on-dark tracking-[-0.03em] leading-none block"
                 />
-                <div className="text-sm text-on-dark-mute mt-2">覆盖城市</div>
+                <div className="text-xs sm:text-sm text-on-dark-mute mt-1.5 sm:mt-2">覆盖城市</div>
               </div>
               <div>
                 <AnimatedCounter
                   target={5000}
                   suffix="+"
-                  className="text-[64px] font-extrabold text-on-dark tracking-[-2px] leading-none block"
+                  className="text-[clamp(2rem,8vw,4rem)] font-extrabold text-on-dark tracking-[-0.03em] leading-none block"
                 />
-                <div className="text-sm text-on-dark-mute mt-2">创业者</div>
+                <div className="text-xs sm:text-sm text-on-dark-mute mt-1.5 sm:mt-2">创业者</div>
               </div>
             </div>
-            <p className="mt-12 text-[15px] text-on-dark-mute text-center">
+            <p className="mt-8 sm:mt-12 text-[13px] sm:text-[15px] text-on-dark-mute text-center leading-relaxed max-w-[280px] sm:max-w-none mx-auto">
               每一条社区信息都经过人工核实，不是爬虫，不是复制粘贴
             </p>
           </div>
@@ -209,7 +209,7 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {/* ===== 热门产品横版滚动 ===== */}
-      <section className="py-20 px-6 max-w-[1100px] mx-auto">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 max-w-[1100px] mx-auto">
         <ScrollReveal>
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="text-2xl font-bold text-ink">热门产品</h2>
@@ -277,7 +277,7 @@ export default async function HomePage() {
       {/* ===== 雷达区 ===== */}
       {radarIssue && (
         <ScrollReveal>
-          <section className="pb-20 px-6 max-w-[1100px] mx-auto">
+          <section className="pb-12 sm:pb-20 px-4 sm:px-6 max-w-[1100px] mx-auto">
             <div className="flex justify-between items-baseline mb-8">
               <h2 className="text-2xl font-bold text-ink">OPC 雷达</h2>
               <Link href="/radar" className="text-sm text-mute hover:text-primary transition-colors">

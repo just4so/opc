@@ -83,7 +83,7 @@ export function PageHeader({ title, subtitle, theme = 'default', children }: Pag
       <div className="relative z-10 container mx-auto px-4 pt-10 pb-8">
         <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-ink tracking-tight">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-ink tracking-tight text-balance">{title}</h1>
             {subtitle && (
               <p className="text-sm text-mute mt-1.5">{subtitle}</p>
             )}

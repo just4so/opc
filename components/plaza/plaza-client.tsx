@@ -486,7 +486,7 @@ export function PlazaClient({
           <div className="flex items-center">
             <button
               onClick={() => handleTabChange('products')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+              className={`px-3 sm:px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-1.5 sm:gap-2 ${
                 mainTab === 'products'
                   ? 'text-primary border-primary'
                   : 'text-mute border-transparent hover:text-ink'
@@ -498,7 +498,7 @@ export function PlazaClient({
             </button>
             <button
               onClick={() => handleTabChange('people')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+              className={`px-3 sm:px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-1.5 sm:gap-2 ${
                 mainTab === 'people'
                   ? 'text-primary border-primary'
                   : 'text-mute border-transparent hover:text-ink'
@@ -510,7 +510,7 @@ export function PlazaClient({
             </button>
             <button
               onClick={() => handleTabChange('posts')}
-              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-2 ${
+              className={`px-3 sm:px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors flex items-center gap-1.5 sm:gap-2 ${
                 mainTab === 'posts'
                   ? 'text-primary border-primary'
                   : 'text-mute border-transparent hover:text-ink'
