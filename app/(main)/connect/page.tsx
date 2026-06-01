@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { ConnectForm } from '@/components/connect/connect-form'
+import { getCachedCityNames, getCachedCommunityList } from '@/lib/queries/connect'
 
 function parseGeoCity(headerValue: string | null): string {
   if (!headerValue) return ''
@@ -30,12 +31,8 @@ export default async function GenericConnectPage() {
   const headersList = headers()
   const geoCity = parseGeoCity(headersList.get('eo-connecting-geo'))
 
-  const [communities, user] = await Promise.all([
-    prisma.community.findMany({
-      where: { status: 'ACTIVE' },
-      select: { name: true, slug: true, city: true },
-      orderBy: { name: 'asc' },
-    }),
+  const [communities, user, cityNames] = await Promise.all([
+    getCachedCommunityList(),
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -47,17 +44,8 @@ export default async function GenericConnectPage() {
         startupStage: true,
       },
     }),
+    getCachedCityNames(),
   ])
-
-  const cityGroups = await prisma.community.groupBy({
-    by: ['city'],
-    where: { status: 'ACTIVE', city: { not: '' } },
-    _count: { city: true },
-    orderBy: { _count: { city: 'desc' } },
-  })
-  const cityNames = cityGroups
-    .map((c) => c.city)
-    .filter((c): c is string => !!c)
 
   // Geo 城市在列表里才预填，不用 user.location（个人所在地 ≠ 目标入驻城市）
   const defaultCity = cityNames.includes(geoCity) ? geoCity : ''

@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { ConnectForm } from '@/components/connect/connect-form'
+import { getCachedCityNames } from '@/lib/queries/connect'
 
 function parseGeoCity(headerValue: string | null): string {
   if (!headerValue) return ''
@@ -34,44 +35,36 @@ export default async function ConnectPage({ params }: PageProps) {
   const headersList = headers()
   const geoCity = parseGeoCity(headersList.get('eo-connecting-geo'))
 
-  const community = await prisma.community.findUnique({
-    where: { slug: params.slug },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      city: true,
-      contactName: true,
-      contactPhone: true,
-      contactWechat: true,
-    },
-  })
+  const [community, user, cityNames] = await Promise.all([
+    prisma.community.findUnique({
+      where: { slug: params.slug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        city: true,
+        contactName: true,
+        contactPhone: true,
+        contactWechat: true,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        name: true,
+        phone: true,
+        wechat: true,
+        location: true,
+        mainTrack: true,
+        startupStage: true,
+      },
+    }),
+    getCachedCityNames(),
+  ])
 
   if (!community) {
     notFound()
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      name: true,
-      phone: true,
-      wechat: true,
-      location: true,
-      mainTrack: true,
-      startupStage: true,
-    },
-  })
-
-  const cityGroups = await prisma.community.groupBy({
-    by: ['city'],
-    where: { status: 'ACTIVE', city: { not: '' } },
-    _count: { city: true },
-    orderBy: { _count: { city: 'desc' } },
-  })
-  const cityNames = cityGroups
-    .map((c) => c.city)
-    .filter((c): c is string => !!c)
 
   const defaultCity = cityNames.includes(geoCity) ? geoCity : ''
 
