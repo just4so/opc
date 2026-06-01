@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { PageHeader } from '@/components/ui/page-header'
 import {
   PenSquare,
-  TrendingUp,
   LayoutGrid,
   List,
   Filter,
@@ -110,27 +109,9 @@ interface Pagination {
   totalPages: number
 }
 
-interface TodayStats {
-  postCount: number
-  participantCount: number
-}
-
-interface TopicCount {
-  topic: string
-  count: number
-}
-
 export interface PlazaClientProps {
   initialPosts: Post[]
   initialTotal: number
-  initialStats: {
-    todayStats: TodayStats
-    topicCounts: TopicCount[]
-    hotTopics: TopicCount[]
-    activeUsers: { id: string; name: string | null; username: string; avatar: string | null; postCount: number }[]
-    weekCount: number
-    monthCount: number
-  }
   initialPlazaUsers: PlazaUser[]
   initialPlazaUserTotal: number
   initialProjects: PlazaProject[]
@@ -172,7 +153,6 @@ type MainTab = 'people' | 'products' | 'posts'
 export function PlazaClient({
   initialPosts,
   initialTotal,
-  initialStats,
   initialPlazaUsers,
   initialPlazaUserTotal,
   initialProjects,
@@ -243,9 +223,7 @@ export function PlazaClient({
   const [peoplePage, setPeoplePage] = useState(1)
   const PEOPLE_PER_PAGE = 12
 
-  const stats = initialStats
-
-  // Derive filter options from SSR data
+  // Filter options derived from SSR data
   const uniqueTracks = useMemo(() => {
     const tracks = new Set<string>()
     initialPlazaUsers.forEach(u => { if (u.mainTrack) tracks.add(u.mainTrack) })
@@ -557,16 +535,7 @@ export function PlazaClient({
         </div>
       </div>
 
-      {/* Stats bar (posts tab only) */}
-      {mainTab === 'posts' && (stats.todayStats.postCount > 0 || stats.todayStats.participantCount > 0) && (
-        <div className="bg-canvas border-b">
-          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-sm text-mute">
-            <TrendingUp className="h-4 w-4 text-ash" />
-            <span>今日 <strong className="text-charcoal">{stats.todayStats.postCount}</strong> 条新内容 · <strong className="text-charcoal">{stats.todayStats.participantCount}</strong> 人参与讨论</span>
-          </div>
-        </div>
-      )}
-
+      
       <div className="container mx-auto px-4 py-8">
         {/* Guide banner */}
         {renderBanner()}
@@ -784,75 +753,9 @@ export function PlazaClient({
 
         {/* ========== POSTS TAB ========== */}
         {mainTab === 'posts' && (
-          <div key="posts" className="grid grid-cols-1 lg:grid-cols-4 gap-8 tab-content-enter">
-            {/* Sidebar (desktop) */}
-            <aside className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-24 space-y-6">
-                {stats.hotTopics.length > 0 && (
-                  <div className="bg-canvas rounded-2xl p-5 shadow-soft border-l-2 border-primary/30">
-                    <h3 className="font-semibold text-ink mb-3 text-sm">热议话题</h3>
-                    <div className="space-y-2">
-                      {stats.hotTopics.map((t, i) => (
-                        <div
-                          key={t.topic}
-                          className="flex items-center justify-between text-sm cursor-pointer hover:text-primary"
-                          onClick={() => handleTypeChange('')}
-                        >
-                          <span className="text-mute">
-                            <span className="text-ash mr-1">#{i + 1}</span>
-                            {t.topic}
-                          </span>
-                          <span className="text-xs text-ash">{t.count}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {stats.activeUsers.length >= 5 && (
-                  <div className="bg-canvas rounded-2xl p-5 shadow-soft">
-                    <h3 className="font-semibold text-ink mb-3 text-sm">本周活跃</h3>
-                    <div className="space-y-2">
-                      {stats.activeUsers.map((u) => (
-                        <Link
-                          key={u.id}
-                          href={`/profile/${u.username}`}
-                          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                        >
-                          <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary text-xs font-semibold overflow-hidden shrink-0">
-                            {u.avatar ? (
-                              <img src={u.avatar} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <span>{u.name?.[0] || u.username[0]}</span>
-                            )}
-                          </div>
-                          <span className="text-sm text-charcoal truncate">{u.name || u.username}</span>
-                          <span className="ml-auto text-xs text-ash">{u.postCount}篇</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="bg-canvas rounded-2xl p-5 shadow-soft">
-                  <h3 className="font-semibold text-ink mb-3 text-sm">发布统计</h3>
-                  <div className="flex items-center gap-4 text-sm text-mute">
-                    <div className="flex items-center gap-1">
-                      <span className="text-ash">本周</span>
-                      <span className="font-semibold text-ink">{stats.weekCount}</span>
-                    </div>
-                    <div className="w-px h-3 bg-secondary-bg" />
-                    <div className="flex items-center gap-1">
-                      <span className="text-ash">本月</span>
-                      <span className="font-semibold text-ink">{stats.monthCount}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
-
+          <div key="posts" className="tab-content-enter">
             {/* Post content */}
-            <main className="lg:col-span-3 space-y-6">
+            <main className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="hidden md:flex border-b border-hairline-soft">
                   {TYPE_TABS.map(tab => (

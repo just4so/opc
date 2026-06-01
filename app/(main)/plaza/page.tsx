@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import { PlazaClient } from '@/components/plaza/plaza-client'
 import prisma from '@/lib/db'
-import { getPlazaStats } from '@/lib/queries/post-stats'
 import { auth } from '@/lib/auth'
 
 export const revalidate = 60
@@ -52,41 +51,10 @@ const getTickerData = unstable_cache(
   { revalidate: 60 }
 )
 
-export default async function PlazaPage() {
-
-  const [posts, total, stats, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, { recentProjects, recentProgress, recentUsers }] = await Promise.all([
-    prisma.post.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
-      take: 20,
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            avatar: true,
-            level: true,
-            verified: true,
-            location: true,
-            mainTrack: true,
-            startupStage: true,
-          },
-        },
-        project: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-        _count: {
-          select: { comments: true },
-        },
-      },
-    }),
-    prisma.post.count({ where: { status: 'PUBLISHED' } }),
-    getPlazaStats(),
-    prisma.user.findMany({
+// 创业者列表 — 60 秒缓存，取 20 条夠用
+export const getPlazaUsers = unstable_cache(
+  async () => {
+    const users = await prisma.user.findMany({
       where: {
         showInPlaza: true,
         OR: [
@@ -96,7 +64,7 @@ export default async function PlazaPage() {
         ],
       },
       orderBy: [{ verified: 'desc' }, { createdAt: 'desc' }],
-      take: 50,
+      take: 20,
       select: {
         id: true,
         username: true,
@@ -128,8 +96,16 @@ export default async function PlazaPage() {
           },
         },
       },
-    }),
-    prisma.user.count({
+    })
+    return users
+  },
+  ['plaza-users'],
+  { revalidate: 60 }
+)
+
+export const getPlazaUserCount = unstable_cache(
+  async () => {
+    return prisma.user.count({
       where: {
         showInPlaza: true,
         OR: [
@@ -138,7 +114,47 @@ export default async function PlazaPage() {
           { projects: { some: { status: 'PUBLISHED' } } },
         ],
       },
+    })
+  },
+  ['plaza-user-count'],
+  { revalidate: 60 }
+)
+
+export default async function PlazaPage() {
+
+  const [posts, total, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, { recentProjects, recentProgress, recentUsers }] = await Promise.all([
+    prisma.post.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
+      take: 20,
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true,
+            level: true,
+            verified: true,
+            location: true,
+            mainTrack: true,
+            startupStage: true,
+          },
+        },
+        project: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+        _count: {
+          select: { comments: true },
+        },
+      },
     }),
+    prisma.post.count({ where: { status: 'PUBLISHED' } }),
+    getPlazaUsers(),
+    getPlazaUserCount(),
     prisma.project.findMany({
       where: {
         status: 'PUBLISHED',
@@ -243,7 +259,6 @@ export default async function PlazaPage() {
     <PlazaClient
       initialPosts={postsWithCount as any}
       initialTotal={total}
-      initialStats={stats}
       initialPlazaUsers={plazaUsersWithCounts}
       initialPlazaUserTotal={plazaUserTotal}
       initialProjects={initialProjects}
