@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
-import { unstable_cache } from 'next/cache'
 import { PlazaClient } from '@/components/plaza/plaza-client'
-import prisma from '@/lib/db'
-import { auth } from '@/lib/auth'
-import { getPlazaUsers, getPlazaUserCount } from '@/lib/queries/plaza'
+import { getPlazaUsers, getPlazaUserCount, getPlazaProjects, getPlazaProjectCount } from '@/lib/queries/plaza'
+import { getTickerData } from '@/lib/queries/plaza-ticker'
 
 export const revalidate = 60
 
@@ -23,137 +21,17 @@ export const metadata: Metadata = {
   },
 }
 
-const getTickerData = unstable_cache(
-  async () => {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    const [recentProjects, recentProgress, recentUsers] = await Promise.all([
-      prisma.project.findMany({
-        where: { createdAt: { gte: twentyFourHoursAgo }, status: 'PUBLISHED' },
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: { name: true, slug: true, createdAt: true, owner: { select: { name: true } } },
-      }),
-      prisma.progress.findMany({
-        where: { createdAt: { gte: twentyFourHoursAgo } },
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: { createdAt: true, author: { select: { name: true } }, project: { select: { slug: true, name: true } } },
-      }),
-      prisma.user.findMany({
-        where: { createdAt: { gte: twentyFourHoursAgo }, showInPlaza: true },
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        select: { name: true, username: true, createdAt: true },
-      }),
-    ])
-    return { recentProjects, recentProgress, recentUsers }
-  },
-  ['plaza-ticker'],
-  { revalidate: 60 }
-)
-
 export default async function PlazaPage() {
-
-  const [posts, total, plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, session, { recentProjects, recentProgress, recentUsers }] = await Promise.all([
-    prisma.post.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
-      take: 20,
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            avatar: true,
-            level: true,
-            verified: true,
-            location: true,
-            mainTrack: true,
-            startupStage: true,
-          },
-        },
-        project: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-        _count: {
-          select: { comments: true },
-        },
-      },
-    }),
-    prisma.post.count({ where: { status: 'PUBLISHED' } }),
-    getPlazaUsers(),
-    getPlazaUserCount(),
-    prisma.project.findMany({
-      where: {
-        status: 'PUBLISHED',
-        description: { not: '' },
-        owner: { showInPlaza: true },
-      },
-      orderBy: [
-        { owner: { verified: 'desc' } },
-        { createdAt: 'desc' },
-      ],
-      take: 20,
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        description: true,
-        images: true,
-        stage: true,
-        website: true,
-        contentType: true,
-        commentCount: true,
-        likeCount: true,
-        owner: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            avatar: true,
-            bio: true,
-            location: true,
-            verified: true,
-          },
-        },
-      },
-    }),
-    prisma.project.count({
-      where: {
-        status: 'PUBLISHED',
-        owner: { showInPlaza: true },
-      },
-    }),
-    auth(),
-    getTickerData(),
-  ])
-
-  let onboardingData: { userId: string; mainTrack: string | null; location: string | null } | null = null
-  if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { onboardingCompleted: true, mainTrack: true, location: true },
-    })
-    if (user && !user.onboardingCompleted) {
-      onboardingData = {
-        userId: session.user.id,
-        mainTrack: user.mainTrack,
-        location: user.location,
-      }
-    }
-  }
-
-  const postsWithCount = posts.map(p => ({
-    ...p,
-    commentCount: p._count.comments,
-    createdAt: p.createdAt.toISOString(),
-    updatedAt: p.updatedAt.toISOString(),
-    deadline: p.deadline ? p.deadline.toISOString() : null,
-  }))
+  // 全部使用带缓存的查询函数，不再有 auth() 调用
+  // 页面变为 Static（ISR 60s），大幅提升缓存命中时的响应速度
+  const [plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, { recentProjects, recentProgress, recentUsers }] =
+    await Promise.all([
+      getPlazaUsers(),
+      getPlazaUserCount(),
+      getPlazaProjects(),
+      getPlazaProjectCount(),
+      getTickerData(),
+    ])
 
   const plazaUsersWithCounts = plazaUsers.map(u => ({
     ...u,
@@ -189,13 +67,10 @@ export default async function PlazaPage() {
 
   return (
     <PlazaClient
-      initialPosts={postsWithCount as any}
-      initialTotal={total}
       initialPlazaUsers={plazaUsersWithCounts}
       initialPlazaUserTotal={plazaUserTotal}
       initialProjects={initialProjects}
       initialProjectTotal={initialProjectTotal}
-      onboardingData={onboardingData}
       tickerEvents={topEvents}
     />
   )

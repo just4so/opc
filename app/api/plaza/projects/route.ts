@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         orderBy = [{ updatedAt: 'desc' }]
         break
       default:
-        orderBy = [{ owner: { verified: 'desc' } }, { createdAt: 'desc' }]
+        orderBy = [{ createdAt: 'desc' as const }]
     }
 
     const [projects, total] = await Promise.all([

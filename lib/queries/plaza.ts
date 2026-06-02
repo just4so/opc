@@ -1,6 +1,59 @@
 import { unstable_cache } from 'next/cache'
 import prisma from '@/lib/db'
 
+// 广场产品列表 — 60 秒缓存，取 20 条（默认 tab 首屏数据）
+export const getPlazaProjects = unstable_cache(
+  async () => {
+    return prisma.project.findMany({
+      where: {
+        status: 'PUBLISHED',
+        description: { not: '' },
+        owner: { showInPlaza: true },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      take: 20,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        images: true,
+        stage: true,
+        website: true,
+        contentType: true,
+        commentCount: true,
+        likeCount: true,
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            avatar: true,
+            bio: true,
+            location: true,
+            verified: true,
+          },
+        },
+      },
+    })
+  },
+  ['plaza-projects'],
+  { revalidate: 60 }
+)
+
+export const getPlazaProjectCount = unstable_cache(
+  async () => {
+    return prisma.project.count({
+      where: {
+        status: 'PUBLISHED',
+        owner: { showInPlaza: true },
+      },
+    })
+  },
+  ['plaza-project-count'],
+  { revalidate: 60 }
+)
+
 // 创业者列表 — 60 秒缓存，取 20 条
 export const getPlazaUsers = unstable_cache(
   async () => {

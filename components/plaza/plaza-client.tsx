@@ -110,17 +110,10 @@ interface Pagination {
 }
 
 export interface PlazaClientProps {
-  initialPosts: Post[]
-  initialTotal: number
   initialPlazaUsers: PlazaUser[]
   initialPlazaUserTotal: number
   initialProjects: PlazaProject[]
   initialProjectTotal: number
-  onboardingData?: {
-    userId: string
-    mainTrack: string | null
-    location: string | null
-  } | null
   tickerEvents?: { text: string; time: string; link: string }[]
 }
 
@@ -151,13 +144,10 @@ const TYPE_TABS = [
 type MainTab = 'people' | 'products' | 'posts'
 
 export function PlazaClient({
-  initialPosts,
-  initialTotal,
   initialPlazaUsers,
   initialPlazaUserTotal,
   initialProjects,
   initialProjectTotal,
-  onboardingData,
   tickerEvents,
 }: PlazaClientProps) {
   const { data: session } = useSession()
@@ -191,10 +181,10 @@ export function PlazaClient({
     sessionStorage.setItem('plaza-banner-dismissed', '1')
   }
 
-  // Posts state
-  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  // Posts state — 客户端按需加载，初始为空
+  const [posts, setPosts] = useState<Post[]>([])
   const [postPagination, setPostPagination] = useState<Pagination>({
-    page: 1, limit: 20, total: initialTotal, totalPages: Math.ceil(initialTotal / 20),
+    page: 1, limit: 20, total: 0, totalPages: 0,
   })
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card')
@@ -203,8 +193,26 @@ export function PlazaClient({
   const [peopleSort, setPeopleSort] = useState(searchParams.get('sort') || 'latest')
   const [type, setType] = useState('')
   const [postPage, setPostPage] = useState(1)
-  const [isInitialPost, setIsInitialPost] = useState(true)
+  const [postsFetched, setPostsFetched] = useState(false)
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({})
+
+  // Onboarding — 客户端异步判断，已完成 onboarding 的用户不感知
+  const [onboardingData, setOnboardingData] = useState<{
+    userId: string
+    mainTrack: string | null
+    location: string | null
+  } | null>(null)
+  useEffect(() => {
+    if (!session?.user) return
+    fetch('/api/user/onboarding-status')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.completed) {
+          setOnboardingData({ userId: data.userId, mainTrack: data.mainTrack, location: data.location })
+        }
+      })
+      .catch(() => {})
+  }, [session?.user])
 
   // Follow status for people tab
   const [followStatusMap, setFollowStatusMap] = useState<Record<string, boolean>>({})
@@ -365,9 +373,9 @@ export function PlazaClient({
     fetchProjects(p)
   }
 
-  // Posts fetch
+  // Posts fetch — 切到 posts tab 时才加载，过滤/翻页时重新拉取
   useEffect(() => {
-    if (isInitialPost) { setIsInitialPost(false); return }
+    if (mainTab !== 'posts') return
 
     setLoading(true)
     const params = new URLSearchParams()
@@ -381,10 +389,11 @@ export function PlazaClient({
       .then(data => {
         setPosts(data.data || [])
         setPostPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
+        setPostsFetched(true)
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [type, postPage, sort])
+  }, [mainTab, type, postPage, sort])
 
   useEffect(() => {
     if (!session?.user || posts.length === 0) return
@@ -496,7 +505,7 @@ export function PlazaClient({
             >
               <MessageCircle className="h-4 w-4" />
               动态
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{postPagination.total > 0 ? postPagination.total : ''}</span>
             </button>
             <div className="ml-auto">
               <select
