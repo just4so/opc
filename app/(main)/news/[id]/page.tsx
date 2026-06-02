@@ -71,6 +71,16 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   const publishedAt = new Date(news.publishedAt)
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'OPC圈', item: 'https://www.opcquan.com' },
+      { '@type': 'ListItem', position: 2, name: '行业资讯', item: 'https://www.opcquan.com/news' },
+      { '@type': 'ListItem', position: 3, name: news.title, item: `https://www.opcquan.com/news/${news.id}` },
+    ],
+  }
+
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -92,6 +102,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <Script
+        id="breadcrumb-jsonld"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Script
         id="article-jsonld"
         type="application/ld+json"
