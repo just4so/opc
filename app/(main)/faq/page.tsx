@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Script from 'next/script'
 import Link from 'next/link'
 
 export const revalidate = 86400
@@ -81,8 +82,29 @@ const faqs = [
 ]
 
 export default function FaqPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.flatMap((section) =>
+      section.items.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      }))
+    ),
+  }
+
   return (
     <div className="min-h-screen bg-surface-soft">
+      <Script
+        id="faq-jsonld"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="bg-canvas border-b">
         <div className="container mx-auto px-4 py-10 max-w-3xl">
           <div className="flex items-center gap-2 text-sm text-mute mb-4">

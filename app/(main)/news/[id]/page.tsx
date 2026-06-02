@@ -2,6 +2,7 @@ export const revalidate = 3600 // 资讯详情 1 小时 ISR（内容变化极低
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Script from 'next/script'
 import { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
 import prisma from '@/lib/db'
@@ -70,8 +71,33 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   const publishedAt = new Date(news.publishedAt)
 
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: news.title,
+    description: (news.summary || news.content || '').slice(0, 160),
+    datePublished: new Date(news.publishedAt).toISOString(),
+    dateModified: new Date(news.publishedAt).toISOString(),
+    author: {
+      '@type': 'Organization',
+      name: 'OPC圈',
+      url: 'https://www.opcquan.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'OPC圈',
+      url: 'https://www.opcquan.com',
+    },
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <Script
+        id="article-jsonld"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* Back link */}
       <Link
         href="/news"
