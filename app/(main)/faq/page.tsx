@@ -82,6 +82,15 @@ const faqs = [
 ]
 
 export default function FaqPage() {
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'OPC圈', item: 'https://www.opcquan.com' },
+      { '@type': 'ListItem', position: 2, name: '常见问题', item: 'https://www.opcquan.com/faq' },
+    ],
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -99,6 +108,12 @@ export default function FaqPage() {
 
   return (
     <div className="min-h-screen bg-surface-soft">
+      <Script
+        id="breadcrumb-jsonld"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Script
         id="faq-jsonld"
         type="application/ld+json"

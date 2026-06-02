@@ -186,6 +186,21 @@ export default async function CommunityDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <Script
+        id={`ld-breadcrumb-${community.id}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'OPC圈', item: 'https://www.opcquan.com' },
+              { '@type': 'ListItem', position: 2, name: '社区列表', item: 'https://www.opcquan.com/communities' },
+              { '@type': 'ListItem', position: 3, name: community.name, item: `https://www.opcquan.com/communities/${community.slug}` },
+            ],
+          }),
+        }}
+      />
+      <Script
         id={`ld-community-${community.id}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{
