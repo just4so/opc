@@ -96,3 +96,23 @@ https://.../next/static/css/xxx.css
 1. 腾讯云确认修复了 `opennextjs-pages` 插件的**多层路径路由匹配**问题（不只是 encode 问题）
 2. 用 `test/remove-assetprefix` 分支重新预览部署，验证所有静态资源返回 200
 3. 两个条件都满足后，按「回退方法」操作
+
+---
+
+## 最终结论（2026-06-03 晚）
+
+> 状态：**已完全修复**，assetPrefix + R2 workaround 已移除，commit: `456eeaf`
+
+**根本原因（两层叠加）：**
+
+1. **平台 Bug（opennextjs-pages 路由正则）**：EdgeOne 插件对多层 chunk 路径匹配失败，导致 5/30 缓存失效后 404。腾讯云工程师已在平台侧修复。
+
+2. **Workaround 干扰**：`edgeone.json` 里加的 `rewrites` 规则（`/_next/static/*` → R2）虽然从未真正生效（一直报 char match error），但干扰了 EdgeOne 路由处理层，导致测试时出现 545 错误（连 webpack.js 都拿不到）。
+
+**修复动作：**
+- 去掉 `edgeone.json` 中的 `rewrites`（6/3 上午，main + test 分支同步）
+- 去掉 `next.config.js` 中的 `assetPrefix`
+- 去掉 `package.json` build 中的 R2 上传步骤
+- `scripts/upload-static-to-r2.mjs` 保留备用，不删除
+
+**验证：** 预览部署 `dpg3ojxfpexe` 测试通过，`/communities/[slug]` 详情页加载正常，控制台零错误。
