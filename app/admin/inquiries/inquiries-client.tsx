@@ -70,12 +70,24 @@ export function InquiriesClient() {
   const [updating, setUpdating] = useState<string | null>(null)
   const [stats, setStats] = useState<InquiryStats | null>(null)
   const [drawerInquiryId, setDrawerInquiryId] = useState<string | null>(null)
+  const [searchInput, setSearchInput] = useState('')
+  const [q, setQ] = useState('')
+
+  // 防抖：输入停止 400ms 后触发搜索，同时重置到第 1 页
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQ(searchInput.trim())
+      setPage(1)
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   const fetchInquiries = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ page: String(page) })
       if (tab !== 'ALL') params.set('status', tab)
+      if (q) params.set('q', q)
 
       const res = await fetch(`/api/admin/inquiries?${params}`)
       const data = await res.json()
@@ -86,7 +98,7 @@ export function InquiriesClient() {
     } finally {
       setLoading(false)
     }
-  }, [page, tab])
+  }, [page, tab, q])
 
   useEffect(() => {
     fetchInquiries()
@@ -177,6 +189,16 @@ export function InquiriesClient() {
           </div>
         </div>
       )}
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="搜索姓名 / 手机号 / 意向社区..."
+          className="w-full sm:w-80 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+        />
+      </div>
       {/* Tabs + Export */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-1 border-b">

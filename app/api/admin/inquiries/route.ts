@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const city = searchParams.get('city')
     const communityId = searchParams.get('communityId')
+    const q = searchParams.get('q')?.trim()
 
     const where: Record<string, unknown> = {}
 
@@ -28,6 +29,14 @@ export async function GET(request: NextRequest) {
     }
     if (communityId) {
       where.communityId = communityId
+    }
+    if (q) {
+      where.OR = [
+        { contact: { contains: q } },
+        { name: { contains: q } },
+        { communityName: { contains: q } },
+        { community: { name: { contains: q } } },
+      ]
     }
 
     const [inquiries, total] = await Promise.all([
