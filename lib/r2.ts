@@ -23,7 +23,8 @@ export async function getPresignedUploadUrl(key: string, contentType: string, ma
     Bucket: process.env.R2_BUCKET_NAME!,
     Key: key,
     ContentType: contentType,
-    ...(maxSizeBytes ? { ContentLength: maxSizeBytes } : {}),
+    // ContentLength intentionally omitted: presigned URL should not lock in a specific size,
+    // as the browser sends the actual file size which differs from the max allowed size.
   })
   const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 600 })
   const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`

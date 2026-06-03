@@ -1,10 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/_next/static/*",
-      "destination": "https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/_next/static/:splat"
-    }
-  ],
   "cloudFunctions": {
     "nodejs": {
       "maxDuration": 60
