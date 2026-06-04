@@ -162,6 +162,11 @@ export async function judgeItem(
 
     const r = JSON.parse(jm[0]) as AIResult
 
+    // 净化 summary：如果 AI 把"无法获取"解释写进了 summary，改用标题改写兜底
+    if (r.summary && /无法|需启用|JavaScript|无法加载|无法提取|无法获取|无法访问|加载失败|内容为空|返回null/.test(r.summary)) {
+      r.summary = input.title ? input.title.slice(0, 60) : null
+    }
+
     // 应用 importance bonus（RSS guaranteed 源）
     if (r.relevant && r.importance !== undefined && input.baseImportanceBonus) {
       r.importance = Math.max(1, Math.min(5, r.importance + input.baseImportanceBonus))
@@ -285,6 +290,10 @@ export async function judgeItemsBatch(
         }
         for (let i = 0; i < batch.length; i++) {
           const r = arr[i]
+          // 净化 summary：如果 AI 把"无法获取"解释写进了 summary，改用标题改写兜底
+          if (r.summary && /无法|需启用|JavaScript|无法加载|无法提取|无法获取|无法访问|加载失败|内容为空|返回null/.test(r.summary)) {
+            r.summary = batch[i].title ? batch[i].title.slice(0, 60) : null
+          }
           // 应用 importance bonus
           if (r.relevant && r.importance !== undefined && batch[i].baseImportanceBonus) {
             r.importance = Math.max(1, Math.min(5, r.importance + batch[i].baseImportanceBonus!))
