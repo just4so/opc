@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { formatIssueShortLabel } from '@/lib/radar/serializeIssue'
 
 type IssueEntry = {
   issueNo: number
@@ -61,7 +62,7 @@ export function RadarSidebar({
           className="flex items-center gap-2 px-3 py-2 rounded bg-[#F97316] hover:bg-[#EA6C0A] transition-colors"
         >
           <span className="text-white text-xs font-bold tracking-wide">最新一期</span>
-          <span className="text-orange-100 text-xs font-mono ml-auto">#{latestIssueNo}</span>
+          <span className="text-orange-100 text-xs font-mono ml-auto">{formatIssueShortLabel(latestIssueNo, issues[0]?.title)}</span>
         </Link>
       </div>
 
@@ -96,8 +97,8 @@ export function RadarSidebar({
                     title={issue.title || `第 ${issue.issueNo} 期`}
                   >
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#F97316] opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                    <span className="text-[11px] font-mono text-[#F97316] w-8 shrink-0">
-                      #{issue.issueNo}
+                    <span className="text-[11px] font-mono text-[#F97316] w-10 shrink-0">
+                      {formatIssueShortLabel(issue.issueNo, issue.title)}
                     </span>
                     <span className="text-[11px] text-[#57534E] group-hover/item:text-[#A8A29E] transition-colors font-mono shrink-0">
                       {mm}/{dd}

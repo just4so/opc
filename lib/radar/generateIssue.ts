@@ -217,19 +217,20 @@ async function enrichSummaries(
           .trim()
           .slice(0, 2000)
 
-        if (text.length < 100) { console.log(`  [enrich] ${item.title.slice(0, 30)}... 正文太短(${text.length}字), 跳过`); continue }
+        // AI 重写摘要（正文太短时用标题兜底，不跳过）
+        const textForPrompt = text.length >= 100 ? text : '（正文无法获取，请基于标题改写摘要）'
+        if (text.length < 100) { console.log(`  [enrich] ${item.title.slice(0, 30)}... 正文太短(${text.length}字), 改用标题兜底`) }
 
-        // AI 重写摘要
-        const prompt = `你是 OPC 雷达编辑，基于以下文章正文，写一句摘要（40-80字）。
+        const prompt = `你是 OPC 雷达编辑，基于以下文章正文，写一句摘要（30-80字）。
 
 要求：
 - 提炼最具体的 1-2 个事实（金额/城市/人物/数字/措施名）
 - 禁止写「旨在推动」「提供支持」「有重要意义」等空话
-- 无具体信息时返回 null
+- 原文无具体信息时，用一句话改写标题核心内容作为摘要，不要返回 null
 - 只返回摘要文本，不加引号、不加前缀
 
 标题：${item.title}
-正文：${text}`
+正文：${textForPrompt}`
 
         const comp = await Promise.race([
           client!.chat.completions.create({
@@ -412,11 +413,17 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   const maxIssue = await prisma.radarIssue.findFirst({ orderBy: { issueNo: 'desc' }, select: { issueNo: true } })
   const nextIssueNo = (maxIssue?.issueNo ?? 0) + 1
   const now = new Date()
+  // 当月内计数（显示用，不影响 URL）
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1) + 8 * 3600000)
+  monthStart.setUTCHours(0, 0, 0, 0)
+  const monthStartUTC = new Date(monthStart.getTime() - 8 * 3600000)
+  const monthlyCount = await prisma.radarIssue.count({ where: { createdAt: { gte: monthStartUTC } } })
+  const monthlyNo = monthlyCount + 1
   const windowStart = selected.reduce(
     (min: Date, item: any) => (item.collectedAt < min ? item.collectedAt : min),
     selected[0].collectedAt
   )
-  const issueTitle = `OPC 雷达 ${now.getMonth() + 1}月第${nextIssueNo}期`
+  const issueTitle = `OPC 雷达 ${now.getMonth() + 1}月第${monthlyNo}期`
 
   // 生成总摘要
   let issueSummary: string | null = null

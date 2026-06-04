@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { IssueView } from '@/components/radar/IssueView'
-import { serializeIssue } from '@/lib/radar/serializeIssue'
+import { serializeIssue, formatIssueLabel } from '@/lib/radar/serializeIssue'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -47,7 +47,7 @@ export default async function IssueDetailPage({
 
   const adjacent = await prisma.radarIssue.findMany({
     where: { issueNo: { in: [no - 1, no + 1] } },
-    select: { issueNo: true },
+    select: { issueNo: true, title: true },
   })
 
   const prev = adjacent.find(i => i.issueNo === no - 1)
@@ -62,13 +62,13 @@ export default async function IssueDetailPage({
       <div className="mt-12 pt-6 border-t border-[#E7E5E4] flex justify-between text-sm">
         {prev ? (
           <Link href={`/radar/${prev.issueNo}`} className="text-[#78716C] hover:text-[#F97316] hover:underline">
-            ← 第 {prev.issueNo} 期
+            ← {formatIssueLabel(prev.issueNo, prev.title)}
           </Link>
         ) : <span />}
         <Link href="/radar" className="text-[#78716C] hover:text-[#F97316]">最新一期</Link>
         {next ? (
           <Link href={`/radar/${next.issueNo}`} className="text-[#78716C] hover:text-[#F97316] hover:underline">
-            第 {next.issueNo} 期 →
+            {formatIssueLabel(next.issueNo, next.title)} →
           </Link>
         ) : <span />}
       </div>

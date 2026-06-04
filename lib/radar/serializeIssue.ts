@@ -82,3 +82,29 @@ export function serializeIssue(issue: RawIssue): SerializedIssue {
     grouped,
   }
 }
+
+/**
+ * 格式化期号显示标签（月内计数，从1开始）
+ * issueTitle 格式为 "OPC 雷达 6月第N期"，直接从 title 提取月内序号
+ * fallback 到全局 issueNo
+ */
+export function formatIssueLabel(issueNo: number, title: string | null | undefined): string {
+  if (title) {
+    // 匹配 "X月第Y期" 格式，提取月和月内序号
+    const m = title.match(/(\d+)月第(\d+)期/)
+    if (m) return `${m[1]}月第${m[2]}期`
+  }
+  return `第 ${issueNo} 期`
+}
+
+/**
+ * 格式化期号短标签，用于 sidebar 的 #N 显示
+ * 返回如 "6月-1"、"5月-21" 这样的短格式
+ */
+export function formatIssueShortLabel(issueNo: number, title: string | null | undefined): string {
+  if (title) {
+    const m = title.match(/(\d+)月第(\d+)期/)
+    if (m) return `${m[1]}月·${m[2]}`
+  }
+  return `#${issueNo}`
+}

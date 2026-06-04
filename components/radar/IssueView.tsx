@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { ShareIcon } from './ShareIcon'
+import { formatIssueShortLabel } from '@/lib/radar/serializeIssue'
 
 const CATEGORY_LABELS: Record<string, { zh: string; en: string }> = {
   policy:    { zh: "政策动向", en: "POLICY TRENDS" },
@@ -68,7 +69,7 @@ export function IssueView({ issue }: { issue: RadarIssue }) {
       <div className="relative mb-0 pt-10 pb-8 px-6 md:px-10 border-b-2 border-[#1C1917] flex flex-col items-center text-center">
         {/* 背景装饰数字 */}
         <div className="absolute right-8 top-4 text-[120px] font-black text-[#F5F0EB] leading-none select-none pointer-events-none">
-          #{issue.issueNo}
+          {formatIssueShortLabel(issue.issueNo, issue.title)}
         </div>
 
         {/* 顶部： wordmark logo */}
