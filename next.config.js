@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  compress: true, // 开启 gzip/brotli 压缩
   async headers() {
     return [
       {
