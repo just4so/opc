@@ -1,5 +1,87 @@
 # 开发日志
 
+## 2026-06-07
+
+### CDN 缓存策略修复
+
+**问题：** EdgeOne 对 HTML 页面默认缓存 5-10 分钟（`Eo-Cdn-Cache-Control: s-maxage=600`），导致部署后旧 HTML 引用旧 chunk hash，新部署的 chunk 版本错位，出现 `Failed to fetch RSC payload` / `Cannot read properties of undefined (reading 'call')` 报错。
+
+**修复（`next.config.js`，commit `d2b54eb`）：**
+- `/_next/static/*`：`Cache-Control: immutable` + `CDN-Cache-Control: immutable`（永久缓存，hash 变化即新文件）
+- 所有 HTML 页面：`CDN-Cache-Control: no-store`，禁止 EdgeOne 缓存 HTML
+- 安全 headers 从 `/(.*)`（覆盖 static）移到 `/((?!_next/static).*)`
+
+---
+
+### 评论系统：通知 + 回复 UX（commit `6529e07`）
+
+**通知逻辑（`app/api/projects/[slug]/comments/route.ts`）：**
+- 有人评论产品 → 通知产品 owner（`type: 'comment'`），跳过自评
+- 有人回复评论 → 通知被回复评论的 author（`type: 'reply'`），跳过自回
+- 通知写入用 try/catch 包裹，失败不影响评论创建
+- project 查询补充 `name` 和 `ownerId` 字段，parent comment 查询提升到函数作用域
+
+**回复 UX（`components/projects/project-comment-section.tsx`）：**
+- `replyTo` state 从 `string | null` 改为 `{ commentId: string; atName?: string } | null`
+- 新增 `openReply(commentId, atName?)` 函数统一处理打开/关闭逻辑
+- 每条 reply 新增回复按钮，点击预填 `@用户名 `，inputRef auto-focus
+- parentId 始终指向顶层评论（flat 结构，不支持无限嵌套）
+
+---
+
+## 2026-06-06
+
+### 数据库迁移：Supabase → Neon PostgreSQL
+
+**背景：** Supabase 免费额度欠费停服，迁移到 Neon PostgreSQL 免费版。
+
+**迁移步骤：**
+1. `pg_dump` 导出 Supabase 数据 → `/Users/wei/Documents/opc/tmp/opc_backup.dump`
+2. Neon 控制台新建项目，region `ap-southeast-1`（与原 Supabase 同区）
+3. `pg_restore` 导入数据，验证完整性
+4. 更新 `.env` 和 `.env.local` 的 `DATABASE_URL`
+
+**踩坑：**
+- Neon 连接串默认带 `?channel_binding=require`，EdgeOne Functions 不支持该参数，必须去掉
+- 项目同时存在 `.env` 和 `.env.local`，两个文件都要更新，漏一个就连不上
+- Neon 冷启动实测 300-800ms（免费版 suspend 后），远好于之前担忧的 3-8s
+
+**结果：** 数据完整迁移，生产环境正常运行。
+
+---
+
+## 2026-06-07（社区粘性升级，commit 见 feature/community-upgrade 分支）
+
+### Follow 模型 + 动态流 + 社交功能
+
+**新增功能：**
+- Follow 关系模型（User ↔ User，`following` / `followers`）
+- 动态流 `/feed`：展示所关注用户的最新动态（帖子/产品进展）
+- 社区/用户主页「关注」按钮，实时状态切换
+- 趋势侧边栏：热门标签 + 活跃创业者
+- 私信通道：`/conversations`，支持发起对话和消息列表
+
+**Task 1-6 全部通过验收。**
+
+---
+
+## 2026-05-31
+
+### EdgeOne 静态资源路由 bug 修复（R2 assetPrefix 方案）
+
+**根因：** opennextjs-pages 路由正则只匹配一级 `/_next/static/chunks/`，App Router 生成的多级路径（如 `chunks/app/(main)/communities/[slug]/page-xxx.js`）在 CDN cache miss 时 404。
+
+**修复方案：** `assetPrefix` 指向 Cloudflare R2 CDN，构建后自动上传 `.next/static/` 到 R2，浏览器直接从 R2 拉静态资源，绕过 EdgeOne 路由。
+
+**关键文件：**
+- `next.config.js`：新增 `assetPrefix`
+- `scripts/upload-static-to-r2.mjs`：新增，post-build 自动上传
+- `package.json`：build 脚本加入上传步骤
+
+**后续（2026-06-03）：** EdgeOne 平台侧修复了路由 bug，`assetPrefix` 方案已撤销（commit `456eeaf`），恢复正常部署流程。R2 上传脚本保留备用。
+
+---
+
 ## 2026-03-07
 
 ### 创业广场冷启动数据
