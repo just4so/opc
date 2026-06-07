@@ -32,11 +32,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: '**.r2.dev',
       },
       {
         protocol: 'https',
-        hostname: '**.r2.dev',
+        hostname: 'pub-413b408ff02649388d393e4ff152b22e.r2.dev',
       },
     ],
   },
