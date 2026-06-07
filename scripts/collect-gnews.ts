@@ -118,10 +118,10 @@ const MAX_DECODE = 20
 async function quickFilter(
   ai: ReturnType<typeof getAIClient>,
   items: RawItem[]
-): Promise<RawItem[]> {
-  if (!ai || items.length === 0) return items.slice(0, MAX_DECODE)
+): Promise<Array<{ item: RawItem; score: number }>> {
+  if (!ai || items.length === 0) return items.map(item => ({ item, score: 1 }))
 
-  // 给每条打分（0-3），取 TOP MAX_DECODE 条
+  // 给每条打分（0-3），不在此截断，截断移到 B2 去重之后
   const BATCH = 10
   const scores: number[] = new Array(items.length).fill(1)  // 默认分1（不确定，保留）
 
@@ -167,14 +167,12 @@ ${lines}
     }
   }
 
-  // 按分数降序排列，过滤掉 score=0 的，取 TOP MAX_DECODE
+  // 按分数降序排列，过滤掉 score=0 的，返回全部（不截断，截断在 B2 去重后）
   const indexed = items.map((it, idx) => ({ item: it, score: scores[idx] }))
   const filtered = indexed.filter(x => x.score > 0).sort((a, b) => b.score - a.score)
-  const kept = filtered.slice(0, MAX_DECODE).map(x => x.item)
   const dropped0 = indexed.filter(x => x.score === 0).length
-  const droppedLimit = Math.max(0, filtered.length - MAX_DECODE)
-  console.log(`  → 标题初筛：${items.length} 条 → 过滤无关 ${dropped0} 条，超上限丢弃 ${droppedLimit} 条 → 待解码 ${kept.length} 条`)
-  return kept
+  console.log(`  → 标题初筛：${items.length} 条 → 过滤无关 ${dropped0} 条 → 剩余 ${filtered.length} 条带分数待去重`)
+  return filtered
 }
 
 // ─── 主流程 ────────────────────────────────────────────────────────────────
@@ -220,11 +218,23 @@ async function main() {
   // ── Phase B: 标题 AI 初筛（只筛中间链接，直接 URL 全部保留）──
   const proxyFiltered = await quickFilter(ai, googleProxyItems)
 
-  // ── Phase C: 只对初筛通过的条目解码 URL ──
+  // ── Phase B2: 标题去重（对比 DB，过滤已存在条目），去重后取 TOP MAX_DECODE 去解码 ──
+  const proxyDeduped: RawItem[] = []
+  let preDeduped = 0
+  for (const { item, score: _score } of proxyFiltered) {
+    const exists = await prisma.radarItem.findFirst({ where: { title: item.title }, select: { id: true } })
+    if (exists) { preDeduped++; continue }
+    proxyDeduped.push(item)
+  }
+  const droppedLimit = Math.max(0, proxyDeduped.length - MAX_DECODE)
+  const proxyCandidates = proxyDeduped.slice(0, MAX_DECODE)
+  console.log(`  → 标题预去重：过滤 ${preDeduped} 条 DB 已有，新内容 ${proxyDeduped.length} 条${droppedLimit > 0 ? `，取 TOP ${MAX_DECODE} 丢弃余下 ${droppedLimit} 条` : ''}，待解码 ${proxyCandidates.length} 条`)
+
+  // ── Phase C: 只对初筛通过且 DB 无重复的 TOP MAX_DECODE 条解码 URL ──
   let decodedCount = 0, decodeFailCount = 0
-  if (proxyFiltered.length > 0) {
-    console.log(`  → 解码 ${proxyFiltered.length} 条 URL（5并发）...`)
-    const proxyUrls = proxyFiltered.map(it => it.url)
+  if (proxyCandidates.length > 0) {
+    console.log(`  → 解码 ${proxyCandidates.length} 条 URL（5并发）...`)
+    const proxyUrls = proxyCandidates.map(it => it.url)
     try {
       const decodeScript = path.join(__dirname, 'decode-gnews-urls.py')
       const tmpInput = path.join(__dirname, '..', 'tmp', '_gnews_decode_input.json')
@@ -235,7 +245,7 @@ async function main() {
         { cwd: __dirname, encoding: 'utf-8', timeout: 300000 }
       )
       const urlMap: Record<string, string | null> = JSON.parse(result.trim())
-      for (const item of proxyFiltered) {
+      for (const item of proxyCandidates) {
         const realUrl = urlMap[item.url]
         if (realUrl) {
           item.url = realUrl
@@ -246,7 +256,7 @@ async function main() {
       }
     } catch (e: any) {
       console.log(`  ⚠️ 解码脚本异常: ${e.message?.split('\n')[0]}`)
-      decodeFailCount += proxyFiltered.length
+      decodeFailCount += proxyCandidates.length
     }
     console.log(`  → 解码完成：${decodedCount} 成功，${decodeFailCount} 失败（失败条目丢弃，不存死链）`)
   }
@@ -255,7 +265,7 @@ async function main() {
   // 最后再过滤一次，确保没有任何中间链接漏入数据库
   const filteredItems = [
     ...directItems,
-    ...proxyFiltered.filter(it => !isGoogleNewsProxy(it.url)),
+    ...proxyCandidates.filter(it => !isGoogleNewsProxy(it.url)),
   ]
 
   // ── Phase D: 去重 + AI 精判 + 入库 ──

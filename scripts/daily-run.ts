@@ -146,50 +146,9 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
     return { collected, skipped }
   }
 
-  // Step 0: 对 content 过长（>200字）的条目抓正文——RSS description 可能是原文截取，
-  // AI 用截取片段生成的摘要质量差（如「中经记者 杭州报道...」），基于完整正文提炼才靠谱
-  const CONTENT_TOO_LONG = 200
-  const needFetch = candidates.filter(item => item.content.length > CONTENT_TOO_LONG)
-  if (needFetch.length > 0) {
-    log(`${needFetch.length} 条 content 超 ${CONTENT_TOO_LONG} 字（疑似原文截取），尝试抓正文替换...`)
-    const FETCH_CONCURRENCY = 5
-    let fi = 0
-    async function fetchWorker() {
-      while (fi < needFetch.length) {
-        const item = needFetch[fi++]
-        try {
-          const ctrl = new AbortController()
-          const timer = setTimeout(() => ctrl.abort(), 8000)
-          const res = await fetch(item.url, {
-            signal: ctrl.signal,
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OPCRadarBot/1.0)' },
-            redirect: 'follow',
-          })
-          clearTimeout(timer)
-          if (!res.ok) continue
-          const html = await res.text()
-          const text = html
-            .replace(/<script[\s\S]*?<\/script>/gi, '')
-            .replace(/<style[\s\S]*?<\/style>/gi, '')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/&[a-zA-Z]+;/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .slice(0, 2000)
-          // 反爬拦截检测
-          const ANTI_CRAWL_SIGNALS = ['访问频率太高', '请稍候再试', '创宇盾', '安全拦截', 'rate limit', 'access denied', '您的访问受限', '人机验证']
-          const isBlocked = ANTI_CRAWL_SIGNALS.some(sig => text.toLowerCase().includes(sig.toLowerCase()))
-          if (isBlocked) {
-            log(`  ⚠️ 反爬拦截，跳过: ${item.url.slice(0, 60)}`)
-            item.content = ''  // 标记为空，后续过滤
-          } else if (text.length > 200) {
-            item.content = text  // 用完整正文替换 RSS description 截取
-          }
-        } catch { /* 抓不到就用原来的 content */ }
-      }
-    }
-    await Promise.all(Array.from({ length: Math.min(FETCH_CONCURRENCY, needFetch.length) }, fetchWorker))
-  }
+  // Step 0: 正文抓取（已禁用）
+  // RSS content >200字 说明源头已提供足够摘要，直接用原内容喂 AI，不再抓原文
+  // 原有抓取逻辑在代理环境下会导致进程挂起（TCP 挂起，所有超时机制均无效），已移除
 
   // 批量并发 AI 判断（与 GNews 一致：2条/批，10并发）
   const aiInputs = candidates.map(item => ({
@@ -246,19 +205,25 @@ async function collectRss(): Promise<{ collected: number; skipped: number }> {
 // 不通则自动切换到可用节点，避免解码阶段全部 429。
 
 const CLASH_API = 'http://127.0.0.1:9098'
+const PROXY = process.env.HTTP_PROXY || 'http://127.0.0.1:7898'
 const PROXY_GROUP = encodeURIComponent('🔰国外流量')
 const PREFERRED_NODES = ['新加坡①一优化', '新加坡②一优化', '香港②一优化', '香港③一优化', '台湾②一优化', '加拿大①一优化']
 const TEST_URL = 'https://news.google.com/rss/search?q=test&hl=zh-CN&gl=CN&ceid=CN:zh-Hans'
 
 async function ensureProxyNode(): Promise<void> {
-  // 1. 测试当前节点
-  try {
-    const r = await fetch(TEST_URL, { signal: AbortSignal.timeout(8000) })
-    if (r.ok) { log(`代理节点正常（HTTP ${r.status}）`); return }
-    log(`代理节点返回 ${r.status}，尝试切换...`)
-  } catch {
-    log('代理节点不可达，尝试切换...')
+  // 1. 测试当前节点（用 curl -x 代理，因为 Node.js 原生 fetch 不读系统代理环境变量）
+  function testProxy(): boolean {
+    try {
+      const result = execSync(
+        `curl -s -o /dev/null -w "%{http_code}" --max-time 8 -x ${PROXY} "${TEST_URL}"`,
+        { encoding: 'utf-8', timeout: 10000 }
+      ).trim()
+      return result === '200'
+    } catch { return false }
   }
+
+  if (testProxy()) { log('代理节点正常'); return }
+  log('代理节点不可达，尝试切换...')
 
   // 2. 查可用节点列表
   try {
@@ -279,10 +244,7 @@ async function ensureProxyNode(): Promise<void> {
       })
       await new Promise(r => setTimeout(r, 2000))  // 等待切换生效
       // 验证新节点
-      try {
-        const r2 = await fetch(TEST_URL, { signal: AbortSignal.timeout(8000) })
-        if (r2.ok) { log(`切换成功，新节点 ${node} 可用`); return }
-      } catch { /* 继续试下一个 */ }
+      if (testProxy()) { log(`切换成功，新节点 ${node} 可用`); return }
     }
     log('⚠️ 所有备选节点均不可用，继续使用当前节点（采集可能受影响）')
   } catch (e: any) {

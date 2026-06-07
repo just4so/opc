@@ -7,12 +7,13 @@
  *
  * 更新时间：2026-05-25
  */
+import { execSync } from 'child_process'
 import { getAIClient, ISSUE_WINDOW_DAYS } from './aiJudge'
 
 const MAX_ITEMS_PER_ISSUE = 12
 const MAX_ITEMS_PER_CATEGORY = 4
 const MIN_IMPORTANCE = 3
-const MIN_ITEMS = 10
+const MIN_ITEMS = 8
 const MIN_CATEGORIES = 3
 const AI_MODEL = 'deepseek-v4-flash'
 const CLUSTER_MODEL = 'deepseek-chat'  // 聚类用非推理模型，避免 reasoning tokens 耗尽
@@ -196,17 +197,17 @@ async function enrichSummaries(
       const i = idx++
       const item = items[i]
       try {
-        // 抓正文（取前 2000 字）
-        const controller = new AbortController()
-        const timer = setTimeout(() => controller.abort(), 8000)
-        const res = await fetch(item.url, {
-          signal: controller.signal,
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OPCRadarBot/1.0)' },
-          redirect: 'follow',
-        })
-        clearTimeout(timer)
-        if (!res.ok) { console.log(`  [enrich] ${item.title.slice(0, 30)}... fetch ${res.status}, 跳过`); continue }
-        const html = await res.text()
+        // 抓正文（取前 2000 字）——用 curl 避免 Node.js fetch 在代理环境下 TCP 挂起
+        const PROXY = process.env.HTTP_PROXY || 'http://127.0.0.1:7898'
+        let html = ''
+        try {
+          html = execSync(
+            `curl -sL --max-time 8 -A "Mozilla/5.0 (compatible; OPCRadarBot/1.0)" -x "${PROXY}" "${item.url}"`,
+            { encoding: 'utf-8', timeout: 10000 }
+          )
+        } catch {
+          console.log(`  [enrich] ${item.title.slice(0, 30)}... fetch failed`); continue
+        }
         // 粗涂提取正文：去 HTML 标签，取前 2000 字
         const text = html
           .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -242,7 +243,11 @@ async function enrichSummaries(
           new Promise<never>((_, rej) => setTimeout(() => rej(new Error('enrich AI timeout')), 15000)),
         ])
         const newSummary = (comp as any).choices[0]?.message?.content?.trim()
-        if (newSummary && newSummary !== 'null' && newSummary.length >= 20) {
+        // 过滤 AI 兜底失败时写回的无效占位符（这类字符串长度≥20但内容无效，会干扰质量过滤）
+        const INVALID_PATTERNS = ['未提取到', '无法生成', '需查阅原文', '正文无法获取', '无具体信息']
+        const isInvalid = !newSummary || newSummary === 'null' || newSummary.length < 20
+          || INVALID_PATTERNS.some(p => newSummary.includes(p))
+        if (!isInvalid) {
           await prisma.radarItem.update({ where: { id: item.id }, data: { summary: newSummary } })
           enriched++
           console.log(`  [enrich] ✓ ${item.title.slice(0, 30)}... → ${newSummary.slice(0, 60)}`)
