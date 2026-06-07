@@ -4,8 +4,19 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Static assets with content hash: cache forever (immutable)
+        source: '/_next/static/(.*)',
         headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        // HTML pages: browsers must revalidate, CDN must not cache
+        source: '/((?!_next/static).*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
