@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
@@ -43,8 +43,9 @@ export function ProjectCommentSection({ projectSlug }: ProjectCommentSectionProp
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [replyTo, setReplyTo] = useState<{ commentId: string; atName?: string } | null>(null)
   const [replyContent, setReplyContent] = useState('')
+  const replyInputRef = useRef<HTMLInputElement>(null)
 
   const fetchComments = useCallback(async () => {
     try {
@@ -113,6 +114,17 @@ export function ProjectCommentSection({ projectSlug }: ProjectCommentSectionProp
     } catch {
       // silent
     }
+  }
+
+  const openReply = (commentId: string, atName?: string) => {
+    if (replyTo?.commentId === commentId && !atName) {
+      setReplyTo(null)
+      setReplyContent('')
+      return
+    }
+    setReplyTo({ commentId, atName })
+    setReplyContent(atName ? `@${atName} ` : '')
+    setTimeout(() => replyInputRef.current?.focus(), 0)
   }
 
   if (loading) {
@@ -192,16 +204,17 @@ export function ProjectCommentSection({ projectSlug }: ProjectCommentSectionProp
                   </div>
                   <p className="text-sm text-charcoal leading-relaxed">{comment.content}</p>
                   <button
-                    onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
+                    onClick={() => openReply(comment.id)}
                     className="text-xs text-ash hover:text-primary mt-2 transition-colors"
                   >
                     回复
                   </button>
 
                   {/* Reply form */}
-                  {replyTo === comment.id && (
+                  {replyTo?.commentId === comment.id && (
                     <div className="mt-3 flex gap-2">
                       <input
+                        ref={replyInputRef}
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="回复..."
@@ -249,6 +262,12 @@ export function ProjectCommentSection({ projectSlug }: ProjectCommentSectionProp
                               </span>
                             </div>
                             <p className="text-xs text-charcoal mt-0.5">{reply.content}</p>
+                            <button
+                              onClick={() => openReply(comment.id, reply.author.name || reply.author.username)}
+                              className="text-xs text-ash hover:text-primary mt-1 transition-colors"
+                            >
+                              回复
+                            </button>
                           </div>
                         </div>
                       ))}

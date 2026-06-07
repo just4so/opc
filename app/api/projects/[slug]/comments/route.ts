@@ -64,7 +64,7 @@ export async function POST(
   const { slug } = await params
   const project = await prisma.project.findUnique({
     where: { slug },
-    select: { id: true },
+    select: { id: true, name: true, ownerId: true },
   })
 
   if (!project) {
@@ -82,9 +82,11 @@ export async function POST(
     return NextResponse.json({ error: '评论内容过长' }, { status: 400 })
   }
 
+  let parent: { id: string; authorId: string; projectId: string | null } | null = null
   if (parentId) {
-    const parent = await prisma.comment.findUnique({
+    parent = await prisma.comment.findUnique({
       where: { id: parentId },
+      select: { id: true, authorId: true, projectId: true },
     })
     if (!parent || parent.projectId !== project.id) {
       return NextResponse.json({ error: '回复的评论不存在' }, { status: 404 })
@@ -109,6 +111,34 @@ export async function POST(
     where: { id: project.id },
     data: { commentCount: { increment: 1 } },
   })
+
+  try {
+    if (parentId && parent) {
+      if (parent.authorId !== session.user.id) {
+        await prisma.notification.create({
+          data: {
+            userId: parent.authorId,
+            type: 'reply',
+            title: '有人回复了你的评论',
+            content: comment.content.slice(0, 100),
+            relatedId: project.id,
+          },
+        })
+      }
+    } else {
+      if (project.ownerId && project.ownerId !== session.user.id) {
+        await prisma.notification.create({
+          data: {
+            userId: project.ownerId,
+            type: 'comment',
+            title: `有人评论了你的产品「${project.name}」`,
+            content: comment.content.slice(0, 100),
+            relatedId: project.id,
+          },
+        })
+      }
+    }
+  } catch {}
 
   return NextResponse.json({
     id: comment.id,
