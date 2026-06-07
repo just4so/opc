@@ -7,21 +7,42 @@ import { CommunitySubmissionTrigger } from '@/components/communities/community-s
 import prisma from '@/lib/db'
 
 const getCommunityList = unstable_cache(
-  async () => prisma.community.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-    select: {
-      id: true, slug: true, name: true, city: true, district: true,
-      address: true, latitude: true, longitude: true, description: true,
-      focusTracks: true, operator: true, totalWorkstations: true,
-      benefits: true, featured: true, coverImage: true, entryFriendly: true,
-    },
-  }),
-  ['community-list'],
-  { revalidate: 300 }
+  async () => {
+    const communities = await prisma.community.findMany({
+      where: { status: 'ACTIVE' },
+      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true, slug: true, name: true, city: true, district: true,
+        address: true, latitude: true, longitude: true,
+        focusTracks: true, operator: true, totalWorkstations: true,
+        featured: true, coverImage: true, entryFriendly: true,
+        // 截断大字段：卡片只展示前36字，benfits只展示有无
+        description: true,
+        benefits: true,
+      },
+    })
+    // 压缩 description 到卡片展示所需的最小量
+    return communities.map((c) => ({
+      ...c,
+      description: c.description
+        ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+        : '',
+      // benefits 只保留 5个 key 的 boolean（有/无），去掉详情文本
+      benefits: c.benefits
+        ? Object.fromEntries(
+            ['office', 'compute', 'business', 'funding', 'housing'].map((k) => [
+              k,
+              !!((c.benefits as any)?.[k]?.summary || (c.benefits as any)?.[k]?.items?.length),
+            ])
+          )
+        : null,
+    }))
+  },
+  ['community-list-v3'],
+  { revalidate: 3600 }
 )
 
-export const revalidate = 300 // 5分钟缓存，降低云函数触发频率
+export const revalidate = 3600 // 社区数据变化极慢，1小时缓存足够
 
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',

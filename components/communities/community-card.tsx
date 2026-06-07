@@ -45,11 +45,14 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
     }
   }
 
-  // 判断某项政策是否存在（有 summary 或 items 才算有）
+  // 判断某项政策是否存在（兼容压缩后的 boolean 格式和原始对象格式）
   function hasPolicy(key: string): boolean {
     if (!benefits) return false
     const section = benefits[key]
-    if (!section) return false
+    if (section === null || section === undefined) return false
+    // 压缩后的格式：boolean
+    if (typeof section === 'boolean') return section
+    // 原始格式：{ summary?, items? }
     return !!(section.summary || (section.items && section.items.length > 0))
   }
 

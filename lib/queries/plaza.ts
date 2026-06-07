@@ -38,7 +38,7 @@ export const getPlazaProjects = unstable_cache(
     })
   },
   ['plaza-projects'],
-  { revalidate: 60 }
+  { revalidate: 300 }
 )
 
 export const getPlazaProjectCount = unstable_cache(
@@ -51,7 +51,7 @@ export const getPlazaProjectCount = unstable_cache(
     })
   },
   ['plaza-project-count'],
-  { revalidate: 60 }
+  { revalidate: 300 }
 )
 
 // 创业者列表 — 60 秒缓存，取 20 条
@@ -103,7 +103,7 @@ export const getPlazaUsers = unstable_cache(
     return users
   },
   ['plaza-users'],
-  { revalidate: 60 }
+  { revalidate: 300 }
 )
 
 export const getPlazaUserCount = unstable_cache(
@@ -120,5 +120,5 @@ export const getPlazaUserCount = unstable_cache(
     })
   },
   ['plaza-user-count'],
-  { revalidate: 60 }
+  { revalidate: 300 }
 )

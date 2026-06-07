@@ -34,7 +34,7 @@ const getDefaultNews = unstable_cache(
     return { news, total, originals }
   },
   ['news-default'],
-  { revalidate: 300 }
+  { revalidate: 600 }
 )
 
 const getDefaultPolicies = unstable_cache(
@@ -57,10 +57,10 @@ const getDefaultPolicies = unstable_cache(
     return { policies, policyTotal, policyProvinces, policyCities }
   },
   ['news-policies'],
-  { revalidate: 300 }
+  { revalidate: 3600 }
 )
 
-export const revalidate = 300 // 5分钟缓存，资讯不需要实时
+export const revalidate = 600 // 资讯 10分钟刷新，减少 DB 压力
 
 async function NewsPageInner({
   searchParams,
