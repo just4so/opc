@@ -12,8 +12,56 @@ const nextConfig = {
         ],
       },
       {
-        // HTML pages: browsers must revalidate, CDN must not cache
-        source: '/((?!_next/static).*)',
+        // Slow SSR pages with stable data: CDN cache 1 hour
+        source: '/communities',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=600' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        // Data/FAQ pages: CDN cache 6 hours (very stable content)
+        source: '/(data|faq)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=21600, stale-while-revalidate=3600' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        // News/plaza: CDN cache 10 minutes (updates more often)
+        source: '/(news|plaza)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=600, stale-while-revalidate=120' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        // Homepage: CDN cache 5 minutes
+        source: '/',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=60' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        // All other pages: dynamic, no CDN cache (auth, profile, admin, etc.)
+        source: '/((?!_next/static|communities|data|faq|news|plaza).*)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
