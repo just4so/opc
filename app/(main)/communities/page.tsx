@@ -1,48 +1,44 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { CommunitiesPageClient } from '@/components/communities/communities-page-client'
 import { CommunitySubmissionTrigger } from '@/components/communities/community-submission-trigger'
 import prisma from '@/lib/db'
 
-const getCommunityList = unstable_cache(
-  async () => {
-    const communities = await prisma.community.findMany({
-      where: { status: 'ACTIVE' },
-      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-      select: {
-        id: true, slug: true, name: true, city: true, district: true,
-        address: true, latitude: true, longitude: true,
-        focusTracks: true, operator: true, totalWorkstations: true,
-        featured: true, coverImage: true, entryFriendly: true,
-        // 截断大字段：卡片只展示前36字，benfits只展示有无
-        description: true,
-        benefits: true,
-      },
-    })
-    // 压缩 description 到卡片展示所需的最小量
-    return communities.map((c) => ({
-      ...c,
-      description: c.description
-        ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
-        : '',
-      // benefits 只保留 5个 key 的 boolean（有/无），去掉详情文本
-      benefits: c.benefits
-        ? Object.fromEntries(
-            ['office', 'compute', 'business', 'funding', 'housing'].map((k) => [
-              k,
-              !!((c.benefits as any)?.[k]?.summary || (c.benefits as any)?.[k]?.items?.length),
-            ])
-          )
-        : null,
-    }))
-  },
-  ['community-list-v3'],
-  { revalidate: 3600 }
-)
+// 纯静态生成：build 时从 DB 拉取数据，EdgeOne 直接 serve 静态文件
+// 数据更新时 push 代码触发重新 build 即可
+export const dynamic = 'force-static'
 
-export const revalidate = 3600 // 社区数据变化极慢，1小时缓存足够
+async function getCommunityList() {
+  const communities = await prisma.community.findMany({
+    where: { status: 'ACTIVE' },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+    select: {
+      id: true, slug: true, name: true, city: true, district: true,
+      address: true, latitude: true, longitude: true,
+      focusTracks: true, operator: true, totalWorkstations: true,
+      featured: true, coverImage: true, entryFriendly: true,
+      description: true,
+      benefits: true,
+    },
+  })
+  // 压缩 description 到卡片展示所需的最小量
+  return communities.map((c) => ({
+    ...c,
+    description: c.description
+      ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+      : '',
+    // benefits 只保留 5个 key 的 boolean（有/无），去掉详情文本
+    benefits: c.benefits
+      ? Object.fromEntries(
+          ['office', 'compute', 'business', 'funding', 'housing'].map((k) => [
+            k,
+            !!((c.benefits as any)?.[k]?.summary || (c.benefits as any)?.[k]?.items?.length),
+          ])
+        )
+      : null,
+  }))
+}
 
 export const metadata: Metadata = {
   title: '全国OPC社区地图 - 一人公司入驻指南 - OPC圈',
