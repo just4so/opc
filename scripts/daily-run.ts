@@ -349,6 +349,11 @@ async function waitForDb(maxRetries = 3, delayMs = 30000): Promise<void> {
 waitForDb()
   .then(() => main())
   .catch(async (e) => {
+    // P2002 = issueNo 并发写入冲突，已由 generateIssue 内部处理，不再报错
+    if (e?.code === 'P2002') {
+      log('⚠️ issueNo 写入冲突（并发运行），已对应期存在，跳过报错')
+      return
+    }
     console.error('Fatal:', e)
     await notifyFeishu(`❌ OPC Radar 每日采集失败\n${String(e).slice(0, 200)}`)
     process.exit(1)

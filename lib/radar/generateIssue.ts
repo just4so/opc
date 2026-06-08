@@ -463,13 +463,22 @@ ${titlesForSummary}
     console.error('[generate] 生成总摘要失败:', e?.message ?? e)
   }
 
-  const issue = await prisma.radarIssue.create({
-    data: {
-      issueNo: nextIssueNo, title: issueTitle, summary: issueSummary,
-      windowStart, windowEnd: now,
-      items: { connect: selected.map((item: any) => ({ id: item.id })) },
-    },
-  })
+  let issue: any
+  try {
+    issue = await prisma.radarIssue.create({
+      data: {
+        issueNo: nextIssueNo, title: issueTitle, summary: issueSummary,
+        windowStart, windowEnd: now,
+        items: { connect: selected.map((item: any) => ({ id: item.id })) },
+      },
+    })
+  } catch (e: any) {
+    if (e?.code === 'P2002') {
+      console.log(`[generate] issueNo=${nextIssueNo} 已存在（并发写入冲突），跳过`)
+      return null
+    }
+    throw e
+  }
 
   const catStats = Object.entries(
     selected.reduce((acc: any, i: any) => { acc[i.category] = (acc[i.category] ?? 0) + 1; return acc }, {})
