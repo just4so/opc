@@ -61,7 +61,7 @@ const nextConfig = {
       },
       {
         // All other pages: dynamic, no CDN cache (auth, profile, admin, etc.)
-        source: '/((?!_next/static|communities|data|faq|news|plaza).*)',
+        source: '/((?!_next/static|communities|data|faq|news|plaza).+)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
