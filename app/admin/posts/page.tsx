@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Search, Eye, EyeOff, Trash2, Pin, Star } from 'lucide-react'
+import { Search, Eye, EyeOff, Trash2, Pin, Star, RotateCcw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 interface Post {
   id: string
   content: string
+  title: string | null
   type: string
   status: string
   pinned: boolean
@@ -18,6 +19,14 @@ interface Post {
   likeCount: number
   commentCount: number
   createdAt: string
+  // COLLAB fields
+  budgetType: string | null
+  budgetMin: string | null
+  budgetMax: string | null
+  contactType: string | null
+  contactInfo: string | null
+  deadline: string | null
+  skills: string[]
   author: {
     id: string
     username: string
@@ -31,6 +40,23 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   HIDDEN: { label: '已隐藏', color: 'bg-yellow-100 text-yellow-800' },
   DELETED: { label: '已删除', color: 'bg-red-100 text-red-800' },
 }
+
+const TYPE_LABELS: Record<string, { label: string; color: string }> = {
+  CHAT: { label: '聊聊', color: 'bg-gray-100 text-gray-700' },
+  HELP: { label: '求助', color: 'bg-orange-100 text-orange-700' },
+  SHARE: { label: '分享', color: 'bg-green-100 text-green-700' },
+  COLLAB: { label: '找人', color: 'bg-blue-100 text-blue-700' },
+  PROGRESS: { label: '进展', color: 'bg-purple-100 text-purple-700' },
+}
+
+const TYPE_OPTIONS = [
+  { value: '', label: '全部类型' },
+  { value: 'CHAT', label: '聊聊' },
+  { value: 'HELP', label: '求助' },
+  { value: 'SHARE', label: '分享' },
+  { value: 'COLLAB', label: '找人' },
+  { value: 'PROGRESS', label: '创业进展' },
+]
 
 const TOPICS = [
   { value: '', label: '全部话题' },
@@ -51,6 +77,7 @@ export default function AdminPostsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [topicFilter, setTopicFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -62,6 +89,7 @@ export default function AdminPostsPage() {
       if (search) params.set('search', search)
       if (statusFilter) params.set('status', statusFilter)
       if (topicFilter) params.set('topic', topicFilter)
+      if (typeFilter) params.set('type', typeFilter)
 
       const res = await fetch(`/api/admin/posts?${params}`)
       if (res.ok) {
@@ -78,7 +106,7 @@ export default function AdminPostsPage() {
 
   useEffect(() => {
     fetchPosts()
-  }, [page, statusFilter, topicFilter])
+  }, [page, statusFilter, topicFilter, typeFilter])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -182,6 +210,20 @@ export default function AdminPostsPage() {
                 </option>
               ))}
             </select>
+            <select
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value)
+                setPage(1)
+              }}
+              className="px-4 py-2 border border-gray-200 rounded-lg"
+            >
+              {TYPE_OPTIONS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
           </div>
         </CardContent>
       </Card>
@@ -216,9 +258,14 @@ export default function AdminPostsPage() {
                         <span className="text-sm text-gray-500">
                           @{post.author.username}
                         </span>
-                        <Badge className={STATUS_LABELS[post.status].color}>
-                          {STATUS_LABELS[post.status].label}
+                        <Badge className={STATUS_LABELS[post.status]?.color || 'bg-gray-100'}>
+                          {STATUS_LABELS[post.status]?.label || post.status}
                         </Badge>
+                        {post.type && TYPE_LABELS[post.type] && (
+                          <Badge className={TYPE_LABELS[post.type].color}>
+                            {TYPE_LABELS[post.type].label}
+                          </Badge>
+                        )}
                         {post.pinned && (
                           <Badge variant="outline" className="text-orange-600 border-orange-600">
                             <Pin className="h-3 w-3 mr-1" />
@@ -231,7 +278,23 @@ export default function AdminPostsPage() {
                           </Badge>
                         ))}
                       </div>
+                      {post.title && (
+                        <p className="font-medium text-ink mb-1">{post.title}</p>
+                      )}
                       <p className="text-gray-700 line-clamp-2 mb-2">{post.content}</p>
+                      {post.type === 'COLLAB' && (post.contactInfo || post.budgetType || post.deadline) && (
+                        <div className="flex flex-wrap gap-3 text-xs text-gray-600 mb-2 bg-blue-50 rounded px-2 py-1.5">
+                          {post.contactInfo && (
+                            <span>联系: {post.contactType === 'WECHAT' ? '微信' : post.contactType === 'EMAIL' ? '邮箱' : '电话'} {post.contactInfo}</span>
+                          )}
+                          {post.budgetType && post.budgetType !== 'NEGOTIABLE' && (
+                            <span>预算: {post.budgetType === 'FIXED' ? `${post.budgetMin}元` : `${post.budgetMin || '?'}-${post.budgetMax || '?'}元`}</span>
+                          )}
+                          {post.budgetType === 'NEGOTIABLE' && <span>预算: 面议</span>}
+                          {post.deadline && <span>截止: {post.deadline.slice(0, 10)}</span>}
+                          {post.skills?.length > 0 && <span>技能: {post.skills.join(', ')}</span>}
+                        </div>
+                      )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>{format(new Date(post.createdAt), 'yyyy-MM-dd HH:mm')}</span>
                         <span>{post.viewCount} 浏览</span>
@@ -275,14 +338,27 @@ export default function AdminPostsPage() {
                           <Eye className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                        onClick={() => handleDelete(post.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {post.status === 'DELETED' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-green-600 hover:text-green-700"
+                          onClick={() => handleStatusChange(post.id, 'PUBLISHED')}
+                          title="恢复发布"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {post.status !== 'DELETED' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleDelete(post.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   {expandedId === post.id && (

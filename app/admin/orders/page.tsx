@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Eye, EyeOff, Star, StarOff, Trash2, Search, Download } from 'lucide-react'
+import { Eye, EyeOff, Star, StarOff, Trash2, Search, Download, ArchiveX, RotateCcw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -74,7 +74,7 @@ export default function AdminOrdersPage() {
         setPagination(data.pagination || null)
       }
     } catch (error) {
-      console.error('获取订单失败:', error)
+      console.error('获取项目失败:', error)
     } finally {
       setLoading(false)
     }
@@ -123,7 +123,7 @@ export default function AdminOrdersPage() {
   }
 
   const handleDelete = async (orderId: string) => {
-    if (!confirm('确定要删除这个订单吗？')) return
+    if (!confirm('确定要归档这个项目吗？归档后不会在前台展示。')) return
 
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -145,7 +145,7 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-secondary">产品管理</h1>
+        <h1 className="text-2xl font-bold text-secondary">项目管理</h1>
         <Button variant="outline" onClick={handleExport}>
           <Download className="h-4 w-4 mr-2" />
           导出数据
@@ -208,7 +208,7 @@ export default function AdminOrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            订单列表
+            项目列表
             {pagination && (
               <span className="text-sm font-normal text-gray-500 ml-2">
                 (共 {pagination.total} 个)
@@ -220,7 +220,7 @@ export default function AdminOrdersPage() {
           {loading ? (
             <div className="text-center py-8 text-gray-500">加载中...</div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">暂无订单</div>
+            <div className="text-center py-8 text-gray-500">暂无项目</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -304,15 +304,27 @@ export default function AdminOrdersPage() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => handleDelete(order.id)}
-                            title="删除"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {order.status === 'ARCHIVED' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleStatusChange(order.id, 'PUBLISHED')}
+                              title="恢复发布"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {order.status !== 'ARCHIVED' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => handleDelete(order.id)}
+                              title="归档"
+                            >
+                              <ArchiveX className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>

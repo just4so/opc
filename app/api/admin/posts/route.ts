@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
 
     const topic = searchParams.get('topic')
+    const type = searchParams.get('type')
 
     const where: any = {}
 
@@ -32,13 +33,37 @@ export async function GET(request: NextRequest) {
       where.topics = { has: topic }
     }
 
+    if (type) {
+      where.type = type
+    }
+
     const [posts, total] = await Promise.all([
       prisma.post.findMany({
         where,
         skip: (page - 1) * LIMIT,
         take: LIMIT,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          content: true,
+          contentHtml: true,
+          title: true,
+          type: true,
+          status: true,
+          pinned: true,
+          topics: true,
+          viewCount: true,
+          likeCount: true,
+          commentCount: true,
+          createdAt: true,
+          // COLLAB fields
+          budgetType: true,
+          budgetMin: true,
+          budgetMax: true,
+          contactType: true,
+          contactInfo: true,
+          deadline: true,
+          skills: true,
           author: {
             select: {
               id: true,

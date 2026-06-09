@@ -1,9 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdminApi } from '@/lib/admin'
+import { requireStaffApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { NewsCategory } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
+
+export async function GET(request: NextRequest) {
+  try {
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
+
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100)
+    const search = searchParams.get('search') || ''
+    const category = searchParams.get('category') || ''
+    const isOriginal = searchParams.get('isOriginal')
+
+    const where: any = {}
+
+    if (search) {
+      where.title = { contains: search, mode: 'insensitive' }
+    }
+
+    if (category && Object.values(NewsCategory).includes(category as NewsCategory)) {
+      where.category = category as NewsCategory
+    }
+
+    if (isOriginal === 'true') where.isOriginal = true
+    if (isOriginal === 'false') where.isOriginal = false
+
+    const [data, total] = await Promise.all([
+      prisma.news.findMany({
+        where,
+        orderBy: [{ publishedAt: 'desc' }],
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          summary: true,
+          url: true,
+          source: true,
+          category: true,
+          publishedAt: true,
+          createdAt: true,
+          isOriginal: true,
+          author: true,
+        },
+      }),
+      prisma.news.count({ where }),
+    ])
+
+    return NextResponse.json({
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    })
+  } catch (error) {
+    console.error('获取资讯列表失败:', error)
+    return NextResponse.json({ error: '获取失败' }, { status: 500 })
+  }
+}
 
 // 中文分类名 → enum 映射
 const CATEGORY_MAP: Record<string, NewsCategory> = {
@@ -15,8 +75,8 @@ const CATEGORY_MAP: Record<string, NewsCategory> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const admin = await requireAdminApi()
-    if (admin instanceof NextResponse) return admin
+    const staff = await requireStaffApi()
+    if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
     const { title, category, author, content, publishedAt } = body
