@@ -193,7 +193,6 @@ model Project {
   description     String
   logo            String?
   coverImage      String?
-  screenshots     String[]
   images          String[]
   category        String[]
   techStack       String[]
@@ -255,18 +254,6 @@ model Comment {
   @@index([postId])
   @@index([projectId])
   @@index([authorId])
-}
-
-// @deprecated - 已迁移到 Favorite，待确认后删除
-model Like {
-  id        String   @id @default(cuid())
-  postId    String?
-  projectId String?
-  userId    String
-  createdAt DateTime @default(now())
-
-  @@unique([userId, postId])
-  @@unique([userId, projectId])
 }
 
 model Favorite {
