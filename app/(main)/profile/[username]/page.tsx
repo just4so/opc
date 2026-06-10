@@ -143,7 +143,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   }
 
   if (session?.user?.id && session.user.id !== user.id && user.showInPlaza) {
-    void createCardViewedNotification(user.id, session.user.name || '', session.user.id)
+    void createCardViewedNotification(user.id, session.user.name || '', session.user.id, (session.user as any).username || '')
   }
 
   const serializedPosts = recentPosts.map(p => ({

@@ -22,6 +22,11 @@ const TYPE_ICON: Record<string, typeof Eye> = {
   POST_LIKED: Heart,
   POST_COMMENTED: MessageCircle,
   COMMENT_REPLIED: Reply,
+  PROJECT_COMMENTED: MessageCircle,
+  PROJECT_COMMENT_REPLIED: Reply,
+  // 兼容旧数据
+  reply: Reply,
+  comment: MessageCircle,
 }
 
 function getNavTarget(n: Notification): string {
@@ -29,17 +34,25 @@ function getNavTarget(n: Notification): string {
     case 'NEW_FOLLOWER':
       return n.content ? `/profile/${n.content}` : '/profile'
     case 'CARD_VIEWED':
-      return '/profile'
+      return n.content ? `/profile/${n.content}` : '/plaza'
+    case 'CARD_CONTACTED':
+      return '/messages'
     case 'POST_LIKED':
     case 'POST_COMMENTED':
     case 'COMMENT_REPLIED':
       return n.relatedId ? `/plaza/${n.relatedId}` : '/plaza'
+    case 'PROJECT_COMMENTED':
+    case 'PROJECT_COMMENT_REPLIED':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
     case 'INQUIRY_STATUS':
       return '/profile'
-    case 'CARD_CONTACTED':
-      return '/profile'
+    // 兼容旧数据
+    case 'reply':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
+    case 'comment':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
     default:
-      return '/profile'
+      return '/plaza'
   }
 }
 

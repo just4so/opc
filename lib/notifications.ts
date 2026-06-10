@@ -28,7 +28,8 @@ const STATUS_LABEL: Record<string, string> = {
 export async function createCardViewedNotification(
   ownerId: string,
   visitorName: string,
-  visitorId: string
+  visitorId: string,
+  visitorUsername?: string
 ) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
   const existing = await prisma.notification.findFirst({
@@ -45,6 +46,7 @@ export async function createCardViewedNotification(
     userId: ownerId,
     type: 'CARD_VIEWED',
     title: `${visitorName || '有人'}查看了你的创业者卡片`,
+    content: visitorUsername,
     relatedId: visitorId,
   })
 }

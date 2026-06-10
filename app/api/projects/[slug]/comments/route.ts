@@ -118,10 +118,10 @@ export async function POST(
         await prisma.notification.create({
           data: {
             userId: parent.authorId,
-            type: 'reply',
+            type: 'PROJECT_COMMENT_REPLIED',
             title: '有人回复了你的评论',
             content: comment.content.slice(0, 100),
-            relatedId: project.id,
+            relatedId: slug,
           },
         })
       }
@@ -130,10 +130,10 @@ export async function POST(
         await prisma.notification.create({
           data: {
             userId: project.ownerId,
-            type: 'comment',
+            type: 'PROJECT_COMMENTED',
             title: `有人评论了你的产品「${project.name}」`,
             content: comment.content.slice(0, 100),
-            relatedId: project.id,
+            relatedId: slug,
           },
         })
       }
