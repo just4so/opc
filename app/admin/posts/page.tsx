@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { Search, Eye, EyeOff, Trash2, Pin, Star, RotateCcw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -71,6 +73,8 @@ const TOPICS = [
 ]
 
 export default function AdminPostsPage() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [pagination, setPagination] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -80,6 +84,12 @@ export default function AdminPostsPage() {
   const [typeFilter, setTypeFilter] = useState('')
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === 'CITY_MANAGER') {
+      router.replace('/admin')
+    }
+  }, [session, router])
 
   const fetchPosts = async () => {
     setLoading(true)

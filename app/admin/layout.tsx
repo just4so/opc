@@ -16,13 +16,13 @@ import {
   ClipboardList,
   Building2,
 } from 'lucide-react'
-import { requireStaff } from '@/lib/admin'
+import { requireStaffContext } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
 import { AdminSidebarLink, AdminSidebarGroup } from './admin-sidebar'
 
 const DASHBOARD_ITEM = { href: '/admin', label: '仪表盘', icon: <LayoutDashboard className="h-5 w-5" /> }
 
-const NAV_GROUPS = [
+const NAV_GROUPS_FULL = [
   {
     label: '数据管理',
     items: [
@@ -58,16 +58,35 @@ const NAV_GROUPS = [
   },
 ]
 
+const NAV_GROUPS_CITY_MANAGER = [
+  {
+    label: '数据管理',
+    items: [
+      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
+      { href: '/admin/inquiries', label: '意向管理', icon: <PhoneForwarded className="h-5 w-5" /> },
+      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: '系统',
+    items: [
+      { href: '/admin/logs', label: '操作日志', icon: <ClipboardList className="h-5 w-5" /> },
+    ],
+  },
+]
+
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const staff = await requireStaff()
+  const staff = await requireStaffContext()
   const isAdmin = staff.role === 'ADMIN'
   const isModerator = staff.role === 'MODERATOR'
+  const isCityManager = staff.role === 'CITY_MANAGER'
 
   const roleLabel = isAdmin ? '管理员' : isModerator ? '版主' : '城市主理人'
+  const navGroups = isCityManager ? NAV_GROUPS_CITY_MANAGER : NAV_GROUPS_FULL
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -100,7 +119,14 @@ export default async function AdminLayout({
             <AdminSidebarLink href={DASHBOARD_ITEM.href} label={DASHBOARD_ITEM.label}>
               {DASHBOARD_ITEM.icon}
             </AdminSidebarLink>
-            {NAV_GROUPS.map((group) => (
+            {isCityManager && staff.managerScope && (
+              <div className="px-3 py-2 text-xs text-muted-foreground bg-orange-50 rounded-2xl mx-1 mb-2">
+                管辖范围：{staff.managerScope.scope === 'CITY'
+                  ? staff.managerScope.city
+                  : staff.managerScope.province + '（省级）'}
+              </div>
+            )}
+            {navGroups.map((group) => (
               <AdminSidebarGroup key={group.label} label={group.label}>
                 {group.items.map((item) => (
                   <AdminSidebarLink key={item.href} href={item.href} label={item.label}>

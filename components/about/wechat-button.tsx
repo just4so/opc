@@ -13,9 +13,11 @@ import { Button } from '@/components/ui/button'
 interface WeChatButtonProps {
   wechat: string
   name: string
+  fullWidth?: boolean
+  white?: boolean
 }
 
-export function WeChatButton({ wechat, name }: WeChatButtonProps) {
+export function WeChatButton({ wechat, name, fullWidth, white }: WeChatButtonProps) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -29,7 +31,11 @@ export function WeChatButton({ wechat, name }: WeChatButtonProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors active:scale-[0.98]"
+        className={[
+          'inline-flex items-center gap-1.5 rounded-full text-sm font-medium transition-colors active:scale-[0.98]',
+          fullWidth ? 'w-full justify-center px-4 py-3' : 'px-4 py-2',
+          white ? 'bg-white text-primary hover:bg-white/90' : 'bg-primary/10 text-primary hover:bg-primary/20',
+        ].join(' ')}
       >
         <MessageCircle className="h-4 w-4" />
         联系 {name}

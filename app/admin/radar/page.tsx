@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const CATEGORIES = [
@@ -68,6 +70,8 @@ function relativeTime(dateStr: string): string {
 }
 
 export default function AdminRadarPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [form, setForm] = useState({
     title: "",
     url: "",
@@ -78,6 +82,12 @@ export default function AdminRadarPage() {
     publishedAt: "",
     importance: "3",
   });
+
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === "CITY_MANAGER") {
+      router.replace("/admin");
+    }
+  }, [session, router]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { Eye, EyeOff, Star, StarOff, Trash2, Search, Download, ArchiveX, RotateCcw } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -49,6 +51,8 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 }
 
 export default function AdminOrdersPage() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [orders, setOrders] = useState<ProjectItem[]>([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -57,6 +61,12 @@ export default function AdminOrdersPage() {
   const [searchInput, setSearchInput] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
+
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === 'CITY_MANAGER') {
+      router.replace('/admin')
+    }
+  }, [session, router])
 
   const fetchOrders = async () => {
     setLoading(true)

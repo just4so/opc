@@ -1,17 +1,27 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Loader2, Save } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ImageUpload } from '@/components/admin/image-upload'
 
 export default function AdminSettingsPage() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [communityQrUrl, setCommunityQrUrl] = useState('')
   const [connectQrUrl, setConnectQrUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === 'CITY_MANAGER') {
+      router.replace('/admin')
+    }
+  }, [session, router])
 
   useEffect(() => {
     fetch('/api/admin/settings')

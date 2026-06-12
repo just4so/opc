@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { requireStaffApi } from '@/lib/admin'
+import { requireStaffContextApi, cityFilter, isInScope } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityCreateSchema } from '@/lib/validations/community'
 import { ensureEnglishSlug } from '@/lib/slug'
@@ -11,7 +11,7 @@ const LIMIT = 20
 
 export async function GET(request: NextRequest) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const { searchParams } = new URL(request.url)
@@ -20,9 +20,18 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city')
     const status = searchParams.get('status')
 
-    const where: any = {}
+    const baseFilter = cityFilter(staff)
+    const where: any = { ...baseFilter }
     if (status) where.status = status
-    if (city) where.city = city
+    if (city) {
+      if (baseFilter.city) {
+        // intersect requested city with allowed list
+        const allowed = baseFilter.city.in
+        where.city = allowed.includes(city) ? city : '__NONE__'
+      } else {
+        where.city = city
+      }
+    }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -59,7 +68,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
@@ -73,6 +82,13 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validation.data
+
+    if (staff.role === 'CITY_MANAGER') {
+      if (!isInScope(staff, data.city)) {
+        return NextResponse.json({ error: '只能在管辖城市内创建社区' }, { status: 403 })
+      }
+      data.status = 'PUBLISHED' as typeof data.status
+    }
 
     // 确保 slug 为英文（含中文时自动转拼音）
     data.slug = ensureEnglishSlug(data.slug)

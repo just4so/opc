@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -47,6 +49,8 @@ const ORIGINAL_OPTIONS = [
 ]
 
 export default function AdminNewsPage() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [newsList, setNewsList] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [editingAuthor, setEditingAuthor] = useState<string | null>(null)
@@ -54,6 +58,12 @@ export default function AdminNewsPage() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [isOriginal, setIsOriginal] = useState('')
+
+  useEffect(() => {
+    if (session?.user && (session.user as any).role === 'CITY_MANAGER') {
+      router.replace('/admin')
+    }
+  }, [session, router])
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(0)

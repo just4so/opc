@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
-import { requireStaff } from '@/lib/admin'
+import { requireStaffContextApi } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  await requireStaff()
+  const staff = await requireStaffContextApi()
+  if (staff instanceof NextResponse) return staff
 
   try {
     const today = new Date()
@@ -14,6 +15,22 @@ export async function GET() {
     const weekStart = new Date()
     weekStart.setDate(weekStart.getDate() - 7)
     weekStart.setHours(0, 0, 0, 0)
+
+    if (staff.role === 'CITY_MANAGER' && staff.managedCities) {
+      const cityWhere = { city: { in: staff.managedCities } }
+      const [todayInquiries, totalCommunities, pendingInquiries] = await Promise.all([
+        prisma.inquiry.count({ where: { ...cityWhere, createdAt: { gte: today } } }),
+        prisma.community.count({ where: cityWhere }),
+        prisma.inquiry.count({ where: { ...cityWhere, status: 'PENDING' } }),
+      ])
+      return NextResponse.json({
+        todayInquiries,
+        totalCommunities,
+        pendingInquiries,
+        role: 'CITY_MANAGER',
+        managedCities: staff.managedCities,
+      })
+    }
 
     const [todayInquiries, pendingClaims, pendingVerifications, weeklyNewUsers] =
       await Promise.all([

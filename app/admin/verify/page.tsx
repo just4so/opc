@@ -1,10 +1,12 @@
-import { requireStaff } from '@/lib/admin'
+import { redirect } from 'next/navigation'
+import { requireStaffContext } from '@/lib/admin'
 import { VerifyClient } from './verify-client'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminVerifyPage() {
-  await requireStaff()
+  const staff = await requireStaffContext()
+  if (staff.role === 'CITY_MANAGER') redirect('/admin')
 
   return (
     <div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireStaffApi } from '@/lib/admin'
+import { requireStaffContextApi, cityFilter, isInScope } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { createInquiryStatusNotification } from '@/lib/notifications'
 
@@ -9,7 +9,7 @@ const LIMIT = 20
 
 export async function GET(request: NextRequest) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const { searchParams } = new URL(request.url)
@@ -19,13 +19,19 @@ export async function GET(request: NextRequest) {
     const communityId = searchParams.get('communityId')
     const q = searchParams.get('q')?.trim()
 
-    const where: Record<string, unknown> = {}
+    const baseFilter = cityFilter(staff)
+    const where: Record<string, unknown> = { ...baseFilter }
 
     if (status) {
       where.status = status
     }
     if (city) {
-      where.city = city
+      if (baseFilter.city) {
+        const allowed = baseFilter.city.in
+        where.city = allowed.includes(city) ? city : '__NONE__'
+      } else {
+        where.city = city
+      }
     }
     if (communityId) {
       where.communityId = communityId
@@ -78,7 +84,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
@@ -91,6 +97,17 @@ export async function PATCH(request: NextRequest) {
     const validStatuses = ['PENDING', 'CONTACTED', 'DONE', 'CANCELLED']
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: '无效状态' }, { status: 400 })
+    }
+
+    if (staff.role === 'CITY_MANAGER') {
+      const existing = await prisma.inquiry.findUnique({
+        where: { id },
+        select: { city: true },
+      })
+      if (!existing) return NextResponse.json({ error: '意向不存在' }, { status: 404 })
+      if (!isInScope(staff, existing.city)) {
+        return NextResponse.json({ error: '无权操作该城市的数据' }, { status: 403 })
+      }
     }
 
     const inquiry = await prisma.inquiry.update({

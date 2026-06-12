@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { requireStaffApi } from '@/lib/admin'
+import { requireStaffContextApi, isInScope } from '@/lib/admin'
 import prisma from '@/lib/db'
 import { communityUpdateSchema } from '@/lib/validations/community'
 import { ensureEnglishSlug } from '@/lib/slug'
@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const community = await prisma.community.findUnique({
@@ -33,7 +33,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const body = await request.json()
@@ -47,6 +47,17 @@ export async function PATCH(
     }
 
     const data = validation.data
+
+    if (staff.role === 'CITY_MANAGER') {
+      const existing = await prisma.community.findUnique({
+        where: { id: params.id },
+        select: { city: true },
+      })
+      if (!existing) return NextResponse.json({ error: '社区不存在' }, { status: 404 })
+      if (!isInScope(staff, existing.city)) {
+        return NextResponse.json({ error: '无权操作该城市的数据' }, { status: 403 })
+      }
+    }
 
     // 确保 slug 为英文（含中文时自动转拼音）
     if (data.slug) {
@@ -149,8 +160,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
+
+    if (staff.role === 'CITY_MANAGER') {
+      return NextResponse.json({ error: '无权删除社区' }, { status: 403 })
+    }
 
     await prisma.community.delete({
       where: { id: params.id },
