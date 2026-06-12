@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 }
 
 const stats = [
-  { number: '400+', label: '线下OPC社区', hint: '不用自己一家家打听' },
-  { number: '70+', label: '覆盖城市', hint: '无论你在哪，大概率有' },
-  { number: '5000+', label: '活跃创业者', hint: '找搭档、找客户、找共鸣' },
-  { number: '1000万+', label: '全网内容触达', hint: '行业研究累计触达' },
+  { number: '400+', label: '线下OPC社区', hint: '覆盖全国主要城市' },
+  { number: '70+', label: '覆盖城市', hint: '北京上海深圳杭州武汉等' },
+  { number: '5000+', label: '活跃创业者', hint: '持续增长中' },
+  { number: '1000万+', label: '全网内容触达', hint: '持续增长中' },
 ]
 
 const features = [
@@ -26,11 +26,6 @@ const features = [
   },
   {
     num: '02',
-    title: '看懂行业政策',
-    desc: 'OPC圈持续追踪全国政策动态，已出版两份权威研究报告，与多家主流媒体建立长期合作关系。',
-  },
-  {
-    num: '03',
     title: '让世界看见你',
     desc: '一个人创业容易孤独。创业者广场让你展示自己和产品，找到同路人、搭档和客户。',
   },
@@ -63,7 +58,7 @@ export default async function AboutPage() {
               <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-[400px]">
                 每一位选择独自前行的人，都值得有人帮他把路照亮。
                 OPC圈收录全国 400+ 社区，连接数千位一人公司创业者，
-                在每座城市寻找一位真正懂你的主理人。
+                让每一位OPC创业者，都能被世界看见。
               </p>
             </div>
           </div>
@@ -76,7 +71,7 @@ export default async function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-200">
             {stats.map(s => (
               <div key={s.label} className="bg-[#FBFBF9] p-10 min-h-[120px] flex flex-col items-start justify-start">
-                <div className="text-5xl md:text-6xl font-black text-slate-900">{s.number}</div>
+                <div className={`${s.number === '1000万+' ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'} font-black text-slate-900`}>{s.number}</div>
                 <div className="text-sm font-semibold text-slate-700 mt-2">{s.label}</div>
                 <div className="text-xs text-slate-400 mt-1">{s.hint}</div>
               </div>
@@ -91,10 +86,7 @@ export default async function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
             {/* Left 4 cols */}
             <div className="md:col-span-4">
-              <span className="border-l-2 border-primary pl-4 text-primary text-xs tracking-widest font-semibold">
-                我们为什么在这里
-              </span>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-6 leading-snug">
+              <h2 className="text-2xl md:text-4xl font-bold text-slate-900 leading-snug">
                 为每一个独自前行的人，照亮前路。
               </h2>
             </div>
@@ -110,7 +102,7 @@ export default async function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {features.map(f => (
                   <div
                     key={f.title}
