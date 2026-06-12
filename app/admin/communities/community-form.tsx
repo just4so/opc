@@ -103,6 +103,18 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showMap, setShowMap] = useState(false)
+  const [cityOptions, setCityOptions] = useState<string[]>([])
+  const [citiesLoading, setCitiesLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/cities')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.cities) setCityOptions(data.cities)
+      })
+      .catch(() => {})
+      .finally(() => setCitiesLoading(false))
+  }, [])
 
   // Use ref to avoid re-rendering the whole form on every keystroke
   const descriptionRef = useRef(initialData?.description || '')
@@ -317,11 +329,12 @@ export default function CommunityForm({ mode, initialData }: CommunityFormProps)
                   onChange={(e) => updateField('city', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   required
+                  disabled={citiesLoading}
                 >
-                  <option value="">选择城市</option>
-                  {CITIES.map((city) => (
-                    <option key={city.name} value={city.name}>
-                      {city.name}
+                  <option value="">{citiesLoading ? '加载中...' : '选择城市'}</option>
+                  {cityOptions.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
                     </option>
                   ))}
                 </select>

@@ -28,8 +28,7 @@ const STATUS_LABEL: Record<string, string> = {
 export async function createCardViewedNotification(
   ownerId: string,
   visitorName: string,
-  visitorId: string,
-  visitorUsername?: string
+  visitorId: string
 ) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
   const existing = await prisma.notification.findFirst({
@@ -42,11 +41,17 @@ export async function createCardViewedNotification(
   })
   if (existing) return null
 
+  // 服务端查询访客 username，不依赖调用方传入（避免旧 session 拿不到 username 的问题）
+  const visitor = await prisma.user.findUnique({
+    where: { id: visitorId },
+    select: { username: true },
+  })
+
   return createNotification({
     userId: ownerId,
     type: 'CARD_VIEWED',
     title: `${visitorName || '有人'}查看了你的创业者卡片`,
-    content: visitorUsername,
+    content: visitor?.username ?? undefined,
     relatedId: visitorId,
   })
 }
