@@ -7,8 +7,8 @@ import { WeChatButton } from '@/components/about/wechat-button'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: '关于 OPC圈 | 一城一人，连接信任',
-  description: 'OPC圈是中国一人公司创业者的信息与连接平台。人工核实每一条社区信息，在每座城市寻找一位值得信任的城市主理人。',
+  title: '关于 OPC圈 | OPC创业者的第一个家',
+  description: '让每一位OPC创业者，都能被世界看见。OPC圈收录全国400+线下社区，覆盖70+城市，连接数千位一人公司创业者。',
 }
 
 const stats = [
