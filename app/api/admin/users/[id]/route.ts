@@ -102,6 +102,14 @@ export async function PATCH(
       return NextResponse.json({ error: '仅管理员可修改角色' }, { status: 403 })
     }
 
+    const existingUser = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: { id: true, username: true, name: true, role: true },
+    })
+    if (!existingUser) {
+      return NextResponse.json({ error: '用户不存在' }, { status: 404 })
+    }
+
     const user = await prisma.user.update({
       where: { id: params.id },
       data: parsed.data,
@@ -122,6 +130,24 @@ export async function PATCH(
         verifyType: true,
       },
     })
+
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    if (parsed.data.role !== undefined && parsed.data.role !== existingUser.role) changes.role = { from: existingUser.role, to: parsed.data.role }
+
+    if (Object.keys(changes).length > 0) {
+      prisma.auditLog.create({
+        data: {
+          userId: staff.id,
+          userName: staff.name || staff.username,
+          userRole: staff.role,
+          action: 'UPDATE',
+          targetType: 'USER',
+          targetId: user.id,
+          targetName: user.name || user.username,
+          changes: JSON.parse(JSON.stringify(changes)),
+        },
+      }).catch(console.error)
+    }
 
     return NextResponse.json(user)
   } catch (error) {

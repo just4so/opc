@@ -138,6 +138,19 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/communities')
 
+    prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        userName: staff.name || staff.username,
+        userRole: staff.role,
+        action: 'CREATE',
+        targetType: 'COMMUNITY',
+        targetId: community.id,
+        targetName: community.name,
+        changes: undefined,
+      },
+    }).catch(console.error)
+
     // 百度主动推送：新社区入库后异步通知百度，不阻塞主流程
     const baiduToken = process.env.BAIDU_PUSH_TOKEN
     if (baiduToken) {

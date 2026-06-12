@@ -114,6 +114,23 @@ export async function PATCH(
       void createInquiryStatusNotification(inquiry.userId, inquiry.id, parsed.data.status)
     }
 
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    if (parsed.data.status !== undefined && parsed.data.status !== existing.status) changes.status = { from: existing.status, to: parsed.data.status }
+    if (parsed.data.adminNote !== undefined && parsed.data.adminNote !== existing.adminNote) changes.adminNote = { from: existing.adminNote, to: parsed.data.adminNote }
+
+    prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        userName: staff.name || staff.username,
+        userRole: staff.role,
+        action: changes.status ? 'STATUS_CHANGE' : 'UPDATE',
+        targetType: 'INQUIRY',
+        targetId: inquiry.id,
+        targetName: existing.name,
+        changes: Object.keys(changes).length > 0 ? JSON.parse(JSON.stringify(changes)) : null,
+      },
+    }).catch(console.error)
+
     return NextResponse.json({
       ...inquiry,
       createdAt: inquiry.createdAt.toISOString(),

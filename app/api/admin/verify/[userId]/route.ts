@@ -8,7 +8,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  await requireStaff()
+  const staff = await requireStaff()
 
   try {
     const { userId } = await params
@@ -26,7 +26,7 @@ export async function PUT(
       }
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, username: true } })
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -39,6 +39,19 @@ export async function PUT(
       },
       select: { id: true, verified: true, verifyType: true },
     })
+
+    prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        userName: staff.name || staff.username,
+        userRole: staff.role,
+        action: verified ? 'APPROVE' : 'REJECT',
+        targetType: 'USER',
+        targetId: userId,
+        targetName: user.name || user.username,
+        changes: { verified: { from: !verified, to: verified }, ...(verifyType ? { verifyType: { from: null, to: verifyType } } : {}) },
+      },
+    }).catch(console.error)
 
     return NextResponse.json(updated)
   } catch (error) {

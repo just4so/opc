@@ -48,12 +48,13 @@ export async function PATCH(
 
     const data = validation.data
 
+    const existing = await prisma.community.findUnique({
+      where: { id: params.id },
+      select: { city: true, name: true, status: true, featured: true },
+    })
+    if (!existing) return NextResponse.json({ error: '社区不存在' }, { status: 404 })
+
     if (staff.role === 'CITY_MANAGER') {
-      const existing = await prisma.community.findUnique({
-        where: { id: params.id },
-        select: { city: true },
-      })
-      if (!existing) return NextResponse.json({ error: '社区不存在' }, { status: 404 })
       if (!isInScope(staff, existing.city)) {
         return NextResponse.json({ error: '无权操作该城市的数据' }, { status: 403 })
       }
@@ -134,6 +135,25 @@ export async function PATCH(
     revalidatePath('/communities')
     revalidatePath(`/communities/${community.slug}`)
 
+    const changes: Record<string, { from: unknown; to: unknown }> = {}
+    if (updateData.name !== undefined && updateData.name !== existing.name) changes.name = { from: existing.name, to: updateData.name }
+    if (updateData.status !== undefined && updateData.status !== existing.status) changes.status = { from: existing.status, to: updateData.status }
+    if (updateData.city !== undefined && updateData.city !== existing.city) changes.city = { from: existing.city, to: updateData.city }
+    if (updateData.featured !== undefined && updateData.featured !== existing.featured) changes.featured = { from: existing.featured, to: updateData.featured }
+
+    prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        userName: staff.name || staff.username,
+        userRole: staff.role,
+        action: Object.keys(changes).length === 1 && 'status' in changes ? 'STATUS_CHANGE' : 'UPDATE',
+        targetType: 'COMMUNITY',
+        targetId: community.id,
+        targetName: community.name,
+        changes: Object.keys(changes).length > 0 ? JSON.parse(JSON.stringify(changes)) : null,
+      },
+    }).catch(console.error)
+
     // 百度主动推送：社区更新后异步通知百度
     const baiduToken = process.env.BAIDU_PUSH_TOKEN
     if (baiduToken) {
@@ -167,9 +187,28 @@ export async function DELETE(
       return NextResponse.json({ error: '无权删除社区' }, { status: 403 })
     }
 
+    const existing = await prisma.community.findUnique({
+      where: { id: params.id },
+      select: { name: true },
+    })
+    if (!existing) return NextResponse.json({ error: '社区不存在' }, { status: 404 })
+
     await prisma.community.delete({
       where: { id: params.id },
     })
+
+    prisma.auditLog.create({
+      data: {
+        userId: staff.id,
+        userName: staff.name || staff.username,
+        userRole: staff.role,
+        action: 'DELETE',
+        targetType: 'COMMUNITY',
+        targetId: params.id,
+        targetName: existing.name,
+        changes: undefined,
+      },
+    }).catch(console.error)
 
     return NextResponse.json({ success: true })
   } catch (error) {

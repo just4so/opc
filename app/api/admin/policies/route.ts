@@ -84,5 +84,18 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  prisma.auditLog.create({
+    data: {
+      userId: staff.id,
+      userName: staff.name || staff.username,
+      userRole: staff.role,
+      action: 'CREATE',
+      targetType: 'POLICY',
+      targetId: policy.id,
+      targetName: policy.title,
+      changes: undefined,
+    },
+  }).catch(console.error)
+
   return NextResponse.json(policy, { status: 201 })
 }
