@@ -3,10 +3,10 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 
-type UserRole = 'USER' | 'ADMIN' | 'MODERATOR'
+type UserRole = 'USER' | 'ADMIN' | 'MODERATOR' | 'CITY_MANAGER'
 type StaffUser = { id: string; role: UserRole; username: string; name: string | null }
 
-// 允许 ADMIN 和 MODERATOR 访问后台
+// 允许 ADMIN、MODERATOR 和 CITY_MANAGER 访问后台
 export async function requireStaff() {
   const session = await auth()
 
@@ -19,7 +19,7 @@ export async function requireStaff() {
     select: { id: true, role: true, username: true, name: true },
   })
 
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR' && user.role !== 'CITY_MANAGER')) {
     redirect('/')
   }
 
@@ -39,7 +39,7 @@ export async function requireStaffApi(): Promise<StaffUser | NextResponse> {
     where: { id: session.user.id },
     select: { id: true, role: true, username: true, name: true },
   })
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR' && user.role !== 'CITY_MANAGER')) {
     return NextResponse.json({ error: '无权限' }, { status: 403 })
   }
   return user as StaffUser
@@ -98,5 +98,5 @@ export async function isStaff(userId: string): Promise<boolean> {
     select: { role: true },
   })
 
-  return user?.role === 'ADMIN' || user?.role === 'MODERATOR'
+  return user?.role === 'ADMIN' || user?.role === 'MODERATOR' || user?.role === 'CITY_MANAGER'
 }

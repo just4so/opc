@@ -12,6 +12,9 @@ import {
   ScrollText,
   PhoneForwarded,
   ShieldCheck,
+  UserCheck,
+  ClipboardList,
+  Building2,
 } from 'lucide-react'
 import { requireStaff } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
@@ -21,28 +24,36 @@ const DASHBOARD_ITEM = { href: '/admin', label: '仪表盘', icon: <LayoutDashbo
 
 const NAV_GROUPS = [
   {
-    label: '运营中心',
+    label: '数据管理',
     items: [
+      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
       { href: '/admin/inquiries', label: '意向管理', icon: <PhoneForwarded className="h-5 w-5" /> },
-      { href: '/admin/verify', label: '认证管理', icon: <ShieldCheck className="h-5 w-5" /> },
+      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
     ],
   },
   {
     label: '内容管理',
     items: [
-      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
       { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
-      { href: '/admin/orders', label: '产品管理', icon: <Briefcase className="h-5 w-5" /> },
       { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
-      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
+      { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
+    ],
+  },
+  {
+    label: '用户与权限',
+    items: [
+      { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
+      { href: '/admin/verify', label: '认证管理', icon: <ShieldCheck className="h-5 w-5" /> },
+      { href: '/admin/managers', label: '主理人管理', icon: <UserCheck className="h-5 w-5" /> },
+      { href: '/admin/communities?tab=claims', label: '社区认领', icon: <Building2 className="h-5 w-5" /> },
     ],
   },
   {
     label: '系统',
     items: [
-      { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
-      { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
-      { href: '/admin/settings', label: '系统设置', icon: <Settings className="h-5 w-5" /> },
+      { href: '/admin/orders', label: '订单管理', icon: <Briefcase className="h-5 w-5" /> },
+      { href: '/admin/logs', label: '操作日志', icon: <ClipboardList className="h-5 w-5" /> },
+      { href: '/admin/settings', label: '站点设置', icon: <Settings className="h-5 w-5" /> },
     ],
   },
 ]
@@ -54,6 +65,9 @@ export default async function AdminLayout({
 }) {
   const staff = await requireStaff()
   const isAdmin = staff.role === 'ADMIN'
+  const isModerator = staff.role === 'MODERATOR'
+
+  const roleLabel = isAdmin ? '管理员' : isModerator ? '版主' : '城市主理人'
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -72,7 +86,7 @@ export default async function AdminLayout({
           </div>
           <div className="flex items-center space-x-3 text-sm text-gray-600">
             <Badge variant={isAdmin ? 'default' : 'secondary'}>
-              {isAdmin ? '管理员' : '版主'}
+              {roleLabel}
             </Badge>
             <span className="font-medium">{staff.name || staff.username}</span>
           </div>

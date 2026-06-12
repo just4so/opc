@@ -52,6 +52,7 @@ model User {
   followers          Follow[]                  @relation("UserFollowing")
   following          Follow[]                  @relation("UserFollowers")
   progress           Progress[]                @relation("UserProgress")
+  cityManagerProfile CityManager?
 
   @@index([username])
   @@index([location])
@@ -412,6 +413,17 @@ enum UserRole {
   USER
   ADMIN
   MODERATOR
+  CITY_MANAGER
+}
+
+enum ManagerScope {
+  CITY
+  PROVINCE
+}
+
+enum ManagerStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum VerifyType {
@@ -592,4 +604,45 @@ model Progress {
 
   @@index([projectId, createdAt])
   @@index([authorId, createdAt])
+}
+
+model CityManager {
+  id        String        @id @default(cuid())
+  userId    String?       @unique
+  name      String
+  avatar    String?
+  title     String?
+  bio       String?
+  quote     String?
+  focusTags String[]      @default([])
+  wechat    String?
+  scope     ManagerScope  @default(CITY)
+  city      String?
+  province  String
+  order     Int           @default(0)
+  status    ManagerStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([city])
+  @@index([province])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  userName   String
+  userRole   String
+  action     String
+  targetType String
+  targetId   String
+  targetName String
+  changes    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([targetType, targetId])
+  @@index([createdAt])
 }
