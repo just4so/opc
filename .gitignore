@@ -52,3 +52,10 @@ tsconfig.tsbuildinfo
 *.bak
 .gstack/
 .edgeone/
+
+# 临时文件
+tmp/
+scripts/seed-*.ts
+scripts/decode-*.py
+scripts/fix-*.ts
+scripts/migrate-*.js
