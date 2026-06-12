@@ -15,7 +15,7 @@ const stats = [
   { number: '400+', label: '线下OPC社区', hint: '不用自己一家家打听' },
   { number: '70+', label: '覆盖城市', hint: '无论你在哪，大概率有' },
   { number: '5000+', label: '活跃创业者', hint: '找搭档、找客户、找共鸣' },
-  { number: '1000万+', label: '全网内容触达', hint: '你的城市故事有人在看' },
+  { number: '1000万+', label: '全网内容触达', hint: '行业研究累计触达' },
 ]
 
 const features = [
@@ -55,22 +55,16 @@ export default async function AboutPage() {
           <div className="flex flex-col md:flex-row md:items-end gap-12 md:gap-16">
             <div className="flex-1 min-w-0">
               <h1 style={{ fontSize: 'clamp(64px, 10vw, 120px)', lineHeight: 1, fontWeight: 900, letterSpacing: '-0.03em' }}>
-                <span className="block text-slate-900">一城一人，</span>
-                <span className="block text-primary italic">连接信任。</span>
+                <span className="block text-slate-900">OPC创业者的</span>
+                <span className="block text-primary">第一个家。</span>
               </h1>
             </div>
             <div className="md:w-[420px] flex-shrink-0">
-              <p className="text-slate-600 text-base leading-relaxed">
-                OPC圈是国内领先的一人公司垂直社区平台。
-                我们连接 OPC 创业者、线下社区与产业资源，
-                在每座城市寻找一位值得信任的主理人。
+              <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-[400px]">
+                每一位选择独自前行的人，都值得有人帮他把路照亮。
+                OPC圈收录全国 400+ 社区，连接数千位一人公司创业者，
+                在每座城市寻找一位真正懂你的主理人。
               </p>
-              <div className="flex items-center gap-4 mt-6">
-                <div className="w-12 h-[2px] bg-primary flex-shrink-0" />
-                <span className="text-xs tracking-widest text-primary font-semibold">
-                  EST. 2025 · 北京数据胶囊科技
-                </span>
-              </div>
             </div>
           </div>
         </div>
@@ -81,7 +75,7 @@ export default async function AboutPage() {
         <div className="max-w-[1280px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-200">
             {stats.map(s => (
-              <div key={s.label} className="bg-[#FBFBF9] p-10">
+              <div key={s.label} className="bg-[#FBFBF9] p-10 min-h-[120px] flex flex-col items-start justify-start">
                 <div className="text-5xl md:text-6xl font-black text-slate-900">{s.number}</div>
                 <div className="text-sm font-semibold text-slate-700 mt-2">{s.label}</div>
                 <div className="text-xs text-slate-400 mt-1">{s.hint}</div>
@@ -98,10 +92,10 @@ export default async function AboutPage() {
             {/* Left 4 cols */}
             <div className="md:col-span-4">
               <span className="border-l-2 border-primary pl-4 text-primary text-xs tracking-widest font-semibold">
-                我们为什么做这件事
+                我们为什么在这里
               </span>
               <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-6 leading-snug">
-                因为这个行业，值得被认真对待。
+                为每一个独自前行的人，照亮前路。
               </h2>
             </div>
 
@@ -110,9 +104,9 @@ export default async function AboutPage() {
               <div className="bg-[#F6F6F3] rounded-2xl border border-slate-200 p-8 md:p-12 relative overflow-hidden group">
                 <div className="absolute -right-12 -top-12 w-48 h-48 bg-orange-100 rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700 pointer-events-none" />
                 <div className="text-base leading-relaxed text-slate-700 relative z-10 space-y-4">
-                  <p>2023年，一人公司在中国开始爆发。政策在变，社区在涌现，但没有人把这些事情讲清楚。</p>
-                  <p>没有人告诉你：北京哪个社区真的给补贴，深圳哪个社区适合做跨境，武汉的政策窗口什么时候关。</p>
-                  <p>OPC圈就是为了解决这个问题存在的。我们人工核实每一条信息，不靠爬虫，不靠转载。已经发布两份行业研究报告，与多家主流媒体长期合作——因为这个行业值得被认真对待。</p>
+                  <p>那一年，越来越多的人做了同一个决定：一个人，干一件事。不要投资人，不要团队，不要 996 的办公室——只要一张桌子，和一个值得信任的城市。</p>
+                  <p>但没有人告诉他们，那张桌子在哪里。哪个社区真的兑现了补贴承诺，哪个城市的政策窗口即将关闭，哪个角落里有和你一样的人在做同一件事。</p>
+                  <p>OPC圈就是为了这件事而存在。我们人工核实每一条社区信息，出版行业研究报告，与媒体合作让这个群体被看见——因为每一个选择独自前行的人，都值得有人帮他把路照亮。</p>
                 </div>
               </div>
 
@@ -157,7 +151,10 @@ export default async function AboutPage() {
                 一城，一位。
               </em>
               <p className="text-slate-400 max-w-lg mt-4 text-base leading-relaxed">
-                不是平台客服，不是中间商。主理人是在这座城市真实创业的人，他们愿意用自己的信用，帮你少走弯路。
+                每座城市都有一个人，在你之前，把这条路走过了一遍。
+              </p>
+              <p className="text-slate-400 max-w-lg mt-2 text-base leading-relaxed">
+                OPC圈城市主理人，是本地最资深的 OPC 创业者。他们不代表平台，他们代表这座城市——用自己的经历和信誉，帮助后来者少走弯路。
               </p>
             </div>
 
@@ -338,7 +335,7 @@ export default async function AboutPage() {
                 <span className="text-primary">还没有主理人。</span>
               </h2>
               <p className="text-lg text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-                成为 OPC圈城市主理人，意味着你是这座城市 OPC 创业者最值得信任的连接者。官方背书、品牌曝光、本城社群资源——一城一人，排他制。
+                成为 OPC圈城市主理人，意味着你是这座城市 OPC 创业者最值得信任的连接者。一城一人，排他制——官方背书、品牌曝光、本城社群资源，都将属于你。
               </p>
               <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
                 <a
