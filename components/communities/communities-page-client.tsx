@@ -7,6 +7,12 @@ import { cn } from '@/lib/utils'
 import { MapPin, LayoutGrid, Search, ChevronDown, ChevronRight, X, Star } from 'lucide-react'
 import { PageHeader } from '@/components/ui/page-header'
 import { CITIES, HOT_CITIES } from '@/constants/cities'
+import { pinyin } from 'pinyin-pro'
+
+function getCityInitial(city: string): string {
+  const result = pinyin(city[0], { pattern: 'first', toneType: 'none' })
+  return result[0]?.toUpperCase() ?? city[0].toUpperCase()
+}
 
 const PAGE_SIZE = 12
 
@@ -271,23 +277,34 @@ export function CommunitiesPageClient({
                     </button>
                   )}
                 </div>
-                {/* 展开的更多城市 */}
+                {/* 展开的更多城市 - 按首字母分组 */}
                 <div className={`city-expand-container ${showAllCities ? 'expanded' : ''}`}>
-                  <div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {otherCities.map((c) => (
-                        <button
-                          key={c.city}
-                          onClick={() => handleCityChange(c.city)}
-                          className={cn(
-                            'city-pill',
-                            selectedCity === c.city && 'city-pill-active'
-                          )}
-                        >
-                          {c.city}
-                        </button>
-                      ))}
-                    </div>
+                  <div className="pt-2 space-y-3">
+                    {(() => {
+                      const grouped: Record<string, typeof otherCities> = {}
+                      otherCities.forEach(c => {
+                        const initial = getCityInitial(c.city)
+                        if (!grouped[initial]) grouped[initial] = []
+                        grouped[initial].push(c)
+                      })
+                      const sortedLetters = Object.keys(grouped).sort()
+                      return sortedLetters.map(letter => (
+                        <div key={letter} className="flex items-start gap-2">
+                          <span className="text-xs font-medium text-ash w-4 flex-shrink-0 pt-1">{letter}</span>
+                          <div className="flex flex-wrap gap-2">
+                            {grouped[letter].map(c => (
+                              <button
+                                key={c.city}
+                                onClick={() => handleCityChange(c.city)}
+                                className={cn('city-pill', selectedCity === c.city && 'city-pill-active')}
+                              >
+                                {c.city}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    })()}
                   </div>
                 </div>
               </div>

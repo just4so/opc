@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import { SessionProvider } from '@/components/providers/session-provider'
+import { HelpWidget } from '@/components/help/help-widget'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -63,6 +64,7 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={inter.className}>
         <SessionProvider>{children}</SessionProvider>
+        <HelpWidget />
         {/* JSON-LD 结构化数据 */}
         <Script
           id="json-ld"

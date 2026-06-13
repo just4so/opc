@@ -13,6 +13,7 @@ export default function AdminSettingsPage() {
   const router = useRouter()
   const [communityQrUrl, setCommunityQrUrl] = useState('')
   const [connectQrUrl, setConnectQrUrl] = useState('')
+  const [helpQrUrl, setHelpQrUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -31,6 +32,8 @@ export default function AdminSettingsPage() {
         setCommunityQrUrl(communityQr?.value ?? '')
         const connectQr = settings.find((s) => s.key === 'connect_qrcode_url')
         setConnectQrUrl(connectQr?.value ?? '')
+        const helpQr = settings.find((s) => s.key === 'help_qrcode_url')
+        setHelpQrUrl(helpQr?.value ?? '')
       })
       .finally(() => setLoading(false))
   }, [])
@@ -48,6 +51,11 @@ export default function AdminSettingsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'connect_qrcode_url', value: connectQrUrl }),
+      })
+      await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'help_qrcode_url', value: helpQrUrl }),
       })
       setMessage('已保存')
     } catch (e: any) {
@@ -96,6 +104,22 @@ export default function AdminSettingsPage() {
                 value={connectQrUrl || null}
                 onChange={(url) => setConnectQrUrl(url)}
                 label="二维码图片"
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>帮助中心二维码</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-500">
+                设置后将在全站右下角显示帮助按钮，用户点击后可扫码联系企业微信。未设置时按钮不显示。
+              </p>
+              <ImageUpload
+                value={helpQrUrl || null}
+                onChange={(url) => setHelpQrUrl(url)}
+                label="企微二维码图片"
               />
             </CardContent>
           </Card>
