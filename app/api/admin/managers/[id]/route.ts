@@ -54,10 +54,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
           await prisma.user.update({ where: { id: oldUserId }, data: { role: 'USER' } })
         }
       }
-      // Bind new user → upgrade to CITY_MANAGER if USER
+      // Bind new user → upgrade to CITY_MANAGER unless ADMIN
       if (newUserId) {
         const newUser = await prisma.user.findUnique({ where: { id: newUserId }, select: { role: true } })
-        if (newUser && newUser.role === 'USER') {
+        if (newUser && newUser.role !== 'ADMIN') {
           await prisma.user.update({ where: { id: newUserId }, data: { role: 'CITY_MANAGER' } })
         }
       }

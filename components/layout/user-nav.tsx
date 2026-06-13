@@ -98,7 +98,7 @@ export function UserNav() {
                 </span>
               )}
             </Link>
-            {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR') && (
+            {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR' || (session.user as any).role === 'CITY_MANAGER') && (
               <Link
                 href="/admin"
                 className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"

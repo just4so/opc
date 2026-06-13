@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Upgrade user role to CITY_MANAGER if bound and not already ADMIN/MODERATOR
+    // Upgrade user role to CITY_MANAGER if bound and not already ADMIN
     if (userId) {
       const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
-      if (user && user.role === 'USER') {
+      if (user && user.role !== 'ADMIN') {
         await prisma.user.update({ where: { id: userId }, data: { role: 'CITY_MANAGER' } })
       }
     }

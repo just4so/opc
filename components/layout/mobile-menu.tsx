@@ -116,7 +116,7 @@ export function MobileMenu() {
                       <span className="ml-auto text-xs text-red-500 font-medium">{counts.messages}</span>
                     )}
                   </Link>
-                  {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR') && (
+                  {((session.user as any).role === 'ADMIN' || (session.user as any).role === 'MODERATOR' || (session.user as any).role === 'CITY_MANAGER') && (
                     <Link href="/admin" onClick={close} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm text-blue-600 hover:bg-blue-50 transition-colors">
                       <Shield className="h-4 w-4" /> 管理后台
                     </Link>
