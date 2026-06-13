@@ -9,7 +9,6 @@ export const getPlazaProjects = unstable_cache(
         status: 'PUBLISHED',
         contentType: 'PROJECT',
         description: { not: '' },
-        owner: { showInPlaza: true },
       },
       orderBy: [{ createdAt: 'desc' }],
       take: 20,
@@ -48,7 +47,6 @@ export const getPlazaProjectCount = unstable_cache(
       where: {
         status: 'PUBLISHED',
         contentType: 'PROJECT',
-        owner: { showInPlaza: true },
       },
     })
   },
@@ -61,7 +59,6 @@ export const getPlazaUsers = unstable_cache(
   async () => {
     const users = await prisma.user.findMany({
       where: {
-        showInPlaza: true,
         OR: [
           { bio: { not: null } },
           { bio: { not: '' } },
@@ -112,7 +109,6 @@ export const getPlazaUserCount = unstable_cache(
   async () => {
     return prisma.user.count({
       where: {
-        showInPlaza: true,
         OR: [
           { bio: { not: null } },
           { bio: { not: '' } },

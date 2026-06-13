@@ -16,9 +16,7 @@ export async function GET(request: NextRequest) {
       status: 'PUBLISHED',
       contentType: 'PROJECT',
       description: { not: '' },
-      owner: {
-        showInPlaza: true,
-      } as Record<string, unknown>,
+      owner: {} as Record<string, unknown>,
     }
 
     const ownerWhere = where.owner as Record<string, unknown>
