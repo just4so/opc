@@ -27,11 +27,25 @@ export async function POST(
   })
 
   if (existing) {
-    await prisma.favorite.delete({ where: { id: existing.id } })
-    return NextResponse.json({ favorited: false })
+    await prisma.$transaction([
+      prisma.favorite.delete({ where: { id: existing.id } }),
+      prisma.project.update({
+        where: { id: project.id },
+        data: { likeCount: { decrement: 1 } },
+      }),
+    ])
+    const updated = await prisma.project.findUnique({ where: { id: project.id }, select: { likeCount: true } })
+    return NextResponse.json({ liked: false, favorited: false, likeCount: updated?.likeCount ?? 0 })
   } else {
-    await prisma.favorite.create({ data: { userId, projectId: project.id } })
-    return NextResponse.json({ favorited: true })
+    await prisma.$transaction([
+      prisma.favorite.create({ data: { userId, projectId: project.id } }),
+      prisma.project.update({
+        where: { id: project.id },
+        data: { likeCount: { increment: 1 } },
+      }),
+    ])
+    const updated = await prisma.project.findUnique({ where: { id: project.id }, select: { likeCount: true } })
+    return NextResponse.json({ liked: true, favorited: true, likeCount: updated?.likeCount ?? 0 })
   }
 }
 

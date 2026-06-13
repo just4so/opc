@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-interface ProjectItem {
+interface ProductItem {
   id: string
   name: string
   description: string
@@ -53,7 +53,7 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 export default function AdminOrdersPage() {
   const { data: session } = useSession()
   const router = useRouter()
-  const [orders, setOrders] = useState<ProjectItem[]>([])
+  const [products, setProducts] = useState<ProductItem[]>([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [page, setPage] = useState(1)
@@ -80,7 +80,7 @@ export default function AdminOrdersPage() {
       const res = await fetch(`/api/admin/orders?${params.toString()}`)
       if (res.ok) {
         const data = await res.json()
-        setOrders(data.orders || [])
+        setProducts(data.orders || [])
         setPagination(data.pagination || null)
       }
     } catch (error) {
@@ -133,7 +133,7 @@ export default function AdminOrdersPage() {
   }
 
   const handleDelete = async (orderId: string) => {
-    if (!confirm('确定要归档这个项目吗？归档后不会在前台展示。')) return
+    if (!confirm('确定要归档这个产品吗？归档后不会在前台展示。')) return
 
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -155,7 +155,7 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-secondary">项目管理</h1>
+        <h1 className="text-2xl font-bold text-secondary">产品管理</h1>
         <Button variant="outline" onClick={handleExport}>
           <Download className="h-4 w-4 mr-2" />
           导出数据
@@ -218,7 +218,7 @@ export default function AdminOrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            项目列表
+            产品列表
             {pagination && (
               <span className="text-sm font-normal text-gray-500 ml-2">
                 (共 {pagination.total} 个)
@@ -229,8 +229,8 @@ export default function AdminOrdersPage() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-gray-500">加载中...</div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">暂无项目</div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">暂无产品</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -247,7 +247,7 @@ export default function AdminOrdersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {products.map((order) => (
                     <tr key={order.id} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <div className="font-medium line-clamp-1">{order.name}</div>

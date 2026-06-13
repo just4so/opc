@@ -71,7 +71,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   if (!user) notFound()
 
-  const [recentPosts, projects, progressItems] = await Promise.all([
+  const [recentPosts, projects, progressItems, likedFavs] = await Promise.all([
     prisma.post.findMany({
       where: { authorId: user.id, status: 'PUBLISHED' },
       orderBy: { createdAt: 'desc' },
@@ -115,6 +115,25 @@ export default async function PublicProfilePage({ params }: PageProps) {
         project: { select: { name: true, slug: true } },
       },
     }),
+    prisma.favorite.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        project: {
+          select: {
+            id: true, slug: true, name: true, description: true,
+            stage: true, website: true, contentType: true, status: true,
+            likeCount: true, commentCount: true, images: true,
+          },
+        },
+        post: {
+          select: {
+            id: true, title: true, content: true, type: true, status: true,
+            likeCount: true, commentCount: true, createdAt: true,
+          },
+        },
+      },
+    }),
   ])
 
   const [followerCount, followingCount] = await Promise.all([
@@ -135,6 +154,20 @@ export default async function PublicProfilePage({ params }: PageProps) {
     })
     isFollowing = !!follow
   }
+
+  const likedProjects = likedFavs
+    .filter(f => f.project && f.project.status === 'PUBLISHED')
+    .map(f => {
+      const { status: _s, ...rest } = f.project!
+      return rest
+    })
+
+  const likedPosts = likedFavs
+    .filter(f => f.post && f.post.status === 'PUBLISHED')
+    .map(f => {
+      const { status: _s, ...rest } = f.post!
+      return { ...rest, createdAt: rest.createdAt.toISOString() }
+    })
 
   const serializedUser = {
     ...user,
@@ -165,6 +198,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
       followerCount={followerCount}
       followingCount={followingCount}
       isFollowing={isFollowing}
+      likedProjects={likedProjects}
+      likedPosts={likedPosts}
     />
   )
 }

@@ -71,15 +71,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const session = await auth()
   const currentUserId = session?.user?.id || null
 
-  let isFavorited = false
   let isLiked = false
   let isFollowingOwner = false
 
   if (currentUserId) {
-    const [fav, like, follow] = await Promise.all([
-      prisma.favorite.findUnique({
-        where: { userId_projectId: { userId: currentUserId, projectId: project.id } },
-      }),
+    const [like, follow] = await Promise.all([
       prisma.favorite.findFirst({
         where: { userId: currentUserId, projectId: project.id },
       }),
@@ -94,7 +90,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           })
         : null,
     ])
-    isFavorited = !!fav
     isLiked = !!like
     isFollowingOwner = !!follow
   }
@@ -125,7 +120,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       project={serializedProject}
       currentUserId={currentUserId}
       initialIsLiked={isLiked}
-      initialIsFavorited={isFavorited}
       initialIsFollowingOwner={isFollowingOwner}
     />
   )

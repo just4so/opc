@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { ArrowLeft, ExternalLink, Heart, Star, Plus } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Heart, Plus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { ensureUrl } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -66,7 +66,6 @@ interface ProjectDetailClientProps {
   project: ProjectData
   currentUserId: string | null
   initialIsLiked: boolean
-  initialIsFavorited: boolean
   initialIsFollowingOwner: boolean
 }
 
@@ -74,15 +73,12 @@ export function ProjectDetailClient({
   project,
   currentUserId,
   initialIsLiked,
-  initialIsFavorited,
   initialIsFollowingOwner,
 }: ProjectDetailClientProps) {
   const [isLiked, setIsLiked] = useState(initialIsLiked)
   const [likeCount, setLikeCount] = useState(project.likeCount)
   const [likeLoading, setLikeLoading] = useState(false)
   const [likeBouncing, setLikeBouncing] = useState(false)
-  const [isFavorited, setIsFavorited] = useState(initialIsFavorited)
-  const [favLoading, setFavLoading] = useState(false)
   const [progressList, setProgressList] = useState(project.progressList)
   const [showProgressDialog, setShowProgressDialog] = useState(false)
 
@@ -117,25 +113,6 @@ export function ProjectDetailClient({
       setLikeCount(likeCount)
     } finally {
       setLikeLoading(false)
-    }
-  }
-
-  const handleFavorite = async () => {
-    if (!currentUserId) {
-      window.location.href = '/login'
-      return
-    }
-    setFavLoading(true)
-    try {
-      const res = await fetch(`/api/projects/${project.slug}/favorite`, {
-        method: 'POST',
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setIsFavorited(data.favorited)
-      }
-    } finally {
-      setFavLoading(false)
     }
   }
 
@@ -299,18 +276,6 @@ export function ProjectDetailClient({
                   </Button>
                 </a>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleFavorite}
-                disabled={favLoading}
-                className={isFavorited ? 'text-amber-500' : 'text-mute'}
-              >
-                <Star
-                  className={`h-4 w-4 mr-1 ${isFavorited ? 'fill-amber-500' : ''}`}
-                />
-                {isFavorited ? '已收藏' : '收藏'}
-              </Button>
             </div>
 
             {/* Progress timeline */}

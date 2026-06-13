@@ -86,6 +86,29 @@ const STAGE_LABELS: Record<string, string> = {
   IDEA: '想法阶段', BUILDING: '开发中', LAUNCHED: '已上线', REVENUE: '有收入', PROFITABLE: '已盈利',
 }
 
+interface LikedProject {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  stage: string
+  website: string | null
+  contentType: string
+  likeCount: number
+  commentCount: number
+  images: string[]
+}
+
+interface LikedPost {
+  id: string
+  title: string | null
+  content: string
+  type: string
+  likeCount: number
+  commentCount: number
+  createdAt: string
+}
+
 interface ProfileClientProps {
   user: UserProfile
   recentPosts?: RecentPost[]
@@ -94,6 +117,8 @@ interface ProfileClientProps {
   followerCount?: number
   followingCount?: number
   isFollowing?: boolean
+  likedProjects?: LikedProject[]
+  likedPosts?: LikedPost[]
 }
 
 function formatRelativeTime(dateStr: string): string {
@@ -112,13 +137,14 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(days / 365)}年前`
 }
 
-export default function ProfileClient({ user, recentPosts = [], projects = [], progressItems = [], followerCount = 0, followingCount = 0, isFollowing = false }: ProfileClientProps) {
+export default function ProfileClient({ user, recentPosts = [], projects = [], progressItems = [], followerCount = 0, followingCount = 0, isFollowing = false, likedProjects = [], likedPosts = [] }: ProfileClientProps) {
   const { data: session } = useSession()
   const router = useRouter()
 
   const [startingChat, setStartingChat] = useState(false)
   const [chatError, setChatError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<'published' | 'liked'>('published')
 
   const isRecentlyActive = user.lastActiveAt && (Date.now() - new Date(user.lastActiveAt).getTime()) < 24 * 60 * 60 * 1000
   const isOwnProfile = (session?.user as any)?.id === user.id
@@ -250,6 +276,32 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
         </div>
         </ScrollReveal>
 
+        {/* === Tab Bar === */}
+        <div className="mt-4 flex gap-1 bg-white rounded-2xl p-1 border border-hairline">
+          <button
+            onClick={() => setActiveTab('published')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+              activeTab === 'published'
+                ? 'bg-primary text-white'
+                : 'text-mute hover:text-ink'
+            }`}
+          >
+            发布
+          </button>
+          <button
+            onClick={() => setActiveTab('liked')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
+              activeTab === 'liked'
+                ? 'bg-primary text-white'
+                : 'text-mute hover:text-ink'
+            }`}
+          >
+            喜欢 {likedProjects.length + likedPosts.length > 0 && `(${likedProjects.length + likedPosts.length})`}
+          </button>
+        </div>
+
+        {activeTab === 'published' && (
+          <>
         {/* === Products & Progress Section === */}
         {projects.length > 0 && (
           <ScrollReveal delay={100}>
@@ -349,7 +401,6 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
           </ScrollReveal>
         )}
 
-        {/* === Completeness (own profile only) === */}
         {isOwnProfile && completenessPercent < 100 && (
           <div className="mt-6 rounded-2xl p-5 bg-orange-50 border border-orange-200">
             <div className="flex items-center justify-between mb-3">
@@ -370,6 +421,74 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
             <Link href="/settings">
               <Button size="sm" variant="outline" className="gap-1"><Settings className="h-3.5 w-3.5" />去完善</Button>
             </Link>
+          </div>
+        )}
+          </>
+        )}
+
+        {activeTab === 'liked' && (
+          <div className="mt-6 space-y-6">
+            {likedProjects.length === 0 && likedPosts.length === 0 ? (
+              <div className="text-center py-12 text-ash text-sm">还没有喜欢的内容</div>
+            ) : (
+              <>
+                {likedProjects.length > 0 && (
+                  <div>
+                    <h2 className="text-sm font-medium mb-2 text-ash">喜欢的产品</h2>
+                    <div className="space-y-3">
+                      {likedProjects.map(proj => (
+                        <Link
+                          key={proj.id}
+                          href={`/projects/${proj.slug}`}
+                          className="block bg-white rounded-2xl border border-hairline p-4 hover:-translate-y-0.5 transition-all duration-200 hover:shadow-md"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-sm text-ink">{proj.name}</span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {STAGE_LABELS[proj.stage] || proj.stage}
+                                </Badge>
+                              </div>
+                              {proj.description && (
+                                <p className="text-xs text-mute mt-1 line-clamp-2">{proj.description}</p>
+                              )}
+                              <div className="flex items-center gap-3 mt-2 text-xs text-ash">
+                                <span className="inline-flex items-center gap-1"><Heart className="h-3 w-3" />{proj.likeCount}</span>
+                                <span className="inline-flex items-center gap-1"><MessageCircle className="h-3 w-3" />{proj.commentCount}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {likedPosts.length > 0 && (
+                  <div>
+                    <h2 className="text-sm font-medium mb-2 text-ash">喜欢的动态</h2>
+                    <div className="space-y-1">
+                      {likedPosts.map(post => (
+                        <Link
+                          key={post.id}
+                          href={`/plaza/${post.id}`}
+                          className="block py-2 px-3 rounded-xl hover:bg-white transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm truncate text-mute">{post.title || post.content.slice(0, 60)}</span>
+                            <div className="flex items-center gap-3 shrink-0 ml-3 text-xs text-ash">
+                              <span className="inline-flex items-center gap-1"><Heart className="h-3 w-3" />{post.likeCount}</span>
+                              <span>{new Date(post.createdAt).toLocaleDateString('zh-CN')}</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 
