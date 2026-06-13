@@ -10,7 +10,7 @@ import { CITIES, HOT_CITIES } from '@/constants/cities'
 import { pinyin } from 'pinyin-pro'
 
 function getCityInitial(city: string): string {
-  const result = pinyin(city[0], { pattern: 'first', toneType: 'none' })
+  const result = pinyin(city, { pattern: 'first', toneType: 'none', type: 'array' })
   return result[0]?.toUpperCase() ?? city[0].toUpperCase()
 }
 
@@ -147,6 +147,7 @@ export function CommunitiesPageClient({
     setSelectedCity(city)
     setPage(1)
     setSearchQuery('')
+    setShowAllCities(false)
     const params = new URLSearchParams(searchParams.toString())
     if (city) {
       params.set('city', city)
@@ -172,7 +173,7 @@ export function CommunitiesPageClient({
     <div className="min-h-screen bg-background">
 <PageHeader
         title={<>全国 OPC <span className="text-primary">社区地图</span></>}
-        subtitle={`${allCommunities.length} 个社区 · ${cityCounts.length || '—'} 座城市 · 真实入驻友好度参考`}
+        subtitle={`${allCommunities.length} 个社区 · ${cityCounts.length || '-'} 座城市 · 真实入驻友好度参考`}
         theme="communities"
       >
         <div className="flex items-center gap-1 bg-surface-card rounded-2xl p-1 shrink-0">
@@ -228,6 +229,7 @@ export function CommunitiesPageClient({
             const hotCities = cityCounts.filter(c => HOT_CITIES.includes(c.city))
               .sort((a, b) => HOT_CITIES.indexOf(a.city) - HOT_CITIES.indexOf(b.city))
             const otherCities = cityCounts.filter(c => !HOT_CITIES.includes(c.city))
+            const allCities = cityCounts
             const selectedIsOther = selectedCity && !HOT_CITIES.includes(selectedCity)
 
             return (
@@ -254,22 +256,12 @@ export function CommunitiesPageClient({
                       {c.city}
                     </button>
                   ))}
-                  {/* 如果当前选中的城市在“更多”里且未展开，临时显示它 */}
-                  {selectedIsOther && !showAllCities && (
-                    <button
-                      key={selectedCity}
-                      className="city-pill city-pill-active"
-                      onClick={() => handleCityChange(selectedCity)}
-                    >
-                      {selectedCity}
-                    </button>
-                  )}
                   {otherCities.length > 0 && (
                     <button
                       onClick={() => setShowAllCities(!showAllCities)}
                       className="city-pill city-pill-more"
                     >
-                      {showAllCities ? '收起' : `更多城市 (${otherCities.length})`}
+                      {showAllCities ? '收起' : `全部城市 (${cityCounts.length})`}
                       <ChevronDown className={cn(
                         'h-3 w-3 ml-0.5 transition-transform duration-200',
                         showAllCities && 'rotate-180'
@@ -277,12 +269,12 @@ export function CommunitiesPageClient({
                     </button>
                   )}
                 </div>
-                {/* 展开的更多城市 - 按首字母分组 */}
+                {/* 展开的全部城市 - 按首字母分组 */}
                 <div className={`city-expand-container ${showAllCities ? 'expanded' : ''}`}>
                   <div className="pt-2 space-y-3">
                     {(() => {
-                      const grouped: Record<string, typeof otherCities> = {}
-                      otherCities.forEach(c => {
+                      const grouped: Record<string, typeof allCities> = {}
+                      allCities.forEach(c => {
                         const initial = getCityInitial(c.city)
                         if (!grouped[initial]) grouped[initial] = []
                         grouped[initial].push(c)
@@ -315,7 +307,7 @@ export function CommunitiesPageClient({
           {isSearching && (
             <p className="text-sm text-mute">
               找到 <span className="font-medium text-ink">{filtered.length}</span> 个社区
-              {filtered.length === 0 && '，试试其他关键词'}
+              {filtered.length === 0 && ',试试其他关键词'}
             </p>
           )}
         </div>
@@ -329,7 +321,7 @@ export function CommunitiesPageClient({
         />
       )}
 
-      {/* 平铺列表（搜索或选中城市时） */}
+      {/* 平铺列表(搜索或选中城市时) */}
       {showFlatList && (
         <CommunitiesClient
           communities={paginated}
