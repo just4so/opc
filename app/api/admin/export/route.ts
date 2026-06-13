@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireStaffApi } from '@/lib/admin'
+import { requireStaffContextApi, cityFilter } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -28,7 +28,7 @@ function toCSV(data: any[], columns: { key: string; label: string }[]): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const staff = await requireStaffApi()
+    const staff = await requireStaffContextApi()
     if (staff instanceof NextResponse) return staff
 
     const { searchParams } = new URL(request.url)
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
     switch (type) {
       case 'communities': {
         const data = await prisma.community.findMany({
+          where: { ...cityFilter(staff) },
           orderBy: { createdAt: 'desc' },
         })
         const columns = [
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
 
       case 'orders': {
         const data = await prisma.project.findMany({
-          where: { contentType: { in: ['DEMAND', 'COOPERATION'] } },
+          where: { contentType: { in: ['DEMAND', 'COOPERATION'] }, ...cityFilter(staff) },
           include: { owner: { select: { username: true, name: true } } },
           orderBy: { createdAt: 'desc' },
         })
@@ -85,6 +86,10 @@ export async function GET(request: NextRequest) {
       }
 
       case 'users': {
+        // CITY_MANAGER 不允许导出用户数据
+        if (staff.role === 'CITY_MANAGER') {
+          return NextResponse.json({ error: '权限不足' }, { status: 403 })
+        }
         const data = await prisma.user.findMany({
           orderBy: { createdAt: 'desc' },
         })

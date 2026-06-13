@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireStaff } from '@/lib/admin'
+import { requireStaffContextApi, cityFilter } from '@/lib/admin'
 import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -12,13 +12,14 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 export async function GET(request: NextRequest) {
-  await requireStaff()
+  const staff = await requireStaffContextApi()
+  if (staff instanceof NextResponse) return staff
 
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
 
-    const where: Record<string, unknown> = {}
+    const where: Record<string, unknown> = { ...cityFilter(staff) }
     if (status && status !== 'ALL') where.status = status
 
     const inquiries = await prisma.inquiry.findMany({
