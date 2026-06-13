@@ -1,373 +1,252 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { CheckCircle2, MapPin, RefreshCw, ArrowRight, Eye, Users, Mail } from 'lucide-react'
 import prisma from '@/lib/db'
-import { WeChatButton } from '@/components/about/wechat-button'
 
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: '关于 OPC圈 | OPC创业者的第一个家',
-  description: '让每一位OPC创业者，都能被世界看见。OPC圈收录全国400+线下社区，覆盖70+城市，连接数千位一人公司创业者。',
+  title: '关于 OPC圈 | 中国一人公司创业者的连接平台',
+  description: '让每一位OPC创业者，都能被世界看见。OPC圈收录全国线下社区，覆盖数十座城市，连接数千位一人公司创业者。',
 }
 
-const stats = [
-  { number: '400+', label: '线下OPC社区', hint: '覆盖全国主要城市' },
-  { number: '70+', label: '覆盖城市', hint: '北京上海深圳杭州武汉等' },
-  { number: '5000+', label: '活跃创业者', hint: '持续增长中' },
-  { number: '1000万+', label: '全网内容触达', hint: '持续增长中' },
-]
-
-const features = [
-  {
-    num: '01',
-    title: '找到适合你的社区',
-    desc: '不知道去哪创业？400+ 社区按城市、价格、政策一目了然。每条信息人工核实，不靠爬虫。',
-  },
-  {
-    num: '02',
-    title: '让世界看见你',
-    desc: '一个人创业容易孤独。创业者广场让你展示自己和产品，找到同路人、搭档和客户。',
-  },
+const emails = [
+  { label: '商务合作', email: 'cooperation@opcquan.com' },
+  { label: '社区入驻', email: 'mutong@opcquan.com' },
+  { label: '内容投稿', email: 'cooperation@opcquan.com' },
 ]
 
 export default async function AboutPage() {
-  const managers = await prisma.cityManager.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: [{ order: 'desc' }, { createdAt: 'asc' }],
-  })
+  const [communityCount, cityGroups, , setting] = await Promise.all([
+    prisma.community.count(),
+    prisma.community.groupBy({ by: ['city'] }),
+    prisma.user.count(),
+    prisma.siteSetting.findUnique({ where: { key: 'community_qrcode_url' } }),
+  ])
+  const cityCount = cityGroups.length
+  const DEFAULT_QR = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/qrcode/wechat-group.png'
+  const qrUrl = (setting?.value && setting.value.startsWith('http')) ? setting.value : DEFAULT_QR
 
-  const hasManagers = managers.length > 0
-  const bigCards = managers.slice(0, 2)
-  const smallCards = managers.slice(2)
+  const facts = [
+    {
+      icon: CheckCircle2,
+      badge: '人工核实',
+      number: `${communityCount}`,
+      unit: '个社区',
+      desc: '不靠爬虫，每条信息都有人确认过，确保你看到的每个社区真实可信。',
+    },
+    {
+      icon: MapPin,
+      badge: '持续扩展',
+      number: `${cityCount}`,
+      unit: '座城市',
+      desc: '从北上深到二三线，覆盖真实创业聚集地，找到适合你的城市。',
+    },
+    {
+      icon: RefreshCw,
+      badge: '实时同步',
+      number: '每周',
+      unit: '更新',
+      desc: '政策变了、社区新开了，我们跟着更新，信息始终保持鲜活。',
+    },
+  ]
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9]">
+    <div className="min-h-screen bg-canvas">
 
       {/* Section 1: Brand Hero */}
-      <section className="bg-[#FBFBF9]">
-        <div className="max-w-[1280px] mx-auto px-8 pt-24 pb-16 border-b-4 border-slate-900">
-          <div className="flex flex-col md:flex-row md:items-end gap-12 md:gap-16">
-            <div className="flex-1 min-w-0">
-              <h1 style={{ fontSize: 'clamp(64px, 10vw, 120px)', lineHeight: 1, fontWeight: 900, letterSpacing: '-0.03em' }}>
-                <span className="block text-slate-900">OPC创业者的</span>
-                <span className="block text-primary">第一个家。</span>
-              </h1>
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden pb-12 py-8" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 0 100%)' }}>
+        {/* 深色底 */}
+        <div className="absolute inset-0 bg-slate-900 z-0" />
+        {/* 橙色径向渐变 - 右上角 */}
+        <div className="absolute -right-32 -top-32 w-[600px] h-[600px] rounded-full bg-primary/15 blur-3xl pointer-events-none z-0" />
+        {/* 橙色渐变斑点 - 左下角 */}
+        <div className="absolute -left-16 bottom-0 w-80 h-80 rounded-full bg-primary/10 blur-2xl pointer-events-none z-0" />
+        {/* 左侧竖向橙色渐变条 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent pointer-events-none z-0" />
+        {/* 底部渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent pointer-events-none z-0" />
+        {/* 装饰圆圈轮廓 */}
+        <div className="absolute right-16 top-16 w-64 h-64 rounded-full border border-primary/10 pointer-events-none z-0" />
+        <div className="absolute right-32 top-32 w-32 h-32 rounded-full border border-primary/5 pointer-events-none z-0" />
+
+        <div className="max-w-6xl mx-auto px-6 md:px-10 relative z-10 w-full">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-orange-200/30 bg-slate-900/50 backdrop-blur-sm text-orange-200 text-xs font-medium uppercase tracking-widest">
+              中国一人公司创业者的连接平台
             </div>
-            <div className="md:w-[420px] flex-shrink-0">
-              <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-[400px]">
-                每一位选择独自前行的人，都值得有人帮他把路照亮。
-                OPC圈收录全国 400+ 社区，连接数千位一人公司创业者，
-                让每一位OPC创业者，都能被世界看见。
-              </p>
-            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight drop-shadow-lg">
+              OPC<span className="text-primary">圈</span>
+            </h1>
+            <div className="w-24 h-2 bg-primary rounded-full" />
+            <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-2xl font-light">
+              我们做一件事——<br />
+              让每一个<strong className="text-white font-semibold">独自在跑的创业者</strong>，<br />
+              找到属于自己的城市、圈子和同路人。
+            </p>
           </div>
+        </div>
+
+        {/* 向下滚动箭头 */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
+          <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </section>
 
-      {/* Section 2: Stats */}
-      <section className="bg-[#FBFBF9] border-y border-slate-200">
-        <div className="max-w-[1280px] mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-200">
-            {stats.map(s => (
-              <div key={s.label} className="bg-[#FBFBF9] p-10 min-h-[120px] flex flex-col items-start justify-start">
-                <div className={`${s.number === '1000万+' ? 'text-4xl md:text-5xl' : 'text-5xl md:text-6xl'} font-black text-slate-900`}>{s.number}</div>
-                <div className="text-sm font-semibold text-slate-700 mt-2">{s.label}</div>
-                <div className="text-xs text-slate-400 mt-1">{s.hint}</div>
+      {/* Section 2: Three Facts */}
+      <section className="bg-slate-50">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
+          <div className="mb-12 text-right">
+            <h2 className="text-4xl md:text-5xl font-bold text-ink mb-4 leading-tight">
+              我们在做什么<br />
+              <span className="text-primary opacity-60">构筑真实的网络</span>
+            </h2>
+            <p className="text-lg text-mute border-r-4 border-primary pr-6 ml-auto max-w-2xl">
+              通过人工核实与持续更新，为你提供最可靠的本地创业资源导航。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {facts.map(f => (
+              <div
+                key={f.unit}
+                className="bg-white rounded-2xl border border-hairline p-6 hover:border-primary transition-colors duration-300"
+              >
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+                  <f.icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="text-xs text-primary font-bold tracking-widest uppercase mb-1">{f.badge}</div>
+                <div className="flex items-baseline gap-1 mb-3">
+                  <span className="text-3xl font-black text-ink">{f.number}</span>
+                  <span className="text-lg text-mute font-normal ml-2">{f.unit}</span>
+                </div>
+                <p className="text-sm text-mute leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Section 3: Narrative */}
-      <section className="bg-[#FBFBF9]">
-        <div className="max-w-[1280px] mx-auto px-8 py-24">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-            {/* Left 4 cols */}
-            <div className="md:col-span-4">
-              <h2 className="text-2xl md:text-4xl font-bold text-slate-900 leading-snug">
-                为每一个独自前行的人，照亮前路。
-              </h2>
+      {/* Section 3: Three Values */}
+      <section className="bg-canvas">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-4">
+            <h2 className="text-3xl font-bold text-ink">「我们能帮你什么」</h2>
+            <p className="text-mute mt-3">不止于信息，是全方位的支持</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            {/* Left */}
+            <div className="bg-canvas rounded-[32px] border border-hairline p-10 flex flex-col hover:shadow-sm transition-shadow duration-200">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-8">
+                <MapPin className="h-6 w-6 text-primary" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-2xl font-bold text-ink mb-4">找到落脚点</h3>
+              <p className="text-mute leading-relaxed flex-1">
+                你想在哪座城市创业、预算多少、需要什么政策支持——我们帮你找到最合适的社区，迈出坚实的第一步。
+              </p>
+              <Link href="/communities" className="mt-8 text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                浏览社区 <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
 
-            {/* Right 8 cols */}
-            <div className="md:col-span-8 space-y-6">
-              <div className="bg-[#F6F6F3] rounded-2xl border border-slate-200 p-8 md:p-12 relative overflow-hidden group">
-                <div className="absolute -right-12 -top-12 w-48 h-48 bg-orange-100 rounded-full opacity-0 group-hover:opacity-100 group-hover:scale-150 transition-all duration-700 pointer-events-none" />
-                <div className="text-base leading-relaxed text-slate-700 relative z-10 space-y-4">
-                  <p>那一年，越来越多的人做了同一个决定：一个人，干一件事。不要投资人，不要团队，不要 996 的办公室——只要一张桌子，和一个值得信任的城市。</p>
-                  <p>但没有人告诉他们，那张桌子在哪里。哪个社区真的兑现了补贴承诺，哪个城市的政策窗口即将关闭，哪个角落里有和你一样的人在做同一件事。</p>
-                  <p>OPC圈就是为了这件事而存在。我们人工核实每一条社区信息，出版行业研究报告，与媒体合作让这个群体被看见——因为每一个选择独自前行的人，都值得有人帮他把路照亮。</p>
-                </div>
+            {/* Center (highlighted) */}
+            <div className="bg-slate-900 rounded-[32px] p-10 flex flex-col md:scale-105 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent pointer-events-none" />
+              <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center mb-8 relative z-10 shadow-lg">
+                <Eye className="h-6 w-6 text-white" strokeWidth={1.5} />
               </div>
+              <h3 className="text-2xl font-bold text-white mb-4 relative z-10">被看见</h3>
+              <p className="text-slate-400 leading-relaxed flex-1 relative z-10">
+                一个人做产品容易没人知道。广场是你对外的窗口，展示项目、获认证、找合作，让你的价值被看见。
+              </p>
+              <Link href="/plaza" className="mt-8 text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all relative z-10">
+                去广场 <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {features.map(f => (
-                  <div
-                    key={f.title}
-                    className="bg-white border-l-4 border-primary border border-slate-100 rounded-2xl p-6 hover:shadow-md transition-shadow duration-200"
-                  >
-                    <div className="text-2xl font-black text-primary mb-3">{f.num}</div>
-                    <h3 className="font-semibold text-slate-900 text-base mb-2">{f.title}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-                  </div>
-                ))}
+            {/* Right */}
+            <div className="bg-canvas rounded-[32px] border border-hairline p-10 flex flex-col hover:shadow-sm transition-shadow duration-200">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-8">
+                <Users className="h-6 w-6 text-primary" strokeWidth={1.5} />
               </div>
+              <h3 className="text-2xl font-bold text-ink mb-4">不孤单</h3>
+              <p className="text-mute leading-relaxed flex-1">
+                全国有人在做和你一样的事。同城主理人、创业者群，让你在本地也有圈子，找到同路人。
+              </p>
+              <Link href="/local" className="mt-8 text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                认识主理人 <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 4 + 5: City Managers + CTA (conditional) */}
-      {hasManagers && (
-        <>
-          {/* Dark Bento */}
-          <div className="bg-[#1a1c1b] rounded-[32px] mx-4 md:mx-8 mb-24 py-24 px-8 md:px-16 overflow-hidden relative">
-            {/* Dot grid background */}
-            <div
-              className="absolute inset-0 opacity-10 pointer-events-none"
-              style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-            />
+      {/* Section 4: Contact */}
+      <section className="bg-surface-card">
+        <div id="contact" className="max-w-6xl mx-auto px-6 py-20">
+          <div className="rounded-[40px] overflow-hidden shadow-xl border border-hairline">
+            <div className="grid lg:grid-cols-5 min-h-[480px]">
 
-            {/* Header */}
-            <div className="mb-16 relative z-10">
-              <h2
-                style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.03em' }}
-                className="text-[#FBFBF9]"
-              >
-                城市主理人
-              </h2>
-              <em className="text-primary not-italic block"
-                style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-                一城，一位。
-              </em>
-              <p className="text-slate-400 max-w-lg mt-4 text-base leading-relaxed">
-                每座城市都有一个人，在你之前，把这条路走过了一遍。
-              </p>
-              <p className="text-slate-400 max-w-lg mt-2 text-base leading-relaxed">
-                OPC圈城市主理人，是本地最资深的 OPC 创业者。他们不代表平台，他们代表这座城市——用自己的经历和信誉，帮助后来者少走弯路。
-              </p>
-            </div>
-
-            {/* Bento Grid */}
-            <div className="grid grid-cols-12 gap-6 relative z-10">
-              {/* Big cards (first 2) */}
-              {bigCards.map((m, i) => {
-                const isFirst = i === 0
-                const cityLabel = m.city || m.province
-                return (
-                  <div
-                    key={m.id}
-                    className={`col-span-12 ${isFirst ? 'md:col-span-7' : 'md:col-span-5'} rounded-2xl overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 p-1 group hover:border-primary/40 transition-all`}
-                  >
-                    <div className="flex flex-col md:flex-row h-full min-h-[280px]">
-                      {isFirst ? (
-                        <>
-                          {/* Image left */}
-                          <div className="w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden rounded-xl flex-shrink-0">
-                            {m.avatar ? (
-                              <Image
-                                src={m.avatar}
-                                alt={m.name}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-slate-700 text-white font-bold text-5xl">
-                                {m.name[0]}
-                              </div>
-                            )}
-                            <div className="absolute top-4 left-4">
-                              <span className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full tracking-widest shadow-lg">
-                                {cityLabel}
-                              </span>
-                            </div>
-                          </div>
-                          {/* Content right */}
-                          <div className="p-6 md:w-1/2 flex flex-col justify-center gap-4">
-                            <h4 className="text-xl font-bold text-[#FBFBF9]">{m.name}</h4>
-                            {m.title && (
-                              <p className="text-sm text-slate-400 mt-0.5">{m.title}</p>
-                            )}
-                            {m.quote && (
-                              <p className="text-sm text-slate-300 italic leading-relaxed">「{m.quote}」</p>
-                            )}
-                            {m.focusTags.length > 0 && (
-                              <div className="flex flex-wrap gap-2">
-                                {m.focusTags.map(tag => (
-                                  <span key={tag} className="text-[10px] font-bold text-primary border border-primary/30 px-2 py-0.5 rounded">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            {m.wechat && <WeChatButton wechat={m.wechat} name={m.name} />}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Content left — left-aligned */}
-                          <div className="p-6 md:w-1/2 flex flex-col justify-center gap-4 order-2 md:order-1">
-                            <h4 className="text-xl font-bold text-[#FBFBF9]">{m.name}</h4>
-                            {m.title && (
-                              <p className="text-sm text-slate-400 mt-0.5">{m.title}</p>
-                            )}
-                            {m.quote && (
-                              <p className="text-sm text-slate-300 italic leading-relaxed">「{m.quote}」</p>
-                            )}
-                            {m.focusTags.length > 0 && (
-                              <div className="flex flex-wrap gap-2">
-                                {m.focusTags.map(tag => (
-                                  <span key={tag} className="text-[10px] font-bold text-primary border border-primary/30 px-2 py-0.5 rounded">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            {m.wechat && <WeChatButton wechat={m.wechat} name={m.name} />}
-                          </div>
-                          {/* Image right */}
-                          <div className="w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden rounded-xl flex-shrink-0 order-1 md:order-2">
-                            {m.avatar ? (
-                              <Image
-                                src={m.avatar}
-                                alt={m.name}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="w-full h-full min-h-[200px] flex items-center justify-center bg-slate-700 text-white font-bold text-5xl">
-                                {m.name[0]}
-                              </div>
-                            )}
-                            <div className="absolute top-4 right-4">
-                              <span className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full tracking-widest shadow-lg">
-                                {cityLabel}
-                              </span>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-
-              {/* Small cards (rest) */}
-              {smallCards.map((m, i) => {
-                const isOrange = i === 0
-                const cityLabel = m.city || m.province
-                return (
-                  <div
-                    key={m.id}
-                    className={[
-                      'col-span-12 sm:col-span-6 md:col-span-4 p-8 rounded-2xl',
-                      isOrange
-                        ? 'bg-primary'
-                        : 'bg-white/5 backdrop-blur-sm border border-white/10 hover:border-primary/50 transition-colors',
-                    ].join(' ')}
-                  >
-                    <div className={`w-20 h-20 mb-6 rounded-full overflow-hidden border-2 ${isOrange ? 'border-white/50' : 'border-primary'} p-0.5 bg-slate-700`}>
-                      {m.avatar ? (
-                        <Image
-                          src={m.avatar}
-                          alt={m.name}
-                          width={80}
-                          height={80}
-                          className="rounded-full object-cover w-full h-full"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold rounded-full">
-                          {m.name[0]}
-                        </div>
-                      )}
-                    </div>
-
-                    <span className={`${isOrange ? 'bg-white/20 text-white' : 'bg-primary/20 text-primary'} text-[10px] px-3 py-1 rounded-full font-bold mb-4 inline-block`}>
-                      {cityLabel}
-                    </span>
-
-                    <h4 className={`text-xl font-bold ${isOrange ? 'text-white' : 'text-[#FBFBF9]'} mb-1`}>
-                      {m.name}
-                    </h4>
-
-                    {m.title && (
-                      <p className={`text-sm ${isOrange ? 'text-white/70' : 'text-slate-400'} mb-3`}>
-                        {m.title}
-                      </p>
-                    )}
-
-                    {m.bio && (
-                      <p className={`text-sm ${isOrange ? 'text-white/90' : 'text-slate-400'} mb-6 line-clamp-2`}>
-                        {m.bio}
-                      </p>
-                    )}
-
-                    {m.wechat && (
-                      <WeChatButton wechat={m.wechat} name={m.name} fullWidth white={isOrange} />
+              {/* Left: dark bg + QR code */}
+              <div className="lg:col-span-3 bg-slate-900 p-6 md:p-10 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-primary/10 pointer-events-none" />
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-3">加入 OPC 创业者微信群</h2>
+                  <p className="text-slate-400 text-lg max-w-md leading-relaxed">
+                    扫码加入，与全国 OPC 创业者交流。群内包括合作对接、政策解读、社区攻略和新功能尝鲜。
+                  </p>
+                </div>
+                <div className="flex flex-col items-center lg:items-start gap-4 mt-10">
+                  <div className="bg-white p-4 rounded-2xl w-52 h-52 flex items-center justify-center">
+                    {qrUrl ? (
+                      <Image
+                        src={qrUrl}
+                        alt="OPC圈微信群二维码"
+                        width={176}
+                        height={176}
+                        className="rounded-xl"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-sm">
+                        二维码加载中
+                      </div>
                     )}
                   </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Section 5: CTA */}
-          <section className="border-t border-slate-200">
-            <div className="py-24 px-8 max-w-[1280px] mx-auto text-center">
-              <h2
-                style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}
-                className="text-slate-900 mb-8"
-              >
-                你的城市，<br />
-                <span className="text-primary">还没有主理人。</span>
-              </h2>
-              <p className="text-lg text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-                成为 OPC圈城市主理人，意味着你是这座城市 OPC 创业者最值得信任的连接者。一城一人，排他制——官方背书、品牌曝光、本城社群资源，都将属于你。
-              </p>
-              <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-                <a
-                  href="mailto:cooperation@opcquan.com?subject=申请城市主理人（填写你的城市）"
-                  className="bg-slate-900 text-white px-10 py-4 rounded-full font-semibold hover:bg-primary transition-all shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
-                >
-                  发邮件申请
-                </a>
+                  <p className="text-xs text-slate-500">请使用微信扫描上方二维码</p>
+                </div>
               </div>
-            </div>
-          </section>
-        </>
-      )}
 
-      {/* Section 6: Contact */}
-      <section className="border-t border-slate-200">
-        <div className="py-24 px-8 max-w-[1280px] mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-700 mb-8">联系我们</h2>
-          <div className="space-y-4 text-slate-600">
-            <p>
-              商务合作：
-              <a href="mailto:cooperation@opcquan.com" className="text-primary hover:underline">
-                cooperation@opcquan.com
-              </a>
-            </p>
-            <p>社区收录/纠错：在任意社区详情页底部点击「我是该社区运营方」或「提交社区收录」</p>
-          </div>
-          <div className="mt-12 flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/communities"
-              className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3 font-medium text-white hover:bg-primary/90 transition-colors active:scale-[0.98]"
-            >
-              找到我的社区
-            </Link>
-            <Link
-              href="/plaza"
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 transition-colors active:scale-[0.98]"
-            >
-              去广场看看
-            </Link>
+              {/* Right: email contact */}
+              <div className="lg:col-span-2 bg-slate-50 p-6 md:p-10 lg:p-16 flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-10">
+                  <Mail className="h-6 w-6 text-primary" />
+                  <h3 className="text-2xl font-bold text-ink">邮件联系</h3>
+                </div>
+                <div className="space-y-8">
+                  {emails.map(item => (
+                    <div
+                      key={item.label}
+                      className="group border-b border-hairline pb-6 last:border-0 hover:border-primary/30 transition-colors"
+                    >
+                      <div className="text-xs font-bold text-mute uppercase tracking-widest mb-2">{item.label}</div>
+                      <a
+                        href={`mailto:${item.email}?subject=${item.label}`}
+                        className="text-lg font-semibold text-ink group-hover:text-primary transition-colors flex items-center justify-between"
+                      >
+                        {item.email}
+                        <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary" />
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </section>

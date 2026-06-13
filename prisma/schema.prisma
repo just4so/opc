@@ -10,49 +10,49 @@ datasource db {
 }
 
 model User {
-  id                 String                    @id @default(cuid())
-  username           String                    @unique
-  email              String?                   @unique
-  phone              String?                   @unique
-  passwordHash       String?
-  name               String?                   @unique
-  avatar             String?
-  bio                String?
-  location           String?
-  website            String?
-  wechat             String?
-  role               UserRole                  @default(USER)
-  level              Int                       @default(1)
-  verified           Boolean                   @default(false)
-  verifyType         VerifyType?
-  skills             String[]
-  canOffer           String[]
-  lookingFor         String[]
-  showInPlaza        Boolean                   @default(true)
-  createdAt          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt
-  lastActiveAt       DateTime?
-  mainTrack          String?
-  startupStage       String?
-  emailVerified      Boolean                   @default(false)
-  emailNotifications Boolean                   @default(true)
-  onboardingCompleted Boolean                  @default(false)
-  accounts           Account[]
-  comments           Comment[]
-  communityReviews   CommunityReview[]
-  conversations      ConversationParticipant[]
-  favorites          Favorite[]
-  inquiries          Inquiry[]
-  sentMessages       Message[]
-  oneTimeTokens      OneTimeToken[]
-  posts              Post[]
-  projects           Project[]
-  managedCommunities Community[]               @relation("CommunityManager")
-  notifications      Notification[]
-  followers          Follow[]                  @relation("UserFollowing")
-  following          Follow[]                  @relation("UserFollowers")
-  progress           Progress[]                @relation("UserProgress")
-  cityManagerProfile CityManager?
+  id                  String                    @id @default(cuid())
+  username            String                    @unique
+  email               String?                   @unique
+  phone               String?                   @unique
+  passwordHash        String?
+  name                String?                   @unique
+  avatar              String?
+  bio                 String?
+  location            String?
+  website             String?
+  wechat              String?
+  role                UserRole                  @default(USER)
+  level               Int                       @default(1)
+  verified            Boolean                   @default(false)
+  verifyType          VerifyType?
+  skills              String[]
+  canOffer            String[]
+  lookingFor          String[]
+  showInPlaza         Boolean                   @default(true)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  lastActiveAt        DateTime?
+  mainTrack           String?
+  startupStage        String?
+  emailVerified       Boolean                   @default(false)
+  emailNotifications  Boolean                   @default(true)
+  onboardingCompleted Boolean                   @default(false)
+  accounts            Account[]
+  cityManagerProfile  CityManager?
+  comments            Comment[]
+  communityReviews    CommunityReview[]
+  conversations       ConversationParticipant[]
+  favorites           Favorite[]
+  following           Follow[]                  @relation("UserFollowers")
+  followers           Follow[]                  @relation("UserFollowing")
+  inquiries           Inquiry[]
+  sentMessages        Message[]
+  notifications       Notification[]
+  oneTimeTokens       OneTimeToken[]
+  posts               Post[]
+  progress            Progress[]                @relation("UserProgress")
+  projects            Project[]
+  managedCommunities  Community[]               @relation("CommunityManager")
 
   @@index([username])
   @@index([location])
@@ -123,10 +123,10 @@ model Community {
   totalWorkstations Int?
   transit           String?
   amenities         String[]          @default([])
+  claims            CommunityClaim[]
   reviews           CommunityReview[]
   inquiries         Inquiry[]
   managers          User[]            @relation("CommunityManager")
-  claims            CommunityClaim[]
 
   @@index([city])
   @@index([slug])
@@ -189,7 +189,6 @@ model Project {
   id              String        @id @default(cuid())
   slug            String        @unique
   name            String
-  // @deprecated - 合并到 description
   tagline         String?
   description     String
   logo            String?
@@ -224,8 +223,8 @@ model Project {
   deadline        DateTime?
   skills          String[]
   comments        Comment[]
-  posts           Post[]
   favorites       Favorite[]
+  posts           Post[]
   progress        Progress[]
   owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
@@ -409,6 +408,137 @@ model Policy {
   @@index([status])
 }
 
+model Inquiry {
+  id              String        @id @default(cuid())
+  userId          String
+  communityId     String?
+  communityName   String?
+  name            String
+  contact         String
+  city            String?
+  introduction    String?
+  stage           String?
+  wantCard        Boolean       @default(false)
+  wantVerify      Boolean       @default(false)
+  acceptInterview Boolean       @default(false)
+  bpUrl           String?
+  bpFilename      String?
+  adminNote       String?
+  status          InquiryStatus @default(PENDING)
+  source          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  community       Community?    @relation(fields: [communityId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([communityId])
+  @@index([userId])
+  @@index([userId, communityId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  content   String?
+  isRead    Boolean  @default(false)
+  relatedId String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model CommunityClaim {
+  id            String     @id @default(cuid())
+  communityId   String?
+  communityName String
+  contactName   String
+  contactInfo   String
+  description   String?
+  status        String     @default("PENDING")
+  type          String     @default("CLAIM")
+  city          String?
+  createdAt     DateTime   @default(now())
+  community     Community? @relation(fields: [communityId], references: [id])
+
+  @@index([status])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  content   String
+  milestone String?
+  images    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  projectId String
+  author    User     @relation("UserProgress", fields: [authorId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([authorId, createdAt])
+}
+
+model CityManager {
+  id        String        @id @default(cuid())
+  userId    String?       @unique
+  name      String
+  avatar    String?
+  title     String?
+  bio       String?
+  quote     String?
+  focusTags String[]      @default([])
+  wechat    String?
+  scope     ManagerScope  @default(CITY)
+  city      String?
+  province  String
+  order     Int           @default(0)
+  status    ManagerStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User?         @relation(fields: [userId], references: [id])
+
+  @@index([status, order])
+  @@index([city])
+  @@index([province])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  userName   String
+  userRole   String
+  action     String
+  targetType String
+  targetId   String
+  targetName String
+  changes    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -509,140 +639,9 @@ enum PolicyStatus {
   EXPIRED
 }
 
-model Inquiry {
-  id              String        @id @default(cuid())
-  userId          String
-  communityId     String?
-  communityName   String?
-  name            String
-  contact         String
-  city            String?
-  introduction    String?
-  stage           String?
-  wantCard        Boolean       @default(false)
-  wantVerify      Boolean       @default(false)
-  acceptInterview Boolean       @default(false)
-  bpUrl           String?
-  bpFilename      String?
-  adminNote       String?
-  status          InquiryStatus @default(PENDING)
-  source          String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  user            User          @relation(fields: [userId], references: [id])
-  community       Community?    @relation(fields: [communityId], references: [id])
-
-  @@index([status])
-  @@index([communityId])
-  @@index([userId])
-  @@index([userId, communityId])
-  @@index([createdAt])
-}
-
 enum InquiryStatus {
   PENDING
   CONTACTED
   DONE
   CANCELLED
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  title     String
-  content   String?
-  isRead    Boolean  @default(false)
-  relatedId String?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-model CommunityClaim {
-  id            String     @id @default(cuid())
-  communityId   String?
-  communityName String
-  contactName   String
-  contactInfo   String
-  description   String?
-  status        String     @default("PENDING")
-  type          String     @default("CLAIM")
-  city          String?
-  createdAt     DateTime   @default(now())
-  community     Community? @relation(fields: [communityId], references: [id])
-
-  @@index([status])
-}
-
-model Follow {
-  id          String   @id @default(cuid())
-  followerId  String
-  followingId String
-  createdAt   DateTime @default(now())
-  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
-}
-
-model Progress {
-  id        String   @id @default(cuid())
-  content   String
-  milestone String?
-  images    String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  authorId  String
-  projectId String
-  author    User     @relation("UserProgress", fields: [authorId], references: [id], onDelete: Cascade)
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@index([projectId, createdAt])
-  @@index([authorId, createdAt])
-}
-
-model CityManager {
-  id        String        @id @default(cuid())
-  userId    String?       @unique
-  name      String
-  avatar    String?
-  title     String?
-  bio       String?
-  quote     String?
-  focusTags String[]      @default([])
-  wechat    String?
-  scope     ManagerScope  @default(CITY)
-  city      String?
-  province  String
-  order     Int           @default(0)
-  status    ManagerStatus @default(ACTIVE)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([status, order])
-  @@index([city])
-  @@index([province])
-}
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String
-  userName   String
-  userRole   String
-  action     String
-  targetType String
-  targetId   String
-  targetName String
-  changes    Json?
-  createdAt  DateTime @default(now())
-
-  @@index([userId, createdAt])
-  @@index([targetType, targetId])
-  @@index([createdAt])
 }

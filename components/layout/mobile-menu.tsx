@@ -9,7 +9,7 @@ import { Menu, X, User, LogOut, Shield, MessageSquare, Map, MessageCircle, Radio
 import { useUnread } from './unread-provider'
 
 const navLinks = [
-  { href: '/communities', label: '找社区', icon: Map },
+  { href: '/communities', label: '社区', icon: Map },
   { href: '/plaza', label: '广场', icon: MessageCircle },
   { href: '/news', label: '资讯', icon: Newspaper },
   { href: '/radar', label: '雷达', icon: Radio },

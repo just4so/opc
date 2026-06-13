@@ -3,18 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { User, Rocket, Shield, ExternalLink } from 'lucide-react'
 import { ProfileSection } from './profile-section'
 import { ProductsSection } from './products-section'
 import { AccountSection } from './account-section'
 
 type Section = 'profile' | 'products' | 'account'
-
-const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
-  { key: 'profile', label: '我的主页', icon: <User className="h-4 w-4" /> },
-  { key: 'products', label: '我的产品', icon: <Rocket className="h-4 w-4" /> },
-  { key: 'account', label: '账号与安全', icon: <Shield className="h-4 w-4" /> },
-]
 
 interface Props {
   username: string
@@ -24,6 +19,12 @@ interface Props {
 export default function SettingsClient({ username, userId }: Props) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<Section>('profile')
+
+  const navItems = [
+    { key: 'profile' as Section, label: '我的主页', icon: <User className="h-4 w-4" /> },
+    { key: 'products' as Section, label: '我的产品', icon: <Rocket className="h-4 w-4" /> },
+    { key: 'account' as Section, label: '账号与安全', icon: <Shield className="h-4 w-4" /> },
+  ]
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '') as Section
@@ -54,7 +55,7 @@ export default function SettingsClient({ username, userId }: Props) {
         <div className="flex flex-col md:flex-row gap-6">
           <nav className="md:w-48 shrink-0">
             <div className="md:sticky md:top-24 space-y-1">
-              {NAV_ITEMS.map(item => (
+              {navItems.map(item => (
                 <button
                   key={item.key}
                   onClick={() => switchSection(item.key)}

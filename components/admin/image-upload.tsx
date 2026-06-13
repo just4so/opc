@@ -9,9 +9,10 @@ interface ImageUploadProps {
   value: string | null
   onChange: (url: string) => void
   label?: string
+  uploadUrl?: string
 }
 
-export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, label, uploadUrl = '/api/admin/upload/community-image' }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
@@ -24,7 +25,7 @@ export function ImageUpload({ value, onChange, label }: ImageUploadProps) {
     try {
       const fd = new FormData()
       fd.append('file', file)
-      const res = await fetch('/api/admin/upload/community-image', { method: 'POST', body: fd })
+      const res = await fetch(uploadUrl, { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || '上传失败')
       onChange(data.url)

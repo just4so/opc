@@ -136,7 +136,7 @@ export default async function DataPage() {
             <p>
               <strong className="text-ink">更新频率：</strong>
               数据库持续更新，新社区开业、政策调整、社区关闭等信息会及时同步。如发现数据有误，欢迎通过
-              <Link href="/contact" className="text-orange-500 hover:underline mx-1">联系我们</Link>
+              <Link href="/about#contact" className="text-orange-500 hover:underline mx-1">联系我们</Link>
               反馈。
             </p>
             <p>

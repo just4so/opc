@@ -411,27 +411,25 @@ export default function ManagersClient() {
             </div>
 
             {/* Focus Tags & WeChat */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-ink mb-1">领域标签</label>
-                <input
-                  type="text"
-                  value={form.focusTagsInput}
-                  onChange={e => setForm(f => ({ ...f, focusTagsInput: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-hairline rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/30"
-                  placeholder="AI落地，跨境电商（逗号分隔）"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-ink mb-1">微信号</label>
-                <input
-                  type="text"
-                  value={form.wechat}
-                  onChange={e => setForm(f => ({ ...f, wechat: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm border border-hairline rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/30"
-                  placeholder="填写后前台展示联系按钮"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-ink mb-1">领域标签</label>
+              <input
+                type="text"
+                value={form.focusTagsInput}
+                onChange={e => setForm(f => ({ ...f, focusTagsInput: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-hairline rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/30"
+                placeholder="AI落地，跨境电商（逗号分隔）"
+              />
+            </div>
+
+            {/* WeChat QR Code */}
+            <div className="space-y-3">
+              <ImageUpload
+                label="社群二维码"
+                value={form.wechat && form.wechat.startsWith('http') ? form.wechat : null}
+                onChange={url => setForm(f => ({ ...f, wechat: url }))}
+                uploadUrl="/api/upload/qrcode"
+              />
             </div>
 
             {/* Scope */}

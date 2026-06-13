@@ -75,7 +75,7 @@ export default function MainLayout({
                 <Link href="/faq" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   常见问题
                 </Link>
-                <Link href="/contact" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
+                <Link href="/about#contact" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">
                   联系方式
                 </Link>
                 <Link href="/privacy" className="text-sm text-on-dark-mute hover:text-on-dark transition-colors">

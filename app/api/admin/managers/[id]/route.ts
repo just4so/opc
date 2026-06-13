@@ -97,6 +97,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     })
 
     revalidatePath('/about')
+    revalidatePath('/local')
     return NextResponse.json(manager)
   } catch (error) {
     console.error('更新主理人失败:', error)

@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import {
   LayoutDashboard, Users, FileText, Briefcase, MapPin,
   Newspaper, Settings, Radio, ScrollText, PhoneForwarded,
-  ShieldCheck, UserCheck, ClipboardList, Building2, ChevronDown,
+  ShieldCheck, UserCheck, ClipboardList, Building2, ChevronDown, User,
 } from 'lucide-react'
 
 type NavItem = { href: string; label: string; icon: React.ReactNode }
@@ -32,6 +32,10 @@ const SYSTEM_ITEMS: NavItem[] = [
   { href: '/admin/logs',     label: '操作日志', icon: <ClipboardList className="h-4 w-4" /> },
   { href: '/admin/settings', label: '站点设置', icon: <Settings className="h-4 w-4" /> },
 ]
+const CITY_MANAGER_PROFILE_ITEMS: NavItem[] = [
+  { href: '/admin/my-profile', label: '资料设置', icon: <User className="h-4 w-4" /> },
+]
+
 const CITY_MANAGER_SYSTEM_ITEMS: NavItem[] = [
   { href: '/admin/logs', label: '操作日志', icon: <ClipboardList className="h-4 w-4" /> },
 ]
@@ -148,7 +152,10 @@ export function AdminNav({
 
       {/* 低频区 */}
       {isCityManager ? (
-        <NavGroup label="系统" items={CITY_MANAGER_SYSTEM_ITEMS} />
+        <>
+          <NavGroup label="主理人" items={CITY_MANAGER_PROFILE_ITEMS} />
+          <NavGroup label="系统" items={CITY_MANAGER_SYSTEM_ITEMS} />
+        </>
       ) : (
         <>
           <NavCollapsible

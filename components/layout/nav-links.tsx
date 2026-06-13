@@ -3,10 +3,11 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const links = [
-  { href: "/communities", label: "找社区" },
+  { href: "/communities", label: "社区" },
   { href: "/plaza", label: "广场" },
   { href: "/news", label: "资讯" },
   { href: "/radar", label: "雷达" },
+  { href: "/local", label: "同城" },
 ]
 
 export function NavLinks() {
