@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city') || ''
     const stage = searchParams.get('stage') || ''
     const search = searchParams.get('search') || ''
-    const contentType = searchParams.get('contentType') || ''
     const sort = searchParams.get('sort') || 'latest'
 
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
+      contentType: 'PROJECT',
       description: { not: '' },
       owner: {
         showInPlaza: true,
@@ -31,9 +31,7 @@ export async function GET(request: NextRequest) {
     if (stage) {
       where.stage = stage
     }
-    if (contentType) {
-      where.contentType = contentType
-    }
+    // contentType 参数已固定为 PROJECT，忽略外部传入的 contentType 参数
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },

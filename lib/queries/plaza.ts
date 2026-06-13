@@ -7,6 +7,7 @@ export const getPlazaProjects = unstable_cache(
     return prisma.project.findMany({
       where: {
         status: 'PUBLISHED',
+        contentType: 'PROJECT',
         description: { not: '' },
         owner: { showInPlaza: true },
       },
@@ -46,6 +47,7 @@ export const getPlazaProjectCount = unstable_cache(
     return prisma.project.count({
       where: {
         status: 'PUBLISHED',
+        contentType: 'PROJECT',
         owner: { showInPlaza: true },
       },
     })
