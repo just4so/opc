@@ -1,79 +1,8 @@
 import Link from 'next/link'
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Briefcase,
-  MapPin,
-  Newspaper,
-  Settings,
-  ArrowLeft,
-  Radio,
-  ScrollText,
-  PhoneForwarded,
-  ShieldCheck,
-  UserCheck,
-  ClipboardList,
-  Building2,
-} from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { requireStaffContext } from '@/lib/admin'
 import { Badge } from '@/components/ui/badge'
-import { AdminSidebarLink, AdminSidebarGroup } from './admin-sidebar'
-
-const DASHBOARD_ITEM = { href: '/admin', label: '仪表盘', icon: <LayoutDashboard className="h-5 w-5" /> }
-
-const NAV_GROUPS_FULL = [
-  {
-    label: '数据管理',
-    items: [
-      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
-      { href: '/admin/inquiries', label: '意向管理', icon: <PhoneForwarded className="h-5 w-5" /> },
-      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
-    ],
-  },
-  {
-    label: '内容管理',
-    items: [
-      { href: '/admin/posts', label: '动态管理', icon: <FileText className="h-5 w-5" /> },
-      { href: '/admin/news', label: '资讯管理', icon: <Newspaper className="h-5 w-5" /> },
-      { href: '/admin/radar', label: '雷达管理', icon: <Radio className="h-5 w-5" /> },
-    ],
-  },
-  {
-    label: '用户与权限',
-    items: [
-      { href: '/admin/users', label: '用户管理', icon: <Users className="h-5 w-5" /> },
-      { href: '/admin/verify', label: '认证管理', icon: <ShieldCheck className="h-5 w-5" /> },
-      { href: '/admin/managers', label: '主理人管理', icon: <UserCheck className="h-5 w-5" /> },
-      { href: '/admin/communities?tab=claims', label: '社区认领', icon: <Building2 className="h-5 w-5" /> },
-    ],
-  },
-  {
-    label: '系统',
-    items: [
-      { href: '/admin/orders', label: '订单管理', icon: <Briefcase className="h-5 w-5" /> },
-      { href: '/admin/logs', label: '操作日志', icon: <ClipboardList className="h-5 w-5" /> },
-      { href: '/admin/settings', label: '站点设置', icon: <Settings className="h-5 w-5" /> },
-    ],
-  },
-]
-
-const NAV_GROUPS_CITY_MANAGER = [
-  {
-    label: '数据管理',
-    items: [
-      { href: '/admin/communities', label: '社区管理', icon: <MapPin className="h-5 w-5" /> },
-      { href: '/admin/inquiries', label: '意向管理', icon: <PhoneForwarded className="h-5 w-5" /> },
-      { href: '/admin/policies', label: '政策管理', icon: <ScrollText className="h-5 w-5" /> },
-    ],
-  },
-  {
-    label: '系统',
-    items: [
-      { href: '/admin/logs', label: '操作日志', icon: <ClipboardList className="h-5 w-5" /> },
-    ],
-  },
-]
+import { AdminNav } from './admin-nav'
 
 export default async function AdminLayout({
   children,
@@ -86,7 +15,6 @@ export default async function AdminLayout({
   const isCityManager = staff.role === 'CITY_MANAGER'
 
   const roleLabel = isAdmin ? '管理员' : isModerator ? '版主' : '城市主理人'
-  const navGroups = isCityManager ? NAV_GROUPS_CITY_MANAGER : NAV_GROUPS_FULL
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -113,33 +41,14 @@ export default async function AdminLayout({
       </header>
 
       <div className="flex pt-16">
-        {/* 侧边栏 — icon 在 Server Component 渲染，只传 href/label 给 Client */}
-        <aside className="w-64 bg-white border-r min-h-[calc(100vh-4rem)] fixed left-0 top-16">
-          <nav className="p-4">
-            <AdminSidebarLink href={DASHBOARD_ITEM.href} label={DASHBOARD_ITEM.label}>
-              {DASHBOARD_ITEM.icon}
-            </AdminSidebarLink>
-            {isCityManager && staff.managerScope && (
-              <div className="px-3 py-2 text-xs text-muted-foreground bg-orange-50 rounded-2xl mx-1 mb-2">
-                管辖范围：{staff.managerScope.scope === 'CITY'
-                  ? staff.managerScope.city
-                  : staff.managerScope.province + '（省级）'}
-              </div>
-            )}
-            {navGroups.map((group) => (
-              <AdminSidebarGroup key={group.label} label={group.label}>
-                {group.items.map((item) => (
-                  <AdminSidebarLink key={item.href} href={item.href} label={item.label}>
-                    {item.icon}
-                  </AdminSidebarLink>
-                ))}
-              </AdminSidebarGroup>
-            ))}
-          </nav>
+        <aside className="w-56 bg-white border-r min-h-[calc(100vh-4rem)] fixed left-0 top-16 overflow-y-auto">
+          <AdminNav
+            isCityManager={isCityManager}
+            managerScope={staff.managerScope}
+          />
         </aside>
 
-        {/* 主内容 */}
-        <main className="flex-1 ml-64 p-6">
+        <main className="flex-1 ml-56 p-6">
           {children}
         </main>
       </div>

@@ -110,12 +110,32 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    const existingInquiry = await prisma.inquiry.findUnique({
+      where: { id },
+      select: { id: true, contact: true, city: true, status: true },
+    })
+
     const inquiry = await prisma.inquiry.update({
       where: { id },
       data: { status: status as 'PENDING' | 'CONTACTED' | 'DONE' | 'CANCELLED' },
     })
 
     void createInquiryStatusNotification(inquiry.userId, inquiry.id, status)
+
+    if (existingInquiry && existingInquiry.status !== status) {
+      prisma.auditLog.create({
+        data: {
+          userId: staff.id,
+          userName: staff.name || staff.username,
+          userRole: staff.role,
+          action: 'STATUS_CHANGE',
+          targetType: 'INQUIRY',
+          targetId: inquiry.id,
+          targetName: existingInquiry.contact || 'Unknown',
+          changes: JSON.parse(JSON.stringify({ status: { from: existingInquiry.status, to: status } })),
+        },
+      }).catch(console.error)
+    }
 
     return NextResponse.json({
       ...inquiry,

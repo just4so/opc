@@ -16,17 +16,12 @@ export async function GET(req: NextRequest) {
 
   // CITY_MANAGER: limit to own province + managed cities
   if (staff.managedCities !== null) {
-    const scopeFilter = {
+    Object.assign(where, {
       OR: [
         { city: { in: staff.managedCities } },
         { province: staff.managerScope?.province ?? '__NONE__', city: null },
       ],
-    }
-    if (province || status) {
-      Object.assign(where, scopeFilter)
-    } else {
-      Object.assign(where, scopeFilter)
-    }
+    })
   }
 
   const [policies, total, provinces] = await Promise.all([

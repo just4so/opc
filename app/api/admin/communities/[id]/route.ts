@@ -21,6 +21,10 @@ export async function GET(
       return NextResponse.json({ error: '社区不存在' }, { status: 404 })
     }
 
+    if (staff.role === 'CITY_MANAGER' && !isInScope(staff, community.city)) {
+      return NextResponse.json({ error: '无权查看该城市的数据' }, { status: 403 })
+    }
+
     return NextResponse.json(community)
   } catch (error) {
     console.error('获取社区详情失败:', error)
