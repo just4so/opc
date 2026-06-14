@@ -23,6 +23,7 @@ export const getPlazaProjects = unstable_cache(
         contentType: true,
         commentCount: true,
         likeCount: true,
+        createdAt: true,
         owner: {
           select: {
             id: true,

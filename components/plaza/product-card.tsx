@@ -20,6 +20,7 @@ interface ProductCardProps {
     owner: { id: string; name: string | null; username: string; avatar?: string | null; city?: string | null }
   }
   latestProgressAt?: Date | string | null
+  hasProgress?: boolean
   isLiked?: boolean
   onLikeChange?: (projectId: string, liked: boolean) => void
 }
@@ -44,7 +45,7 @@ function getCoverPattern(name: string) {
   return COVER_PATTERNS[Math.abs(hash) % COVER_PATTERNS.length]
 }
 
-export function ProductCard({ project, latestProgressAt, isLiked = false, onLikeChange }: ProductCardProps) {
+export function ProductCard({ project, latestProgressAt, hasProgress = false, isLiked = false, onLikeChange }: ProductCardProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [liked, setLiked] = useState(isLiked)
@@ -145,10 +146,10 @@ export function ProductCard({ project, latestProgressAt, isLiked = false, onLike
 
         {project.description && (
           <div className="text-sm text-mute leading-relaxed">
-            {expanded || project.description.length <= 80
-              ? project.description
-              : `${project.description.slice(0, 80)}...`}
-            {project.description.length > 80 && (
+            <span className={expanded ? '' : 'line-clamp-2'}>
+              {project.description}
+            </span>
+            {project.description.length > 50 && (
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setExpanded(!expanded) }}
                 className="text-primary text-xs ml-1"
@@ -158,6 +159,8 @@ export function ProductCard({ project, latestProgressAt, isLiked = false, onLike
             )}
           </div>
         )}
+
+        <div className="flex-1" />
 
         <div className="flex items-center gap-2 mt-3">
           <button onClick={handleOwnerClick} className="flex items-center gap-1.5 min-w-0">
@@ -201,7 +204,9 @@ export function ProductCard({ project, latestProgressAt, isLiked = false, onLike
           {showProgressBadge && (
             <span className="ml-auto flex items-center gap-1 text-xs text-emerald-600">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {daysSinceProgress === 0 ? '今天有更新' : `${daysSinceProgress}天前有更新`}
+              {hasProgress
+                ? (daysSinceProgress === 0 ? '今天有进展' : `${daysSinceProgress}天前有进展`)
+                : (daysSinceProgress === 0 ? '今天发布' : `${daysSinceProgress}天前发布`)}
             </span>
           )}
         </div>

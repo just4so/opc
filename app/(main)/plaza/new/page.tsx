@@ -115,7 +115,6 @@ export default function NewPostPage() {
       router.refresh()
     } catch {
       setError('发布失败，请稍后重试')
-    } finally {
       setLoading(false)
     }
   }

@@ -91,6 +91,7 @@ interface PlazaProject {
   contentType: string
   commentCount: number
   likeCount: number
+  createdAt: string | Date
   progress?: { createdAt: string | Date }[]
   owner: {
     id: string
@@ -457,18 +458,20 @@ export function PlazaClient({
     <div className="min-h-screen bg-surface-soft">
       {/* Header */}
       <PageHeader title={<>创业者<span className="text-primary">广场</span></>} subtitle="发现创业伙伴，交流创业经验" theme="plaza">
-        <Link href="/settings#products">
-          <Button size="lg" variant="outline" className="gap-2 active:scale-[0.98] transition-transform">
-            <Package className="h-4 w-4" />
-            发布产品
-          </Button>
-        </Link>
-        <Link href="/plaza/new">
-          <Button size="lg" className="gap-2 shadow-sm">
-            <PenSquare className="h-4 w-4" />
-            发帖
-          </Button>
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/settings#products">
+            <Button size="lg" variant="outline" className="gap-2 active:scale-[0.98] transition-transform">
+              <Package className="h-4 w-4" />
+              发布产品
+            </Button>
+          </Link>
+          <Link href="/plaza/new">
+            <Button size="lg" className="gap-2 shadow-sm">
+              <PenSquare className="h-4 w-4" />
+              发帖
+            </Button>
+          </Link>
+        </div>
       </PageHeader>
 
       <NotificationTicker events={tickerEvents || []} />
@@ -726,7 +729,8 @@ export function PlazaClient({
                         city: proj.owner.location,
                       },
                     }}
-                    latestProgressAt={proj.progress?.[0]?.createdAt ?? null}
+                    latestProgressAt={proj.progress?.[0]?.createdAt ?? proj.createdAt}
+                    hasProgress={!!proj.progress?.[0]}
                     isLiked={!!projectLikedMap[proj.id]}
                     onLikeChange={(projectId, liked) => {
                       setProjectLikedMap(prev => ({ ...prev, [projectId]: liked }))

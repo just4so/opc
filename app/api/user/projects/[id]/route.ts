@@ -56,6 +56,7 @@ export async function PUT(
       },
       select: {
         id: true,
+        slug: true,
         name: true,
         description: true,
         stage: true,

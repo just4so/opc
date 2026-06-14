@@ -43,6 +43,7 @@ export function ProductsSection() {
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null)
   const [progressProjectSlug, setProgressProjectSlug] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     fetchProjects()
@@ -61,7 +62,8 @@ export function ProductsSection() {
   }
 
   const handleCreate = async () => {
-    if (!newProject.name.trim()) return
+    if (!newProject.name.trim() || saving) return
+    setSaving(true)
     try {
       const res = await fetch('/api/user/projects', {
         method: 'POST',
@@ -76,10 +78,12 @@ export function ProductsSection() {
         toast('产品已创建', 'success')
       }
     } catch {}
+    setSaving(false)
   }
 
   const handleUpdate = async () => {
-    if (!editingProject || !editingProject.name.trim()) return
+    if (!editingProject || !editingProject.name.trim() || saving) return
+    setSaving(true)
     try {
       const res = await fetch(`/api/user/projects/${editingProject.id}`, {
         method: 'PUT',
@@ -93,6 +97,7 @@ export function ProductsSection() {
         toast('产品已更新', 'success')
       }
     } catch {}
+    setSaving(false)
   }
 
   const handleDelete = async (id: string) => {
@@ -129,6 +134,7 @@ export function ProductsSection() {
           onSubmit={handleCreate}
           onCancel={() => setShowNew(false)}
           submitLabel="创建"
+          saving={saving}
         />
       )}
 
@@ -148,6 +154,7 @@ export function ProductsSection() {
               onSubmit={handleUpdate}
               onCancel={() => setEditingProject(null)}
               submitLabel="保存"
+              saving={saving}
             />
           ) : (
             <div className="bg-white rounded-2xl p-5 border border-hairline">
@@ -205,12 +212,13 @@ export function ProductsSection() {
   )
 }
 
-function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel }: {
+function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel, saving }: {
   project: any
   onChange: (v: any) => void
   onSubmit: () => void
   onCancel: () => void
   submitLabel: string
+  saving?: boolean
 }) {
   return (
     <div className="rounded-2xl p-5 space-y-3 bg-surface-card border border-hairline">
@@ -219,7 +227,7 @@ function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel }: {
         <textarea
           value={project.description}
           onChange={e => onChange({ ...project, description: e.target.value })}
-          placeholder="介绍你的产品，让更多创业者了解你在做什么（选填，500字以内）"
+          placeholder="介绍你的产品：它解决什么问题、目标用户是谁、现在处于什么阶段……让其他创业者快速了解你在做的事"
           maxLength={500}
           rows={3}
           className="flex w-full rounded-2xl border border-hairline bg-white px-3 py-2 text-sm placeholder:text-ash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 resize-none"
@@ -240,7 +248,7 @@ function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel }: {
         <ImageUpload value={project.images} onChange={(images: string[]) => onChange({ ...project, images })} />
       </div>
       <div className="flex gap-2">
-        <Button type="button" size="sm" onClick={onSubmit} disabled={!project.name.trim()}>{submitLabel}</Button>
+        <Button type="button" size="sm" onClick={onSubmit} disabled={!project.name.trim() || !!saving}>{submitLabel}</Button>
         <Button type="button" size="sm" variant="outline" onClick={onCancel}>取消</Button>
       </div>
     </div>

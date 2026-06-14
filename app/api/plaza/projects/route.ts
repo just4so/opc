@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
           commentCount: true,
           likeCount: true,
           images: true,
+          createdAt: true,
           owner: {
             select: {
               id: true,
