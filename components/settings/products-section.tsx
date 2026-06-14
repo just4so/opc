@@ -61,7 +61,7 @@ export function ProductsSection() {
   }
 
   const handleCreate = async () => {
-    if (!newProject.name.trim() || !newProject.description.trim()) return
+    if (!newProject.name.trim()) return
     try {
       const res = await fetch('/api/user/projects', {
         method: 'POST',
@@ -79,7 +79,7 @@ export function ProductsSection() {
   }
 
   const handleUpdate = async () => {
-    if (!editingProject || !editingProject.name.trim() || !editingProject.description.trim()) return
+    if (!editingProject || !editingProject.name.trim()) return
     try {
       const res = await fetch(`/api/user/projects/${editingProject.id}`, {
         method: 'PUT',
