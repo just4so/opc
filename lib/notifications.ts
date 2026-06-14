@@ -169,3 +169,31 @@ export async function createCommentRepliedNotification(
     relatedId: postId,
   })
 }
+
+export async function createProjectViewedNotification(
+  ownerId: string,
+  visitorName: string,
+  visitorId: string,
+  projectSlug: string,
+  projectName: string
+) {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const existing = await prisma.notification.findFirst({
+    where: {
+      userId: ownerId,
+      type: 'PROJECT_VIEWED',
+      relatedId: projectSlug,
+      content: visitorId,
+      createdAt: { gt: since },
+    },
+  })
+  if (existing) return null
+
+  return createNotification({
+    userId: ownerId,
+    type: 'PROJECT_VIEWED',
+    title: `${visitorName || '有人'}查看了你的产品「${projectName}」`,
+    content: visitorId,
+    relatedId: projectSlug,
+  })
+}

@@ -24,6 +24,7 @@ const TYPE_ICON: Record<string, typeof Eye> = {
   COMMENT_REPLIED: Reply,
   PROJECT_COMMENTED: MessageCircle,
   PROJECT_COMMENT_REPLIED: Reply,
+  PROJECT_VIEWED: Eye,
   // 兼容旧数据
   reply: Reply,
   comment: MessageCircle,
@@ -43,6 +44,8 @@ function getNavTarget(n: Notification): string {
       return n.relatedId ? `/plaza/${n.relatedId}` : '/plaza'
     case 'PROJECT_COMMENTED':
     case 'PROJECT_COMMENT_REPLIED':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
+    case 'PROJECT_VIEWED':
       return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
     case 'INQUIRY_STATUS':
       return '/profile'

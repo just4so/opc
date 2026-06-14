@@ -63,6 +63,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   const [bpUploading, setBpUploading] = useState(false)
   const [bpError, setBpError] = useState('')
   const [qrcodeUrl, setQrcodeUrl] = useState<string | null>(null)
+  const [resultProjectSlug, setResultProjectSlug] = useState<string | null>(null)
 
   useEffect(() => {
     if (step === 'success') {
@@ -155,6 +156,10 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
         return
       }
 
+      if (data.projectSlug) {
+        setResultProjectSlug(data.projectSlug)
+      }
+
       setStep('success')
     } catch {
       setError('网络错误，请重试')
@@ -202,7 +207,7 @@ export function ConnectForm({ community, user, cities, communities = [] }: Conne
   }
 
   if (step === 'success') {
-    return <SuccessView qrcodeUrl={qrcodeUrl} />
+    return <SuccessView qrcodeUrl={qrcodeUrl} projectSlug={resultProjectSlug} />
   }
 
   return (

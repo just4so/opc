@@ -284,11 +284,13 @@ export function ProjectDetailClient({
                 <h2 className="text-lg font-semibold text-ink">进展记录</h2>
                 {isOwner && (
                   <Button
+                    variant="outline"
                     size="sm"
+                    className="gap-1.5"
                     onClick={() => setShowProgressDialog(true)}
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    记录进展
+                    <Plus className="h-4 w-4" />
+                    发布新进展
                   </Button>
                 )}
               </div>

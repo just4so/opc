@@ -586,6 +586,7 @@ enum PostType {
   SHARE
   COLLAB
   PROGRESS
+  DEMAND
 }
 
 enum PostStatus {

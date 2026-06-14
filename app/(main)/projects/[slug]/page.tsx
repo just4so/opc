@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { ProjectDetailClient } from '@/components/projects/project-detail-client'
+import { createProjectViewedNotification } from '@/lib/notifications'
 
 export const revalidate = 300
 export const dynamicParams = true
@@ -113,6 +114,18 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       ...p,
       createdAt: p.createdAt.toISOString(),
     })),
+  }
+
+  // Fire-and-forget: notify project owner when a non-owner logged-in user views
+  if (currentUserId && currentUserId !== project.owner.id) {
+    const slug = decodeURIComponent(params.slug)
+    createProjectViewedNotification(
+      project.owner.id,
+      session?.user?.name || '',
+      currentUserId,
+      slug,
+      project.name
+    ).catch(console.error)
   }
 
   return (

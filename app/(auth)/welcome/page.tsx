@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
-import { ArrowRight, MapPin, Zap, Users, Sparkles } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Sparkles, Package } from 'lucide-react'
 import { CommunityCover } from '@/components/welcome/community-cover'
 
 const TRACK_KEYWORDS: Record<string, string[]> = {
@@ -252,15 +252,15 @@ export default async function WelcomePage() {
               <p className="text-[13px] text-mute mt-1.5">全国 OPC 社区</p>
             </Link>
             <Link
-              href="/settings#card"
+              href="/settings#products"
               className="group relative bg-white border border-hairline-soft rounded-2xl p-6 overflow-hidden hover:border-primary/20 hover:shadow-[0_8px_24px_rgba(249,115,22,0.06)] transition-all duration-200"
             >
               <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-primary/5 -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/10 transition-colors" />
               <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-4">
-                <Zap size={22} className="text-primary" />
+                <Package size={22} className="text-primary" />
               </div>
-              <p className="font-bold text-ink text-[15px]">完善主页</p>
-              <p className="text-[13px] text-mute mt-1.5">让创业者认识你</p>
+              <p className="font-bold text-ink text-[15px]">发布你的产品</p>
+              <p className="text-[13px] text-mute mt-1.5">让1000+创业者看见你在做什么</p>
             </Link>
           </div>
         </section>

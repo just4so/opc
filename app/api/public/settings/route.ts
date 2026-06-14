@@ -3,7 +3,7 @@ import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-const PUBLIC_KEYS = ['help_qrcode_url']
+const PUBLIC_KEYS = ['help_qrcode_url', 'community_qrcode_url']
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)

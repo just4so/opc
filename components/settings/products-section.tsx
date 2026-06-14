@@ -215,14 +215,17 @@ function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel }: {
   return (
     <div className="rounded-2xl p-5 space-y-3 bg-surface-card border border-hairline">
       <Input value={project.name} onChange={e => onChange({ ...project, name: e.target.value })} placeholder="项目名称" />
-      <textarea
-        value={project.description}
-        onChange={e => onChange({ ...project, description: e.target.value })}
-        placeholder="一句话描述：你在做什么，解决谁的问题"
-        maxLength={1000}
-        rows={3}
-        className="flex w-full rounded-2xl border border-hairline bg-white px-3 py-2 text-sm placeholder:text-ash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 resize-none"
-      />
+      <div>
+        <textarea
+          value={project.description}
+          onChange={e => onChange({ ...project, description: e.target.value })}
+          placeholder="介绍你的产品，让更多创业者了解你在做什么（选填，500字以内）"
+          maxLength={500}
+          rows={3}
+          className="flex w-full rounded-2xl border border-hairline bg-white px-3 py-2 text-sm placeholder:text-ash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 resize-none"
+        />
+        <p className="text-xs text-ash text-right mt-1">{(project.description || '').length}/500</p>
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <select value={project.stage} onChange={e => onChange({ ...project, stage: e.target.value })} className="px-3 py-2 text-sm border border-hairline rounded-2xl bg-white">
           {STAGE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}

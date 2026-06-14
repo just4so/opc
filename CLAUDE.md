@@ -129,10 +129,12 @@ components/plaza/plaza-client.tsx → Client Component ('use client')
 **CommunityReview:** User reviews of communities, one per user per community, includes `difficulty` (1-5 star rating)
 
 **Post (创业广场):**
-- `type`: DAILY | EXPERIENCE | QUESTION | RESOURCE | DISCUSSION
-- `topics`: String[] (话题标签, e.g. ['创业故事', '补贴攻略'])
-- `pinned`: boolean (精华/置顶)
+- `type`: PostType enum — 当前有效值：**SHARE**（分享）/ **DEMAND**（发需求）/ **CHAT**（随便聊）。旧值 DAILY/EXPERIENCE/QUESTION/RESOURCE/DISCUSSION/CHAT/HELP/COLLAB/PROGRESS 保留在枚举中（历史兼容）但已无实际数据
+- **禁止**写实现时使用 COLLAB/HELP/PROGRESS 等已废弃类型，筛选/显示/新帖只用 SHARE/DEMAND/CHAT
+- `topics`: String[] （话题标签）
+- `pinned`: boolean
 - `status`: PUBLISHED | HIDDEN | DELETED
+- 高级字段（所有类型均可用，不强校验）：`contactInfo/contactType/budgetType/budgetMin/budgetMax/deadline/skills`
 
 **Project (合作广场):**
 - `contentType`: DEMAND | COOPERATION
@@ -490,3 +492,36 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 2. `npx prisma validate` 通过（涉及 schema 变更时）
 3. 新组件在 dev server 可渲染（不白屏）
 4. 对照 PRD 对应章节逐条检查功能点
+
+---
+
+## Phase 4: 产品粘性升级（待执行 2026-06）
+
+**PRD：** `projects/product-engagement-prd.md`
+**分支：** 待建（计划开 `feature/product-engagement`）
+**管理：** OpenSpec（M1/M2/M3 三个 Milestone）
+
+### 核心目标
+
+提升供给侧（创业者发布产品/进展）活跃度，为后续引入需求方做准备。
+
+### 主要变更摘要
+
+**帟弃旧帖子类型，重建为 3 个：**
+- SHARE（分享）— 经验/资源/进展/随想
+- DEMAND（发需求）— 求助/找合作/发布需求
+- CHAT（随便聊）— 无明确目的的轻量内容
+
+**数据库迁移：** CHAT/PROGRESS/RESOURCE → SHARE，COLLAB/HELP → DEMAND
+
+**或列 Milestone：**
+
+| Milestone | 内容 |
+|-----------|------|
+| M1 | Schema + 数据迁移（先于代码改动）|
+| M2 | N3 帖子类型重设计 + 六章连带文件全部联动 |
+| M3 | 其余功能（L1-L7 + N1/N2/N4-N9）|
+
+### 样式硬约束（同 Phase 3）
+
+同上，遇到新组件/页面必须遵守 Phase 3 中定义的样式硬约束（颜色/圆角/间距/交互/组件复用/响应式）。

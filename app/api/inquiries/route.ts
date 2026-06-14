@@ -168,9 +168,20 @@ export async function POST(req: Request) {
       return { inquiryId: inquiry.id, projectId }
     })
 
+    // Fetch projectSlug if a project was created
+    let projectSlug: string | null = null
+    if (result.projectId) {
+      const project = await prisma.project.findUnique({
+        where: { id: result.projectId },
+        select: { slug: true },
+      })
+      projectSlug = project?.slug ?? null
+    }
+
     return NextResponse.json({
       id: result.inquiryId,
       projectId: result.projectId,
+      projectSlug,
       communityContact,
       unlocked: true,
     })

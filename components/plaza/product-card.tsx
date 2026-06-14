@@ -19,6 +19,7 @@ interface ProductCardProps {
     commentCount: number
     owner: { id: string; name: string | null; username: string; avatar?: string | null; city?: string | null }
   }
+  latestProgressAt?: Date | string | null
   isLiked?: boolean
   onLikeChange?: (projectId: string, liked: boolean) => void
 }
@@ -43,16 +44,22 @@ function getCoverPattern(name: string) {
   return COVER_PATTERNS[Math.abs(hash) % COVER_PATTERNS.length]
 }
 
-export function ProductCard({ project, isLiked = false, onLikeChange }: ProductCardProps) {
+export function ProductCard({ project, latestProgressAt, isLiked = false, onLikeChange }: ProductCardProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(project.likeCount)
+  const [expanded, setExpanded] = useState(false)
 
   const hasImage = project.images.length > 0
   const stageColor = STAGE_COLORS[project.stage] || STAGE_COLORS.IDEA
   const stageLabel = STAGE_LABELS[project.stage] || project.stage
   const [bouncing, setBouncing] = useState(false)
+
+  const daysSinceProgress = latestProgressAt
+    ? Math.floor((Date.now() - new Date(latestProgressAt).getTime()) / 86400000)
+    : null
+  const showProgressBadge = daysSinceProgress !== null && daysSinceProgress <= 14
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -137,9 +144,19 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
         </div>
 
         {project.description && (
-          <p className="text-xs text-body leading-relaxed line-clamp-3">
-            {project.description}
-          </p>
+          <div className="text-sm text-mute leading-relaxed">
+            {expanded || project.description.length <= 80
+              ? project.description
+              : `${project.description.slice(0, 80)}...`}
+            {project.description.length > 80 && (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setExpanded(!expanded) }}
+                className="text-primary text-xs ml-1"
+              >
+                {expanded ? '收起' : '展开'}
+              </button>
+            )}
+          </div>
         )}
 
         <div className="flex items-center gap-2 mt-3">
@@ -181,6 +198,12 @@ export function ProductCard({ project, isLiked = false, onLikeChange }: ProductC
             <MessageCircle className="h-3.5 w-3.5" />
             <span>{project.commentCount}</span>
           </span>
+          {showProgressBadge && (
+            <span className="ml-auto flex items-center gap-1 text-xs text-emerald-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {daysSinceProgress === 0 ? '今天有更新' : `${daysSinceProgress}天前有更新`}
+            </span>
+          )}
         </div>
       </div>
     </Link>
