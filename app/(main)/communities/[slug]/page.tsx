@@ -1,4 +1,5 @@
 import { cache } from 'react'
+import { getCityProvince } from '@/lib/china-regions'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -66,6 +67,7 @@ async function getQrCodeUrl(): Promise<string> {
 }
 
 async function getLocalPolicies(city: string, district: string | null) {
+  const province = getCityProvince(city) ?? city // 直辖市 fallback 到 city 本身
   return prisma.policy.findMany({
     where: {
       status: 'ACTIVE',
@@ -74,8 +76,8 @@ async function getLocalPolicies(city: string, district: string | null) {
         ...(district ? [{ city, district }] : []),
         // 市级：同城无区县
         { city, district: null },
-        // 省级：无城市（province 匹配 city 字段，因直辖市省市同名）
-        { city: null, province: city },
+        // 省级：按 province 匹配（直辖市 city===province，普通城市从 city 反查得到 province）
+        { city: null, province },
       ],
     },
     orderBy: [

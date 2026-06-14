@@ -34,6 +34,13 @@ export const PROVINCE_CITIES: Record<string, string[]> = {
 
 export const PROVINCES = Object.keys(PROVINCE_CITIES)
 
+export function getCityProvince(city: string): string | null {
+  for (const [province, cities] of Object.entries(PROVINCE_CITIES)) {
+    if (cities.includes(city)) return province
+  }
+  return null // 直辖市(北京/上海/天津/重庆)不在 value 数组里，返回 null
+}
+
 export function getCitiesForScope(
   scope: 'CITY' | 'PROVINCE',
   city?: string | null,
