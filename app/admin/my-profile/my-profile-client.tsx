@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ImageUpload } from '@/components/admin/image-upload'
+import { AvatarUpload } from '@/components/admin/avatar-upload'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast-notification'
 
@@ -102,7 +103,7 @@ export function MyProfileClient({ manager }: MyProfileClientProps) {
       {/* 可编辑区 */}
       <div className="space-y-5">
         {/* 头像 */}
-        <ImageUpload
+        <AvatarUpload
           label="头像"
           value={form.avatar || null}
           onChange={url => setForm(f => ({ ...f, avatar: url }))}

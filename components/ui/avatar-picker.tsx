@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Upload, Check, X } from 'lucide-react'
+import { AvatarCropDialog } from '@/components/ui/avatar-crop-dialog'
 
 const PRESET_AVATARS = [
   // bottts style (机器人风格)
@@ -32,13 +33,17 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
   const [selected, setSelected] = useState<string>(currentAvatar || '')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [cropDialogOpen, setCropDialogOpen] = useState(false)
+  const [localImageUrl, setLocalImageUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Client-side validation
+    // Reset file input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = ''
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(file.type)) {
       setUploadError('仅支持 JPG、PNG、WebP、GIF 格式')
@@ -50,11 +55,17 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
     }
 
     setUploadError(null)
-    setUploading(true)
+    const localUrl = URL.createObjectURL(file)
+    setLocalImageUrl(localUrl)
+    setCropDialogOpen(true)
+  }
 
+  const handleCropConfirm = async (blob: Blob) => {
+    setCropDialogOpen(false)
+    setUploading(true)
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', blob, 'avatar.jpg')
 
       const res = await fetch('/api/upload/avatar', {
         method: 'POST',
@@ -72,9 +83,15 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
       setUploadError(err instanceof Error ? err.message : '上传失败')
     } finally {
       setUploading(false)
-      // Reset file input so the same file can be re-selected
-      if (fileInputRef.current) fileInputRef.current.value = ''
+      if (localImageUrl) URL.revokeObjectURL(localImageUrl)
+      setLocalImageUrl(null)
     }
+  }
+
+  const handleCropCancel = () => {
+    setCropDialogOpen(false)
+    if (localImageUrl) URL.revokeObjectURL(localImageUrl)
+    setLocalImageUrl(null)
   }
 
   const handleConfirm = () => {
@@ -84,125 +101,136 @@ export function AvatarPicker({ currentAvatar, onSelect, onClose }: AvatarPickerP
   }
 
   return (
-    <div className="bg-white rounded-lg border p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-secondary">选择头像</h3>
-        <button type="button" onClick={onClose} className="text-ash hover:text-mute">
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+    <>
+      <div className="bg-white rounded-lg border p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-secondary">选择头像</h3>
+          <button type="button" onClick={onClose} className="text-ash hover:text-mute">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-      {/* Preview */}
-      {selected && (
-        <div className="flex justify-center">
-          <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={selected}
-              alt="预览"
-              className="w-full h-full object-cover"
-            />
+        {/* Preview */}
+        {selected && (
+          <div className="flex justify-center">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selected}
+                alt="预览"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Preset avatars - bottts */}
+        <div>
+          <p className="text-sm text-mute mb-2">机器人风格</p>
+          <div className="grid grid-cols-6 gap-3">
+            {PRESET_AVATARS.slice(0, 6).map((avatar) => (
+              <button
+                type="button"
+                key={avatar.url}
+                onClick={() => setSelected(avatar.url)}
+                className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                  selected === avatar.url
+                    ? 'border-primary ring-2 ring-primary/30'
+                    : 'border-hairline-soft hover:border-gray-400'
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={avatar.url}
+                  alt={avatar.label}
+                  className="w-full h-full object-cover"
+                />
+                {selected === avatar.url && (
+                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
         </div>
-      )}
 
-      {/* Preset avatars - bottts */}
-      <div>
-        <p className="text-sm text-mute mb-2">机器人风格</p>
-        <div className="grid grid-cols-6 gap-3">
-          {PRESET_AVATARS.slice(0, 6).map((avatar) => (
-            <button
-              type="button"
-              key={avatar.url}
-              onClick={() => setSelected(avatar.url)}
-              className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                selected === avatar.url
-                  ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-hairline-soft hover:border-gray-400'
-              }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={avatar.url}
-                alt={avatar.label}
-                className="w-full h-full object-cover"
-              />
-              {selected === avatar.url && (
-                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-              )}
-            </button>
-          ))}
+        {/* Preset avatars - lorelei */}
+        <div>
+          <p className="text-sm text-mute mb-2">人像风格</p>
+          <div className="grid grid-cols-6 gap-3">
+            {PRESET_AVATARS.slice(6, 12).map((avatar) => (
+              <button
+                type="button"
+                key={avatar.url}
+                onClick={() => setSelected(avatar.url)}
+                className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                  selected === avatar.url
+                    ? 'border-primary ring-2 ring-primary/30'
+                    : 'border-hairline-soft hover:border-gray-400'
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={avatar.url}
+                  alt={avatar.label}
+                  className="w-full h-full object-cover"
+                />
+                {selected === avatar.url && (
+                  <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Upload */}
+        <div>
+          <p className="text-sm text-mute mb-2">自定义上传</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            {uploading ? '上传中...' : '上传图片'}
+          </Button>
+          <p className="text-xs text-ash mt-1">支持 JPG/PNG/WebP/GIF，最大 10MB</p>
+          {uploadError && (
+            <p className="text-xs text-red-500 mt-1">{uploadError}</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+            取消
+          </Button>
+          <Button type="button" size="sm" onClick={handleConfirm} disabled={!selected}>
+            确认选择
+          </Button>
         </div>
       </div>
 
-      {/* Preset avatars - lorelei */}
-      <div>
-        <p className="text-sm text-mute mb-2">人像风格</p>
-        <div className="grid grid-cols-6 gap-3">
-          {PRESET_AVATARS.slice(6, 12).map((avatar) => (
-            <button
-              type="button"
-              key={avatar.url}
-              onClick={() => setSelected(avatar.url)}
-              className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                selected === avatar.url
-                  ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-hairline-soft hover:border-gray-400'
-              }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={avatar.url}
-                alt={avatar.label}
-                className="w-full h-full object-cover"
-              />
-              {selected === avatar.url && (
-                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Upload */}
-      <div>
-        <p className="text-sm text-mute mb-2">自定义上传</p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          onChange={handleFileChange}
-          className="hidden"
+      {cropDialogOpen && localImageUrl && (
+        <AvatarCropDialog
+          open={cropDialogOpen}
+          imageUrl={localImageUrl}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
         />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          {uploading ? '上传中...' : '上传图片'}
-        </Button>
-        <p className="text-xs text-ash mt-1">支持 JPG/PNG/WebP/GIF，最大 10MB</p>
-        {uploadError && (
-          <p className="text-xs text-red-500 mt-1">{uploadError}</p>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline" size="sm" onClick={onClose}>
-          取消
-        </Button>
-        <Button type="button" size="sm" onClick={handleConfirm} disabled={!selected}>
-          确认选择
-        </Button>
-      </div>
-    </div>
+      )}
+    </>
   )
 }

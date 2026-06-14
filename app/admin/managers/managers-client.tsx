@@ -13,6 +13,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { ImageUpload } from '@/components/admin/image-upload'
+import { AvatarUpload } from '@/components/admin/avatar-upload'
 import { PROVINCES, PROVINCE_CITIES } from '@/lib/china-regions'
 
 type ManagerStatus = 'ACTIVE' | 'INACTIVE'
@@ -356,7 +357,7 @@ export default function ManagersClient() {
             )}
 
             {/* Avatar */}
-            <ImageUpload
+            <AvatarUpload
               value={form.avatar || null}
               onChange={url => setForm(f => ({ ...f, avatar: url }))}
               label="形象照"

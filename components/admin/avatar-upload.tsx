@@ -1,0 +1,147 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import { Upload, X, Link as LinkIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Image from 'next/image'
+import { AvatarCropDialog } from '@/components/ui/avatar-crop-dialog'
+
+interface AvatarUploadProps {
+  value: string | null
+  onChange: (url: string) => void
+  label?: string
+  uploadUrl?: string
+}
+
+export function AvatarUpload({ value, onChange, label, uploadUrl = '/api/admin/upload/community-image' }: AvatarUploadProps) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlInput, setUrlInput] = useState('')
+  const [cropDialogOpen, setCropDialogOpen] = useState(false)
+  const [localImageUrl, setLocalImageUrl] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = (file: File) => {
+    const localUrl = URL.createObjectURL(file)
+    setLocalImageUrl(localUrl)
+    setCropDialogOpen(true)
+    // reset input so same file can be re-selected
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const handleCropConfirm = async (blob: Blob) => {
+    setCropDialogOpen(false)
+    setUploading(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', blob, 'avatar.jpg')
+      const res = await fetch(uploadUrl, { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '上传失败')
+      onChange(data.url)
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setUploading(false)
+      if (localImageUrl) URL.revokeObjectURL(localImageUrl)
+      setLocalImageUrl(null)
+    }
+  }
+
+  const handleCropCancel = () => {
+    setCropDialogOpen(false)
+    if (localImageUrl) URL.revokeObjectURL(localImageUrl)
+    setLocalImageUrl(null)
+  }
+
+  return (
+    <>
+      <div className="space-y-2">
+        {label && <label className="block text-sm font-medium text-charcoal">{label}</label>}
+        <div className="flex items-start gap-3">
+          {/* 缩略图预览 */}
+          {value ? (
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border border-hairline-soft flex-shrink-0">
+              <Image src={value} alt="预览" fill className="object-cover" unoptimized />
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="absolute top-0.5 right-0.5 bg-black/50 rounded-full p-0.5 text-white hover:bg-black/70"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <div className="w-20 h-20 rounded-full border-2 border-dashed border-hairline-soft flex items-center justify-center flex-shrink-0 bg-surface-soft">
+              <Upload className="h-6 w-6 text-stone" />
+            </div>
+          )}
+
+          <div className="flex-1 space-y-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+            >
+              {uploading ? (
+                <span className="flex items-center gap-1">
+                  <span className="h-3 w-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  上传中...
+                </span>
+              ) : (
+                <span className="flex items-center gap-1"><Upload className="h-3.5 w-3.5" />上传图片</span>
+              )}
+            </Button>
+
+            <button
+              type="button"
+              className="text-xs text-ash hover:text-primary flex items-center gap-1"
+              onClick={() => setShowUrlInput(!showUrlInput)}
+            >
+              <LinkIcon className="h-3 w-3" />通过 URL 设置
+            </button>
+            {showUrlInput && (
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-2 py-1 text-sm border border-hairline-soft rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary/30"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => { if (urlInput) { onChange(urlInput); setShowUrlInput(false); setUrlInput('') } }}
+                >确认</Button>
+              </div>
+            )}
+
+            {error && <p className="text-xs text-red-500">{error}</p>}
+          </div>
+        </div>
+      </div>
+
+      {cropDialogOpen && localImageUrl && (
+        <AvatarCropDialog
+          open={cropDialogOpen}
+          imageUrl={localImageUrl}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
+    </>
+  )
+}
