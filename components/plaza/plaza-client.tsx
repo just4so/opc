@@ -91,6 +91,7 @@ interface PlazaProject {
   contentType: string
   commentCount: number
   likeCount: number
+  progress?: { createdAt: string | Date }[]
   owner: {
     id: string
     username: string
@@ -134,11 +135,10 @@ const STAGE_OPTIONS = [
 ]
 
 const TYPE_TABS = [
-  { value: '', label: '全部' },
-  { value: 'CHAT',     label: '聊聊' },
-  { value: 'HELP',     label: '求助' },
-  { value: 'SHARE',    label: '分享' },
-  { value: 'COLLAB',   label: '找人' },
+  { value: '',       label: '全部' },
+  { value: 'SHARE',  label: '分享' },
+  { value: 'DEMAND', label: '发需求' },
+  { value: 'CHAT',   label: '随便聊' },
 ]
 
 type MainTab = 'people' | 'products' | 'posts'
@@ -720,6 +720,7 @@ export function PlazaClient({
                         city: proj.owner.location,
                       },
                     }}
+                    latestProgressAt={proj.progress?.[0]?.createdAt ?? null}
                     isLiked={!!projectLikedMap[proj.id]}
                     onLikeChange={(projectId, liked) => {
                       setProjectLikedMap(prev => ({ ...prev, [projectId]: liked }))

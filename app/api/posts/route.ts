@@ -164,8 +164,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '内容不能超过5000字' }, { status: 400 })
     }
 
-    if (type === 'COLLAB' && (!contactInfo || !contactInfo.trim())) {
-      return NextResponse.json({ error: 'COLLAB类型帖子必须填写联系方式' }, { status: 400 })
+    const VALID_TYPES = ['SHARE', 'DEMAND', 'CHAT']
+    if (type && !VALID_TYPES.includes(type)) {
+      return NextResponse.json({ error: '无效的帖子类型' }, { status: 400 })
     }
 
     let validatedProjectId: string | null = null
@@ -195,7 +196,6 @@ export async function POST(request: NextRequest) {
         skills: skills || [],
         contactInfo: contactInfo?.trim() || null,
         contactType: contactType || null,
-        milestone: type === 'PROGRESS' && milestone ? milestone : null,
         projectId: validatedProjectId,
         authorId: session.user.id,
       },

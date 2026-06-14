@@ -34,6 +34,11 @@ export const getPlazaProjects = unstable_cache(
             verified: true,
           },
         },
+        progress: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { createdAt: true },
+        },
       },
     })
   },

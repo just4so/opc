@@ -44,20 +44,20 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 }
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  CHAT: { label: '聊聊', color: 'bg-gray-100 text-gray-700' },
-  HELP: { label: '求助', color: 'bg-orange-100 text-orange-700' },
-  SHARE: { label: '分享', color: 'bg-green-100 text-green-700' },
-  COLLAB: { label: '找人', color: 'bg-blue-100 text-blue-700' },
-  PROGRESS: { label: '进展', color: 'bg-purple-100 text-purple-700' },
+  SHARE:    { label: '分享',   color: 'bg-green-100 text-green-700' },
+  DEMAND:   { label: '需求',   color: 'bg-blue-100 text-blue-700' },
+  CHAT:     { label: '随便聊', color: 'bg-gray-100 text-gray-600' },
+  // 旧数据兜底
+  COLLAB:   { label: '合作',   color: 'bg-purple-100 text-purple-700' },
+  HELP:     { label: '求助',   color: 'bg-yellow-100 text-yellow-700' },
+  PROGRESS: { label: '进展',   color: 'bg-orange-100 text-orange-700' },
 }
 
 const TYPE_OPTIONS = [
   { value: '', label: '全部类型' },
-  { value: 'CHAT', label: '聊聊' },
-  { value: 'HELP', label: '求助' },
-  { value: 'SHARE', label: '分享' },
-  { value: 'COLLAB', label: '找人' },
-  { value: 'PROGRESS', label: '创业进展' },
+  { value: 'SHARE',  label: '分享' },
+  { value: 'DEMAND', label: '发需求' },
+  { value: 'CHAT',   label: '随便聊' },
 ]
 
 const TOPICS = [
@@ -292,7 +292,7 @@ export default function AdminPostsPage() {
                         <p className="font-medium text-ink mb-1">{post.title}</p>
                       )}
                       <p className="text-gray-700 line-clamp-2 mb-2">{post.content}</p>
-                      {post.type === 'COLLAB' && (post.contactInfo || post.budgetType || post.deadline) && (
+                      {(post.contactInfo || post.budgetType || post.deadline) && (
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600 mb-2 bg-blue-50 rounded px-2 py-1.5">
                           {post.contactInfo && (
                             <span>联系: {post.contactType === 'WECHAT' ? '微信' : post.contactType === 'EMAIL' ? '邮箱' : '电话'} {post.contactInfo}</span>

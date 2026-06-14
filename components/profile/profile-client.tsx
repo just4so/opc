@@ -148,7 +148,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
 
   const isRecentlyActive = user.lastActiveAt && (Date.now() - new Date(user.lastActiveAt).getTime()) < 24 * 60 * 60 * 1000
   const isOwnProfile = (session?.user as any)?.id === user.id
-  const displayPosts = recentPosts.filter(p => p.type !== 'PROGRESS').slice(0, 3)
+  const displayPosts = recentPosts.slice(0, 3)
 
   // Group progress items by project
   const progressByProject = progressItems.reduce<Record<string, ProgressItem[]>>((acc, item) => {

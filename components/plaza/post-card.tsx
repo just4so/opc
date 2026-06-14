@@ -12,11 +12,13 @@ import { Badge } from '@/components/ui/badge'
 import { TOPICS } from '@/constants/topics'
 
 const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
-  CHAT:     { label: '💬 聊聊',    className: 'bg-surface-card text-mute' },
-  HELP:     { label: '❓ 求助',    className: 'bg-orange-100 text-orange-600' },
-  SHARE:    { label: '📣 分享',    className: 'bg-green-100 text-green-700' },
-  COLLAB:   { label: '🤝 找人',    className: 'bg-blue-100 text-blue-700' },
-  PROGRESS: { label: '创业进展', className: 'bg-surface-card text-mute' },
+  SHARE:    { label: '分享',   className: 'bg-green-100 text-green-700' },
+  DEMAND:   { label: '发需求', className: 'bg-blue-100 text-blue-700' },
+  CHAT:     { label: '随便聊', className: 'bg-gray-100 text-gray-600' },
+  // 旧数据 fallback
+  COLLAB:   { label: '合作',   className: 'bg-purple-100 text-purple-700' },
+  HELP:     { label: '求助',   className: 'bg-yellow-100 text-yellow-700' },
+  PROGRESS: { label: '进展',   className: 'bg-orange-100 text-orange-700' },
 }
 
 interface PostCardProps {
@@ -73,7 +75,7 @@ function getPreview(post: PostCardProps['post']): string {
 }
 
 function getBudgetLabel(post: PostCardProps['post']): string | null {
-  if (post.type !== 'COLLAB') return null
+  if (!post.budgetType) return null
   if (post.budgetType === 'NEGOTIABLE') return '预算：面议'
   if (post.budgetType === 'FIXED' && post.budgetMin != null) return `预算：固定 ${post.budgetMin} 元`
   if (post.budgetType === 'RANGE' && post.budgetMin != null && post.budgetMax != null)
@@ -87,7 +89,7 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(post.likeCount)
 
-  const typeConfig = TYPE_CONFIG[post.type]
+  const typeConfig = TYPE_CONFIG[post.type] || { label: post.type, className: 'bg-surface-card text-mute' }
   const hashVal = post.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
   const viewCount = (hashVal % 180) + 30
   const preview = getPreview(post)
@@ -174,8 +176,8 @@ export function PostCard({ post, initialLiked = false }: PostCardProps) {
           </Link>
         )}
 
-        {/* COLLAB 额外信息 */}
-        {post.type === 'COLLAB' && (budgetLabel || post.deadline) && (
+        {/* 需求额外信息 */}
+        {(budgetLabel || post.deadline) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {budgetLabel && (
               <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">
