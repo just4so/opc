@@ -228,9 +228,15 @@ export function PlazaClient({
   })
   const [projectLoading, setProjectLoading] = useState(false)
 
-  // People pagination (client-side)
-  const [peoplePage, setPeoplePage] = useState(1)
-  const PEOPLE_PER_PAGE = 12
+  // People state (API-driven)
+  const [people, setPeople] = useState<PlazaUser[]>(initialPlazaUsers)
+  const [peoplePagination, setPeoplePagination] = useState({
+    page: 1,
+    limit: 12,
+    total: initialPlazaUserTotal,
+    totalPages: Math.ceil(initialPlazaUserTotal / 12),
+  })
+  const [peopleLoading, setPeopleLoading] = useState(false)
 
   // Filter options derived from SSR data
   const uniqueTracks = useMemo(() => {
@@ -260,7 +266,6 @@ export function PlazaClient({
 
   const handleTabChange = (tab: MainTab) => {
     setMainTab(tab)
-    setPeoplePage(1)
     const sortVal = tab === 'products' ? productSort : tab === 'posts' ? sort : peopleSort
     updateUrl(tab, filterDirection, filterCity, filterStage, searchQuery, sortVal)
   }
@@ -279,49 +284,16 @@ export function PlazaClient({
     updateUrl(mainTab, filterDirection, filterCity, filterStage, searchQuery, sortVal)
   }, [filterDirection, filterCity, filterStage, searchQuery, mainTab, updateUrl, productSort, sort, peopleSort])
 
-  // Filter people (client-side)
-  const filteredUsers = useMemo(() => {
-    const filtered = initialPlazaUsers.filter(u => {
-      if (filterDirection && u.mainTrack !== filterDirection) return false
-      if (filterCity && u.location !== filterCity) return false
-      if (filterStage && u.startupStage !== filterStage) return false
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase()
-        const nameMatch = (u.name || '').toLowerCase().includes(q)
-        const bioMatch = (u.bio || '').toLowerCase().includes(q)
-        const trackMatch = (u.mainTrack || '').toLowerCase().includes(q)
-        if (!nameMatch && !bioMatch && !trackMatch) return false
-      }
-      return true
-    })
-    if (peopleSort === 'followers') {
-      filtered.sort((a, b) => b.followerCount - a.followerCount)
-    }
-    return filtered
-  }, [initialPlazaUsers, filterDirection, filterCity, filterStage, searchQuery, peopleSort])
-
-  const paginatedUsers = useMemo(() => {
-    const start = (peoplePage - 1) * PEOPLE_PER_PAGE
-    return filteredUsers.slice(start, start + PEOPLE_PER_PAGE)
-  }, [filteredUsers, peoplePage])
-
-  const peopleTotalPages = Math.ceil(filteredUsers.length / PEOPLE_PER_PAGE)
-
-  // Reset people page when filters change
-  useEffect(() => {
-    setPeoplePage(1)
-  }, [filterDirection, filterCity, filterStage, searchQuery])
-
   // Batch fetch follow status for displayed people
   useEffect(() => {
     if (mainTab !== 'people' || !session?.user) return
-    const ids = paginatedUsers.map(u => u.id).join(',')
+    const ids = people.map(u => u.id).join(',')
     if (!ids) return
     fetch(`/api/user/following-status?ids=${ids}`)
       .then(res => res.json())
       .then(data => setFollowStatusMap(prev => ({ ...prev, ...data.statuses })))
       .catch(() => {})
-  }, [mainTab, paginatedUsers, session?.user])
+  }, [mainTab, people, session?.user])
 
   // Batch fetch liked status for displayed projects
   useEffect(() => {
@@ -374,6 +346,36 @@ export function PlazaClient({
     fetchProjects(p)
   }
 
+  // People fetch (API-driven)
+  const fetchUsers = useCallback(async (page: number) => {
+    setPeopleLoading(true)
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('limit', '12')
+    if (filterCity) params.set('location', filterCity)
+    if (filterDirection) params.set('mainTrack', filterDirection)
+    if (filterStage) params.set('stage', filterStage)
+    if (searchQuery) params.set('search', searchQuery)
+    if (peopleSort === 'followers') params.set('sort', 'followers')
+    try {
+      const res = await fetch(`/api/plaza/users?${params}`)
+      const data = await res.json()
+      setPeople(data.users || [])
+      setPeoplePagination(data.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 })
+    } finally {
+      setPeopleLoading(false)
+    }
+  }, [filterCity, filterDirection, filterStage, searchQuery, peopleSort])
+
+  useEffect(() => {
+    if (mainTab !== 'people') return
+    fetchUsers(1)
+  }, [mainTab, filterCity, filterDirection, filterStage, searchQuery, peopleSort, fetchUsers])
+
+  const handlePeoplePage = (p: number) => {
+    fetchUsers(p)
+  }
+
   // Posts fetch — 切到 posts tab 时才加载，过滤/翻页时重新拉取
   useEffect(() => {
     if (mainTab !== 'posts') return
@@ -408,7 +410,7 @@ export function PlazaClient({
   const handleTypeChange = (newType: string) => { setType(newType); setPostPage(1) }
   const handleSortChange = (newSort: string) => { setSort(newSort); setPostPage(1) }
   const handleProductSortChange = (newSort: string) => { setProductSort(newSort) }
-  const handlePeopleSortChange = (newSort: string) => { setPeopleSort(newSort); setPeoplePage(1) }
+  const handlePeopleSortChange = (newSort: string) => { setPeopleSort(newSort) }
 
   const hasActiveFilters = filterDirection || filterCity || filterStage || searchQuery || filterContentType
   const clearAllFilters = () => {
@@ -632,9 +634,25 @@ export function PlazaClient({
         {/* ========== PEOPLE TAB ========== */}
         {mainTab === 'people' && (
           <div key="people" className="tab-content-enter">
-            {paginatedUsers.length > 0 ? (
+            {peopleLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {paginatedUsers.map(user => (
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                  <div key={i} className="bg-canvas rounded-2xl border p-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-secondary-bg rounded-full animate-pulse" />
+                      <div>
+                        <div className="h-4 w-24 bg-secondary-bg rounded animate-pulse mb-1" />
+                        <div className="h-3 w-16 bg-secondary-bg rounded animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="h-4 w-full bg-secondary-bg rounded animate-pulse mb-2" />
+                    <div className="h-4 w-3/4 bg-secondary-bg rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ) : people.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {people.map(user => (
                   <PersonCard
                     key={user.id}
                     user={{
@@ -672,14 +690,14 @@ export function PlazaClient({
             )}
 
             {/* People pagination */}
-            {peopleTotalPages > 1 && (
+            {!peopleLoading && peoplePagination.totalPages > 1 && (
               <div className="flex justify-center mt-8 space-x-2">
-                {Array.from({ length: peopleTotalPages }, (_, i) => i + 1).map((p) => (
+                {Array.from({ length: peoplePagination.totalPages }, (_, i) => i + 1).map((p) => (
                   <button
                     key={p}
-                    onClick={() => setPeoplePage(p)}
-                    className={`px-4 py-2 rounded-md text-sm ${
-                      p === peoplePage ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
+                    onClick={() => handlePeoplePage(p)}
+                    className={`px-4 py-2 rounded-2xl text-sm ${
+                      p === peoplePagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
                     }`}
                   >
                     {p}

@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
       contentType: 'PROJECT',
-      description: { not: '' },
       owner: {} as Record<string, unknown>,
     }
 

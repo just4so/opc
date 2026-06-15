@@ -8,7 +8,6 @@ export const getPlazaProjects = unstable_cache(
       where: {
         status: 'PUBLISHED',
         contentType: 'PROJECT',
-        description: { not: '' },
       },
       orderBy: [{ createdAt: 'desc' }],
       take: 20,
