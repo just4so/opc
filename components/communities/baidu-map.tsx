@@ -75,6 +75,14 @@ export function BaiduMap({ communities, onMarkerClick, selectedCity }: BaiduMapP
     if (selectedCity && CITY_COORDINATES[selectedCity]) {
       const coords = CITY_COORDINATES[selectedCity]
       mapInstance.centerAndZoom(new BMapGL.Point(coords.lng, coords.lat), 12)
+    } else if (selectedCity) {
+      // 静态字典中没有该城市，用百度地图 Geocoder 动态解析
+      const geocoder = new BMapGL.Geocoder()
+      geocoder.getPoint(selectedCity, (point: any) => {
+        if (point) {
+          mapInstance.centerAndZoom(point, 12)
+        }
+      }, selectedCity)
     } else if (!selectedCity) {
       mapInstance.centerAndZoom(new BMapGL.Point(108.0, 34.0), 5)
     }

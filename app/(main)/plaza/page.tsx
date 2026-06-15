@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PlazaClient } from '@/components/plaza/plaza-client'
 import { getPlazaUsers, getPlazaUserCount, getPlazaProjects, getPlazaProjectCount } from '@/lib/queries/plaza'
 import { getTickerData } from '@/lib/queries/plaza-ticker'
+import prisma from '@/lib/db'
 
 export const revalidate = 300 // 广场 5分钟，用户动态相对活跃
 
@@ -24,13 +25,14 @@ export const metadata: Metadata = {
 export default async function PlazaPage() {
   // 全部使用带缓存的查询函数，不再有 auth() 调用
   // 页面变为 Static（ISR 60s），大幅提升缓存命中时的响应速度
-  const [plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, { recentProjects, recentProgress, recentUsers }] =
+  const [plazaUsers, plazaUserTotal, initialProjects, initialProjectTotal, { recentProjects, recentProgress, recentUsers }, initialPostTotal] =
     await Promise.all([
       getPlazaUsers(),
       getPlazaUserCount(),
       getPlazaProjects(),
       getPlazaProjectCount(),
       getTickerData(),
+      prisma.post.count(),
     ])
 
   const plazaUsersWithCounts = plazaUsers.map(u => ({
@@ -71,6 +73,7 @@ export default async function PlazaPage() {
       initialPlazaUserTotal={plazaUserTotal}
       initialProjects={initialProjects}
       initialProjectTotal={initialProjectTotal}
+      initialPostTotal={initialPostTotal}
       tickerEvents={topEvents}
     />
   )

@@ -116,6 +116,7 @@ export interface PlazaClientProps {
   initialPlazaUserTotal: number
   initialProjects: PlazaProject[]
   initialProjectTotal: number
+  initialPostTotal: number
   tickerEvents?: { text: string; time: string; link: string }[]
 }
 
@@ -149,6 +150,7 @@ export function PlazaClient({
   initialPlazaUserTotal,
   initialProjects,
   initialProjectTotal,
+  initialPostTotal,
   tickerEvents,
 }: PlazaClientProps) {
   const { data: session } = useSession()
@@ -516,7 +518,7 @@ export function PlazaClient({
             >
               <MessageCircle className="h-4 w-4" />
               动态
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{postPagination.total > 0 ? postPagination.total : ''}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{postPagination.total > 0 ? postPagination.total : initialPostTotal}</span>
             </button>
             <div className="ml-auto">
               <select
