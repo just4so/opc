@@ -37,7 +37,7 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/db'
 import { ensureUrl } from '@/lib/utils'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 interface PageProps {
