@@ -26,6 +26,7 @@ export function ProfileSection({ userId }: Props) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
   const [avatar, setAvatar] = useState<string | null>(null)
@@ -114,6 +115,8 @@ export function ProfileSection({ userId }: Props) {
       if (profileRes.ok) {
         await update({ image: avatar || null })
         toast('保存成功', 'success')
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
       } else {
         const data = await profileRes.json()
         toast(data.error || '保存失败', 'error')
@@ -240,9 +243,9 @@ export function ProfileSection({ userId }: Props) {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={saving} className="gap-2">
+          <Button type="submit" disabled={saving || saved} className={`gap-2${saved ? ' bg-green-600 hover:bg-green-600 text-white' : ''}`}>
             <Save className="h-4 w-4" />
-            {saving ? '保存中...' : '保存资料'}
+            {saving ? '保存中...' : saved ? '✓ 已保存' : '保存资料'}
           </Button>
         </div>
       </form>

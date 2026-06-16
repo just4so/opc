@@ -27,6 +27,7 @@ interface MyProfileClientProps {
 export function MyProfileClient({ manager }: MyProfileClientProps) {
   const { toast } = useToast()
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const [form, setForm] = useState({
     name: manager?.name ?? '',
@@ -66,6 +67,8 @@ export function MyProfileClient({ manager }: MyProfileClientProps) {
       }
 
       toast('信息已更新', 'success')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
     } finally {
       setSaving(false)
     }
@@ -199,8 +202,12 @@ export function MyProfileClient({ manager }: MyProfileClientProps) {
         </div>
 
         <div className="pt-2">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? '保存中...' : '保存'}
+          <Button
+            onClick={handleSave}
+            disabled={saving || saved}
+            className={saved ? 'bg-green-600 hover:bg-green-600 text-white' : ''}
+          >
+            {saving ? '保存中...' : saved ? '✓ 已保存' : '保存'}
           </Button>
         </div>
       </div>
