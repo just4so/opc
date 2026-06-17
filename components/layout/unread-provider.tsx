@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 
 interface UnreadCounts {
   notifications: number
@@ -17,12 +18,19 @@ const UnreadContext = createContext<{
 
 export function UnreadProvider({ children }: { children: React.ReactNode }) {
   const [counts, setCounts] = useState<UnreadCounts>({ notifications: 0, messages: 0 })
+  const { status } = useSession()
 
   const failCountRef = { current: 0 }
 
   const fetchCounts = useCallback(async () => {
+    if (status !== 'authenticated') return
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+
     try {
-      const res = await fetch('/api/unread-summary')
+      const res = await fetch('/api/unread-summary', { signal: controller.signal })
+      clearTimeout(timeoutId)
       if (res.ok) {
         const data = await res.json()
         setCounts({ notifications: data.notifications || 0, messages: data.messages || 0 })
@@ -30,10 +38,14 @@ export function UnreadProvider({ children }: { children: React.ReactNode }) {
       } else {
         failCountRef.current++
       }
-    } catch {
-      failCountRef.current++
+    } catch (err) {
+      clearTimeout(timeoutId)
+      // AbortError = timeout, silent degradation
+      if ((err as Error).name !== 'AbortError') {
+        failCountRef.current++
+      }
     }
-  }, [])
+  }, [status])
 
   useEffect(() => {
     fetchCounts()
@@ -45,7 +57,6 @@ export function UnreadProvider({ children }: { children: React.ReactNode }) {
     }
     document.addEventListener('visibilitychange', handleVisibility)
 
-    // 连续失败 3 次后降级为 5 分钟轮询，避免在网络不稳定时频繁请求
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible' && failCountRef.current < 3) {
         fetchCounts()

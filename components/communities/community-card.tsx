@@ -81,6 +81,7 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
             <img
               src={community.coverImage}
               alt={community.name}
+              loading="lazy"
               className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
               onError={handleImgError}
             />

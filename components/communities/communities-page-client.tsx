@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
+
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CommunitiesClient } from '@/components/communities/communities-client'
 import { cn } from '@/lib/utils'
@@ -47,38 +48,21 @@ interface ProvinceGroup {
 
 interface CommunitiesPageClientProps {
   allCommunities: Community[]
+  cityCounts: { city: string; count: number }[]
 }
 
 export function CommunitiesPageClient({
   allCommunities,
+  cityCounts,
 }: CommunitiesPageClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [selectedCity, setSelectedCity] = useState(() => searchParams.get('city') ?? '')
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list')
   const [page, setPage] = useState(1)
-  const [cityCounts, setCityCounts] = useState<{ city: string; count: number }[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedProvinces, setExpandedProvinces] = useState<Set<string>>(new Set())
   const [showAllCities, setShowAllCities] = useState(false)
-
-  useEffect(() => {
-    fetch('/api/community-stats')
-      .then((res) => res.json())
-      .then((data) => {
-        setCityCounts(data.cityCounts || [])
-      })
-      .catch(() => {
-        const counts: Record<string, number> = {}
-        allCommunities.forEach((c) => {
-          counts[c.city] = (counts[c.city] || 0) + 1
-        })
-        const sorted = Object.entries(counts)
-          .map(([city, count]) => ({ city, count }))
-          .sort((a, b) => b.count - a.count)
-        setCityCounts(sorted)
-      })
-  }, [allCommunities])
 
   useEffect(() => {
     const city = searchParams.get('city') ?? ''
@@ -407,15 +391,17 @@ function ProvinceGroupedList({
               </div>
             </button>
             <div className={`expand-container ${isExpanded ? 'expanded' : ''}`}>
-              <div>
-                <div className="px-5 pb-5 pt-1">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {group.communities.map((community) => (
-                        <CommunityCardInline key={community.id} community={community} />
-                      ))}
-                    </div>
+              {isExpanded && (
+                <div>
+                  <div className="px-5 pb-5 pt-1">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {group.communities.map((community) => (
+                          <CommunityCardInline key={community.id} community={community} />
+                        ))}
+                      </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )

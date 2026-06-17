@@ -23,7 +23,7 @@ async function getCommunityList() {
     },
   })
   // 压缩 description 到卡片展示所需的最小量
-  return communities.map((c) => ({
+  const mapped = communities.map((c) => ({
     ...c,
     description: c.description
       ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
@@ -38,6 +38,16 @@ async function getCommunityList() {
         )
       : null,
   }))
+
+  const cityCountMap: Record<string, number> = {}
+  for (const c of mapped) {
+    cityCountMap[c.city] = (cityCountMap[c.city] || 0) + 1
+  }
+  const cityCounts = Object.entries(cityCountMap)
+    .map(([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count)
+
+  return { communities: mapped, cityCounts }
 }
 
 export const metadata: Metadata = {
@@ -58,13 +68,14 @@ export const metadata: Metadata = {
 }
 
 async function CommunitiesPageInner() {
-  const communities = await getCommunityList()
+  const { communities, cityCounts } = await getCommunityList()
   const allCommunities = communities.map((c) => ({ ...c }))
 
   return (
     <>
       <CommunitiesPageClient
         allCommunities={allCommunities}
+        cityCounts={cityCounts}
       />
       {/* GEO FAQ — 页面底部，不影响主体内容 */}
       <div className="bg-canvas border-t mt-8">

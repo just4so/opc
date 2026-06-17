@@ -1,29 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Sparkles, Users, HelpCircle, X, FileQuestion, Boxes } from 'lucide-react'
 
+const HELP_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/communities/1781329839659-n89s0u.png'
+const COMMUNITY_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/communities/1776951048073-lg3iw0.jpg'
+
 export function HelpWidget() {
   const [open, setOpen] = useState(false)
-  const [helpQrUrl, setHelpQrUrl] = useState<string | null>(null)
-  const [communityQrUrl, setCommunityQrUrl] = useState<string | null>(null)
   const [qrModal, setQrModal] = useState<'help' | 'community' | null>(null)
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/public/settings?key=help_qrcode_url').then(r => r.json()).catch(() => ({ value: null })),
-      fetch('/api/public/settings?key=community_qrcode_url').then(r => r.json()).catch(() => ({ value: null })),
-    ]).then(([helpData, communityData]) => {
-      setHelpQrUrl(helpData.value ?? null)
-      setCommunityQrUrl(communityData.value ?? null)
-      setLoaded(true)
-    })
-  }, [])
-
-  if (!loaded) return null
 
   const handleOverlayClick = () => {
     setOpen(false)
@@ -60,10 +47,10 @@ export function HelpWidget() {
             </button>
           </div>
           <div className="flex flex-col items-center gap-2">
-            {(qrModal === 'help' ? helpQrUrl : communityQrUrl) ? (
+            {(qrModal === 'help' ? HELP_QR_URL : COMMUNITY_QR_URL) ? (
               <div className="relative w-36 h-36 rounded-2xl overflow-hidden border border-hairline-soft">
                 <Image
-                  src={(qrModal === 'help' ? helpQrUrl : communityQrUrl)!}
+                  src={(qrModal === 'help' ? HELP_QR_URL : COMMUNITY_QR_URL)!}
                   alt={qrModal === 'help' ? '企业微信二维码' : '社群二维码'}
                   fill
                   className="object-cover"
@@ -133,7 +120,7 @@ export function HelpWidget() {
             </div>
 
             {/* 帮助 */}
-            {helpQrUrl && (
+            {HELP_QR_URL && (
               <div
                 style={{ opacity: 1, transform: 'translateY(0)', transition: 'opacity 200ms ease, transform 200ms ease', transitionDelay: '0ms' }}
               >
