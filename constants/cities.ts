@@ -30,7 +30,7 @@ export const CITIES = [
   { name: '马鞍山', province: '安徽', count: 1 },
 ] as const
 
-export const HOT_CITIES = ['扬州', '苏州', '深圳', '上海', '杭州', '北京', '合肥', '南京']
+export const HOT_CITIES = ['苏州', '武汉', '杭州', '北京', '深圳', '南京', '扬州', '济南']
 
 export const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
   深圳: { lat: 22.5431, lng: 114.0579 },

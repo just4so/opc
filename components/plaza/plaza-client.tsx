@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -239,6 +239,10 @@ export function PlazaClient({
     totalPages: Math.ceil(initialPlazaUserTotal / 12),
   })
   const [peopleLoading, setPeopleLoading] = useState(false)
+  const [productPage, setProductPage] = useState(1)
+  const [peoplePage, setPeoplePage] = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   // Filter options derived from SSR data
   const uniqueTracks = useMemo(() => {
@@ -268,6 +272,7 @@ export function PlazaClient({
 
   const handleTabChange = (tab: MainTab) => {
     setMainTab(tab)
+    setLoadingMore(false)
     const sortVal = tab === 'products' ? productSort : tab === 'posts' ? sort : peopleSort
     updateUrl(tab, filterDirection, filterCity, filterStage, searchQuery, sortVal)
   }
@@ -310,7 +315,7 @@ export function PlazaClient({
 
   // Products fetch (API-driven)
   const fetchProjects = useCallback(async (page: number) => {
-    setProjectLoading(true)
+    if (page === 1) setProjectLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
     params.set('limit', '21')
@@ -324,12 +329,12 @@ export function PlazaClient({
     try {
       const res = await fetch(`/api/plaza/projects?${params}`)
       const data = await res.json()
-      setProjects(data.projects || [])
+      setProjects(prev => page === 1 ? (data.projects || []) : [...prev, ...(data.projects || [])])
       setProjectPagination(data.pagination || { page: 1, limit: 21, total: 0, totalPages: 0 })
     } catch {
       // keep current state
     } finally {
-      setProjectLoading(false)
+      if (page === 1) setProjectLoading(false)
     }
   }, [filterDirection, filterCity, filterStage, searchQuery, filterContentType, productSort])
 
@@ -337,6 +342,7 @@ export function PlazaClient({
   const [productsFetched, setProductsFetched] = useState(false)
   useEffect(() => {
     if (mainTab === 'products') {
+      setProductPage(1)
       fetchProjects(1)
       setProductsFetched(true)
     } else {
@@ -344,13 +350,9 @@ export function PlazaClient({
     }
   }, [mainTab, filterDirection, filterCity, filterStage, searchQuery, fetchProjects])
 
-  const handleProductPageChange = (p: number) => {
-    fetchProjects(p)
-  }
-
   // People fetch (API-driven)
   const fetchUsers = useCallback(async (page: number) => {
-    setPeopleLoading(true)
+    if (page === 1) setPeopleLoading(true)
     const params = new URLSearchParams()
     params.set('page', String(page))
     params.set('limit', '12')
@@ -362,27 +364,24 @@ export function PlazaClient({
     try {
       const res = await fetch(`/api/plaza/users?${params}`)
       const data = await res.json()
-      setPeople(data.users || [])
+      setPeople(prev => page === 1 ? (data.users || []) : [...prev, ...(data.users || [])])
       setPeoplePagination(data.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 })
     } finally {
-      setPeopleLoading(false)
+      if (page === 1) setPeopleLoading(false)
     }
   }, [filterCity, filterDirection, filterStage, searchQuery, peopleSort])
 
   useEffect(() => {
     if (mainTab !== 'people') return
+    setPeoplePage(1)
     fetchUsers(1)
   }, [mainTab, filterCity, filterDirection, filterStage, searchQuery, peopleSort, fetchUsers])
-
-  const handlePeoplePage = (p: number) => {
-    fetchUsers(p)
-  }
 
   // Posts fetch — 切到 posts tab 时才加载，过滤/翻页时重新拉取
   useEffect(() => {
     if (mainTab !== 'posts') return
 
-    setLoading(true)
+    if (postPage === 1) setLoading(true)
     const params = new URLSearchParams()
     if (type) params.set('type', type)
     if (sort !== 'latest') params.set('sort', sort)
@@ -392,13 +391,39 @@ export function PlazaClient({
     fetch(`/api/posts?${params}`)
       .then(res => res.json())
       .then(data => {
-        setPosts(data.data || [])
+        setPosts(prev => postPage === 1 ? (data.data || []) : [...prev, ...(data.data || [])])
         setPostPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
         setPostsFetched(true)
         setLoading(false)
+        setLoadingMore(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => { setLoading(false); setLoadingMore(false) })
   }, [mainTab, type, postPage, sort])
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || loadingMore) return
+        if (mainTab === 'products' && projectPagination.totalPages > productPage) {
+          setLoadingMore(true)
+          fetchProjects(productPage + 1).finally(() => setLoadingMore(false))
+          setProductPage(p => p + 1)
+        } else if (mainTab === 'people' && peoplePagination.totalPages > peoplePage) {
+          setLoadingMore(true)
+          fetchUsers(peoplePage + 1).finally(() => setLoadingMore(false))
+          setPeoplePage(p => p + 1)
+        } else if (mainTab === 'posts' && postPagination.totalPages > postPage) {
+          setLoadingMore(true)
+          setPostPage(p => p + 1)
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [mainTab, loadingMore, productPage, peoplePage, postPage, projectPagination.totalPages, peoplePagination.totalPages, postPagination.totalPages, fetchProjects, fetchUsers])
 
   useEffect(() => {
     if (!session?.user || posts.length === 0) return
@@ -691,20 +716,10 @@ export function PlazaClient({
               </div>
             )}
 
-            {/* People pagination */}
-            {!peopleLoading && peoplePagination.totalPages > 1 && (
-              <div className="flex justify-center mt-8 space-x-2">
-                {Array.from({ length: peoplePagination.totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => handlePeoplePage(p)}
-                    className={`px-4 py-2 rounded-2xl text-sm ${
-                      p === peoplePagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
+            <div ref={sentinelRef} />
+            {loadingMore && (
+              <div className="flex justify-center py-6">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
             )}
           </div>
@@ -772,20 +787,10 @@ export function PlazaClient({
               </div>
             )}
 
-            {/* Products pagination */}
-            {!projectLoading && projectPagination.totalPages > 1 && (
-              <div className="flex justify-center mt-8 space-x-2">
-                {Array.from({ length: projectPagination.totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => handleProductPageChange(p)}
-                    className={`px-4 py-2 rounded-md text-sm ${
-                      p === projectPagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
+            <div ref={sentinelRef} />
+            {loadingMore && (
+              <div className="flex justify-center py-6">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
             )}
           </div>
@@ -883,19 +888,10 @@ export function PlazaClient({
                 </div>
               )}
 
-              {!loading && postPagination.totalPages > 1 && (
-                <div className="flex justify-center mt-8 space-x-2">
-                  {Array.from({ length: postPagination.totalPages }, (_, i) => i + 1).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setPostPage(p)}
-                      className={`px-4 py-2 rounded-md text-sm ${
-                        p === postPagination.page ? 'bg-primary text-white' : 'bg-canvas text-mute hover:bg-surface-card'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
+              <div ref={sentinelRef} />
+              {loadingMore && (
+                <div className="flex justify-center py-6">
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </main>
