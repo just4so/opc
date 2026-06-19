@@ -1,4 +1,4 @@
-// Force dynamic rendering to prevent EdgeOne from caching stale RSC payloads
+// Force dynamic rendering to prevent RSC payload caching issues
 export const dynamic = 'force-dynamic'
 
 export default function RegisterLayout({

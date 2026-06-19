@@ -8,15 +8,13 @@ const nextConfig = {
         source: '/_next/static/(.*)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'CDN-Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
       {
-        // Slow SSR pages with stable data: CDN cache 1 hour
+        // 社区列表：force-static，内容稳定，浏览器可缓存 5 分钟
         source: '/communities',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=600' },
+          { key: 'Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=600' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -24,11 +22,10 @@ const nextConfig = {
         ],
       },
       {
-        // Data/FAQ pages: CDN cache 6 hours (very stable content)
+        // data/faq：revalidate=3600/86400，内容极稳定
         source: '/(data|faq)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'public, s-maxage=21600, stale-while-revalidate=3600' },
+          { key: 'Cache-Control', value: 'public, s-maxage=21600, stale-while-revalidate=3600' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -36,11 +33,10 @@ const nextConfig = {
         ],
       },
       {
-        // News/plaza: CDN cache 10 minutes (updates more often)
+        // news/plaza：revalidate=600/300，内容更新较频繁
         source: '/(news|plaza)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'public, s-maxage=600, stale-while-revalidate=120' },
+          { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=60' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -48,11 +44,10 @@ const nextConfig = {
         ],
       },
       {
-        // Homepage: CDN cache 5 minutes
+        // 首页：revalidate=600
         source: '/',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=60' },
+          { key: 'Cache-Control', value: 'public, s-maxage=300, stale-while-revalidate=60' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -60,11 +55,10 @@ const nextConfig = {
         ],
       },
       {
-        // All other pages: dynamic, no CDN cache (auth, profile, admin, etc.)
+        // 其他页面：动态（auth/profile/admin/社区详情等），不缓存
         source: '/((?!_next/static|communities|data|faq|news|plaza).+)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'no-store' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },

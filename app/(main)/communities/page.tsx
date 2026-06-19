@@ -5,7 +5,7 @@ import { CommunitiesPageClient } from '@/components/communities/communities-page
 import { CommunitySubmissionTrigger } from '@/components/communities/community-submission-trigger'
 import prisma from '@/lib/db'
 
-// 纯静态生成：build 时从 DB 拉取数据，EdgeOne 直接 serve 静态文件
+// 纯静态生成：build 时从 DB 拉取数据，Nginx 直接 serve 静态文件
 // 数据更新时 push 代码触发重新 build 即可
 export const dynamic = 'force-static'
 

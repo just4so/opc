@@ -1,6 +1,6 @@
 /**
  * 简易内存级 IP 限流器
- * 适合 serverless 单实例场景，EdgeOne CDN 层做第一道防护
+ * CVM 长驻进程模式下可靠，Map 跨请求持久有效
  */
 
 interface RateLimitEntry {
