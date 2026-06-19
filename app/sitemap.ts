@@ -75,6 +75,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
+  // 城市 SEO 页面
+  const cities = await prisma.community.findMany({
+    where: { status: 'ACTIVE', city: { not: '' } },
+    distinct: ['city'],
+    select: { city: true },
+  })
+
+  const cityPages: MetadataRoute.Sitemap = (cities as { city: string }[])
+    .filter((c) => c.city.length > 0)
+    .map((c) => ({
+      url: `${baseUrl}/communities/city/${c.city}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    }))
+
   // 动态页面：创业广场动态
   const posts = await prisma.post.findMany({
     where: { status: 'PUBLISHED' },
@@ -90,5 +106,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...communityPages, ...postPages]
+  return [...staticPages, ...communityPages, ...cityPages, ...postPages]
 }

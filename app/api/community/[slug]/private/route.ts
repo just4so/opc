@@ -21,6 +21,7 @@ export async function GET(
       ],
     },
     select: {
+      id: true,
       entryInfo: true,
       realTips: true,
       images: true,
@@ -36,7 +37,7 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const unlocked = (await prisma.inquiry.count({ where: { userId: session.user.id } })) > 0
+  const unlocked = (await prisma.inquiry.count({ where: { userId: session.user.id, communityId: community.id } })) > 0
 
   return NextResponse.json({
     entryInfo: community.entryInfo,

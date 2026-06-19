@@ -9,7 +9,6 @@ import sanitizeHtml from 'sanitize-html'
 import {
   MapPin,
   Building2,
-  Globe,
   ArrowLeft,
   Gift,
   Users,
@@ -27,8 +26,8 @@ import { FloatingConnectButton } from '@/components/connect/floating-connect-but
 import { CommunityClaimTrigger } from '@/components/communities/community-claim-trigger'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { CommunityPrivateContent } from '@/components/communities/community-private-content'
+import { ContactSidebar } from '@/components/communities/contact-sidebar'
 import prisma from '@/lib/db'
-import { ensureUrl } from '@/lib/utils'
 
 export const revalidate = 3600
 
@@ -460,7 +459,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               entryFriendly={community.entryFriendly}
               processTime={community.processTime}
               lastVerifiedAt={community.lastVerifiedAt?.toISOString() ?? null}
-              website={community.website}
             />
 
             {/* 创业者评价 */}
@@ -491,41 +489,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-            {/* 联系信息 (地址 + 官网) */}
-            {(community.address || community.website) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>联系信息</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {community.address && (
-                    <div className="flex items-start">
-                      <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
-                      <div>
-                        <div className="text-sm text-mute">详细地址</div>
-                        <div className="text-charcoal text-sm">{community.address}</div>
-                      </div>
-                    </div>
-                  )}
-                  {community.website && (
-                    <div className="flex items-start">
-                      <Globe className="h-5 w-5 text-ash mr-3 mt-0.5" />
-                      <div>
-                        <div className="text-sm text-mute">官网</div>
-                        <a
-                          href={ensureUrl(community.website ?? '')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-sm flex items-center gap-1"
-                        >
-                          访问官网 <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            {/* 联系信息 + 联系方式/直通车入口 */}
+            <ContactSidebar
+              slug={community.slug}
+              address={community.address}
+              website={community.website}
+            />
 
             {/* 本地政策支持 */}
             {localPolicies.length > 0 && (

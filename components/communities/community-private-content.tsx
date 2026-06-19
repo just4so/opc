@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { Building2, CheckCircle2, ClipboardList } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ImageGallery } from '@/components/image-gallery'
-import { ContactUnlock } from '@/components/connect/contact-unlock'
 
 interface EntryInfo {
   requirements?: string[]
@@ -31,7 +30,6 @@ interface CommunityPrivateContentProps {
   entryFriendly?: number | null
   processTime?: string | null
   lastVerifiedAt?: string | null
-  website?: string | null
 }
 
 function renderStars(n: number): string {
@@ -44,7 +42,6 @@ export function CommunityPrivateContent({
   entryFriendly,
   processTime,
   lastVerifiedAt,
-  website,
 }: CommunityPrivateContentProps) {
   const { data: session, status } = useSession()
   const [data, setData] = useState<PrivateData | null>(null)
@@ -103,7 +100,7 @@ export function CommunityPrivateContent({
   }
 
   const { entryInfo, realTips, amenities, images } = data
-  const hasContact = !!(data.contactName || data.contactPhone || data.contactWechat || website)
+  const hasContact = !!(data.contactName || data.contactPhone || data.contactWechat)
 
   return (
     <div className="space-y-6">
@@ -247,17 +244,6 @@ export function CommunityPrivateContent({
         </Card>
       )}
 
-      {/* 联系信息 / 直通车 */}
-      <div className="pl-0">
-        <ContactUnlock
-          slug={slug}
-          unlocked={data.unlocked}
-          contactName={data.contactName}
-          contactPhone={data.contactPhone}
-          contactWechat={data.contactWechat}
-          contactNote={data.contactNote}
-        />
-      </div>
     </div>
   )
 }
