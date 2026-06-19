@@ -87,7 +87,7 @@ export function PostInteractions({
 
       if (res.ok) {
         setLiked(data.liked)
-        setLikeCount((prev) => (data.liked ? prev + 1 : prev - 1))
+        if (data.likeCount !== undefined) setLikeCount(data.likeCount)
       }
     } catch (error) {
       console.error('Like error:', error)

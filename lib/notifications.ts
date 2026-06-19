@@ -170,6 +170,35 @@ export async function createCommentRepliedNotification(
   })
 }
 
+export async function createProjectLikedNotification(
+  ownerId: string,
+  likerName: string,
+  projectId: string,
+  likerId: string
+) {
+  if (ownerId === likerId) return null
+
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const existing = await prisma.notification.findFirst({
+    where: {
+      userId: ownerId,
+      type: 'PROJECT_LIKED',
+      relatedId: projectId,
+      content: likerId,
+      createdAt: { gt: since },
+    },
+  })
+  if (existing) return null
+
+  return createNotification({
+    userId: ownerId,
+    type: 'PROJECT_LIKED',
+    title: `${likerName} 赞了你的产品`,
+    content: likerId,
+    relatedId: projectId,
+  })
+}
+
 export async function createProjectViewedNotification(
   ownerId: string,
   visitorName: string,

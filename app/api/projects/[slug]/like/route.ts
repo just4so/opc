@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma, { prismaTransaction } from '@/lib/db'
+import { createProjectLikedNotification } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -17,7 +18,7 @@ export async function POST(
 
     const project = await prisma.project.findUnique({
       where: { slug },
-      select: { id: true },
+      select: { id: true, ownerId: true },
     })
 
     if (!project) {
@@ -61,6 +62,8 @@ export async function POST(
       ])
 
       const updated = await prisma.project.findUnique({ where: { id: project.id }, select: { likeCount: true } })
+      const likerName = session.user.name || '有人'
+      createProjectLikedNotification(project.ownerId, likerName, project.id, userId).catch(() => {})
       return NextResponse.json({ liked: true, likeCount: updated?.likeCount ?? 0 })
     }
   } catch (error) {

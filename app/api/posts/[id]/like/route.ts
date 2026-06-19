@@ -44,7 +44,8 @@ export async function POST(
         }),
       ])
 
-      return NextResponse.json({ liked: false, message: '已取消点赞' })
+      const updated = await prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } })
+      return NextResponse.json({ liked: false, message: '已取消点赞', likeCount: updated?.likeCount ?? 0 })
     } else {
       await prismaTransaction.$transaction([
         prisma.favorite.create({
@@ -62,7 +63,8 @@ export async function POST(
       const likerName = session.user.name || '有人'
       createPostLikedNotification(post.authorId, likerName, postId, userId).catch(() => {})
 
-      return NextResponse.json({ liked: true, message: '点赞成功' })
+      const updated = await prisma.post.findUnique({ where: { id: postId }, select: { likeCount: true } })
+      return NextResponse.json({ liked: true, message: '点赞成功', likeCount: updated?.likeCount ?? 0 })
     }
   } catch (error) {
     console.error('Like error:', error)

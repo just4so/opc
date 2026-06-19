@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -51,6 +51,10 @@ export function ProductCard({ project, latestProgressAt, hasProgress = false, is
   const [liked, setLiked] = useState(isLiked)
   const [likeCount, setLikeCount] = useState(project.likeCount)
   const [expanded, setExpanded] = useState(false)
+
+  useEffect(() => {
+    setLikeCount(project.likeCount)
+  }, [project.likeCount])
 
   const hasImage = project.images.length > 0
   const stageColor = STAGE_COLORS[project.stage] || STAGE_COLORS.IDEA
