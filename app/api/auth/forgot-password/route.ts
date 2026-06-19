@@ -3,12 +3,17 @@ import { z } from 'zod'
 import crypto from 'crypto'
 import prisma from '@/lib/db'
 import { sendPasswordResetEmail } from '@/lib/mailer'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 const schema = z.object({
   email: z.string().email(),
 })
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req)
+  const { success } = rateLimit(`forgot:${ip}`, 5, 10 * 60 * 1000)
+  if (!success) return NextResponse.json({ error: '请求过于频繁，请稍后再试' }, { status: 429 })
+
   const body = await req.json().catch(() => ({}))
   const parsed = schema.safeParse(body)
   if (!parsed.success) {

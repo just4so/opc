@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: '图片大小不能超过 2MB' },
+        { error: '图片大小不能超过 10MB' },
         { status: 400 }
       )
     }

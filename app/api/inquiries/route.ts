@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 import { z } from 'zod'
 
 const PRODUCT_STAGE_MAP: Record<string, string> = {
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
 
     const userId = session.user.id
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prismaTransaction.$transaction(async (tx) => {
       const inquiry = await tx.inquiry.create({
         data: {
           userId,

@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
         }
         const data = await prisma.user.findMany({
           orderBy: { createdAt: 'desc' },
+          take: 10000,
         })
         const columns = [
           { key: 'username', label: '用户名' },

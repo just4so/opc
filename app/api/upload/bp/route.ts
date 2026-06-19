@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
     }
 
     const { filename, contentType } = parsed.data
-    const key = `bp/${session.user.id}/${Date.now()}-${filename}`
+    const safeFilename = filename.replace(/[^a-zA-Z0-9.\-_一-龥]/g, '_')
+    const key = `bp/${session.user.id}/${Date.now()}-${safeFilename}`
     const maxBytes = MAX_SIZE_MB * 1024 * 1024
 
     const { uploadUrl, publicUrl } = await getPresignedUploadUrl(key, contentType, maxBytes)

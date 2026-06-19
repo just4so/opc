@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
 export async function DELETE(
@@ -26,7 +26,7 @@ export async function DELETE(
 
   const postId = comment.postId
 
-  await prisma.$transaction(async (tx) => {
+  await prismaTransaction.$transaction(async (tx) => {
     // Count direct replies to this comment
     const replyCount = await tx.comment.count({ where: { parentId: commentId } })
     // Delete comment (cascades to replies)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 import { createPostLikedNotification } from '@/lib/notifications'
 
 export async function POST(
@@ -34,7 +34,7 @@ export async function POST(
     })
 
     if (existing) {
-      await prisma.$transaction([
+      await prismaTransaction.$transaction([
         prisma.favorite.delete({
           where: { id: existing.id },
         }),
@@ -46,7 +46,7 @@ export async function POST(
 
       return NextResponse.json({ liked: false, message: '已取消点赞' })
     } else {
-      await prisma.$transaction([
+      await prismaTransaction.$transaction([
         prisma.favorite.create({
           data: {
             userId,

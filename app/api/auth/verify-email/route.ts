@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: '验证链接已过期，请重新发送' }, { status: 400 })
   }
 
-  await prisma.$transaction([
+  await prismaTransaction.$transaction([
     prisma.user.update({
       where: { id: record.userId },
       data: { emailVerified: true },

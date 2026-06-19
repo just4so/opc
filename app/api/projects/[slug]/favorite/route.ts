@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 
 export async function POST(
   request: NextRequest,
@@ -27,7 +27,7 @@ export async function POST(
   })
 
   if (existing) {
-    await prisma.$transaction([
+    await prismaTransaction.$transaction([
       prisma.favorite.delete({ where: { id: existing.id } }),
       prisma.project.update({
         where: { id: project.id },
@@ -37,7 +37,7 @@ export async function POST(
     const updated = await prisma.project.findUnique({ where: { id: project.id }, select: { likeCount: true } })
     return NextResponse.json({ liked: false, favorited: false, likeCount: updated?.likeCount ?? 0 })
   } else {
-    await prisma.$transaction([
+    await prismaTransaction.$transaction([
       prisma.favorite.create({ data: { userId, projectId: project.id } }),
       prisma.project.update({
         where: { id: project.id },

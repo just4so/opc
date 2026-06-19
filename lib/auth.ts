@@ -1,8 +1,10 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
+import { headers } from 'next/headers'
 import prisma from '@/lib/db'
 import { authConfig } from '@/lib/auth.config'
+import { rateLimit } from '@/lib/rate-limit'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -18,6 +20,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) {
           throw new Error('请输入手机号/邮箱和密码')
         }
+
+        const ip = (await headers()).get('x-real-ip') ?? (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+        const { success } = rateLimit(`login:${ip}`, 5, 60 * 1000)
+        if (!success) throw new Error('登录尝试过于频繁，请稍后再试')
 
         const identifier = (credentials.email as string).trim()
 
@@ -61,7 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = (user as any).role
         token.image = (user as any).image
         token.username = (user as any).username
-        prisma.user.update({ where: { id: user.id as string }, data: { lastActiveAt: new Date() } }).catch(() => {})
+        prisma.user.update({ where: { id: user.id as string }, data: { lastActiveAt: new Date() } }).catch((err) => { console.error('[auth] lastActiveAt update failed:', err?.message) })
       }
       if (trigger === 'signIn' || trigger === 'update') {
         const dbUser = await prisma.user.findUnique({

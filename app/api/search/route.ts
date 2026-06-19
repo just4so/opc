@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -8,6 +9,10 @@ const LIMIT = 10
 
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIp(request)
+    const { success } = rateLimit(`search:${ip}`, 60, 60 * 1000)
+    if (!success) return NextResponse.json({ error: '请求过于频繁' }, { status: 429 })
+
     const { searchParams } = new URL(request.url)
     const q = searchParams.get('q')?.trim()
     const type = searchParams.get('type') || 'all'

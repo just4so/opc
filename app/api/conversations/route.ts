@@ -4,7 +4,7 @@ import prisma from '@/lib/db'
 import { createCardContactedNotification } from '@/lib/notifications'
 
 // 获取当前用户的所有对话
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -12,6 +12,7 @@ export async function GET() {
     }
 
     const userId = session.user.id
+    const limit = Math.min(50, Math.max(1, parseInt(request.nextUrl.searchParams.get('limit') || '30')))
 
     const conversations = await prisma.conversation.findMany({
       where: {
@@ -33,6 +34,7 @@ export async function GET() {
         },
       },
       orderBy: { updatedAt: 'desc' },
+      take: limit,
     })
 
     // 格式化返回数据

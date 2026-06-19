@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       ],
     }
 
-    const where: Record<string, unknown> = {}
+    const where: Record<string, unknown> = { showInPlaza: true }
     if (location) where.location = location
     if (mainTrack) where.mainTrack = mainTrack
     if (stage) where.startupStage = stage

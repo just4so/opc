@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import prisma from '@/lib/db'
+import prisma, { prismaTransaction } from '@/lib/db'
 import { createPostCommentedNotification, createCommentRepliedNotification } from '@/lib/notifications'
 import { sendCommentEmail } from '@/lib/notification-emails'
 
@@ -34,7 +34,7 @@ export async function POST(
     }
 
     // 创建评论并更新评论数
-    const [comment] = await prisma.$transaction([
+    const [comment] = await prismaTransaction.$transaction([
       prisma.comment.create({
         data: {
           content: content.trim(),
