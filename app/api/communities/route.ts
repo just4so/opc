@@ -1,35 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
-export const revalidate = 300 // 5分钟缓存
+export const revalidate = 300
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
 
-    const city = searchParams.get('city')
-    const status = searchParams.get('status') || 'ACTIVE'
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
+    const city = searchParams.get('city') || undefined
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const pageSize = Math.min(24, Math.max(1, parseInt(searchParams.get('pageSize') || '12')))
 
-    const where: any = {}
-
-    if (city) {
-      where.city = city
-    }
-
-    if (status) {
-      where.status = status
+    const where = {
+      status: 'ACTIVE' as const,
+      ...(city ? { city } : {}),
     }
 
     const [communities, total] = await Promise.all([
       prisma.community.findMany({
         where,
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
         orderBy: [
           { featured: 'desc' },
-          { createdAt: 'desc' },
+          { updatedAt: 'desc' },
         ],
         select: {
           id: true,
@@ -37,35 +31,35 @@ export async function GET(request: NextRequest) {
           name: true,
           city: true,
           district: true,
+          operator: true,
+          totalWorkstations: true,
+          featured: true,
+          coverImage: true,
+          entryFriendly: true,
+          benefits: true,
+          focusTracks: true,
+          description: true,
           address: true,
           latitude: true,
           longitude: true,
-          description: true,
-          type: true,
-          focusTracks: true,
-          operator: true,
-          totalArea: true,
-          totalWorkstations: true,
-          benefits: true,
-          status: true,
-          featured: true,
-          coverImage: true,
-          createdAt: true,
-          entryFriendly: true,
-          amenities: true,
         },
       }),
       prisma.community.count({ where }),
     ])
 
+    // Normalize nullable fields for client type safety
+    const mapped = communities.map((c) => ({
+      ...c,
+      address: c.address ?? '',
+      description: c.description
+        ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+        : '',
+    }))
+
     return NextResponse.json({
-      data: communities,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      communities: mapped,
+      total,
+      hasMore: page * pageSize < total,
     })
   } catch (error) {
     console.error('Error fetching communities:', error)

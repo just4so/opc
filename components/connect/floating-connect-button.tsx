@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 
 interface FloatingConnectButtonProps {
@@ -10,6 +11,7 @@ interface FloatingConnectButtonProps {
 }
 
 export function FloatingConnectButton({ slug, communityName, hasContact = true }: FloatingConnectButtonProps) {
+  const { status } = useSession()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -19,6 +21,9 @@ export function FloatingConnectButton({ slug, communityName, hasContact = true }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  if (status === 'loading') return null
+  if (status === 'unauthenticated') return null
 
   return (
     <div

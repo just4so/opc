@@ -9,39 +9,43 @@ import sanitizeHtml from 'sanitize-html'
 import {
   MapPin,
   Building2,
-  Phone,
   Globe,
   ArrowLeft,
-  CheckCircle2,
   Gift,
   Users,
   ExternalLink,
   FileText,
-  ClipboardList,
   ScrollText,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CommunityLocationMap } from '@/components/communities/community-location-map'
 import CommunityReviews from '@/components/communities/community-reviews'
-import { LoginGate } from '@/components/communities/login-gate'
 import { MobileRegisterBar } from '@/components/layout/mobile-register-bar'
 import { CommunityFaq } from '@/components/communities/community-faq'
-import { ImageGallery } from '@/components/image-gallery'
-import { ContactUnlock } from '@/components/connect/contact-unlock'
 import { FloatingConnectButton } from '@/components/connect/floating-connect-button'
 import { CommunityClaimTrigger } from '@/components/communities/community-claim-trigger'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
-import { auth } from '@/lib/auth'
+import { CommunityPrivateContent } from '@/components/communities/community-private-content'
 import prisma from '@/lib/db'
 import { ensureUrl } from '@/lib/utils'
 
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
+export const revalidate = 3600
 
 interface PageProps {
   params: { slug: string }
+}
+
+export async function generateStaticParams() {
+  try {
+    const communities = await prisma.community.findMany({
+      where: { status: 'ACTIVE' },
+      select: { slug: true },
+    })
+    return communities.map((c) => ({ slug: c.slug }))
+  } catch {
+    return []
+  }
 }
 
 const getCommunity = cache(async (slug: string) => {
@@ -53,6 +57,35 @@ const getCommunity = cache(async (slug: string) => {
         { slug: decodedSlug },
         { id: decodedSlug },
       ],
+    },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      city: true,
+      district: true,
+      operator: true,
+      description: true,
+      benefits: true,
+      focusTracks: true,
+      totalWorkstations: true,
+      totalArea: true,
+      entryFriendly: true,
+      coverImage: true,
+      address: true,
+      transit: true,
+      latitude: true,
+      longitude: true,
+      featured: true,
+      lastVerifiedAt: true,
+      processTime: true,
+      website: true,
+      type: true,
+      status: true,
+      // For hasContact computation — deleted before rendering
+      contactName: true,
+      contactPhone: true,
+      contactWechat: true,
     },
   })
 
@@ -67,16 +100,13 @@ async function getQrCodeUrl(): Promise<string> {
 }
 
 async function getLocalPolicies(city: string, district: string | null) {
-  const province = getCityProvince(city) ?? city // 直辖市 fallback 到 city 本身
+  const province = getCityProvince(city) ?? city
   return prisma.policy.findMany({
     where: {
       status: 'ACTIVE',
       OR: [
-        // 区县级：精确匹配
         ...(district ? [{ city, district }] : []),
-        // 市级：同城无区县
         { city, district: null },
-        // 省级：按 province 匹配（直辖市 city===province，普通城市从 city 反查得到 province）
         { city: null, province },
       ],
     },
@@ -105,9 +135,7 @@ function stripHtml(html: string): string {
 
 function renderDescription(text: string): string {
   if (!text) return ''
-  // 如果已经是 HTML（富文本编辑器输出），直接返回，由 sanitizeHtml 做安全过滤
   if (/<[a-z][\s\S]*>/i.test(text)) return text
-  // 纯文本：按双换行分段
   return text.split('\n\n').filter(Boolean).map((p) => `<p>${p.trim()}</p>`).join('')
 }
 
@@ -118,7 +146,6 @@ function renderStars(difficulty: number): string {
 
 function getFirstSentence(text: string): string {
   if (!text) return ''
-  // 先剥离 HTML 标签，再提取第一句
   const plain = /<[a-z][\s\S]*>/i.test(text) ? stripHtml(text) : text
   const match = plain.match(/^[^。.！!？?]{1,100}[。.！!？?]?/)
   return match ? match[0].trim() : plain.slice(0, 100)
@@ -128,16 +155,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const community = await getCommunity(params.slug)
 
   if (!community) {
-    return {
-      title: '社区未找到 - OPC圈',
-    }
+    return { title: '社区未找到 - OPC圈' }
   }
 
   const slug = community.slug
   const canonicalUrl = `https://www.opcquan.com/communities/${slug}`
   let description = stripHtml(community.description).slice(0, 160)
 
-  // 追加政策关键词
   const localPolicies = await getLocalPolicies(community.city, community.district ?? null)
   if (localPolicies.length > 0) {
     const policyKeywords = localPolicies
@@ -152,9 +176,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${community.name} - ${community.city}OPC社区入驻攻略 - OPC圈`,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `${community.name} | ${community.city}OPC社区`,
       description,
@@ -168,21 +190,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CommunityDetailPage({ params }: PageProps) {
-  const community = await getCommunity(params.slug)
+  const full = await getCommunity(params.slug)
 
-  if (!community) {
+  if (!full) {
     notFound()
   }
 
-  const session = await auth()
-  const isLoggedIn = !!session?.user
+  // Option A: extract contact fields for hasContact boolean, don't render them
+  const { contactName, contactPhone, contactWechat, ...community } = full
+  const hasContact = !!(contactName || contactPhone || contactWechat)
+
   const [qrCodeUrl, localPolicies] = await Promise.all([
     getQrCodeUrl(),
     getLocalPolicies(community.city, community.district ?? null),
   ])
-  const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
-  const loginUrl = `/login?callbackUrl=/communities/${community.slug}`
 
+  const registerUrl = `/register?callbackUrl=/communities/${community.slug}`
   const tagline = getFirstSentence(community.description)
 
   return (
@@ -225,7 +248,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 longitude: community.longitude,
               }
             } : {}),
-            ...(community.contactPhone ? { telephone: community.contactPhone } : {}),
             ...(community.website ? { sameAs: [community.website] } : {}),
             ...(community.coverImage ? { image: community.coverImage } : {}),
           }),
@@ -246,7 +268,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
 
       {/* ===== Layer 1: 快速判断（始终可见）===== */}
       <div className="bg-canvas border-b">
-        {/* 封面图（仅当有时才渲染） */}
         {community.coverImage && (
           <div className="relative w-full h-48 md:h-64 overflow-hidden">
             <Image
@@ -261,7 +282,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         )}
 
         <div className="container mx-auto px-4 py-6">
-          {/* 名称 + 徽章 */}
           <div className="flex flex-wrap items-center gap-3 mb-3">
             <h1 className="text-3xl font-bold text-ink">{community.name}</h1>
             {community.featured && (
@@ -272,7 +292,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             </Badge>
           </div>
 
-          {/* 城市 + 运营主体 */}
           <div className="flex flex-wrap items-center gap-4 text-mute mb-4">
             <div className="flex items-center">
               <MapPin className="h-4 w-4 mr-1" />
@@ -286,7 +305,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* 3 stat chips（仅有值时渲染） */}
           <div className="flex flex-wrap gap-3 mb-4">
             {community.totalWorkstations != null && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-card rounded-full text-sm text-charcoal">
@@ -314,7 +332,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* 入驻方向标签 */}
           {community.focusTracks && community.focusTracks.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {community.focusTracks.map((item, index) => (
@@ -328,7 +345,6 @@ export default async function CommunityDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* 一句话 tagline */}
           {tagline && (
             <p className="text-mute text-sm">{tagline}</p>
           )}
@@ -340,7 +356,7 @@ export default async function CommunityDetailPage({ params }: PageProps) {
           {/* 主内容区 */}
           <div className="lg:col-span-2 space-y-8">
 
-            {/* 社区详情 (Markdown) - 始终可见，SEO 友好 */}
+            {/* 社区详情 (始终可见) */}
             {community.description && (
               <ScrollReveal>
               <Card>
@@ -372,231 +388,80 @@ export default async function CommunityDetailPage({ params }: PageProps) {
               </Card>
               </ScrollReveal>
             )}
-                <ScrollReveal>
-                {(() => {
-                  type BenefitsSection = { summary?: string; items?: string[] }
-                  type BenefitsJson = {
-                    office?:   BenefitsSection
-                    compute?:  BenefitsSection
-                    business?: BenefitsSection
-                    funding?:  BenefitsSection
-                    housing?:  BenefitsSection
-                  }
-                  const benefitsSectionDefs: Array<{ key: keyof BenefitsJson; label: string }> = [
-                    { key: 'office',   label: '办公空间' },
-                    { key: 'compute',  label: '算力资源' },
-                    { key: 'business', label: '业务拓展' },
-                    { key: 'funding',  label: '资金支持' },
-                    { key: 'housing',  label: '安居保障' },
-                  ]
-                  const benefits = community.benefits as BenefitsJson | null
-                  if (!benefits) return null
-                  const presentSections = benefitsSectionDefs.filter(({ key }) => !!benefits[key])
-                  if (presentSections.length === 0) return null
-                  return (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center"><FileText className="h-5 w-5 mr-2 text-primary" />入驻政策</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {presentSections.map(({ key, label }, idx) => {
-                          const section = benefits[key]!
-                          const hasItems = section.items && section.items.length > 0
-                          return (
-                            <div key={key}>
-                              {idx > 0 && <div className="border-t border-hairline-soft mb-4" />}
-                              <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <h4 className="text-sm font-semibold text-ink">{label}</h4>
-                                {section.summary && !hasItems && (
-                                  <span className="text-xs text-ash font-normal">{section.summary}</span>
-                                )}
-                              </div>
-                              {section.summary && hasItems && (
-                                <p className="text-xs text-mute mb-2 leading-relaxed">{section.summary}</p>
-                              )}
-                              {hasItems && (
-                                <ul className="space-y-1.5">
-                                  {section.items!.map((item, i) => (
-                                    <li key={i} className="text-sm text-mute leading-relaxed flex items-start gap-2">
-                                      <span className="text-orange-400 mt-0.5 flex-shrink-0 text-xs">▸</span>
-                                      <span>{item}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                              {!hasItems && !section.summary && null}
-                            </div>
-                          )
-                        })}
-                      </CardContent>
-                    </Card>
-                  )
-                })()}
-                </ScrollReveal>
 
-            {/* ===== Layer 2: 深度了解（登录可见）===== */}
-            {!isLoggedIn ? (
-              <Card className="border-primary/20 bg-primary-soft/50">
-                <CardContent className="pt-6 pb-6 text-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-3">
-                    <Building2 className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-ink mb-2">登录后查看入驻指南和联系方式</h3>
-                  <p className="text-sm text-mute mb-5">免费注册即可查看完整的入驻流程、真实提醒和联系方式</p>
-                  <div className="flex gap-3 justify-center">
-                    <Link href={loginUrl} className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/90">
-                      登录查看
-                    </Link>
-                    <Link href={registerUrl} className="inline-flex items-center justify-center rounded-2xl border border-hairline px-6 py-2.5 text-sm font-medium text-ink shadow-sm transition-colors hover:bg-surface-soft">
-                      免费注册
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {/* 入驻指南（entryInfo） */}
-                {(() => {
-                  type EntryInfoJson = {
-                    requirements?: string[]
-                    steps?:        string[]
-                    duration?:     string
-                  }
-                  const entryInfo = community.entryInfo as EntryInfoJson | null
-                  if (!entryInfo) return null
-                  const hasRequirements = (entryInfo.requirements?.length ?? 0) > 0
-                  const hasSteps = (entryInfo.steps?.length ?? 0) > 0
-                  const hasDuration = !!entryInfo.duration
-                  if (!hasRequirements && !hasSteps && !hasDuration) return null
-                  return (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center"><ClipboardList className="h-5 w-5 mr-2 text-primary" />入驻指南</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {hasRequirements && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-ink mb-2">入驻条件</h4>
-                            <ul className="space-y-2">
-                              {entryInfo.requirements!.map((req, i) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-charcoal">
-                                  <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                  <span>{req}</span>
+            {/* 入驻政策 (始终可见) */}
+            <ScrollReveal>
+            {(() => {
+              type BenefitsSection = { summary?: string; items?: string[] }
+              type BenefitsJson = {
+                office?:   BenefitsSection
+                compute?:  BenefitsSection
+                business?: BenefitsSection
+                funding?:  BenefitsSection
+                housing?:  BenefitsSection
+              }
+              const benefitsSectionDefs: Array<{ key: keyof BenefitsJson; label: string }> = [
+                { key: 'office',   label: '办公空间' },
+                { key: 'compute',  label: '算力资源' },
+                { key: 'business', label: '业务拓展' },
+                { key: 'funding',  label: '资金支持' },
+                { key: 'housing',  label: '安居保障' },
+              ]
+              const benefits = community.benefits as BenefitsJson | null
+              if (!benefits) return null
+              const presentSections = benefitsSectionDefs.filter(({ key }) => !!benefits[key])
+              if (presentSections.length === 0) return null
+              return (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <FileText className="h-5 w-5 mr-2 text-primary" />
+                      入驻政策
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {presentSections.map(({ key, label }, idx) => {
+                      const section = benefits[key]!
+                      const hasItems = section.items && section.items.length > 0
+                      return (
+                        <div key={key}>
+                          {idx > 0 && <div className="border-t border-hairline-soft mb-4" />}
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <h4 className="text-sm font-semibold text-ink">{label}</h4>
+                            {section.summary && !hasItems && (
+                              <span className="text-xs text-ash font-normal">{section.summary}</span>
+                            )}
+                          </div>
+                          {section.summary && hasItems && (
+                            <p className="text-xs text-mute mb-2 leading-relaxed">{section.summary}</p>
+                          )}
+                          {hasItems && (
+                            <ul className="space-y-1.5">
+                              {section.items!.map((item, i) => (
+                                <li key={i} className="text-sm text-mute leading-relaxed flex items-start gap-2">
+                                  <span className="text-orange-400 mt-0.5 flex-shrink-0 text-xs">▸</span>
+                                  <span>{item}</span>
                                 </li>
                               ))}
                             </ul>
-                          </div>
-                        )}
-                        {hasSteps && (
-                          <div>
-                            <h4 className="text-sm font-medium text-charcoal mb-3">申请流程</h4>
-                            <ol className="space-y-3">
-                              {entryInfo.steps!.map((step, index) => (
-                                <li key={index} className="flex items-start gap-3">
-                                  <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    {index + 1}
-                                  </span>
-                                  <span className="text-sm text-mute leading-relaxed">{step}</span>
-                                </li>
-                              ))}
-                            </ol>
-                          </div>
-                        )}
-                        {hasDuration && (
-                          <div>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-card text-sm text-mute">
-                              ⏱ {entryInfo.duration}
-                            </span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )
-                })()}
+                          )}
+                        </div>
+                      )
+                    })}
+                  </CardContent>
+                </Card>
+              )
+            })()}
+            </ScrollReveal>
 
-                {/* 3. 真实入驻说明 */}
-                {community.realTips && community.realTips.length > 0 && (
-                  <div className="border border-orange-200 bg-primary-soft rounded-2xl p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-base font-semibold text-orange-800">🔍 真实提醒</span>
-                    </div>
-                    {(community.entryFriendly || community.processTime) && (
-                      <div className="flex items-center gap-4 text-sm text-charcoal mb-3">
-                        {community.entryFriendly && (
-                          <span><span className="font-medium">入驻友好度：</span>{renderStars(community.entryFriendly)}</span>
-                        )}
-                        {community.processTime && (
-                          <span><span className="font-medium">实际周期：</span>{community.processTime}</span>
-                        )}
-                      </div>
-                    )}
-                    <ul className="space-y-2">
-                      {(community.realTips || [])
-                        .filter(tip => {
-                          // 如果右侧没有任何联系方式，过滤掉引导查看联系方式的tip
-                          const hasContact = !!(community.contactPhone || community.contactName || community.contactWechat || community.website)
-                          if (!hasContact && (tip.includes('右侧') || tip.includes('联系我们') || tip.includes('入驻咨询电话'))) return false
-                          return true
-                        })
-                        .map((tip, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm text-charcoal">
-                          <span className="text-orange-400 mt-0.5 flex-shrink-0">•</span>
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    {community.lastVerifiedAt && (
-                      <div className="text-right mt-3">
-                        <span className="text-xs text-ash">
-                          最后核实：{new Date(community.lastVerifiedAt).getFullYear()}年{new Date(community.lastVerifiedAt).getMonth() + 1}月
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* 4. 配套服务 */}
-                {community.amenities && community.amenities.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <CheckCircle2 className="h-5 w-5 mr-2 text-primary" />
-                        配套服务
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {community.amenities.map((item, index) => (
-                          <span key={index} className="inline-flex items-center px-3 py-1.5 bg-surface-card text-charcoal text-sm rounded-full">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* 5. 社区图集 */}
-                {community.images && community.images.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Building2 className="h-5 w-5 mr-2 text-primary" />
-                        社区图集
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ImageGallery
-                        images={community.images}
-                        communityName={community.name}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-
-            {/* ===== Layer 3: 参考资料（始终可见）===== */}
+            {/* ===== Layer 2: 深度了解（客户端按登录状态加载）===== */}
+            <CommunityPrivateContent
+              slug={community.slug}
+              entryFriendly={community.entryFriendly}
+              processTime={community.processTime}
+              lastVerifiedAt={community.lastVerifiedAt?.toISOString() ?? null}
+              website={community.website}
+            />
 
             {/* 创业者评价 */}
             <CommunityReviews slug={community.slug} />
@@ -623,94 +488,44 @@ export default async function CommunityDetailPage({ params }: PageProps) {
                 {community.transit && (
                   <p className="text-sm text-mute mt-2">🚇 {community.transit}</p>
                 )}
-
               </CardContent>
             </Card>
 
-            {/* 联系信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>联系信息</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {community.address && (
-                  <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
-                    <div>
-                      <div className="text-sm text-mute">详细地址</div>
-                      <div className="text-charcoal text-sm">{community.address}</div>
-                    </div>
-                  </div>
-                )}
-                {(community.contactName || community.contactPhone || community.contactWechat) ? (
-                  isLoggedIn ? (
-                    <ContactUnlock
-                      slug={community.slug}
-                      contactName={community.contactName}
-                      contactPhone={community.contactPhone}
-                      contactWechat={community.contactWechat}
-                      contactNote={community.contactNote}
-                    />
-                  ) : (
+            {/* 联系信息 (地址 + 官网) */}
+            {(community.address || community.website) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>联系信息</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {community.address && (
                     <div className="flex items-start">
-                      <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
+                      <MapPin className="h-5 w-5 text-ash mr-3 mt-0.5" />
                       <div>
-                        <div className="text-sm text-mute mb-1">联系信息</div>
-                        {community.contactName && (
-                          <div className="text-charcoal text-sm">{community.contactName}</div>
-                        )}
-                        <p className="text-xs text-ash mt-1">电话/微信等联系方式需登录后查看</p>
-                        <Link
-                          href={registerUrl}
-                          className="inline-flex items-center mt-2 text-xs text-primary font-medium hover:underline"
-                        >
-                          免费注册查看 →
-                        </Link>
+                        <div className="text-sm text-mute">详细地址</div>
+                        <div className="text-charcoal text-sm">{community.address}</div>
                       </div>
                     </div>
-                  )
-                ) : (
-                  isLoggedIn ? (
-                    <ContactUnlock
-                      slug={community.slug}
-                      contactName={null}
-                      contactPhone={null}
-                      contactWechat={null}
-                      contactNote={null}
-                    />
-                  ) : (
+                  )}
+                  {community.website && (
                     <div className="flex items-start">
-                      <Phone className="h-5 w-5 text-ash mr-3 mt-0.5" />
+                      <Globe className="h-5 w-5 text-ash mr-3 mt-0.5" />
                       <div>
-                        <p className="text-xs text-ash mt-1">提交入驻申请，得到社区对接</p>
-                        <Link
-                          href={registerUrl}
-                          className="inline-flex items-center mt-2 text-xs text-primary font-medium hover:underline"
+                        <div className="text-sm text-mute">官网</div>
+                        <a
+                          href={ensureUrl(community.website ?? '')}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm flex items-center gap-1"
                         >
-                          免费注册 →
-                        </Link>
+                          访问官网 <ExternalLink className="h-3 w-3" />
+                        </a>
                       </div>
                     </div>
-                  )
-                )}
-                {community.website && (
-                  <div className="flex items-start">
-                    <Globe className="h-5 w-5 text-ash mr-3 mt-0.5" />
-                    <div>
-                      <div className="text-sm text-mute">官网</div>
-                      <a
-                        href={ensureUrl(community.website ?? '')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm flex items-center gap-1"
-                      >
-                        访问官网 <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* 本地政策支持 */}
             {localPolicies.length > 0 && (
@@ -800,14 +615,12 @@ export default async function CommunityDetailPage({ params }: PageProps) {
         entryFriendly={community.entryFriendly}
         focusTracks={community.focusTracks ?? []}
       />
-      <MobileRegisterBar isLoggedIn={isLoggedIn} registerUrl={registerUrl} />
-      {isLoggedIn && (
-        <FloatingConnectButton
-          slug={community.slug}
-          communityName={community.name}
-          hasContact={!!(community.contactName || community.contactPhone || community.contactWechat)}
-        />
-      )}
+      <MobileRegisterBar registerUrl={registerUrl} />
+      <FloatingConnectButton
+        slug={community.slug}
+        communityName={community.name}
+        hasContact={hasContact}
+      />
     </div>
   )
 }

@@ -1,14 +1,19 @@
-"use client"
-import Link from "next/link"
-import { Lock } from "lucide-react"
+'use client'
+
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { Lock } from 'lucide-react'
 
 interface MobileRegisterBarProps {
   registerUrl?: string
-  isLoggedIn: boolean
 }
 
-export function MobileRegisterBar({ registerUrl = "/register", isLoggedIn }: MobileRegisterBarProps) {
-  if (isLoggedIn) return null
+export function MobileRegisterBar({ registerUrl = '/register' }: MobileRegisterBarProps) {
+  const { status } = useSession()
+
+  if (status === 'loading') return null
+  if (status === 'authenticated') return null
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       <div className="bg-white/90 backdrop-blur-md border-t border-hairline-soft px-4 py-3 flex items-center justify-between shadow-lg">

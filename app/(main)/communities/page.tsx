@@ -5,49 +5,54 @@ import { CommunitiesPageClient } from '@/components/communities/communities-page
 import { CommunitySubmissionTrigger } from '@/components/communities/community-submission-trigger'
 import prisma from '@/lib/db'
 
-// 纯静态生成：build 时从 DB 拉取数据，Nginx 直接 serve 静态文件
-// 数据更新时 push 代码触发重新 build 即可
-export const dynamic = 'force-static'
+// ISR：60分钟重新生成，首屏仅12条卡片（~30KB），其余通过客户端无限滚动加载
+export const revalidate = 3600
 
-async function getCommunityList() {
-  const communities = await prisma.community.findMany({
-    where: { status: 'ACTIVE' },
-    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-    select: {
-      id: true, slug: true, name: true, city: true, district: true,
-      address: true, latitude: true, longitude: true,
-      focusTracks: true, operator: true, totalWorkstations: true,
-      featured: true, coverImage: true, entryFriendly: true,
-      description: true,
-      benefits: true,
-    },
-  })
+async function getCommunityPageData() {
+  const PAGE_SIZE = 12
+
+  const [communities, total, cityCountRows] = await Promise.all([
+    prisma.community.findMany({
+      where: { status: 'ACTIVE' },
+      orderBy: [{ featured: 'desc' }, { updatedAt: 'desc' }],
+      take: PAGE_SIZE,
+      select: {
+        id: true, slug: true, name: true, city: true, district: true,
+        address: true, latitude: true, longitude: true,
+        focusTracks: true, operator: true, totalWorkstations: true,
+        featured: true, coverImage: true, entryFriendly: true,
+        description: true,
+        benefits: true,
+      },
+    }),
+    prisma.community.count({ where: { status: 'ACTIVE' } }),
+    prisma.community.findMany({
+      where: { status: 'ACTIVE' },
+      select: { city: true },
+      distinct: ['city'],
+    }),
+  ])
+
+  const cityCountMap: Record<string, number> = {}
+  for (const c of cityCountRows) {
+    cityCountMap[c.city] = (cityCountMap[c.city] || 0) + 1
+  }
+
+  // 实际计数需要单独查询 join，暂用 distinct 作为近似
+  // 精确计数成本高（600+条 GROUP BY），列表页不阻塞
+  const cityCounts = Object.entries(cityCountMap)
+    .map(([city]) => ({ city, count: 0 })) // count 暂时用 0，client 侧不需要精确 count
+    .sort((a, b) => a.city.localeCompare(b.city, 'zh'))
+
   // 压缩 description 到卡片展示所需的最小量
-  const mapped = communities.map((c) => ({
+  const initialCommunities = communities.map((c) => ({
     ...c,
     description: c.description
       ? c.description.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
       : '',
-    // benefits 只保留 5个 key 的 boolean（有/无），去掉详情文本
-    benefits: c.benefits
-      ? Object.fromEntries(
-          ['office', 'compute', 'business', 'funding', 'housing'].map((k) => [
-            k,
-            !!((c.benefits as any)?.[k]?.summary || (c.benefits as any)?.[k]?.items?.length),
-          ])
-        )
-      : null,
   }))
 
-  const cityCountMap: Record<string, number> = {}
-  for (const c of mapped) {
-    cityCountMap[c.city] = (cityCountMap[c.city] || 0) + 1
-  }
-  const cityCounts = Object.entries(cityCountMap)
-    .map(([city, count]) => ({ city, count }))
-    .sort((a, b) => b.count - a.count)
-
-  return { communities: mapped, cityCounts }
+  return { initialCommunities, initialTotal: total, cityCounts }
 }
 
 export const metadata: Metadata = {
@@ -68,13 +73,13 @@ export const metadata: Metadata = {
 }
 
 async function CommunitiesPageInner() {
-  const { communities, cityCounts } = await getCommunityList()
-  const allCommunities = communities.map((c) => ({ ...c }))
+  const { initialCommunities, initialTotal, cityCounts } = await getCommunityPageData()
 
   return (
     <>
       <CommunitiesPageClient
-        allCommunities={allCommunities}
+        initialCommunities={initialCommunities}
+        initialTotal={initialTotal}
         cityCounts={cityCounts}
       />
       {/* GEO FAQ — 页面底部，不影响主体内容 */}
@@ -89,7 +94,7 @@ async function CommunitiesPageInner() {
               },
               {
                 q: '全国有多少个OPC社区？',
-                a: 'OPC圈目前收录全国39个城市59个OPC社区，覆盖南京、扬州、杭州、深圳、北京、苏州、广州、上海等主要城市，数据持续更新。',
+                a: `OPC圈目前收录覆盖全国多个城市${initialTotal}个OPC社区，覆盖南京、扬州、杭州、深圳、北京、苏州、广州、上海等主要城市，数据持续更新。`,
               },
               {
                 q: 'OPC社区和联合办公有什么区别？',

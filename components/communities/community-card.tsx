@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Star } from 'lucide-react'
 
 const POLICY_KEYS = [
@@ -31,28 +32,12 @@ interface CommunityCardProps {
 export function CommunityCard({ community, recommended }: CommunityCardProps) {
   const benefits = community.benefits as Record<string, { summary?: string; items?: string[] }> | null
 
-  // 封面图加载失败时隐藏，显示占位背景
-  function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
-    const el = e.currentTarget
-    el.style.display = 'none'
-    const parent = el.parentElement
-    if (parent) {
-      parent.style.background = 'linear-gradient(135deg, #FFF3ED 0%, #FDEBD0 100%)'
-      parent.innerHTML = `<span style="color:#F97316;font-size:0.875rem;font-weight:600;letter-spacing:0.05em;opacity:0.8;margin:auto">${community.city} OPC</span>`
-      parent.style.display = 'flex'
-      parent.style.alignItems = 'center'
-      parent.style.justifyContent = 'center'
-    }
-  }
-
   // 判断某项政策是否存在（兼容压缩后的 boolean 格式和原始对象格式）
   function hasPolicy(key: string): boolean {
     if (!benefits) return false
     const section = benefits[key]
     if (section === null || section === undefined) return false
-    // 压缩后的格式：boolean
     if (typeof section === 'boolean') return section
-    // 原始格式：{ summary?, items? }
     return !!(section.summary || (section.items && section.items.length > 0))
   }
 
@@ -68,7 +53,6 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
     return plain.length > 36 ? plain.slice(0, 36) + '…' : plain
   }
 
-  // 无封面时用城市首字做渐变占位
   const fallbackBg = 'linear-gradient(135deg, #FFF3ED 0%, #FDEBD0 100%)'
 
   return (
@@ -77,13 +61,14 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
 
         {/* 封面图 */}
         {community.coverImage ? (
-          <div className="h-[110px] w-full overflow-hidden bg-surface-card">
-            <img
+          <div className="h-[110px] w-full overflow-hidden bg-surface-card relative">
+            <Image
               src={community.coverImage}
               alt={community.name}
-              loading="lazy"
-              className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-              onError={handleImgError}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              unoptimized
             />
           </div>
         ) : (
@@ -144,7 +129,7 @@ export function CommunityCard({ community, recommended }: CommunityCardProps) {
           {/* 分隔线 */}
           <div className="h-px bg-hairline-soft mb-3" />
 
-          {/* 五项政策标签 — 方案 D：有边框有背景，无边框只灰字 */}
+          {/* 五项政策标签 */}
           <div className="flex flex-wrap gap-[6px]">
             {POLICY_KEYS.map(({ key, label }) => {
               const active = hasPolicy(key)
