@@ -348,13 +348,19 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   })
   const refreshMap = Object.fromEntries(refreshed.map((r: any) => [r.id, r]))
   // Step 2: 按最新 importance 重新排序，降权条目自然排到后面
+  // 同等 importance 时：policy > case > opinion > community > event
+  const CATEGORY_ORDER: Record<string, number> = { policy: 0, case: 1, opinion: 2, community: 3, event: 4 }
   const keyDeduped = qualityFiltered
     .map((item: any) => ({
       ...item,
       importance: refreshMap[item.id]?.importance ?? item.importance,
     }))
     .filter((item: any) => item.importance >= MIN_IMPORTANCE)
-    .sort((a: any, b: any) => b.importance - a.importance || b.collectedAt - a.collectedAt)
+    .sort((a: any, b: any) =>
+      b.importance - a.importance ||
+      (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9) ||
+      b.collectedAt - a.collectedAt
+    )
 
   // Step 3: 每类上限
   const catCount: Record<string, number> = {}
@@ -433,23 +439,55 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   // 生成总摘要
   let issueSummary: string | null = null
   try {
-    // 按 importance 排序，5星和4星优先标出，给总摘要 AI 明确的重点线索
-    const sortedForSummary = [...selected].sort((a: any, b: any) => b.importance - a.importance)
-    const topItems = sortedForSummary.filter((s: any) => s.importance >= 4).slice(0, 4)
-    const restItems = sortedForSummary.filter((s: any) => s.importance < 4)
-    const topLines = topItems.map((s: any) => `★ [${s.category}] ${s.title}\n  摘要：${(s.summary || '').slice(0, 80)}`).join('\n')
-    const restLines = restItems.map((s: any) => `  [${s.category}] ${s.title}`).join('\n')
-    const titlesForSummary = topLines + (restLines ? '\n' + restLines : '')
-    const summaryPrompt = `你是 OPC 雷达主编，写本期导读（给读者看，帮他决定值不值得读这期）。
+    // 输入分层：policy 优先，给 AI 明确的宏观→微观线索
+    const policyItems = selected
+      .filter((s: any) => s.category === 'policy')
+      .sort((a: any, b: any) => b.importance - a.importance)
+    const nonPolicyItems = selected
+      .filter((s: any) => s.category !== 'policy')
+      .sort((a: any, b: any) => b.importance - a.importance)
 
-本期收录 ${selected.length} 篇，重要条目（★）附带摘要：
-${titlesForSummary}
+    const policyLines = policyItems
+      .map((s: any) => `[政策] ${s.title}\n  要点：${(s.summary || '').slice(0, 100)}`)
+      .join('\n')
+    const caseLines = nonPolicyItems
+      .slice(0, 4)
+      .map((s: any) => `[${s.category}] ${s.title}\n  要点：${(s.summary || '').slice(0, 80)}`)
+      .join('\n')
 
-要求：
-- 第1句：点出本期 2-3 个最有料的具体事实，必须从摘要中提取真实数字/金额/人物（如"南宁发放创业补贴6946万元""一人公司两三天完成AI宣传片成本三千元"）
-- 第2句：用一句话说本期整体方向，≤25字
-- 禁止：「各地政策密集出台」「显示出……趋势」「标志着……新阶段」等万能套话
-- 直接输出两句话，不加标题，不加序号`
+    const policySection = policyLines
+      ? `【本期政策层（宏观信号，必须优先体现）】\n${policyLines}`
+      : '【本期无政策类条目，直接用最高分条目开头】'
+    const caseSection = `【本期案例/观点层（市场佐证）】\n${caseLines}`
+
+    const summaryPrompt = `你是 OPC 雷达主编，为本期写 2-3 句导读，帮读者决定是否值得读这期。
+
+\${policySection}
+
+\${caseSection}
+
+【结构要求：政策信号 → 市场呼应】
+
+第1句（政策层）：
+- 有政策时：必须以政策开头，点出「发布方 + 最核心1个措施 + 具体数字/名称」
+  例："北京出台AI OPC行动方案，社区最高获200万支持、免费3个月Token券"
+- 无政策时：用本期最高分条目的核心事实开头
+
+第2句（市场层）：
+- 从案例/观点里取 1-2 个具体数字或人物事实
+  例："与此同时，文科硕士靠AI一人公司3个月营收50万，武汉AI漫剧海外年增6倍"
+
+第3句（可选）：
+- 有强判断时加，≤20字，点出本期整体方向
+- 无强判断时省略，不要强行凑句
+
+【硬性禁止】
+- 禁止案例打头（第1句必须是政策或最高分事实，不能是人物故事）
+- 禁止「各地政策密集出台」「显示出……趋势」「标志着……新阶段」「正在兴起」等万能套话
+- 禁止编造数字，只能用上方摘要里的真实数字
+- 禁止加标题、序号
+
+直接输出导读正文，不加任何前缀。`
     const comp = await Promise.race([
       aiClient.chat.completions.create({
         model: CLUSTER_MODEL, messages: [{ role: 'user', content: summaryPrompt }],
