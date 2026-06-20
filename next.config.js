@@ -1,3 +1,5 @@
+const { withSentryConfig } = require('@sentry/nextjs')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true, // 开启 gzip/brotli 压缩
@@ -95,4 +97,19 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(nextConfig, {
+  org: 'opcquan',
+  project: 'opcquan',
+
+  // source map 上传（暂时禁用，减少 build 内存占用）
+  // authToken: process.env.SENTRY_AUTH_TOKEN,
+  // sourcemaps: { deleteSourcemapsAfterUpload: true },
+
+  // 减少构建日志噪音
+  silent: !process.env.CI,
+
+  // 不自动添加 Sentry 路由跟踪（减少 bundle size）
+  autoInstrumentServerFunctions: false,
+  autoInstrumentMiddleware: false,
+  autoInstrumentAppDirectory: true,
+})
