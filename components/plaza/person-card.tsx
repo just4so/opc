@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { BadgeCheck, MapPin, Package } from 'lucide-react'
 import { FollowButton } from '@/components/follow/follow-button'
+import { TrackBadges } from '@/components/ui/track-badges'
 
 interface PersonCardProps {
   user: {
@@ -13,6 +14,7 @@ interface PersonCardProps {
     avatar?: string | null
     city?: string | null
     mainTrack?: string | null
+    mainTracks?: string[] | null
     bio?: string | null
     followerCount: number
     projectCount: number
@@ -58,9 +60,7 @@ export function PersonCard({ user, isFollowing = false, onFollowChange }: Person
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5 text-xs text-mute flex-wrap">
-            {user.mainTrack && (
-              <span className="bg-primary/5 text-primary px-1.5 py-0.5 rounded">{user.mainTrack}</span>
-            )}
+            <TrackBadges tracks={user.mainTracks?.length ? user.mainTracks : user.mainTrack ? [user.mainTrack] : []} />
             {user.city && (
               <span className="flex items-center gap-0.5">
                 <MapPin className="h-3 w-3" />

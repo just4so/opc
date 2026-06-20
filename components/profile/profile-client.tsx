@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { AnimatedProgress } from '@/components/ui/animated-progress'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
 import { FollowButton } from '@/components/follow/follow-button'
+import { TrackBadges } from '@/components/ui/track-badges'
 import { ensureUrl } from '@/lib/utils'
 
 interface UserProfile {
@@ -36,7 +37,7 @@ interface UserProfile {
   level: number
   verified: boolean
   verifyType: string | null
-  mainTrack: string | null
+  mainTracks: string[]
   startupStage: string | null
   showInPlaza: boolean
   createdAt: string
@@ -194,7 +195,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
 
   const completenessFields = [
     { label: '个人简介', filled: !!user.bio },
-    { label: '创业方向', filled: !!user.mainTrack },
+    { label: '创业方向', filled: (user.mainTracks?.length ?? 0) > 0 },
     { label: '创业阶段', filled: !!user.startupStage },
     { label: '所在城市', filled: !!user.location },
     { label: '产品/项目', filled: projects.length > 0 },
@@ -235,7 +236,7 @@ export default function ProfileClient({ user, recentPosts = [], projects = [], p
                     <MapPin className="h-3.5 w-3.5" />{user.location}
                   </span>
                 )}
-                {user.mainTrack && <Badge variant="secondary" className="text-xs">{user.mainTrack}</Badge>}
+                <TrackBadges tracks={user.mainTracks ?? []} />
                 {user.startupStage && <Badge variant="outline" className="text-xs">{STAGE_LABELS[user.startupStage] || user.startupStage}</Badge>}
               </div>
               {user.lastActiveAt && (

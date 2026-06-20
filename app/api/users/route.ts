@@ -14,7 +14,7 @@ const registerSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址').optional().or(z.literal('')),
   password: z.string().min(6, '密码至少6个字符'),
   startupStage: z.string().optional(),
-  mainTrack: z.string().optional(),
+  mainTracks: z.array(z.string()).max(4).optional(),
 })
 
 async function generateUsername(): Promise<string> {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 })
     }
 
-    const { name, phone, email, password, startupStage, mainTrack } = validation.data
+    const { name, phone, email, password, startupStage, mainTracks } = validation.data
 
     // 检查昵称是否已存在
     const existingName = await prisma.user.findFirst({
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         ...(email ? { email } : {}),
         passwordHash,
         ...(startupStage ? { startupStage } : {}),
-        ...(mainTrack ? { mainTrack } : {}),
+        mainTracks: mainTracks || [],
       },
       select: {
         id: true,

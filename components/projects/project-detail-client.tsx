@@ -11,6 +11,7 @@ import { ensureUrl } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FollowButton } from '@/components/follow/follow-button'
 import { ImageGallery } from '@/components/projects/image-gallery'
+import { TrackBadges } from '@/components/ui/track-badges'
 import { ProjectProgressTimeline } from '@/components/projects/project-progress-timeline'
 import { ProjectCommentSection } from '@/components/projects/project-comment-section'
 import {
@@ -41,7 +42,7 @@ interface ProjectOwner {
   name: string | null
   avatar: string | null
   verified: boolean
-  mainTrack: string | null
+  mainTracks: string[]
 }
 
 interface ProjectData {
@@ -248,10 +249,8 @@ export function ProjectDetailClient({
                       </Badge>
                     )}
                   </div>
-                  {project.owner.mainTrack && (
-                    <span className="text-xs text-mute">
-                      {project.owner.mainTrack}
-                    </span>
+                  {project.owner.mainTracks?.length > 0 && (
+                    <TrackBadges tracks={project.owner.mainTracks} />
                   )}
                 </div>
               </Link>

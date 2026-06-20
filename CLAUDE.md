@@ -525,3 +525,52 @@ If you attempt to use any tool other than `Bash`, `Read`, `Edit`, `Write`, `Glob
 ### 样式硬约束（同 Phase 3）
 
 同上，遇到新组件/页面必须遵守 Phase 3 中定义的样式硬约束（颜色/圆角/间距/交互/组件复用/响应式）。
+
+---
+
+## mainTrack → mainTracks 迁移（进行中，2026-06-20）
+
+### 背景
+User.mainTrack (String?) 改为 User.mainTracks (String[])，支持多选赛道标签 + 自定义。
+旧字段 mainTrack 暂时保留（不删），代码不再写它。
+
+### 进度跟踪文件
+**每批 ACP 开始前必须先读：** `tmp/maintrack-migration-state.md`
+该文件记录每批完成后的接口约定，是批次间上下文的唯一可信来源。
+
+### 预设标签（6个，定义在 lib/labels.ts）
+```
+ai_saas    → 'AI 产品 / SaaS'
+content    → '内容创作 / 自媒体'
+ecommerce  → '电商 / 独立站'
+consulting → '咨询 / 知识服务'
+dev        → '独立开发 / 外包'
+design     → '设计 / 创意'
+```
+旧 key 映射：ai_product → ai_saas，其余同名，other → []（空数组）。
+
+### 批次划分
+| 批次 | 内容 | 文件 | 状态 |
+|------|------|------|----- |
+| Batch A | Schema + 基础层（我执行） | prisma/schema.prisma, lib/labels.ts, components/ui/track-badges.tsx, components/ui/track-selector.tsx, scripts/migrate-main-tracks.ts | 待做 |
+| Batch B | API 层（ACP） | app/api/users/route.ts, app/api/user/profile/route.ts, app/api/user/card/route.ts, app/api/user/onboarding-status/route.ts, app/api/users/onboarding/route.ts, app/api/plaza/users/route.ts, app/api/plaza/projects/route.ts, app/api/follow/[id]/followers/route.ts, app/api/follow/[id]/following/route.ts | 待做 |
+| Batch C | 前端展示层（ACP） | components/plaza/person-card.tsx, components/profile/profile-client.tsx, components/follow/follow-list-client.tsx, components/projects/project-detail-client.tsx, components/plaza/onboarding-recommendations.tsx, components/plaza/post-card.tsx, components/plaza/post-sidebar.tsx, app/(main)/profile/[username]/page.tsx, app/(main)/projects/[slug]/page.tsx, app/(main)/connect/page.tsx, app/(main)/connect/[slug]/page.tsx, components/connect/connect-form.tsx | 待做 |
+| Batch D | 交互层（ACP） | components/auth/register-form.tsx, components/settings/profile-section.tsx, components/plaza/plaza-client.tsx, app/(auth)/welcome/page.tsx | 待做 |
+
+### 关键接口约定（执行过程中填充）
+```
+TrackBadges:   props = { tracks: string[] }
+TrackSelector: props = { value: string[], onChange: (v: string[]) => void }
+// 其余接口在 state.md 里补充
+```
+
+### 生产部署顺序（代码全部 build 通过后）
+1. 生产跑 DB migration：DATABASE_URL=生产直连 npx prisma migrate deploy
+2. 生产跑数据迁移脚本：DATABASE_URL=生产直连 npx tsx scripts/migrate-main-tracks.ts
+3. 部署代码：npm run build && rsync + pm2 restart
+4. 验证：person-card 标签显示正确、设置页有数据、注册流程走通
+
+### ACP 任务规范
+- 每批 prompt 必须包含「只允许修改以下文件」正向约束
+- 每批完成后：git diff --name-only 验证范围 → npm run build → 更新 state.md
+- 禁止在代码里删除 mainTrack 字段的 select（保留兼容，但不再写入）

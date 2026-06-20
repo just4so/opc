@@ -71,7 +71,7 @@ interface PlazaUser {
   avatar: string | null
   bio: string | null
   location: string | null
-  mainTrack: string | null
+  mainTracks?: string[] | null
   startupStage: string | null
   verified: boolean
   verifyType: string | null
@@ -202,7 +202,7 @@ export function PlazaClient({
   // Onboarding — 客户端异步判断，已完成 onboarding 的用户不感知
   const [onboardingData, setOnboardingData] = useState<{
     userId: string
-    mainTrack: string | null
+    mainTracks: string[]
     location: string | null
   } | null>(null)
   useEffect(() => {
@@ -211,7 +211,7 @@ export function PlazaClient({
       .then(res => res.json())
       .then(data => {
         if (!data.completed) {
-          setOnboardingData({ userId: data.userId, mainTrack: data.mainTrack, location: data.location })
+          setOnboardingData({ userId: data.userId, mainTracks: data.mainTracks ?? [], location: data.location })
         }
       })
       .catch(() => {})
@@ -246,9 +246,8 @@ export function PlazaClient({
 
   // Filter options derived from SSR data
   const uniqueTracks = useMemo(() => {
-    const tracks = new Set<string>()
-    initialPlazaUsers.forEach(u => { if (u.mainTrack) tracks.add(u.mainTrack) })
-    return Array.from(tracks).sort()
+    const all = initialPlazaUsers.flatMap(u => u.mainTracks ?? [])
+    return Array.from(new Set(all)).sort()
   }, [initialPlazaUsers])
 
   const uniqueCities = useMemo(() => {
@@ -591,7 +590,7 @@ export function PlazaClient({
         {onboardingData && (
           <OnboardingRecommendations
             currentUserId={onboardingData.userId}
-            currentUserTrack={onboardingData.mainTrack}
+            currentUserTracks={onboardingData.mainTracks}
             currentUserLocation={onboardingData.location}
           />
         )}
@@ -688,7 +687,7 @@ export function PlazaClient({
                       username: user.username,
                       avatar: user.avatar,
                       city: user.location,
-                      mainTrack: user.mainTrack,
+                      mainTracks: user.mainTracks ?? [],
                       bio: user.bio,
                       followerCount: user.followerCount ?? 0,
                       projectCount: user.projectCount ?? 0,

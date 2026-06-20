@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { AvatarPicker } from '@/components/ui/avatar-picker'
 import { useToast } from '@/components/ui/toast-notification'
 import { useSession } from 'next-auth/react'
+import { TrackSelector } from '@/components/ui/track-selector'
 
 const STAGE_OPTIONS = [
   { value: 'IDEA', label: '想法阶段' },
@@ -38,7 +39,7 @@ export function ProfileSection({ userId }: Props) {
   const [location, setLocation] = useState('')
   const [website, setWebsite] = useState('')
   const [wechat, setWechat] = useState('')
-  const [mainTrack, setMainTrack] = useState('')
+  const [mainTracks, setMainTracks] = useState<string[]>([])
   const [startupStage, setStartupStage] = useState('')
   const [showInPlaza, setShowInPlaza] = useState(false)
 
@@ -68,7 +69,7 @@ export function ProfileSection({ userId }: Props) {
         setLocation(data.location || '')
         setWebsite(data.website || '')
         setWechat(data.wechat || '')
-        setMainTrack(data.mainTrack || '')
+        setMainTracks(data.mainTracks || [])
         setStartupStage(data.startupStage || '')
         setShowInPlaza(data.showInPlaza || false)
       }
@@ -109,7 +110,7 @@ export function ProfileSection({ userId }: Props) {
         fetch('/api/user/card', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bio, mainTrack, startupStage, location, wechat, showInPlaza }),
+          body: JSON.stringify({ bio, mainTracks, startupStage, location, wechat, showInPlaza }),
         }),
       ])
       if (profileRes.ok) {
@@ -208,7 +209,7 @@ export function ProfileSection({ userId }: Props) {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block text-charcoal">创业方向（赛道）</label>
-              <Input value={mainTrack} onChange={e => setMainTrack(e.target.value)} placeholder="如：AI教育、跨境电商、SaaS" />
+              <TrackSelector value={mainTracks} onChange={setMainTracks} maxSelect={3} />
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block text-charcoal">创业阶段</label>
@@ -299,7 +300,9 @@ export function ProfileSection({ userId }: Props) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{u.name || u.username}</p>
-                    {u.mainTrack && <p className="text-xs text-ash">{u.mainTrack}</p>}
+                    {(u.mainTracks?.length > 0 ? u.mainTracks[0] : u.mainTrack) && (
+                      <p className="text-xs text-ash">{u.mainTracks?.[0] || u.mainTrack}</p>
+                    )}
                   </div>
                 </Link>
               ))}

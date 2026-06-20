@@ -21,7 +21,7 @@ export interface ConnectFormProps {
     name: string
     contact: string
     location: string
-    mainTrack: string
+    mainTracks: string[]
     startupStage: string
   }
   cities: string[]

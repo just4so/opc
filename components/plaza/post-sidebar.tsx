@@ -16,8 +16,10 @@ export async function PostSidebar({ postId, authorId, topics }: PostSidebarProps
 
   const author = await prisma.user.findUnique({
     where: { id: authorId },
-    select: { mainTrack: true },
+    select: { mainTrack: true, mainTracks: true },
   })
+
+  const authorTrack = author?.mainTracks?.[0] ?? author?.mainTrack ?? null
 
   const [authorPosts, relatedPosts, sameTrackUsers] = await Promise.all([
     prisma.post.findMany({
@@ -54,7 +56,7 @@ export async function PostSidebar({ postId, authorId, topics }: PostSidebarProps
         })
       : Promise.resolve([]),
 
-    author?.mainTrack
+    authorTrack
       ? (async () => {
           let excludeIds = [authorId]
           if (currentUserId) {
@@ -67,7 +69,7 @@ export async function PostSidebar({ postId, authorId, topics }: PostSidebarProps
           return prisma.user.findMany({
             where: {
               id: { notIn: excludeIds },
-              mainTrack: author.mainTrack,
+              mainTracks: { has: authorTrack },
               showInPlaza: true,
             },
             select: {

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const ownerWhere = where.owner as Record<string, unknown>
     if (direction) {
-      ownerWhere.mainTrack = direction
+      ownerWhere.mainTracks = { has: direction }
     }
     if (city) {
       ownerWhere.location = city

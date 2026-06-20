@@ -25,6 +25,7 @@ const getProject = cache(async (slug: string) => {
           avatar: true,
           verified: true,
           mainTrack: true,
+          mainTracks: true,
         },
       },
       progress: {

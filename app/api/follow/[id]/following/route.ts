@@ -28,6 +28,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
             avatar: true,
             bio: true,
             mainTrack: true,
+            mainTracks: true,
             verified: true,
           },
         },

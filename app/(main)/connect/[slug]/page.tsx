@@ -56,6 +56,7 @@ export default async function ConnectPage({ params }: PageProps) {
         wechat: true,
         location: true,
         mainTrack: true,
+        mainTracks: true,
         startupStage: true,
       },
     }),
@@ -84,7 +85,7 @@ export default async function ConnectPage({ params }: PageProps) {
             name: user?.name ?? '',
             contact: user?.wechat || user?.phone || '',
             location: defaultCity,
-            mainTrack: user?.mainTrack ?? '',
+            mainTracks: user?.mainTracks ?? [],
             startupStage: user?.startupStage ?? '',
           }}
           cities={cityNames}

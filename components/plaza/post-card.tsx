@@ -51,7 +51,7 @@ interface PostCardProps {
       level: number
       verified: boolean
       location?: string | null
-      mainTrack?: string | null
+      mainTracks?: string[] | null
       startupStage?: string | null
     }
   }

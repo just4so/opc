@@ -33,6 +33,7 @@ model User {
   updatedAt           DateTime                  @updatedAt
   lastActiveAt        DateTime?
   mainTrack           String?
+  mainTracks          String[]              @default([])
   startupStage        String?
   emailVerified       Boolean                   @default(false)
   emailNotifications  Boolean                   @default(true)

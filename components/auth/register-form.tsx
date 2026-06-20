@@ -7,22 +7,13 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TrackSelector } from '@/components/ui/track-selector'
 
 const STARTUP_STAGES = [
   { value: 'looking', label: '🔍 正在寻找 OPC 社区' },
   { value: 'settled', label: '🏠 已入驻 OPC 社区' },
   { value: 'considering', label: '🤔 考虑中，还在了解' },
   { value: 'other', label: '📌 其他' },
-]
-
-const MAIN_TRACKS = [
-  { value: 'ai_product', label: 'AI 产品 / SaaS' },
-  { value: 'design', label: '设计 / 创意服务' },
-  { value: 'consulting', label: '咨询 / 知识服务' },
-  { value: 'ecommerce', label: '电商 / 独立站' },
-  { value: 'content', label: '内容创作 / 自媒体' },
-  { value: 'dev', label: '独立开发 / 外包' },
-  { value: 'other', label: '其他' },
 ]
 
 interface RegisterFormProps {
@@ -41,7 +32,7 @@ export function RegisterForm({ communityCount }: RegisterFormProps) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [startupStage, setStartupStage] = useState('')
-  const [mainTrack, setMainTrack] = useState('')
+  const [mainTracks, setMainTracks] = useState<string[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -70,7 +61,7 @@ export function RegisterForm({ communityCount }: RegisterFormProps) {
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email: email || undefined, password, startupStage, mainTrack }),
+        body: JSON.stringify({ name, phone, email: email || undefined, password, startupStage, mainTracks }),
       })
 
       const data = await res.json()
@@ -266,22 +257,7 @@ export function RegisterForm({ communityCount }: RegisterFormProps) {
                 <label className="text-sm font-medium text-charcoal">
                   你的主要业务方向
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {MAIN_TRACKS.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setMainTrack(mainTrack === t.value ? '' : t.value)}
-                      className={`text-left text-xs px-3 py-2 rounded-2xl border transition-colors ${
-                        mainTrack === t.value
-                          ? 'border-primary bg-primary/5 text-primary font-medium'
-                          : 'border-hairline-soft text-mute hover:border-hairline'
-                      }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
+                <TrackSelector value={mainTracks} onChange={setMainTracks} maxSelect={3} />
               </div>
             </div>
 

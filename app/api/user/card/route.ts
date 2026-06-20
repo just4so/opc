@@ -24,6 +24,7 @@ export async function GET() {
       select: {
         bio: true,
         mainTrack: true,
+        mainTracks: true,
         startupStage: true,
         location: true,
         lookingFor: true,
@@ -70,7 +71,7 @@ export async function PUT(request: NextRequest) {
     const updateData: Record<string, unknown> = {}
 
     if (body.bio !== undefined) updateData.bio = body.bio || null
-    if (body.mainTrack !== undefined) updateData.mainTrack = body.mainTrack || null
+    if (body.mainTracks !== undefined) updateData.mainTracks = body.mainTracks || []
     if (body.startupStage !== undefined) updateData.startupStage = body.startupStage || null
     if (body.location !== undefined) updateData.location = body.location || null
     if (body.wechat !== undefined) updateData.wechat = body.wechat || null
@@ -94,6 +95,7 @@ export async function PUT(request: NextRequest) {
       select: {
         bio: true,
         mainTrack: true,
+        mainTracks: true,
         startupStage: true,
         location: true,
         lookingFor: true,

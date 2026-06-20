@@ -6,13 +6,12 @@ import { ArrowRight, MapPin, Users, Sparkles, Package } from 'lucide-react'
 import { CommunityCover } from '@/components/welcome/community-cover'
 
 const TRACK_KEYWORDS: Record<string, string[]> = {
-  ai_product: ['人工智能', 'AI应用', 'AI', 'AIGC', '大模型应用', 'LLM应用', 'AI工具开发'],
+  ai_saas: ['人工智能', 'AI应用', 'AI', 'AIGC', '大模型应用', 'LLM应用', 'AI工具开发'],
   design: ['数字文创', '内容创作', '数字内容', '创意设计'],
   consulting: ['知识产权', '企业软件', '超级个体', '咨询'],
   ecommerce: ['跨境电商', '电商', '直播电商'],
   content: ['内容创作', '数字内容', 'AIGC', '自媒体'],
   dev: ['AI应用开发', 'AI工具开发', 'LLM应用', '独立开发'],
-  other: [],
 }
 
 const COVER_GRADIENTS = [
@@ -35,10 +34,10 @@ export default async function WelcomePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, mainTrack: true },
+    select: { name: true, mainTracks: true },
   })
 
-  const keywords = user?.mainTrack ? TRACK_KEYWORDS[user.mainTrack] || [] : []
+  const keywords = (user?.mainTracks ?? []).flatMap(t => TRACK_KEYWORDS[t] ?? [])
 
   let communities = keywords.length > 0
     ? await prisma.community.findMany({
@@ -68,7 +67,7 @@ export default async function WelcomePage() {
   })
 
   const displayName = user?.name?.split(' ')[0] || '创业者'
-  const hasTrack = !!user?.mainTrack && user.mainTrack !== 'other'
+  const hasTrack = (user?.mainTracks?.length ?? 0) > 0
 
   return (
     <div className="min-h-screen bg-[#fbfbf9] overflow-x-hidden">

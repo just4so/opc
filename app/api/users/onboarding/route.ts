@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     name: true,
     avatar: true,
     bio: true,
-    mainTrack: true,
+    mainTracks: true,
     location: true,
   } as const
 
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     name: string | null
     avatar: string | null
     bio: string | null
-    mainTrack: string | null
+    mainTracks: string[]
     location: string | null
   }
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   if (track) {
     users = await prisma.user.findMany({
-      where: { ...where, mainTrack: { contains: track, mode: 'insensitive' } },
+      where: { ...where, mainTracks: { has: track } },
       take: 5,
       orderBy: { lastActiveAt: 'desc' },
       select: userSelect,

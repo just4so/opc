@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { X, UserPlus, Sparkles } from 'lucide-react'
 import { FollowButton } from '@/components/follow/follow-button'
+import { TrackBadges } from '@/components/ui/track-badges'
 
 interface RecommendedUser {
   id: string
@@ -11,18 +12,20 @@ interface RecommendedUser {
   name: string | null
   avatar: string | null
   bio: string | null
-  mainTrack: string | null
+  mainTracks: string[]
   location: string | null
 }
 
 interface OnboardingRecommendationsProps {
   currentUserId: string
-  currentUserTrack: string | null
+  currentUserTracks?: string[]
+  currentUserTrack?: string | null
   currentUserLocation: string | null
 }
 
 export function OnboardingRecommendations({
   currentUserId,
+  currentUserTracks,
   currentUserTrack,
   currentUserLocation,
 }: OnboardingRecommendationsProps) {
@@ -43,8 +46,9 @@ export function OnboardingRecommendations({
 
   const fetchRecommendations = async () => {
     try {
+      const effectiveTracks = currentUserTracks ?? (currentUserTrack ? [currentUserTrack] : [])
       const params = new URLSearchParams()
-      if (currentUserTrack) params.set('track', currentUserTrack)
+      if (effectiveTracks.length > 0) params.set('track', effectiveTracks[0])
       if (currentUserLocation) params.set('location', currentUserLocation)
       const res = await fetch(`/api/users/onboarding?${params}`)
       if (res.ok) {
@@ -123,9 +127,7 @@ export function OnboardingRecommendations({
                       {user.name || user.username}
                     </p>
                   </Link>
-                  {user.mainTrack && (
-                    <p className="text-xs truncate" style={{ color: '#62625b' }}>{user.mainTrack}</p>
-                  )}
+                  <TrackBadges tracks={user.mainTracks ?? []} />
                 </div>
               </div>
               {user.bio && (

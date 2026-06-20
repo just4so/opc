@@ -13,7 +13,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { onboardingCompleted: true, mainTrack: true, location: true },
+    select: { onboardingCompleted: true, mainTracks: true, location: true },
   })
 
   if (!user || user.onboardingCompleted) {
@@ -23,7 +23,7 @@ export async function GET() {
   return NextResponse.json({
     completed: false,
     userId: session.user.id,
-    mainTrack: user.mainTrack,
+    mainTracks: user.mainTracks,
     location: user.location,
   })
 }

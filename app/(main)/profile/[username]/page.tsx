@@ -18,13 +18,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { name: true, username: true, mainTrack: true },
+    select: { name: true, username: true, mainTrack: true, mainTracks: true },
   })
 
   if (!user) return { title: '用户不存在 | OPC圈' }
 
   const displayName = user.name || user.username
-  const trackStr = user.mainTrack ? ` - ${user.mainTrack}` : ''
+  const trackStr = user.mainTracks?.[0] ? ` - ${user.mainTracks[0]}` : ''
 
   return {
     title: `${displayName}${trackStr} | OPC圈`,
@@ -59,6 +59,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       verified: true,
       verifyType: true,
       mainTrack: true,
+      mainTracks: true,
       startupStage: true,
       showInPlaza: true,
       createdAt: true,

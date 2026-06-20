@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { BadgeCheck, Loader2, Users } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FollowButton } from '@/components/follow/follow-button'
+import { TrackBadges } from '@/components/ui/track-badges'
 
 interface UserItem {
   id: string
@@ -13,7 +13,7 @@ interface UserItem {
   name: string | null
   avatar: string | null
   bio: string | null
-  mainTrack: string | null
+  mainTracks: string[]
   verified: boolean
   followedAt: string
 }
@@ -135,9 +135,7 @@ export function FollowListClient({ userId, username, type }: FollowListClientPro
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      {user.mainTrack && (
-                        <Badge variant="secondary" className="text-xs">{user.mainTrack}</Badge>
-                      )}
+                      <TrackBadges tracks={user.mainTracks ?? []} />
                       {user.bio && (
                         <span className="text-xs truncate" style={{ color: '#91918c' }}>
                           {user.bio}
