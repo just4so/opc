@@ -277,7 +277,11 @@ async function main() {
       gnewsProc.kill('SIGKILL')  // SIGKILL 确保 Python 子进程也终止
       resolve()
     }, 1000000)
-    gnewsProc.on('close', () => { clearTimeout(timer); resolve() })
+    gnewsProc.on('close', () => {
+      clearTimeout(timer)
+      // 等待 gnews 子进程的 $disconnect() 完成，避免连接池竞争
+      setTimeout(resolve, 3000)
+    })
   })
 
   // GNews 和 RSS 真正并行
