@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { X } from 'lucide-react'
-import { MAIN_TRACK_OPTIONS } from '@/lib/labels'
+import { useState, useRef, useEffect } from 'react'
+import { X, ChevronDown } from 'lucide-react'
+import { MAIN_TRACK_OPTIONS, resolveTrackLabel } from '@/lib/labels'
 
 interface TrackSelectorProps {
   value: string[]
@@ -10,14 +10,20 @@ interface TrackSelectorProps {
   maxSelect?: number
 }
 
-/**
- * 赛道多选选择器
- * - 6 个预设标签卡片，点击 toggle 选中/取消
- * - 底部输入框支持自定义标签（Enter 或失焦添加）
- * - 已选标签显示为 pill，带 × 删除
- */
 export function TrackSelector({ value, onChange, maxSelect = 3 }: TrackSelectorProps) {
+  const [open, setOpen] = useState(false)
   const [customInput, setCustomInput] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown)
+    return () => document.removeEventListener('mousedown', handleMouseDown)
+  }, [])
 
   const toggle = (v: string) => {
     if (value.includes(v)) {
@@ -26,6 +32,10 @@ export function TrackSelector({ value, onChange, maxSelect = 3 }: TrackSelectorP
       if (value.length >= maxSelect) return
       onChange([...value, v])
     }
+  }
+
+  const remove = (v: string) => {
+    onChange(value.filter((t) => t !== v))
   }
 
   const addCustom = () => {
@@ -39,76 +49,72 @@ export function TrackSelector({ value, onChange, maxSelect = 3 }: TrackSelectorP
     setCustomInput('')
   }
 
-  const remove = (v: string) => {
-    onChange(value.filter((t) => t !== v))
-  }
-
-  // 自定义标签 = 不在预设 options 里的
-  const customTags = value.filter(
-    (t) => !MAIN_TRACK_OPTIONS.find((o) => o.value === t)
-  )
-
   return (
-    <div className="space-y-3">
-      {/* 预设标签 */}
-      <div className="grid grid-cols-2 gap-2">
-        {MAIN_TRACK_OPTIONS.map((opt) => {
-          const selected = value.includes(opt.value)
-          const disabled = !selected && value.length >= maxSelect
-          return (
+    <div ref={containerRef} className="relative">
+      {/* Trigger */}
+      <div
+        onClick={() => setOpen(!open)}
+        className="min-h-[40px] w-full flex flex-wrap gap-1.5 items-center px-3 py-2 border border-hairline rounded-2xl cursor-pointer bg-canvas"
+      >
+        {value.length === 0 && (
+          <span className="text-ash text-sm">选择你的主要方向（最多 {maxSelect} 个）</span>
+        )}
+        {value.map(v => (
+          <span
+            key={v}
+            className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full"
+          >
+            {resolveTrackLabel(v)}
             <button
-              key={opt.value}
               type="button"
-              disabled={disabled}
-              onClick={() => toggle(opt.value)}
-              className={`text-left text-xs px-3 py-2 rounded-2xl border transition-colors ${
-                selected
-                  ? 'border-primary bg-primary/5 text-primary font-medium'
-                  : disabled
-                  ? 'border-hairline-soft text-ash cursor-not-allowed opacity-50'
-                  : 'border-hairline-soft text-mute hover:border-hairline'
-              }`}
+              onClick={e => { e.stopPropagation(); remove(v) }}
+              className="hover:text-primary/70"
             >
-              {opt.label}
+              <X className="h-3 w-3" />
             </button>
-          )
-        })}
+          </span>
+        ))}
+        <ChevronDown className="h-4 w-4 text-ash ml-auto shrink-0" />
       </div>
 
-      {/* 已选自定义标签 */}
-      {customTags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {customTags.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center gap-1 bg-primary/5 text-primary text-xs px-2 py-0.5 rounded-full"
-            >
-              {t}
-              <button type="button" onClick={() => remove(t)} className="hover:text-primary/70">
-                <X className="h-3 w-3" />
+      {/* Dropdown */}
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-canvas border border-hairline rounded-2xl shadow-lg z-50 overflow-hidden">
+          {MAIN_TRACK_OPTIONS.map(opt => {
+            const selected = value.includes(opt.value)
+            const disabled = !selected && value.length >= maxSelect
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                disabled={disabled}
+                onClick={() => toggle(opt.value)}
+                className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${
+                  selected
+                    ? 'bg-primary/5 text-primary font-medium'
+                    : disabled
+                    ? 'text-ash cursor-not-allowed opacity-50'
+                    : 'text-ink hover:bg-surface-soft'
+                }`}
+              >
+                {opt.label}
+                {selected && <span className="text-primary text-xs">✓</span>}
               </button>
-            </span>
-          ))}
+            )
+          })}
+          {/* Custom input row */}
+          <div className="px-3 py-2 border-t border-hairline-soft">
+            <input
+              type="text"
+              value={customInput}
+              onChange={e => setCustomInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
+              placeholder="其他方向，Enter 添加..."
+              disabled={value.length >= maxSelect}
+              className="w-full px-2 py-1.5 text-xs border border-hairline rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-charcoal placeholder:text-ash disabled:opacity-50 bg-canvas"
+            />
+          </div>
         </div>
-      )}
-
-      {/* 自定义输入 */}
-      {value.length < maxSelect && (
-        <div>
-          <input
-            type="text"
-            value={customInput}
-            onChange={(e) => setCustomInput(e.target.value)}
-            onBlur={addCustom}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
-            placeholder="其他方向，如：硬件创业、私域运营..."
-            className="w-full px-3 py-2 text-xs border border-hairline rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-charcoal placeholder:text-ash"
-          />
-        </div>
-      )}
-
-      {value.length >= maxSelect && (
-        <p className="text-xs text-ash">最多选 {maxSelect} 个方向</p>
       )}
     </div>
   )

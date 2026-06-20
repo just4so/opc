@@ -518,7 +518,7 @@ export function PlazaClient({
             >
               <Package className="h-4 w-4" />
               产品
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialProjectTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full hidden sm:inline">{initialProjectTotal}</span>
             </button>
             <button
               onClick={() => handleTabChange('people')}
@@ -530,7 +530,7 @@ export function PlazaClient({
             >
               <Users className="h-4 w-4" />
               创业者
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{initialPlazaUserTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full hidden sm:inline">{initialPlazaUserTotal}</span>
             </button>
             <button
               onClick={() => handleTabChange('posts')}
@@ -542,7 +542,7 @@ export function PlazaClient({
             >
               <MessageCircle className="h-4 w-4" />
               动态
-              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full">{postPagination.total > 0 ? postPagination.total : initialPostTotal}</span>
+              <span className="text-xs bg-surface-card text-mute px-1.5 py-0.5 rounded-full hidden sm:inline">{postPagination.total > 0 ? postPagination.total : initialPostTotal}</span>
             </button>
             <div className="ml-auto">
               <select
@@ -552,7 +552,7 @@ export function PlazaClient({
                   else if (mainTab === 'posts') handleSortChange(e.target.value)
                   else handlePeopleSortChange(e.target.value)
                 }}
-                className="text-sm text-mute bg-transparent border-0 focus:ring-0 cursor-pointer"
+                className="text-xs sm:text-sm text-mute bg-transparent border-0 focus:ring-0 cursor-pointer py-1"
               >
                 {mainTab === 'products' && (
                   <>
@@ -603,7 +603,7 @@ export function PlazaClient({
               <select
                 value={filterDirection}
                 onChange={e => setFilterDirection(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">方向</option>
                 {uniqueTracks.map(t => (
@@ -615,7 +615,7 @@ export function PlazaClient({
               <select
                 value={filterCity}
                 onChange={e => setFilterCity(e.target.value)}
-                className="px-3 py-2 text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border rounded-lg bg-canvas text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">城市</option>
                 {uniqueCities.map(c => (
@@ -634,7 +634,7 @@ export function PlazaClient({
               ))}
             </select>
             {mainTab === 'people' && (
-              <div className="relative flex-1 min-w-[200px] max-w-xs">
+              <div className="relative w-full sm:min-w-[200px] sm:max-w-xs flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ash" />
                 <input
                   type="text"
@@ -661,7 +661,7 @@ export function PlazaClient({
         {mainTab === 'people' && (
           <div key="people" className="tab-content-enter">
             {peopleLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                   <div key={i} className="bg-canvas rounded-2xl border p-5">
                     <div className="flex items-center gap-3 mb-3">
@@ -677,7 +677,7 @@ export function PlazaClient({
                 ))}
               </div>
             ) : people.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {people.map(user => (
                   <PersonCard
                     key={user.id}
@@ -728,7 +728,7 @@ export function PlazaClient({
         {mainTab === 'products' && (
           <div key="products" className="tab-content-enter">
             {projectLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {[1, 2, 3, 4, 5, 6].map(i => (
                   <div key={i} className="bg-canvas rounded-2xl border p-5">
                     <div className="h-5 w-3/4 bg-secondary-bg rounded animate-pulse mb-2" />
@@ -741,7 +741,7 @@ export function PlazaClient({
                 ))}
               </div>
             ) : projects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {projects.map(proj => (
                   <ProductCard
                     key={proj.id}

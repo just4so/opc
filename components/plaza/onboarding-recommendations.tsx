@@ -38,12 +38,6 @@ export function OnboardingRecommendations({
     fetchRecommendations()
   }, [])
 
-  useEffect(() => {
-    if (followedCount >= 1) {
-      dismissBanner()
-    }
-  }, [followedCount])
-
   const fetchRecommendations = async () => {
     try {
       const effectiveTracks = currentUserTracks ?? (currentUserTrack ? [currentUserTrack] : [])
@@ -102,11 +96,11 @@ export function OnboardingRecommendations({
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
           {users.slice(0, 5).map(user => (
             <div
               key={user.id}
-              className="bg-white rounded-xl p-4 flex flex-col gap-2"
+              className="flex-shrink-0 w-48 snap-start bg-white rounded-xl p-3 flex flex-col gap-2"
               style={{ border: '1px solid #e5e5e0' }}
             >
               <div className="flex items-center gap-3">

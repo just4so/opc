@@ -69,7 +69,7 @@ export function ProfileSection({ userId }: Props) {
         setLocation(data.location || '')
         setWebsite(data.website || '')
         setWechat(data.wechat || '')
-        setMainTracks(data.mainTracks || [])
+        setMainTracks((data.mainTracks || []).filter((v: unknown) => v != null && v !== ''))
         setStartupStage(data.startupStage || '')
         setShowInPlaza(data.showInPlaza || false)
       }
@@ -105,7 +105,7 @@ export function ProfileSection({ userId }: Props) {
         fetch('/api/user/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ avatar, bio, location, website, wechat }),
+          body: JSON.stringify({ avatar: avatar ?? undefined, bio, location, website, wechat }),
         }),
         fetch('/api/user/card', {
           method: 'PUT',
