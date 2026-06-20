@@ -15,6 +15,15 @@ Sentry.init({
     'ResizeObserver loop limit exceeded',
     'ResizeObserver loop completed with undelivered notifications',
     'Non-Error promise rejection captured',
+    // Object captured as promise rejection（通常来自第三方脚本/浏览器扩展，非业务代码）
+    'Object captured as promise rejection',
+    // Web3 钱包插件噪音（MetaMask / Backpack 等插件互抢 window.ethereum）
+    'MetaMask extension not found',
+    /Backpack was unable to override/,
+    /window\.ethereum/,
+    // Twitter/微信等 App 内置 WebView 导致的 React fiber 异常，非业务代码问题
+    'Unknown root exit status.',
+    /a\[e\]\.call/,
     /^Network Error$/,
     /^Load failed$/,
     /^Failed to fetch$/,
