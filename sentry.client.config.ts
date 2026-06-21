@@ -17,13 +17,17 @@ Sentry.init({
     'Non-Error promise rejection captured',
     // Object captured as promise rejection（通常来自第三方脚本/浏览器扩展，非业务代码）
     'Object captured as promise rejection',
-    // Web3 钱包插件噪音（MetaMask / Backpack 等插件互抢 window.ethereum）
+    // Web3 钱包插件噪音（MetaMask / OKX / Wizz / Backpack 等插件冲突）
     'MetaMask extension not found',
+    /Failed to connect to MetaMask/,
     /Backpack was unable to override/,
     /window\.ethereum/,
+    /Cannot redefine property: wizz/,
+    /pageProvider\.js/,
+    /reading 'sendMessage'/,
     // Twitter/微信等 App 内置 WebView 导致的 React fiber 异常，非业务代码问题
     'Unknown root exit status.',
-    /a\[e\]\.call/,
+    /undefined is not an object \(evaluating 'a\[e\]\.call'\)/,
     /^Network Error$/,
     /^Load failed$/,
     /^Failed to fetch$/,
