@@ -1,5 +1,5 @@
 import { cache } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import prisma from '@/lib/db'
 import { auth } from '@/lib/auth'
@@ -66,7 +66,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProjectDetailPage({ params }: PageProps) {
   const project = await getProject(decodeURIComponent(params.slug))
-  if (!project || project.status !== 'PUBLISHED') {
+
+  // If not found by primary slug, check slugAliases for 301 redirect (old Chinese slugs)
+  if (!project) {
+    const decodedSlug = decodeURIComponent(params.slug)
+    const aliasMatch = await prisma.project.findFirst({
+      where: { slugAliases: { has: decodedSlug } },
+      select: { slug: true, status: true },
+    })
+    if (aliasMatch && aliasMatch.status === 'PUBLISHED') {
+      redirect(`/projects/${aliasMatch.slug}`)
+    }
+    notFound()
+  }
+
+  if (project.status !== 'PUBLISHED') {
     notFound()
   }
 

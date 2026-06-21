@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma, { prismaTransaction } from '@/lib/db'
 import { z } from 'zod'
+import { ensureEnglishSlug } from '@/lib/slug'
 
 const PRODUCT_STAGE_MAP: Record<string, string> = {
   '想法阶段': 'IDEA',
@@ -9,14 +10,6 @@ const PRODUCT_STAGE_MAP: Record<string, string> = {
   '已上线': 'LAUNCHED',
   '有收入': 'REVENUE',
   '已盈利': 'PROFITABLE',
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w一-鿿]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
 }
 
 const createInquirySchema = z.object({
@@ -144,7 +137,7 @@ export async function POST(req: Request) {
 
       let projectId: string | null = null
       if (productName) {
-        const baseSlug = slugify(productName) || 'project'
+        const baseSlug = ensureEnglishSlug(productName.trim()).slice(0, 60) || 'project'
         const suffix = Date.now().toString(36)
         const projectSlug = `${baseSlug}-${suffix}`
         const stageEnum = (productStage && PRODUCT_STAGE_MAP[productStage]) || 'IDEA'

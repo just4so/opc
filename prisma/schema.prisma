@@ -33,11 +33,11 @@ model User {
   updatedAt           DateTime                  @updatedAt
   lastActiveAt        DateTime?
   mainTrack           String?
-  mainTracks          String[]              @default([])
   startupStage        String?
   emailVerified       Boolean                   @default(false)
   emailNotifications  Boolean                   @default(true)
   onboardingCompleted Boolean                   @default(false)
+  mainTracks          String[]                  @default([])
   accounts            Account[]
   cityManagerProfile  CityManager?
   comments            Comment[]
@@ -189,6 +189,7 @@ model Post {
 model Project {
   id              String        @id @default(cuid())
   slug            String        @unique
+  slugAliases     String[]      @default([])
   name            String
   tagline         String?
   description     String
