@@ -135,19 +135,25 @@ export async function POST() {
     runError = err instanceof Error ? err.message : String(err);
   }
 
-  // 写 RadarRun 记录
-  const radarRun = await prisma.radarRun.create({
-    data: {
-      source: "admin-manual",
-      collected,
-      skipped,
-      error: runError ?? null,
-    },
-  });
-
-  if (runError) {
-    return NextResponse.json({ error: runError, runId: radarRun.id }, { status: 500 });
+  // 写 RadarRun 记录（日志写失败不影响采集结果）
+  let runId: string | null = null;
+  try {
+    const radarRun = await prisma.radarRun.create({
+      data: {
+        source: "admin-manual",
+        collected,
+        skipped,
+        error: runError ?? null,
+      },
+    });
+    runId = radarRun.id;
+  } catch (logErr) {
+    console.error("RadarRun 日志写入失败（不影响采集数据）:", logErr);
   }
 
-  return NextResponse.json({ collected, skipped, tooOld: tooOldCount, runId: radarRun.id });
+  if (runError) {
+    return NextResponse.json({ error: runError, runId }, { status: 500 });
+  }
+
+  return NextResponse.json({ collected, skipped, tooOld: tooOldCount, runId });
 }
