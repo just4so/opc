@@ -27,7 +27,9 @@ import { collectRssFeeds, collectTier3, type RadarRawItem } from '../lib/radar/r
 import { FILTER_KEYWORDS } from '../config/search-queries'
 import { generateIssue } from '../lib/radar/generateIssue'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasources: { db: { url: (process.env.DATABASE_URL || '').replace(/connection_limit=\d+/, 'connection_limit=5').replace(/(&|\?)pool_timeout=\d+/, '').replace(/\?$/, '') + '&pool_timeout=30' } }
+})
 
 // ─── 工具函数 ─────────────────────────────────────────────────────────────
 
@@ -293,10 +295,14 @@ async function main() {
   log(`GNews 结果: ${gnewsLines || '无输出'}`)
   log(`RSS 采集完成：collected=${rssStats.collected}, skipped=${rssStats.skipped}`)
 
-  // 写 RadarRun 记录（RSS 部分）
-  await prisma.radarRun.create({
-    data: { source: 'rss-daily', collected: rssStats.collected, skipped: rssStats.skipped, error: null },
-  })
+  // 写 RadarRun 记录（RSS 部分，失败不中断主流程）
+  try {
+    await prisma.radarRun.create({
+      data: { source: 'rss-daily', collected: rssStats.collected, skipped: rssStats.skipped, error: null },
+    })
+  } catch (e: any) {
+    log(`⚠️ RadarRun 日志写入失败（不影响采集结果）: ${e.message?.slice(0, 80)}`)
+  }
 
   // Phase 3: 统计
   const unpublished = await prisma.radarItem.count({ where: { issueId: null } })
