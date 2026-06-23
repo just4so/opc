@@ -137,25 +137,40 @@ export async function POST(req: Request) {
 
       let projectId: string | null = null
       if (productName) {
-        const baseSlug = ensureEnglishSlug(productName.trim()).slice(0, 60) || 'project'
-        const suffix = Date.now().toString(36)
-        const projectSlug = `${baseSlug}-${suffix}`
-        const stageEnum = (productStage && PRODUCT_STAGE_MAP[productStage]) || 'IDEA'
-
-        const project = await tx.project.create({
-          data: {
-            slug: projectSlug,
-            name: productName,
-            description: productDescription || '',
-            images: productImages || [],
-            stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
-            website: productWebsite || null,
+        // 去重：查该用户是否已有同名（忽略大小写）的已发布产品
+        const existing = await tx.project.findFirst({
+          where: {
             ownerId: userId,
             status: 'PUBLISHED',
-            contentType: 'PROJECT',
+            name: { equals: productName.trim(), mode: 'insensitive' },
           },
+          select: { id: true },
         })
-        projectId = project.id
+
+        if (existing) {
+          // 复用已有产品，不重复创建
+          projectId = existing.id
+        } else {
+          const baseSlug = ensureEnglishSlug(productName.trim()).slice(0, 60) || 'project'
+          const suffix = Date.now().toString(36)
+          const projectSlug = `${baseSlug}-${suffix}`
+          const stageEnum = (productStage && PRODUCT_STAGE_MAP[productStage]) || 'IDEA'
+
+          const project = await tx.project.create({
+            data: {
+              slug: projectSlug,
+              name: productName,
+              description: productDescription || '',
+              images: productImages || [],
+              stage: stageEnum as 'IDEA' | 'BUILDING' | 'LAUNCHED' | 'REVENUE' | 'PROFITABLE',
+              website: productWebsite || null,
+              ownerId: userId,
+              status: 'PUBLISHED',
+              contentType: 'PROJECT',
+            },
+          })
+          projectId = project.id
+        }
       }
 
       return { inquiryId: inquiry.id, projectId }

@@ -44,6 +44,38 @@ export async function POST(
       },
     })
 
+    // 通知所有点赞该产品的用户（排除作者自己）
+    try {
+      const likers = await prisma.favorite.findMany({
+        where: {
+          projectId: project.id,
+          userId: { not: userId },
+        },
+        select: { userId: true },
+      })
+
+      if (likers.length > 0) {
+        const projectInfo = await prisma.project.findUnique({
+          where: { id: project.id },
+          select: { name: true },
+        })
+        const projectName = projectInfo?.name ?? '你关注的产品'
+
+        await prisma.notification.createMany({
+          data: likers.map(({ userId: likerId }) => ({
+            userId: likerId,
+            type: 'PROJECT_PROGRESS',
+            title: `你点赞的产品「${projectName}」发布了新进展`,
+            content: progress.content.slice(0, 100),
+            relatedId: slug,
+          })),
+          skipDuplicates: true,
+        })
+      }
+    } catch (err) {
+      console.error('Progress notification error:', err)
+    }
+
     return NextResponse.json({
       progress: {
         id: progress.id,

@@ -286,7 +286,7 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
   }
 
   // Step 0: 摘要补强——对摘要过短或过长（原文截取）的候选条目抓正文重写摘要
-  const MIN_SUMMARY_LEN = 30
+  const MIN_SUMMARY_LEN = 15  // 从30降到15，避免合法短摘要被误杀（2026-06-23）
   const MAX_SUMMARY_LEN = 200  // 超过200字也是问题——说明是RSS原文截取，不是提炼
   const weakSummaryItems = candidates.filter(
     (item: any) => !item.summary || item.summary.trim().length < MIN_SUMMARY_LEN || item.summary.trim().length > MAX_SUMMARY_LEN
@@ -296,7 +296,7 @@ export async function generateIssue(prisma: PrismaAny): Promise<GenerateResult |
     await enrichSummaries(weakSummaryItems, prisma)
   }
 
-  // 摘要质量过滤：补强后仍然为空或 < 30 字的条目不进入出刊候选
+  // 摘要质量过滤：补强后仍然为空或 < 15 字的条目不进入出刊候选
   // 重新从 DB 读取最新 summary（enrichSummaries 已写回）
   const refreshedCandidates = await prisma.radarItem.findMany({
     where: { id: { in: candidates.map((i: any) => i.id) } },

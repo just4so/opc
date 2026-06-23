@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Users, HelpCircle, X, FileQuestion, Boxes, Zap } from 'lucide-react'
@@ -9,10 +10,13 @@ const HELP_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/communi
 const COMMUNITY_QR_URL = 'https://pub-413b408ff02649388d393e4ff152b22e.r2.dev/communities/1776951048073-lg3iw0.jpg'
 
 export function HelpWidget() {
+  const pathname = usePathname()
   const [expanded, setExpanded] = useState(false)
   const [qrModal, setQrModal] = useState<'help' | 'community' | null>(null)
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  if (pathname.startsWith('/admin')) return null
 
   const handleMouseEnter = () => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current)

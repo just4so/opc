@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
 import { Search, Shield, ShieldCheck, User as UserIcon, Download, FileText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,7 +12,7 @@ interface User {
   username: string
   email: string | null
   name: string | null
-  role: 'USER' | 'ADMIN' | 'MODERATOR'
+  role: 'USER' | 'ADMIN' | 'MODERATOR' | 'CITY_MANAGER' | string
   level: number
   verified: boolean
   mainTrack: string | null
@@ -34,6 +34,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string }> = {
   USER: { label: '用户', color: 'bg-gray-100 text-gray-800' },
   MODERATOR: { label: '版主', color: 'bg-blue-100 text-blue-800' },
   ADMIN: { label: '管理员', color: 'bg-red-100 text-red-800' },
+  CITY_MANAGER: { label: '城市主理人', color: 'bg-purple-100 text-purple-800' },
 }
 
 export default function UsersClient({ currentUserRole }: { currentUserRole: string }) {
@@ -41,39 +42,43 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
   const [users, setUsers] = useState<User[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [page, setPage] = useState(1)
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async (currentPage: number, currentSearch: string, currentRole: string) => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      params.set('page', page.toString())
-      if (search) params.set('search', search)
-      if (roleFilter) params.set('role', roleFilter)
+      params.set('page', currentPage.toString())
+      if (currentSearch) params.set('search', currentSearch)
+      if (currentRole) params.set('role', currentRole)
 
       const res = await fetch(`/api/admin/users?${params}`)
       if (res.ok) {
         const data = await res.json()
-        setUsers(data.users)
-        setPagination(data.pagination)
+        setUsers(data.users || [])
+        setPagination(data.pagination || null)
+      } else {
+        setUsers([])
       }
     } catch (error) {
       console.error('获取用户失败:', error)
+      setUsers([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    fetchUsers()
-  }, [page, roleFilter])
+    fetchUsers(page, search, roleFilter)
+  }, [page, search, roleFilter, fetchUsers])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    setSearch(searchInput)
     setPage(1)
-    fetchUsers()
   }
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -85,7 +90,7 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
       })
 
       if (res.ok) {
-        fetchUsers()
+        fetchUsers(page, search, roleFilter)
       }
     } catch (error) {
       console.error('更新角色失败:', error)
@@ -101,7 +106,7 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
       })
 
       if (res.ok) {
-        fetchUsers()
+        fetchUsers(page, search, roleFilter)
       }
     } catch (error) {
       console.error('更新认证状态失败:', error)
@@ -131,8 +136,8 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="搜索用户名、昵称、邮箱..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
@@ -212,15 +217,15 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
                           <select
                             value={user.role}
                             onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                            className={`text-xs px-2 py-1 rounded ${ROLE_LABELS[user.role].color}`}
+                            className={`text-xs px-2 py-1 rounded ${(ROLE_LABELS[user.role] ?? { label: user.role, color: 'bg-gray-100 text-gray-800' }).color}`}
                           >
                             <option value="USER">用户</option>
                             <option value="MODERATOR">版主</option>
                             <option value="ADMIN">管理员</option>
                           </select>
                         ) : (
-                          <span className={`text-xs px-2 py-1 rounded ${ROLE_LABELS[user.role].color}`}>
-                            {ROLE_LABELS[user.role].label}
+                          <span className={`text-xs px-2 py-1 rounded ${(ROLE_LABELS[user.role] ?? { label: user.role, color: 'bg-gray-100 text-gray-800' }).color}`}>
+                            {(ROLE_LABELS[user.role] ?? { label: user.role, color: 'bg-gray-100 text-gray-800' }).label}
                           </span>
                         )}
                       </td>
@@ -257,7 +262,7 @@ export default function UsersClient({ currentUserRole }: { currentUserRole: stri
                         {user._count.posts}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-500">
-                        {format(new Date(user.createdAt), 'yyyy-MM-dd')}
+                        {user.createdAt ? format(new Date(user.createdAt), 'yyyy-MM-dd') : '-'}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">

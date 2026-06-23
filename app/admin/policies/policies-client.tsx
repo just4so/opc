@@ -46,6 +46,7 @@ export default function PoliciesClient({
     if (e.target.value) params.set('province', e.target.value)
     if (currentStatus) params.set('status', currentStatus)
     router.push(`/admin/policies?${params.toString()}`)
+    router.refresh()
   }
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -53,6 +54,7 @@ export default function PoliciesClient({
     if (currentProvince) params.set('province', currentProvince)
     if (e.target.value) params.set('status', e.target.value)
     router.push(`/admin/policies?${params.toString()}`)
+    router.refresh()
   }
 
   const handleDelete = async (id: string, title: string) => {

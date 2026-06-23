@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { Menu, X, User, LogOut, Shield, MessageSquare, Map, MessageCircle, Radio, Newspaper } from 'lucide-react'
+import { Menu, X, User, LogOut, Shield, MessageSquare, Map, MapPin, MessageCircle, Radio, Newspaper } from 'lucide-react'
 import { useUnread } from './unread-provider'
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/plaza', label: '广场', icon: MessageCircle },
   { href: '/news', label: '资讯', icon: Newspaper },
   { href: '/radar', label: '雷达', icon: Radio },
+  { href: '/local', label: '同城', icon: MapPin },
 ]
 
 export function MobileMenu() {

@@ -74,15 +74,10 @@ export function ManagerCard({ manager, index }: Props) {
           )}
 
           {manager.focusTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
-              {isEven
-                ? manager.focusTags.map(tag => (
-                    <span key={tag} className="text-[11px] font-medium text-primary border border-primary/30 px-2.5 py-1 rounded-full">{tag}</span>
-                  ))
-                : manager.focusTags.map(tag => (
-                    <span key={tag} className="text-[11px] font-medium text-primary border border-primary/30 px-2.5 py-1 rounded-full md:ml-auto">{tag}</span>
-                  ))
-              }
+            <div className={`flex flex-wrap gap-2 mb-4 justify-center ${isEven ? 'md:justify-start' : 'md:justify-end'}`}>
+              {manager.focusTags.map(tag => (
+                <span key={tag} className="text-[11px] font-medium text-primary border border-primary/30 px-2.5 py-1 rounded-full">{tag}</span>
+              ))}
             </div>
           )}
 

@@ -138,6 +138,30 @@ export async function POST(
         })
       }
     }
+    // 通知所有点赞该产品的用户（排除产品作者、排除评论者自己）
+    const commenterId = session.user.id
+    const likers = await prisma.favorite.findMany({
+      where: {
+        projectId: project.id,
+        userId: {
+          not: { in: [commenterId, project.ownerId].filter(Boolean) as string[] },
+        },
+      },
+      select: { userId: true },
+    })
+
+    if (likers.length > 0) {
+      await prisma.notification.createMany({
+        data: likers.map(({ userId: likerId }) => ({
+          userId: likerId,
+          type: 'PROJECT_NEW_COMMENT',
+          title: `你点赞的产品「${project.name}」有了新评论`,
+          content: content.trim().slice(0, 100),
+          relatedId: slug,
+        })),
+        skipDuplicates: true,
+      })
+    }
   } catch {}
 
   return NextResponse.json({

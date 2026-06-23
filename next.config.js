@@ -112,4 +112,7 @@ module.exports = withSentryConfig(nextConfig, {
   autoInstrumentServerFunctions: false,
   autoInstrumentMiddleware: false,
   autoInstrumentAppDirectory: true,
+
+  // 国内用户通过 CVM 中转上报，绕过 GFW 对 sentry.io 的拦截
+  tunnelRoute: '/monitoring-tunnel',
 })
