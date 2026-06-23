@@ -33,20 +33,19 @@ interface PoliciesClientProps {
 }
 
 export default function PoliciesClient({
-  policies: initialPolicies,
+  policies,
   provinces,
   currentProvince,
   currentStatus,
 }: PoliciesClientProps) {
   const router = useRouter()
-  const [policies, setPolicies] = useState(initialPolicies)
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
 
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams()
     if (e.target.value) params.set('province', e.target.value)
     if (currentStatus) params.set('status', currentStatus)
     router.push(`/admin/policies?${params.toString()}`)
-    router.refresh()
   }
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -54,7 +53,6 @@ export default function PoliciesClient({
     if (currentProvince) params.set('province', currentProvince)
     if (e.target.value) params.set('status', e.target.value)
     router.push(`/admin/policies?${params.toString()}`)
-    router.refresh()
   }
 
   const handleDelete = async (id: string, title: string) => {
@@ -62,9 +60,11 @@ export default function PoliciesClient({
 
     const res = await fetch(`/api/admin/policies/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      setPolicies((prev) => prev.filter((p) => p.id !== id))
+      setDeletedIds((prev) => { const next = new Set(prev); next.add(id); return next })
     }
   }
+
+  const visiblePolicies = policies.filter((p) => !deletedIds.has(p.id))
 
   return (
     <div>
@@ -104,7 +104,7 @@ export default function PoliciesClient({
         )}
       </div>
 
-      {policies.length === 0 ? (
+      {visiblePolicies.length === 0 ? (
         <div className="text-center py-8 text-gray-500">暂无政策数据</div>
       ) : (
         <div className="overflow-x-auto">
@@ -120,7 +120,7 @@ export default function PoliciesClient({
               </tr>
             </thead>
             <tbody>
-              {policies.map((policy) => {
+              {visiblePolicies.map((policy) => {
                 const badge = STATUS_BADGE[policy.status] || STATUS_BADGE.ACTIVE
                 return (
                   <tr key={policy.id} className="border-b hover:bg-gray-50">
