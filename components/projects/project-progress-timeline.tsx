@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
+import { ImageGallery } from '@/components/projects/image-gallery'
 
 interface ProgressItem {
   id: string
@@ -77,16 +78,8 @@ export function ProjectProgressTimeline({
 
               {/* Images */}
               {item.images && item.images.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  {item.images.map((url, i) => (
-                    <div key={url} className="aspect-video rounded-2xl overflow-hidden border border-hairline">
-                      <img
-                        src={url}
-                        alt={`进展图片 ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
+                <div className="mt-3">
+                  <ImageGallery images={item.images} alt="进展图片" />
                 </div>
               )}
             </div>
