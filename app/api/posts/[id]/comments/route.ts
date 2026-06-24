@@ -61,17 +61,22 @@ export async function POST(
 
     const commenterName = session.user.name || '有人'
 
+    let parentAuthorId: string | null = null
     if (parentId) {
       const parentComment = await prisma.comment.findUnique({
         where: { id: parentId },
         select: { authorId: true },
       })
       if (parentComment) {
+        parentAuthorId = parentComment.authorId
         createCommentRepliedNotification(parentComment.authorId, commenterName, postId, session.user.id).catch(() => {})
       }
     }
 
-    createPostCommentedNotification(post.authorId, commenterName, postId, session.user.id).catch(() => {})
+    // Only notify post author on direct comments, or when reply is to a different user
+    if (!parentId || parentAuthorId !== post.authorId) {
+      createPostCommentedNotification(post.authorId, commenterName, postId, session.user.id).catch(() => {})
+    }
 
     if (post.authorId !== session.user.id) {
       sendCommentEmail(post.authorId, commenterName, content.trim(), postId).catch(() => {})

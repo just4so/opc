@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, MessageSquare, FileText, Loader2, UserPlus, Heart, MessageCircle, Reply } from 'lucide-react'
+import { Eye, MessageSquare, FileText, Loader2, UserPlus, Heart, MessageCircle, Reply, TrendingUp } from 'lucide-react'
 
 interface Notification {
   id: string
@@ -24,6 +24,9 @@ const TYPE_ICON: Record<string, typeof Eye> = {
   COMMENT_REPLIED: Reply,
   PROJECT_COMMENTED: MessageCircle,
   PROJECT_COMMENT_REPLIED: Reply,
+  PROJECT_LIKED: Heart,
+  PROJECT_PROGRESS: TrendingUp,
+  PROJECT_NEW_COMMENT: MessageCircle,
   PROJECT_VIEWED: Eye,
   // 兼容旧数据
   reply: Reply,
@@ -44,6 +47,12 @@ function getNavTarget(n: Notification): string {
       return n.relatedId ? `/plaza/${n.relatedId}` : '/plaza'
     case 'PROJECT_COMMENTED':
     case 'PROJECT_COMMENT_REPLIED':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
+    case 'PROJECT_LIKED':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
+    case 'PROJECT_PROGRESS':
+      return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
+    case 'PROJECT_NEW_COMMENT':
       return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'
     case 'PROJECT_VIEWED':
       return n.relatedId ? `/projects/${n.relatedId}` : '/plaza'

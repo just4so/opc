@@ -73,6 +73,7 @@ export async function POST(
 
   const body = await request.json()
   const { content, parentId } = body
+  const commenterName = session.user.name || '有人'
 
   if (!content || typeof content !== 'string' || content.trim().length === 0) {
     return NextResponse.json({ error: '评论内容不能为空' }, { status: 400 })
@@ -119,7 +120,7 @@ export async function POST(
           data: {
             userId: parent.authorId,
             type: 'PROJECT_COMMENT_REPLIED',
-            title: '有人回复了你的评论',
+            title: `${commenterName} 回复了你的评论`,
             content: comment.content.slice(0, 100),
             relatedId: slug,
           },
@@ -131,7 +132,7 @@ export async function POST(
           data: {
             userId: project.ownerId,
             type: 'PROJECT_COMMENTED',
-            title: `有人评论了你的产品「${project.name}」`,
+            title: `${commenterName} 评论了你的产品「${project.name}」`,
             content: comment.content.slice(0, 100),
             relatedId: slug,
           },
@@ -155,7 +156,7 @@ export async function POST(
         data: likers.map(({ userId: likerId }) => ({
           userId: likerId,
           type: 'PROJECT_NEW_COMMENT',
-          title: `你点赞的产品「${project.name}」有了新评论`,
+          title: `你关注的产品「${project.name}」有了新评论`,
           content: content.trim().slice(0, 100),
           relatedId: slug,
         })),

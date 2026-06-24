@@ -244,8 +244,8 @@ function ProjectForm({ project, onChange, onSubmit, onCancel, submitLabel, savin
       </div>
       <Input value={project.website || ''} onChange={e => onChange({ ...project, website: e.target.value })} placeholder="网站 URL（可选）" />
       <div>
-        <label className="text-xs font-medium text-mute mb-1.5 block">产品图片（最多 5 张，第一张为封面）</label>
-        <ImageUpload value={project.images} onChange={(images: string[]) => onChange({ ...project, images })} />
+        <label className="text-xs font-medium text-mute mb-1.5 block">产品图片（最多 8 张，第一张为封面）</label>
+        <ImageUpload value={project.images} onChange={(images: string[]) => onChange({ ...project, images })} maxImages={8} />
       </div>
       <div className="flex gap-2">
         <Button type="button" size="sm" onClick={onSubmit} disabled={!project.name.trim() || !!saving}>{submitLabel}</Button>

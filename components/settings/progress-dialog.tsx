@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast-notification'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 interface Props {
   projectSlug: string
@@ -14,6 +15,7 @@ export function ProgressDialog({ projectSlug, onClose }: Props) {
   const { toast } = useToast()
   const [content, setContent] = useState('')
   const [milestone, setMilestone] = useState('')
+  const [images, setImages] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async () => {
@@ -23,7 +25,7 @@ export function ProgressDialog({ projectSlug, onClose }: Props) {
       const res = await fetch(`/api/projects/${projectSlug}/progress`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, milestone: milestone || null }),
+        body: JSON.stringify({ content, milestone: milestone || null, images }),
       })
       if (res.ok) {
         toast('进展已记录', 'success')
@@ -63,6 +65,15 @@ export function ProgressDialog({ projectSlug, onClose }: Props) {
           placeholder="里程碑标签（可选）"
           className="w-full mt-3 rounded-2xl border border-hairline px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
+        <div className="mt-3">
+          <p className="text-xs text-mute mb-2">添加图片（最多4张）</p>
+          <ImageUpload
+            value={images}
+            onChange={setImages}
+            maxImages={4}
+            uploadEndpoint="/api/upload/product-image"
+          />
+        </div>
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="outline" size="sm" onClick={onClose}>取消</Button>
           <Button size="sm" onClick={handleSubmit} disabled={submitting || !content.trim()}>

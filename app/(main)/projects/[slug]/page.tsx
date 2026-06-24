@@ -35,6 +35,7 @@ const getProject = cache(async (slug: string) => {
           id: true,
           content: true,
           milestone: true,
+          images: true,
           createdAt: true,
         },
       },

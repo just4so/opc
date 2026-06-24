@@ -14,6 +14,7 @@ import { ImageGallery } from '@/components/projects/image-gallery'
 import { TrackBadges } from '@/components/ui/track-badges'
 import { ProjectProgressTimeline } from '@/components/projects/project-progress-timeline'
 import { ProjectCommentSection } from '@/components/projects/project-comment-section'
+import { ImageUpload } from '@/components/ui/image-upload'
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ interface ProgressItem {
   id: string
   content: string
   milestone: string | null
+  images: string[]
   createdAt: string
 }
 
@@ -341,6 +343,7 @@ function ProgressDialog({
 }) {
   const [content, setContent] = useState('')
   const [milestone, setMilestone] = useState('')
+  const [images, setImages] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -359,6 +362,7 @@ function ProgressDialog({
         body: JSON.stringify({
           content: content.trim(),
           milestone: milestone.trim() || undefined,
+          images,
         }),
       })
       if (!res.ok) {
@@ -398,6 +402,15 @@ function ProgressDialog({
               onChange={(e) => setMilestone(e.target.value)}
               placeholder="例如：第一个付费用户（可选）"
               className="w-full px-4 py-2 border border-hairline-soft rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
+            />
+          </div>
+          <div>
+            <p className="text-xs text-mute mb-2">添加图片（最多4张）</p>
+            <ImageUpload
+              value={images}
+              onChange={setImages}
+              maxImages={4}
+              uploadEndpoint="/api/upload/product-image"
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}

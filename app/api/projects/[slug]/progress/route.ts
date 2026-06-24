@@ -29,7 +29,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { content, milestone } = body
+    const { content, milestone, images } = body
 
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
       return NextResponse.json({ error: '内容不能为空' }, { status: 400 })
@@ -39,6 +39,7 @@ export async function POST(
       data: {
         content: content.trim(),
         milestone: milestone?.trim() || null,
+        images: Array.isArray(images) ? images.slice(0, 4) : [],
         authorId: userId,
         projectId: project.id,
       },
@@ -65,7 +66,7 @@ export async function POST(
           data: likers.map(({ userId: likerId }) => ({
             userId: likerId,
             type: 'PROJECT_PROGRESS',
-            title: `你点赞的产品「${projectName}」发布了新进展`,
+            title: `你关注的产品「${projectName}」发布了新进展`,
             content: progress.content.slice(0, 100),
             relatedId: slug,
           })),
@@ -81,6 +82,7 @@ export async function POST(
         id: progress.id,
         content: progress.content,
         milestone: progress.milestone,
+        images: progress.images,
         createdAt: progress.createdAt.toISOString(),
       },
     })
@@ -120,6 +122,7 @@ export async function GET(
           id: true,
           content: true,
           milestone: true,
+          images: true,
           createdAt: true,
         },
       }),

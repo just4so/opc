@@ -8,6 +8,7 @@ interface ProgressItem {
   id: string
   content: string
   milestone: string | null
+  images: string[]
   createdAt: string
 }
 
@@ -73,6 +74,21 @@ export function ProjectProgressTimeline({
               <p className="text-sm text-charcoal leading-relaxed whitespace-pre-wrap">
                 {item.content}
               </p>
+
+              {/* Images */}
+              {item.images && item.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  {item.images.map((url, i) => (
+                    <div key={url} className="aspect-video rounded-2xl overflow-hidden border border-hairline">
+                      <img
+                        src={url}
+                        alt={`进展图片 ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ))}
