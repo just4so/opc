@@ -285,6 +285,7 @@ model News {
   createdAt   DateTime     @default(now())
   author      String?
   isOriginal  Boolean      @default(false)
+  hidden      Boolean      @default(false)
 
   @@index([category])
   @@index([publishedAt])
@@ -647,4 +648,25 @@ enum InquiryStatus {
   CONTACTED
   DONE
   CANCELLED
+}
+
+model SignalIssue {
+  id           String       @id @default(cuid())
+  issueNo      Int          @unique
+  title        String
+  publishedAt  DateTime
+  activityTime String?
+  status       SignalStatus @default(DRAFT)
+  intro        String?
+  participants Json
+  sections     Json
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("signal_issues")
+}
+
+enum SignalStatus {
+  DRAFT
+  PUBLISHED
 }
