@@ -31,6 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/news/signal`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/tools`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -106,5 +112,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...communityPages, ...cityPages, ...postPages]
+  // 动态页面：Signal 期刊
+  const signalIssues = await prisma.signalIssue.findMany({
+    where: { status: 'PUBLISHED' },
+    select: { issueNo: true, publishedAt: true },
+  })
+
+  const signalPages: MetadataRoute.Sitemap = signalIssues.map((issue) => ({
+    url: `${baseUrl}/news/signal/${issue.issueNo}`,
+    lastModified: issue.publishedAt,
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }))
+
+  return [...staticPages, ...communityPages, ...cityPages, ...postPages, ...signalPages]
 }

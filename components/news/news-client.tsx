@@ -42,13 +42,6 @@ interface Pagination {
   totalPages: number
 }
 
-function estimateReadingMinutes(content: string | null, summary: string | null): number {
-  const text = content || summary || ''
-  const charCount = text.length
-  const minutes = Math.ceil(charCount / 300)
-  return Math.max(1, minutes)
-}
-
 function OriginalSection({ items }: { items: NewsItem[] }) {
   if (items.length === 0) return null
 
@@ -67,10 +60,10 @@ function OriginalSection({ items }: { items: NewsItem[] }) {
             href={item.isOriginal ? `/news/${item.id}` : item.url}
             target={item.isOriginal ? undefined : '_blank'}
             rel={item.isOriginal ? undefined : 'noopener noreferrer'}
-            className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-hairline-soft group"
+            className="block bg-white rounded-lg hover:border-primary/30 transition-colors overflow-hidden border border-hairline-soft group"
           >
             {item.coverImage && (
-              <div className="w-full h-40 overflow-hidden bg-surface-card">
+              <div className="w-full aspect-video overflow-hidden bg-surface-card">
                 <img
                   src={item.coverImage}
                   alt={item.title}
@@ -97,8 +90,6 @@ function OriginalSection({ items }: { items: NewsItem[] }) {
               )}
               <div className="flex items-center gap-2 text-xs text-ash">
                 <span>{formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true, locale: zhCN })}</span>
-                <span>·</span>
-                <span>约 {estimateReadingMinutes(item.content, item.summary)} 分钟阅读</span>
               </div>
             </div>
           </Link>
@@ -195,7 +186,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal, polici
       <div className="mt-2 mb-8">
         <Link
           href="/news/signal"
-          className="flex items-center justify-between p-4 bg-surface-card rounded-2xl border border-hairline-soft hover:shadow-sm transition-shadow"
+          className="flex items-center justify-between p-4 bg-surface-card rounded-lg border border-hairline-soft hover:border-primary/40 hover:bg-primary/5 transition-colors"
         >
           <span className="text-sm font-medium text-ink">查看所有 Weekly Signal 往期档案</span>
           <span className="text-primary text-sm">→</span>
@@ -208,10 +199,10 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal, polici
           <Link
             key={cat.value}
             href={cat.value ? `/news?category=${cat.value}` : '/news'}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               category === cat.value
-                ? 'bg-primary text-white'
-                : 'bg-surface-card text-charcoal hover:bg-gray-200'
+                ? 'bg-primary text-white border border-primary'
+                : 'border border-[#E2E8F0] bg-white text-[#64748B] hover:border-primary/50 hover:text-primary'
             }`}
           >
             {cat.label}

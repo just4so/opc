@@ -55,16 +55,8 @@ function getCategoryBarColor(category: string) {
   return categoryBarColors[category] ?? "bg-gray-300"
 }
 
-function estimateReadingMinutes(content: string | null | undefined, summary: string | null): number {
-  const text = content || summary || ''
-  const charCount = text.length
-  const minutes = Math.ceil(charCount / 300)
-  return Math.max(1, minutes)
-}
-
 export function NewsCard({ news }: NewsCardProps) {
   const publishedAt = new Date(news.publishedAt)
-  const readingMinutes = estimateReadingMinutes(news.content, news.summary)
 
   const href = news.isOriginal ? `/news/${news.id}` : news.url
   const isExternal = !news.isOriginal
@@ -74,11 +66,11 @@ export function NewsCard({ news }: NewsCardProps) {
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-hairline-soft"
+      className="block bg-white rounded-lg hover:border-primary/30 transition-colors p-4 border border-hairline-soft"
     >
       <div className="flex gap-4">
         {news.coverImage && (
-          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-surface-card">
+          <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-surface-card">
             <img
               src={news.coverImage}
               alt={news.title}
@@ -108,8 +100,6 @@ export function NewsCard({ news }: NewsCardProps) {
           )}
           <div className="flex items-center gap-2 text-xs text-ash">
             <span>{formatDistanceToNow(publishedAt, { addSuffix: true, locale: zhCN })}</span>
-            <span>·</span>
-            <span>约 {readingMinutes} 分钟阅读</span>
           </div>
         </div>
       </div>

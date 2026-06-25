@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import type { Metadata } from 'next'
 import type { Section, Participant } from '@/lib/signal/types'
 import { SignalParticipants } from '@/components/signal/SignalParticipants'
+import { SignalToc } from '@/components/signal/SignalToc'
 import { HotTopicSection } from '@/components/signal/HotTopicSection'
 import { PolicySection } from '@/components/signal/PolicySection'
 import { CasesSection } from '@/components/signal/CasesSection'
@@ -39,12 +40,23 @@ export async function generateMetadata({
 
   const issue = await prisma.signalIssue.findUnique({
     where: { issueNo, status: 'PUBLISHED' },
-    select: { title: true },
+    select: { title: true, intro: true },
   })
   if (!issue) return {}
 
+  const title = `Weekly Signal 第${issueNo}期 | ${issue.title} — OPC圈`
+  const description = issue.intro
+    ? issue.intro.slice(0, 120) + '...'
+    : `OPC 创业者每周情报汇 · 第${issueNo}期`
+
   return {
-    title: `Weekly Signal 第${issueNo}期 | ${issue.title} — OPC圈`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://www.opcquan.com/news/signal/${issueNo}`,
+    },
   }
 }
 
@@ -66,75 +78,94 @@ export default async function SignalDetailPage({
   const sections = issue.sections as Section[]
   const publishedDate = issue.publishedAt.toISOString().slice(0, 10)
 
+  const tocItems = sections.map((s, i) => ({
+    id: `section-${i}`,
+    label:
+      s.type === 'hot_topic'
+        ? `热词信号 · ${(s as { slot?: string }).slot ?? ''}`
+        : (SECTION_LABELS[s.type] ?? s.type),
+  }))
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
-      {/* Top nav */}
-      <div className="flex justify-between items-center mb-8 text-sm">
-        <Link href="/news" className="text-mute hover:text-primary">
-          ← 返回洞察
-        </Link>
-        <Link href="/news/signal" className="text-mute hover:text-primary">
-          往期档案
-        </Link>
-      </div>
+      {/* Hero — full-width dark block breaking out of max-w-3xl padding */}
+      <div className="w-full -mx-4 bg-[#0F172A]">
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          {/* Top nav inside Hero */}
+          <div className="flex justify-between items-center mb-8 text-sm">
+            <Link href="/news" className="text-white/60 hover:text-white transition-colors">
+              ← 返回洞察
+            </Link>
+            <Link href="/news/signal" className="text-white/60 hover:text-white transition-colors">
+              往期档案
+            </Link>
+          </div>
 
-      {/* Header */}
-      <div className="mb-6 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-            第 {issue.issueNo} 期
-          </span>
-          <span className="text-mute text-sm">{publishedDate}</span>
-          {issue.activityTime && (
-            <span className="text-ash text-sm">{issue.activityTime}</span>
-          )}
+          {/* Badge + date */}
+          <div className="flex items-center gap-2">
+            <span className="bg-primary text-white text-sm px-3 py-1 rounded-lg font-medium">
+              第 {issue.issueNo} 期
+            </span>
+            <span className="text-white/60 text-sm mt-2">{publishedDate}</span>
+            {issue.activityTime && (
+              <span className="text-white/60 text-sm mt-2">{issue.activityTime}</span>
+            )}
+          </div>
+
+          {/* Title */}
+          <h1 className="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight mt-3">
+            {issue.title}
+          </h1>
+
+          {/* Participants in dark mode */}
+          <div className="mt-6">
+            <SignalParticipants participants={participants} variant="dark" />
+          </div>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-ink">{issue.title}</h1>
-      </div>
-
-      {/* Participants */}
-      <div className="mb-6">
-        <SignalParticipants participants={participants} />
       </div>
 
       {/* Intro */}
       {issue.intro && (
-        <div className="mb-8 bg-primary/5 border-l-4 border-primary px-4 py-3 text-ink text-sm leading-relaxed">
+        <div className="mt-8 mb-8 bg-[#0F172A]/5 border-l-4 border-[#0F172A] px-5 py-4 rounded-r-lg text-ink text-sm leading-relaxed">
           {issue.intro}
         </div>
       )}
 
-      {/* Sections */}
-      <div className="space-y-10">
-        {sections.map((section, i) => (
-          <section key={i}>
-            {/* Section divider */}
-            <div className="flex items-center gap-3 mb-5 pb-3 border-b border-hairline-soft">
-              <div className="w-1 h-5 rounded-full bg-primary flex-shrink-0" />
-              <span className="font-semibold text-ink">
-                {section.type === 'hot_topic'
-                  ? `热词信号 · ${(section as { slot?: string }).slot ?? ''}`
-                  : SECTION_LABELS[section.type] ?? section.type}
-              </span>
-            </div>
+      {/* Sections with TOC */}
+      <div className="xl:flex xl:gap-8 xl:items-start mt-8">
+        <div className="flex-1 min-w-0 space-y-10">
+          {sections.map((section, i) => (
+            <section key={i} id={`section-${i}`}>
+              {/* Section divider */}
+              <div className="flex items-center gap-3 mb-5 pb-3 border-b border-hairline-soft">
+                <div className="w-1 h-5 rounded-full bg-primary flex-shrink-0" />
+                <span className="font-semibold text-ink">
+                  {section.type === 'hot_topic'
+                    ? `热词信号 · ${(section as { slot?: string }).slot ?? ''}`
+                    : SECTION_LABELS[section.type] ?? section.type}
+                </span>
+              </div>
 
-            {section.type === 'hot_topic' && (
-              <HotTopicSection section={section} />
-            )}
-            {section.type === 'policy' && (
-              <PolicySection section={section} />
-            )}
-            {section.type === 'cases' && (
-              <CasesSection section={section} />
-            )}
-            {section.type === 'resources' && (
-              <ResourcesSection section={section} />
-            )}
-            {section.type === 'custom' && (
-              <CustomSection section={section} />
-            )}
-          </section>
-        ))}
+              {section.type === 'hot_topic' && (
+                <HotTopicSection section={section} />
+              )}
+              {section.type === 'policy' && (
+                <PolicySection section={section} />
+              )}
+              {section.type === 'cases' && (
+                <CasesSection section={section} />
+              )}
+              {section.type === 'resources' && (
+                <ResourcesSection section={section} />
+              )}
+              {section.type === 'custom' && (
+                <CustomSection section={section} />
+              )}
+            </section>
+          ))}
+        </div>
+
+        <SignalToc sections={tocItems} />
       </div>
 
       {/* Footer */}
