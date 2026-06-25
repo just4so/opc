@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface ImageGalleryProps {
@@ -76,6 +77,56 @@ export function ImageGallery({ images, alt = '产品图片' }: ImageGalleryProps
     return () => { document.body.style.overflow = '' }
   }, [activeIndex])
 
+  const lightbox = activeIndex !== null ? (
+    <div
+      className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+      onClick={closeLightbox}
+    >
+      <button
+        className="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+        onClick={closeLightbox}
+        aria-label="关闭"
+      >
+        <X className="h-6 w-6" />
+      </button>
+
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+        {activeIndex + 1} / {images.length}
+      </div>
+
+      {images.length > 1 && (
+        <button
+          className="absolute left-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+          onClick={e => { e.stopPropagation(); lightboxPrev() }}
+          aria-label="上一张"
+        >
+          <ChevronLeft className="h-8 w-8" />
+        </button>
+      )}
+
+      <div
+        className="relative max-w-[90vw] max-h-[85vh] w-full h-full"
+        onClick={e => e.stopPropagation()}
+      >
+        <img
+          src={images[activeIndex]}
+          alt={`${alt} ${activeIndex + 1}`}
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      {images.length > 1 && (
+        <button
+          className="absolute right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+          onClick={e => { e.stopPropagation(); lightboxNext() }}
+          aria-label="下一张"
+        >
+          <ChevronRight className="h-8 w-8" />
+        </button>
+      )}
+    </div>
+  ) : null
+
   return (
     <>
       <div className="relative w-full rounded-2xl overflow-hidden bg-surface-card">
@@ -130,56 +181,8 @@ export function ImageGallery({ images, alt = '产品图片' }: ImageGalleryProps
         )}
       </div>
 
-      {/* Lightbox */}
-      {activeIndex !== null && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
-          onClick={closeLightbox}
-        >
-          <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-            onClick={closeLightbox}
-            aria-label="关闭"
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
-            {activeIndex + 1} / {images.length}
-          </div>
-
-          {images.length > 1 && (
-            <button
-              className="absolute left-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-              onClick={e => { e.stopPropagation(); lightboxPrev() }}
-              aria-label="上一张"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </button>
-          )}
-
-          <div
-            className="relative max-w-[90vw] max-h-[85vh] w-full h-full"
-            onClick={e => e.stopPropagation()}
-          >
-            <img
-              src={images[activeIndex]}
-              alt={`${alt} ${activeIndex + 1}`}
-              className="w-full h-full object-contain"
-            />
-          </div>
-
-          {images.length > 1 && (
-            <button
-              className="absolute right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-              onClick={e => { e.stopPropagation(); lightboxNext() }}
-              aria-label="下一张"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </button>
-          )}
-        </div>
-      )}
+      {/* Lightbox 通过 Portal 挂到 document.body，绕开 grid/sticky stacking context */}
+      {typeof document !== 'undefined' && lightbox && createPortal(lightbox, document.body)}
     </>
   )
 }
