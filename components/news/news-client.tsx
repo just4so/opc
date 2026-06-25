@@ -224,7 +224,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal, polici
         <>
           <OriginalSection items={originals} />
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-lg font-semibold text-secondary">更多资讯</h2>
+            <h2 className="text-lg font-semibold text-secondary">更多洞察</h2>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
         </>
@@ -249,7 +249,7 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal, polici
         </div>
       ) : (
         <div className="text-center py-16 text-mute">
-          <p>暂无相关资讯</p>
+          <p>暂无相关内容</p>
           <p className="text-sm mt-2">请稍后再来查看，或尝试其他分类</p>
         </div>
       )}
