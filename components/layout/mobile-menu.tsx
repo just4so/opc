@@ -11,7 +11,7 @@ import { useUnread } from './unread-provider'
 const navLinks = [
   { href: '/communities', label: '社区', icon: Map },
   { href: '/plaza', label: '广场', icon: MessageCircle },
-  { href: '/news', label: '资讯', icon: Newspaper },
+  { href: '/news', label: '洞察', icon: Newspaper },
   { href: '/radar', label: '雷达', icon: Radio },
   { href: '/local', label: '同城', icon: MapPin },
 ]

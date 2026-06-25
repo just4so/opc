@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { NewsCard } from '@/components/news/news-card'
 import { PageHeader } from '@/components/ui/page-header'
+import { SignalBanner } from '@/components/signal/SignalBanner'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
@@ -112,9 +113,15 @@ interface NewsClientProps {
   initialOriginals: NewsItem[]
   initialTotal: number
   policiesSlot?: ReactNode
+  latestSignal?: {
+    issueNo: number
+    title: string
+    publishedAt: string
+    participants: any[]
+  } | null
 }
 
-export function NewsClient({ initialNews, initialOriginals, initialTotal, policiesSlot }: NewsClientProps) {
+export function NewsClient({ initialNews, initialOriginals, initialTotal, policiesSlot, latestSignal }: NewsClientProps) {
   const searchParams = useSearchParams()
   const category = searchParams.get('category') || ''
   const page = parseInt(searchParams.get('page') || '1')
@@ -171,11 +178,29 @@ export function NewsClient({ initialNews, initialOriginals, initialTotal, polici
 
   return (
     <div>
-      <PageHeader title={<>创业<span className="text-primary">资讯</span></>} subtitle="OPC创业者关注的政策动态、融资信息、赛事活动和科技趋势" theme="news" />
+      <PageHeader title={<>创业<span className="text-primary">洞察</span></>} subtitle="OPC 创业者的情报中心" theme="news" />
             <div className="container mx-auto px-4 py-8">
+
+      {/* Signal 横幅（有已发布 Signal 时显示） */}
+      {latestSignal && (
+        <div className="mb-6">
+          <SignalBanner issue={latestSignal} />
+        </div>
+      )}
 
       {/* 政策库（标题下方、资讯上方） */}
       {policiesSlot && <div className="mb-8">{policiesSlot}</div>}
+
+      {/* Signal 往期入口 */}
+      <div className="mt-2 mb-8">
+        <Link
+          href="/news/signal"
+          className="flex items-center justify-between p-4 bg-surface-card rounded-2xl border border-hairline-soft hover:shadow-sm transition-shadow"
+        >
+          <span className="text-sm font-medium text-ink">查看所有 Weekly Signal 往期档案</span>
+          <span className="text-primary text-sm">→</span>
+        </Link>
+      </div>
 
       {/* 分类筛选 */}
       <div className="flex gap-2 mb-6 flex-wrap">

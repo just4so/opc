@@ -20,6 +20,7 @@ const CONTENT_ITEMS: NavItem[] = [
   { href: '/admin/posts',  label: '动态管理', icon: <FileText className="h-4 w-4" /> },
   { href: '/admin/news',   label: '资讯管理', icon: <Newspaper className="h-4 w-4" /> },
   { href: '/admin/radar',  label: '雷达管理', icon: <Radio className="h-4 w-4" /> },
+  { href: '/admin/signal', label: 'Signal 管理', icon: <Radio className="h-4 w-4" /> },
 ]
 const USER_ITEMS: NavItem[] = [
   { href: '/admin/users',                  label: '用户管理', icon: <Users className="h-4 w-4" /> },

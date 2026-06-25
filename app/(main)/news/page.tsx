@@ -10,6 +10,7 @@ const getDefaultNews = unstable_cache(
     const limit = 20
     const [news, total, originals] = await Promise.all([
       prisma.news.findMany({
+        where: { hidden: false },
         orderBy: [{ isOriginal: 'desc' }, { publishedAt: 'desc' }],
         skip: 0,
         take: limit,
@@ -19,9 +20,9 @@ const getDefaultNews = unstable_cache(
           isOriginal: true, publishedAt: true, createdAt: true,
         },
       }),
-      prisma.news.count({}),
+      prisma.news.count({ where: { hidden: false } }),
       prisma.news.findMany({
-        where: { isOriginal: true },
+        where: { isOriginal: true, hidden: false },
         orderBy: { publishedAt: 'desc' },
         take: 3,
         select: {
@@ -92,7 +93,7 @@ async function NewsPageInner({
     policyCities = policyData.policyCities
   } else {
     // 有筛选参数：直接查 DB
-    const where: any = {}
+    const where: any = { hidden: false }
     if (category) where.category = category
     const policyWhere: any = {}
     if (policyProvince) policyWhere.province = policyProvince
@@ -112,7 +113,7 @@ async function NewsPageInner({
       prisma.news.count({ where }),
       page === 1 && !category
         ? prisma.news.findMany({
-            where: { isOriginal: true },
+            where: { isOriginal: true, hidden: false },
             orderBy: { publishedAt: 'desc' },
             take: 3,
             select: {
@@ -146,6 +147,20 @@ async function NewsPageInner({
     ;[news, total, originals, policies, policyTotal, policyProvinces, policyCities] = results
   }
 
+  // Query latest published Signal (not cached, always fresh)
+  const latestSignalRaw = await prisma.signalIssue.findFirst({
+    where: { status: 'PUBLISHED' },
+    orderBy: { issueNo: 'desc' },
+    select: { issueNo: true, title: true, publishedAt: true, participants: true },
+  })
+  const latestSignal = latestSignalRaw
+    ? {
+        ...latestSignalRaw,
+        publishedAt: latestSignalRaw.publishedAt.toISOString(),
+        participants: latestSignalRaw.participants as any[],
+      }
+    : null
+
   // Serialize dates to strings for client component
   // Note: unstable_cache may return dates as strings already
   const toISO = (d: any) => {
@@ -168,6 +183,7 @@ async function NewsPageInner({
         initialNews={serializeNews(news)}
         initialOriginals={serializeNews(originals)}
         initialTotal={total}
+        latestSignal={latestSignal}
         policiesSlot={
           showPolicies && policies.length > 0 ? (
             <PoliciesBlock
