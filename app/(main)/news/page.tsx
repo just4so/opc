@@ -24,7 +24,7 @@ const getDefaultNews = unstable_cache(
       prisma.news.findMany({
         where: { isOriginal: true, hidden: false },
         orderBy: { publishedAt: 'desc' },
-        take: 3,
+        take: 5,
         select: {
           id: true, title: true, summary: true, category: true,
           source: true, url: true, coverImage: true, author: true,
@@ -75,18 +75,24 @@ async function NewsPageInner({
   const isDefaultView = !category && page === 1 && !policyProvince
   const showPolicies = !category || category === 'POLICY'
 
-  let news: any[], total: number, originals: any[]
+  let news: any[], total: number, originals: any[], allSignalsRaw: any[]
   let policies: any[], policyTotal: number, policyProvinces: any[], policyCities: any[]
 
   if (isDefaultView) {
-    // 默认首屏：走缓存
-    const [newsData, policyData] = await Promise.all([
+    // 默认首屏：走缓存；allSignals 在 unstable_cache 外单独查
+    const [newsData, policyData, signalsData] = await Promise.all([
       getDefaultNews(),
       getDefaultPolicies(),
+      prisma.signalIssue.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { issueNo: 'desc' },
+        select: { issueNo: true, title: true, publishedAt: true, intro: true, participants: true },
+      }),
     ])
     news = newsData.news
     total = newsData.total
     originals = newsData.originals
+    allSignalsRaw = signalsData
     policies = policyData.policies
     policyTotal = policyData.policyTotal
     policyProvinces = policyData.policyProvinces
@@ -143,23 +149,14 @@ async function NewsPageInner({
             where: { city: { not: null } },
           })
         : Promise.resolve([]),
+      prisma.signalIssue.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: { issueNo: 'desc' },
+        select: { issueNo: true, title: true, publishedAt: true, intro: true, participants: true },
+      }),
     ])
-    ;[news, total, originals, policies, policyTotal, policyProvinces, policyCities] = results
+    ;[news, total, originals, policies, policyTotal, policyProvinces, policyCities, allSignalsRaw] = results
   }
-
-  // Query latest published Signal (not cached, always fresh)
-  const latestSignalRaw = await prisma.signalIssue.findFirst({
-    where: { status: 'PUBLISHED' },
-    orderBy: { issueNo: 'desc' },
-    select: { issueNo: true, title: true, publishedAt: true, participants: true },
-  })
-  const latestSignal = latestSignalRaw
-    ? {
-        ...latestSignalRaw,
-        publishedAt: latestSignalRaw.publishedAt.toISOString(),
-        participants: latestSignalRaw.participants as any[],
-      }
-    : null
 
   // Serialize dates to strings for client component
   // Note: unstable_cache may return dates as strings already
@@ -177,6 +174,23 @@ async function NewsPageInner({
       updatedAt: toISO(item.updatedAt),
     }))
 
+  // Serialize allSignals (queried outside unstable_cache)
+  const allSignals = (allSignalsRaw ?? []).map((s: any) => ({
+    ...s,
+    publishedAt: toISO(s.publishedAt),
+    participants: s.participants as any[],
+  }))
+
+  // Derive latestSignal from allSignals for backward compat
+  const latestSignal = allSignals.length > 0
+    ? {
+        issueNo: allSignals[0].issueNo,
+        title: allSignals[0].title,
+        publishedAt: allSignals[0].publishedAt,
+        participants: allSignals[0].participants,
+      }
+    : null
+
   return (
     <>
       <NewsClient
@@ -184,6 +198,8 @@ async function NewsPageInner({
         initialOriginals={serializeNews(originals)}
         initialTotal={total}
         latestSignal={latestSignal}
+        allSignals={allSignals}
+        recentOriginals={serializeNews(originals)}
         policiesSlot={
           showPolicies && policies.length > 0 ? (
             <PoliciesBlock

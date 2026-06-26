@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ChevronDown } from 'lucide-react'
 import prisma from '@/lib/db'
 import type { Metadata } from 'next'
 import type { Section, Participant } from '@/lib/signal/types'
@@ -130,6 +131,21 @@ export default async function SignalDetailPage({
           {issue.intro}
         </div>
       )}
+
+      {/* 移动端目录（xl 以下显示） */}
+      <details className="xl:hidden mb-6 border border-[#E2E8F0] rounded-lg overflow-hidden">
+        <summary className="px-4 py-3 bg-[#F8FAFC] text-sm font-medium text-ink cursor-pointer flex items-center justify-between">
+          本期目录
+          <ChevronDown className="h-4 w-4 text-mute" />
+        </summary>
+        <div className="px-4 py-3 space-y-1">
+          {tocItems.map((item) => (
+            <a key={item.id} href={`#${item.id}`} className="block text-sm text-mute hover:text-primary py-1">
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </details>
 
       {/* Sections with TOC */}
       <div className="xl:flex xl:gap-8 xl:items-start mt-8">

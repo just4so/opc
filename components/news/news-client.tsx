@@ -1,31 +1,30 @@
 'use client'
 
-import { useState, useEffect, ReactNode } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { ReactNode } from 'react'
 import Link from 'next/link'
-import { NewsCard } from '@/components/news/news-card'
 import { PageHeader } from '@/components/ui/page-header'
-import { SignalBanner } from '@/components/signal/SignalBanner'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
-const categories = [
-  { value: '', label: '全部' },
-  { value: 'POLICY', label: '政策' },
-  { value: 'FUNDING', label: '融资' },
-  { value: 'EVENT', label: '活动' },
-  { value: 'TOOL', label: '工具' },
-  { value: 'CASE', label: '案例' },
-  { value: 'TECH', label: '科技' },
-  { value: 'STORY', label: '故事' },
-  { value: 'REPORT', label: '报告' },
-]
+const categoryColors: Record<string, string> = {
+  POLICY: 'bg-blue-50 text-blue-700',
+  STORY: 'bg-orange-50 text-orange-700',
+  EVENT: 'bg-green-50 text-green-700',
+  TECH: 'bg-purple-50 text-purple-700',
+}
 
-interface NewsItem {
+const categoryLabels: Record<string, string> = {
+  POLICY: '政策',
+  STORY: '干货',
+  EVENT: '动态',
+  TECH: '观察',
+}
+
+export interface NewsItem {
   id: string
   title: string
   summary: string | null
-  content: string | null
+  content?: string | null
   url: string
   source: string
   category: string
@@ -35,69 +34,9 @@ interface NewsItem {
   author?: string | null
 }
 
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
-
-function OriginalSection({ items }: { items: NewsItem[] }) {
-  if (items.length === 0) return null
-
-  return (
-    <div className="mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="bg-orange-500 text-white text-sm px-3 py-1 rounded-full font-medium">
-          原创
-        </span>
-        <h2 className="text-xl font-bold text-secondary">OPC圈原创</h2>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            href={item.isOriginal ? `/news/${item.id}` : item.url}
-            target={item.isOriginal ? undefined : '_blank'}
-            rel={item.isOriginal ? undefined : 'noopener noreferrer'}
-            className="block bg-white rounded-lg hover:border-primary/30 transition-colors overflow-hidden border border-hairline-soft group"
-          >
-            {item.coverImage && (
-              <div className="w-full aspect-video overflow-hidden bg-surface-card">
-                <img
-                  src={item.coverImage}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            )}
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-                  原创
-                </span>
-                {item.author && (
-                  <span className="text-xs text-mute">{item.author}</span>
-                )}
-              </div>
-              <h3 className="font-semibold text-ink line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                {item.title}
-              </h3>
-              {item.summary && (
-                <p className="text-sm text-mute line-clamp-3 mb-3">
-                  {item.summary.length > 100 ? item.summary.slice(0, 100) + '...' : item.summary}
-                </p>
-              )}
-              <div className="flex items-center gap-2 text-xs text-ash">
-                <span>{formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true, locale: zhCN })}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  )
-}
+type CarouselItem =
+  | { kind: 'signal'; issueNo: number; title: string; publishedAt: string; intro: string | null; cities: string[] }
+  | { kind: 'article'; id: string; title: string; summary: string | null; coverImage: string | null; publishedAt: string; author: string | null }
 
 interface NewsClientProps {
   initialNews: NewsItem[]
@@ -110,165 +49,229 @@ interface NewsClientProps {
     publishedAt: string
     participants: any[]
   } | null
+  allSignals?: Array<{
+    issueNo: number
+    title: string
+    publishedAt: string
+    intro: string | null
+    participants: any[]
+  }> | null
+  recentOriginals?: NewsItem[] | null
 }
 
-export function NewsClient({ initialNews, initialOriginals, initialTotal, policiesSlot, latestSignal }: NewsClientProps) {
-  const searchParams = useSearchParams()
-  const category = searchParams.get('category') || ''
-  const page = parseInt(searchParams.get('page') || '1')
+function SignalCarouselCard({ item }: { item: Extract<CarouselItem, { kind: 'signal' }> }) {
+  return (
+    <div className="flex-shrink-0 w-[280px] md:w-[340px] h-48 bg-[#0F172A] rounded-xl snap-start p-5 flex flex-col justify-between">
+      <div>
+        <div className="text-white/60 text-xs mb-2">📡 Weekly Signal</div>
+        <div className="mb-2">
+          <span className="bg-primary text-white text-xs px-2 py-0.5 rounded font-medium">
+            第 {item.issueNo} 期
+          </span>
+        </div>
+        <h3 className="text-white font-bold text-base line-clamp-2">{item.title}</h3>
+        {item.intro && (
+          <p className="text-white/70 text-xs line-clamp-2 mt-1">{item.intro.slice(0, 80)}</p>
+        )}
+      </div>
+      <Link href={`/news/signal/${item.issueNo}`} className="text-primary text-xs">
+        查看本期 →
+      </Link>
+    </div>
+  )
+}
 
-  const [news, setNews] = useState<NewsItem[]>(initialNews)
-  const [originals, setOriginals] = useState<NewsItem[]>(initialOriginals)
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: 20,
-    total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 20),
-  })
-  const [loading, setLoading] = useState(false)
+function ArticleCarouselCard({ item }: { item: Extract<CarouselItem, { kind: 'article' }> }) {
+  return (
+    <Link
+      href={`/news/${item.id}`}
+      className="flex-shrink-0 w-[280px] md:w-[340px] h-48 bg-white border border-[#E2E8F0] rounded-xl snap-start overflow-hidden flex flex-col"
+    >
+      <div className="h-24 w-full overflow-hidden flex-shrink-0">
+        {item.coverImage ? (
+          <img src={item.coverImage} alt={item.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
+        )}
+      </div>
+      <div className="p-3 flex-1 flex flex-col justify-between min-h-0">
+        <h3 className="text-sm font-semibold text-ink line-clamp-2">{item.title}</h3>
+        <p className="text-xs text-mute mt-1">
+          {item.author && <span className="mr-2">{item.author}</span>}
+          {formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true, locale: zhCN })}
+        </p>
+      </div>
+    </Link>
+  )
+}
 
-  // Track if params changed from initial SSR values
-  const [initialCategory] = useState(category)
-  const [initialPage] = useState(page)
+function HeroCarousel({
+  allSignals,
+  recentOriginals,
+}: {
+  allSignals: Array<{ issueNo: number; title: string; publishedAt: string; intro: string | null; participants: any[] }>
+  recentOriginals: NewsItem[]
+}) {
+  const items: CarouselItem[] = [
+    ...allSignals.slice(0, 1).map((s) => ({
+      kind: 'signal' as const,
+      issueNo: s.issueNo,
+      title: s.title,
+      publishedAt: s.publishedAt,
+      intro: s.intro,
+      cities: (s.participants || []).map((p: any) => p.city).filter((c: any): c is string => !!c),
+    })),
+    ...recentOriginals.slice(0, 4).map((a) => ({
+      kind: 'article' as const,
+      id: a.id,
+      title: a.title,
+      summary: a.summary,
+      coverImage: a.coverImage,
+      publishedAt: a.publishedAt,
+      author: a.author ?? null,
+    })),
+  ]
 
-  useEffect(() => {
-    // Skip fetch on initial render — we already have SSR data
-    if (category === initialCategory && page === initialPage) return
+  if (!items.length) return null
 
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (category) params.set('category', category)
-    params.set('page', String(page))
-    params.set('limit', '20')
+  return (
+    <div className="-mx-4 px-4">
+      <div
+        className="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory"
+        style={{ scrollbarWidth: 'none' } as React.CSSProperties}
+      >
+        {items.map((item) =>
+          item.kind === 'signal' ? (
+            <SignalCarouselCard key={`signal-${item.issueNo}`} item={item} />
+          ) : (
+            <ArticleCarouselCard key={`article-${item.id}`} item={item} />
+          )
+        )}
+      </div>
+    </div>
+  )
+}
 
-    const fetchPromises: Promise<void>[] = [
-      fetch(`/api/news?${params}`)
-        .then(res => res.json())
-        .then(data => {
-          setNews(data.data || [])
-          setPagination(data.pagination || { page: 1, limit: 20, total: 0, totalPages: 0 })
-        }),
-    ]
-
-    if (page === 1 && !category) {
-      fetchPromises.push(
-        fetch('/api/news?original=true&limit=3')
-          .then(res => res.json())
-          .then(data => {
-            setOriginals(data.data || [])
-          })
-      )
-    } else {
-      setOriginals([])
-    }
-
-    Promise.all(fetchPromises)
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [category, page, initialCategory, initialPage])
+export function NewsClient({
+  initialNews: _initialNews,
+  initialOriginals: _initialOriginals,
+  initialTotal: _initialTotal,
+  policiesSlot,
+  latestSignal: _latestSignal,
+  allSignals,
+  recentOriginals,
+}: NewsClientProps) {
+  const signals = allSignals ?? []
+  const originals = recentOriginals ?? []
 
   return (
     <div>
-      <PageHeader title={<>创业<span className="text-primary">洞察</span></>} subtitle="OPC 创业者的情报中心" theme="news" />
-            <div className="container mx-auto px-4 py-8">
+      <PageHeader
+        title={<>创业<span className="text-primary">洞察</span></>}
+        subtitle="OPC 创业者的情报中心"
+        theme="news"
+      />
+      <div className="container mx-auto px-4 py-8">
 
-      {/* Signal 横幅（有已发布 Signal 时显示） */}
-      {latestSignal && (
-        <div className="mb-6">
-          <SignalBanner issue={latestSignal} />
+        {/* HeroCarousel */}
+        <div className="mb-8">
+          <HeroCarousel allSignals={signals} recentOriginals={originals} />
         </div>
-      )}
 
-      {/* 政策库（标题下方、资讯上方） */}
-      {policiesSlot && <div className="mb-8">{policiesSlot}</div>}
+        {/* 三栏主体 */}
+        <div className="grid grid-cols-1 md:grid-cols-[9fr_6fr_5fr] gap-6 mt-8">
 
-      {/* Signal 往期入口 */}
-      <div className="mt-2 mb-8">
-        <Link
-          href="/news/signal"
-          className="flex items-center justify-between p-4 bg-surface-card rounded-lg border border-hairline-soft hover:border-primary/40 hover:bg-primary/5 transition-colors"
-        >
-          <span className="text-sm font-medium text-ink">查看所有 Weekly Signal 往期档案</span>
-          <span className="text-primary text-sm">→</span>
-        </Link>
-      </div>
-
-      {/* 分类筛选 */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {categories.map((cat) => (
-          <Link
-            key={cat.value}
-            href={cat.value ? `/news?category=${cat.value}` : '/news'}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              category === cat.value
-                ? 'bg-primary text-white border border-primary'
-                : 'border border-[#E2E8F0] bg-white text-[#64748B] hover:border-primary/50 hover:text-primary'
-            }`}
-          >
-            {cat.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* 原创专区 - 仅首页无筛选时展示 */}
-      {!loading && page === 1 && !category && originals.length > 0 && (
-        <>
-          <OriginalSection items={originals} />
-          <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-lg font-semibold text-secondary">更多洞察</h2>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-        </>
-      )}
-
-      {/* 资讯列表 */}
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse mb-3" />
-              <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
-              <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+          {/* 主栏：Weekly Signal 列表 */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-ink">Weekly Signal</h2>
+              <Link href="/news/signal" className="text-primary text-xs">查看全部</Link>
             </div>
-          ))}
-        </div>
-      ) : news.length > 0 ? (
-        <div className="space-y-4">
-          {news.map((item) => (
-            <NewsCard key={item.id} news={item} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 text-mute">
-          <p>暂无相关内容</p>
-          <p className="text-sm mt-2">请稍后再来查看，或尝试其他分类</p>
-        </div>
-      )}
+            {signals.length > 0 ? (
+              <div className="space-y-3">
+                {signals.slice(0, 5).map((s) => (
+                  <div
+                    key={s.issueNo}
+                    className="bg-white border border-[#E2E8F0] rounded-lg p-4 hover:border-primary/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-primary text-white text-xs px-2 py-0.5 rounded font-medium">
+                        第 {s.issueNo} 期
+                      </span>
+                      <span className="text-xs text-mute">
+                        {s.publishedAt ? new Date(s.publishedAt).toLocaleDateString('zh-CN') : ''}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-ink text-sm mb-1">{s.title}</h3>
+                    {s.intro && (
+                      <p className="text-mute text-xs line-clamp-2 mb-2">{s.intro.slice(0, 60)}</p>
+                    )}
+                    {(s.participants || []).length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {(s.participants as any[]).slice(0, 3).map((p: any, i: number) => (
+                          p.city ? (
+                            <span key={i} className="bg-surface-card text-mute text-xs px-2 py-0.5 rounded-full">
+                              {p.city}
+                            </span>
+                          ) : null
+                        ))}
+                      </div>
+                    )}
+                    <Link href={`/news/signal/${s.issueNo}`} className="text-primary text-xs">
+                      查看 →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-mute text-sm py-4 text-center">每周四更新</p>
+            )}
+          </div>
 
-      {/* 分页 */}
-      {!loading && pagination.totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          {page > 1 && (
-            <Link
-              href={`/news?${category ? `category=${category}&` : ''}page=${page - 1}`}
-              className="px-4 py-2 rounded-lg bg-surface-card hover:bg-gray-200 transition-colors"
-            >
-              上一页
-            </Link>
-          )}
-          <span className="px-4 py-2 text-mute">
-            {page} / {pagination.totalPages}
-          </span>
-          {page < pagination.totalPages && (
-            <Link
-              href={`/news?${category ? `category=${category}&` : ''}page=${page + 1}`}
-              className="px-4 py-2 rounded-lg bg-surface-card hover:bg-gray-200 transition-colors"
-            >
-              下一页
-            </Link>
-          )}
+          {/* 次栏：OPC 圈原创（无数据时渲染空容器保持列布局） */}
+          <div>
+            {originals.length > 0 && (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold text-ink">OPC 圈原创</h2>
+                  <Link href="/news" className="text-primary text-xs">查看全部</Link>
+                </div>
+                <div>
+                  {originals.slice(0, 5).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/news/${item.id}`}
+                      className="block border-b border-[#E2E8F0] py-3 group"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs px-2 py-0.5 rounded ${categoryColors[item.category] || 'bg-surface-card text-mute'}`}>
+                          {categoryLabels[item.category] || item.category}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-ink line-clamp-2 group-hover:text-primary transition-colors">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-mute mt-1">
+                        {formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true, locale: zhCN })}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 侧栏：政策库 */}
+          <div>
+            {policiesSlot && (
+              <>
+                <h2 className="font-semibold text-ink mb-4">政策库</h2>
+                {policiesSlot}
+              </>
+            )}
+          </div>
+
         </div>
-      )}
       </div>
     </div>
   )
